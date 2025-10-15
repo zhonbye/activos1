@@ -112,6 +112,38 @@
     scrollbar-width: thin;
     scrollbar-color: rgba(0,0,0,0.2) rgba(0,0,0,0.05);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.barra-progreso-contenedor {
+position: absolute;
+  width: 100%;
+  height: 3px;
+  background-color: #7ae7c628;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.barra-progreso {
+  height: 100%;
+  width: 0%; /* Comienza en 0% */
+  background-color: #6765e6;
+  border-radius: 10px;
+  transition: width 0.5s ease-out; /* Añade una transición suave */
+}
+
     </style>
 
     <div class="col-auto">
@@ -248,6 +280,17 @@
     <div class="col ">
 
         <div id="mensaje" class="w-100"></div>
+     
+
+
+
+<div class="barra-progreso-contenedor">
+  <div id="miBarra" class="barra-progreso "></div>
+</div>
+
+
+
+
         <div id="contenido" class="bg-dansger flex-grow-1 p-4 m-0 ">
             <h2>Panel de Usuario</h2>
             <p>Selecciona una opción del menú para comenzar hh.</p>
@@ -440,7 +483,7 @@ $('#contenido').on('click', '.toggleSidebar', function() {
                 '</strong> <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" ></button></div>'
             );
             $("#mensaje").append(nuevaAlerta);
-            console.log(mensaje);
+            // console.log(mensaje);
             if ($("#mensaje .alert-flotante").length > 10) {
                 $("#mensaje .alert-flotante").first().remove();
             }

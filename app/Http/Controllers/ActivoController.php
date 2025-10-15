@@ -221,6 +221,8 @@ class ActivoController extends Controller
     $activos = Activo::activos()->with(['unidad','estado','categoria'])->paginate(20);
     $categorias = Categoria::all();
     $unidades = Unidad::all();
+    sleep(5);
+
     return view('user.activos.listar', compact('activos','categorias','unidades'));
 }
 

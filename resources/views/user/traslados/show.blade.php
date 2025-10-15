@@ -39,7 +39,8 @@
                     <i class="bi bi-plus-circle text-primary fs-2 mb-2"></i>
                     <h5 class="fw-semibold">Nuevo Traslado</h5>
                     <p class="text-muted small mb-3">Registra un nuevo acta de traslado.</p>
-                    <button class="btn btn-outline-primary w-100" id="btn_nuevo_traslado">
+                    <button class="btn btn-outline-primary w-100" id="btn_nuevo_traslado" data-bs-toggle="modal"
+                data-bs-target="#modalTraslado">
                         <i class="bi bi-file-earmark-plus"></i> Crear Acta
                     </button>
                 </div>
@@ -126,6 +127,7 @@
             </div>
             <div class="modal-body" id="modal_body_traslado">
                 <!-- Aquí se cargará la vista parcial -->
+                Cargando contenido...
             </div>
         </div>
     </div>
@@ -224,7 +226,7 @@
                 method: "GET",
                 success: function(view) {
                     $('#modal_body_traslado').html(view);
-                    $('#modalTraslado').modal('show'); // abre el modal
+                    // $('#modalTraslado').modal('show'); // abre el modal
                 },
                 error: function(xhr) {
                     console.error(xhr.responseText);

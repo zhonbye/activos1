@@ -104,30 +104,34 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: url("{{ asset('img/hwk.jpg') }}") no-repeat center center fixed;
+            /* background: url("{{ asset('img/hwk.jpg') }}") no-repeat center center fixed; */
             background-size: cover;
             filter: blur(18px);
             z-index: -1;
         }
 
         #contenido {
-    background-color: var(--color-fondo-secundario);
-    max-width: 100%;
-    width: 100%;
-    min-width: 0;
-    height: 100vh;
-    max-height: 100vh;
-    overflow-x: hidden;
-    overflow-y: auto; /* scroll vertical solo si es necesario */
-    padding: 1rem;
-    word-break: break-word;
-    overflow-wrap: break-word;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none;  /* IE y Edge */
-}
-#contenido::-webkit-scrollbar {
-    display: none;
-}
+            background-color: var(--color-fondo-secundario);
+            max-width: 100%;
+            width: 100%;
+            min-width: 0;
+            height: 100vh;
+            max-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            /* scroll vertical solo si es necesario */
+            padding: 1rem;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE y Edge */
+        }
+
+        #contenido::-webkit-scrollbar {
+            display: none;
+        }
 
 
         .sidebar {
@@ -350,14 +354,17 @@
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- printThis -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/printThis/1.15.0/printThis.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-docx-js/0.4.1/html-docx.js"></script>
+    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/printThis/1.15.0/printThis.min.js"></script> --}}
+    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/html-docx-js/0.4.1/html-docx.js"></script> --}}
 
     <div class="container-fluid  p-0 m-0">
         <div class="row g-0 " style="flex-wrap: nowrap; height: 90vh; max-width: 100%; position: relative;">
             @yield('contenido')
         </div>
     </div>
+
+
+    {{-- <div id="contenido"></div> --}}
 
 
 
@@ -375,47 +382,50 @@
 
 
 
- $(function () {
-  const key = 'rutaDefecto', $input = $('#rutaDefecto');
-  const guardar = t => localStorage.setItem(key, t), leer = () => localStorage.getItem(key);
+            $(function() {
+                const key = 'rutaDefecto',
+                    $input = $('#rutaDefecto');
+                const guardar = t => localStorage.setItem(key, t),
+                    leer = () => localStorage.getItem(key);
 
-  function buscarEnlace(texto) {
-    const lower = texto.toLowerCase();
-    return $('.menu a').filter(function () {
-      return $(this).text().toLowerCase().includes(lower);
-    }).first();
-  }
+                function buscarEnlace(texto) {
+                    const lower = texto.toLowerCase();
+                    return $('.menu a').filter(function() {
+                        return $(this).text().toLowerCase().includes(lower);
+                    }).first();
+                }
 
-  const guardada = leer();
-  if (guardada) {
-    $input.val(guardada);
-    const a = buscarEnlace(guardada);
-    if (a.length) cargarContenido(a.attr('href'));
-  }
+                const guardada = leer();
+                if (guardada) {
+                    $input.val(guardada);
+                    const a = buscarEnlace(guardada);
+                    if (a.length) cargarContenido(a.attr('href'));
+                }
 
-  $('#guardarRuta').on('click', () => {
-    const txt = $input.val().trim();
-    if (!txt) return alert('Escribe el nombre del ítem del menú.');
-    const a = buscarEnlace(txt);
-    if (!a.length) return alert('No se encontró ese ítem del menú.');
-    guardar(txt);
-    alert('Ruta guardada.');
-    cargarContenido(a.attr('href'));
-  });
-});
-
-
-
+                $('#guardarRuta').on('click', () => {
+                    const txt = $input.val().trim();
+                    if (!txt) return mensaje('Escribe el nombre del ítem del menú.', 'warning');
+                    const a = buscarEnlace(txt);
+                    if (!a.length) return mensaje('No se encontró ese ítem del menú.',
+                        'danger       ');
+                    guardar(txt);
+                    mensaje('Ruta guardada.', 'success');
+                    cargarContenido(a.attr('href'));
+                });
+            });
 
 
 
-    // 🔹 También guardar cuando cambia el input
-    // $inputRuta.on('change', function () {
-    //     const nuevaRuta = $(this).val().trim();
-    //     if (nuevaRuta) {
-    //         localStorage.setItem(storageKey, nuevaRuta);
-    //     }
-    // });
+
+
+
+            // 🔹 También guardar cuando cambia el input
+            // $inputRuta.on('change', function () {
+            //     const nuevaRuta = $(this).val().trim();
+            //     if (nuevaRuta) {
+            //         localStorage.setItem(storageKey, nuevaRuta);
+            //     }
+            // });
 
 
 
@@ -426,19 +436,132 @@
             // $('.custtom').trigger('click');
 
             // $('#contenido').on('click', '.cargar', function(e) {
-            function cargarContenido(url) {
-                if (!url) {
-                    $('#contenido').html('<p style="color:red;">No se ha proporcionado una URL.</p>');
-                    return;
-                }
+            // function cargarContenido(url) {
+            //     if (!url) {
+            //         $('#contenido').html('<p style="color:red;">No se ha proporcionado una URL.</p>');
+            //         return;
+            //     }
 
 
+            //     // Simular progreso
+            //     let width = 0;
+            //     let interval = setInterval(() => {
+            //         if (width <
+            //             90) { // Límite antes de completar (90% para que no llegue al 100% hasta terminar)
+            //             width += Math.random() * 5; // Incremento aleatorio para efecto visual
+            //             $('#progress-bar').css('width', width + '%');
+            //         }
+            //     }, 100); // cada 100ms
 
-                $.get(url, function(data) {
-                    $('#contenido').html(data);
-                }).fail(function(jqXHR, textStatus, errorThrown) {
-                    $('#contenido').html(
-                        `<div style="
+
+            //     $.get(url, function(data) {
+            //         $('#contenido').html(data);
+            //     }).fail(function(jqXHR, textStatus, errorThrown) {
+            //         $('#contenido').html(
+            //             `<div style="
+            //             color: red;
+            //             padding: 10px;
+            //             border: 1px solid red;
+            //             background: #ffe6e6;
+            //             max-width: 100%;
+            //             width: fit-content;
+            //             word-wrap: break-word;
+            //             box-sizing: border-box;
+            //             ">
+            // <strong>Error al cargar el contenido:</strong><br>
+            // ${ jqXHR.responseText }
+            // </div>`
+            //         );
+            //         // ${jqXHR.responseText || textStatus + ': ' + errorThrown}
+            //         //   console.error('Error AJAX:', textStatus, errorThrown);
+            //     });
+            // }
+
+let ajaxActual = null; // para guardar la petición activa
+
+function cargarContenido(url) {
+    if (!url) {
+        $('#contenido').html('<p style="color:red;">No se ha proporcionado una URL.</p>');
+        return;
+    }
+
+    // Si hay una petición activa, cancelarla
+    if (ajaxActual) {
+        ajaxActual.abort();
+        ajaxActual = null;
+    }
+
+    // Reiniciar barra visualmente SIN glitch
+    $('#miBarra').stop(true, true).css({ 'transition': 'none', 'width': '0%' });
+    // $('#miBarra').stop(true, true).css({ 'transition': 'none', 'height': '100%' });
+    $('.barra-progreso-contenedor').show();
+
+    // Forzar reflujo para que el navegador aplique el 0%
+    $('#miBarra')[0].offsetHeight; 
+    $('#miBarra').css('transition', 'width 0.5s ease-out');
+
+    // Crear la nueva petición AJAX
+    ajaxActual = $.ajax({
+        url: url,
+        type: "GET",
+        xhr: function() {
+    var xhr = $.ajaxSettings.xhr();
+
+    let width = 0;
+    // Simular progreso mientras se descarga
+    let simInterval = setInterval(() => {
+        if (width < 90) {
+            width += Math.random() * 5; // progreso visual variable
+            $('#miBarra').css('width', width + '%');
+        }
+    }, 150);
+
+    xhr.onprogress = function(evt) {
+        console.log("Evento progreso recibido:", evt);
+        console.log("lengthComputable:", evt.lengthComputable, "loaded:", evt.loaded, "total:", evt.total);
+
+        if (evt.lengthComputable) {
+            let porcentaje = Math.floor((evt.loaded / evt.total) * 100);
+            $('#miBarra').css('width', porcentaje + '%');
+            console.log("Porcentaje real:", porcentaje + "%");
+        } else {
+            // si no se puede medir, dejamos que el intervalo maneje el avance
+            console.log("No se puede calcular el porcentaje (Content-Length ausente)");
+        }
+    };
+
+    // Cuando termine (éxito o error), detener simulación
+    xhr.onloadend = function() {
+        clearInterval(simInterval);
+        $('#miBarra').css('width', '100%');
+        setTimeout(() => $('.barra-progreso-contenedor').fadeOut(300), 400);
+    };
+
+    return xhr;
+},
+
+        success: function(data) {
+            // $('#contenido').html(data);
+            $('#miBarra').css('width', '100%');
+
+             setTimeout(() => {
+        $('#contenido').html(data);
+
+        // Oculta suavemente la barra
+        setTimeout(() => {
+            $('.barra-progreso-contenedor').fadeOut(300);
+            $('#miBarra').css('width', '0%');
+        }, 500);
+
+    }, 0); // ← 5 segundos de retraso
+
+        
+            ajaxActual = null; // liberar
+        },
+        error: function(xhr, status, error) {
+            if (status !== 'abort') { // no mostrar error si fue cancelada
+                $('#contenido').html(`
+                    <div style="
                         color: red;
                         padding: 10px;
                         border: 1px solid red;
@@ -446,22 +569,25 @@
                         max-width: 100%;
                         width: fit-content;
                         word-wrap: break-word;
-                        box-sizing: border-box;
-                        ">
-            <strong>Error al cargar el contenido:</strong><br>
-            ${ jqXHR.responseText }
-            </div>`
-                    );
-                    // ${jqXHR.responseText || textStatus + ': ' + errorThrown}
-                    //   console.error('Error AJAX:', textStatus, errorThrown);
-                });
+                        box-sizing: border-box;">
+                        <strong>Error al cargar el contenido:</strong><br>
+                        ${xhr.responseText}
+                    </div>
+                `);
             }
+            $('#miBarra').css('width', '0%');
+            ajaxActual = null;
+        }
+    });
+}
 
 
 
 
 
             $('.cargar').on('click', function(e) {
+
+
                 e.preventDefault(); // Evita que se siga el enlace
 
                 // Quitar clase 'selected' de otros enlaces
@@ -474,9 +600,12 @@
                 let url = $(this).attr('href') || $(this).data('url');
 
 
-
                 // Cargar contenido dinámico con AJAX
                 cargarContenido(url)
+
+
+
+
 
             })
 
