@@ -104,7 +104,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            /* background: url("{{ asset('img/hwk.jpg') }}") no-repeat center center fixed; */
+            background: url("{{ asset('/img/hwk.jpg') }}") no-repeat center center fixed;
             background-size: cover;
             filter: blur(18px);
             z-index: -1;
@@ -343,6 +343,33 @@
         .sidebar.close .dropdown-toggle .text {
             display: none;
         }
+
+
+
+        .main-item:focus {
+            outline: none;
+            /* quitar el outline por defecto */
+            background-color: #e7f1ff !important;
+            /* fondo azul suave */
+            border: 2px solid #0d6efd !important;
+            /* borde azul bootstrap */
+            border-radius: 6px;
+            /* margin: 2px; ese margen azul que querías */
+            box-sizing: border-box;
+            /* para que el tamaño no se desajuste por el borde/margen */
+        }
+
+        .cargar:focus {
+            outline: none;
+            /* quitar el outline por defecto */
+            background-color: #e7f1ff !important;
+            /* fondo azul suave */
+            border: 2px solid #0d6efd !important;
+            /* borde azul bootstrap */
+            border-radius: 19px;
+            /* margin: 2px; ese margen azul que querías */
+            box-sizing: border-box;/
+        }
     </style>
 
     @yield('styles')
@@ -363,6 +390,13 @@
         </div>
     </div>
 
+    <!-- Aquí el menú contextual (inicialmente oculto) -->
+    <!-- Menú contextual Bootstrap -->
+    <ul id="customContextMenu" class="dropdown-menu" style="display:none; position:absolute;">
+        <li><button class="dropdown-item" id="makeDefaultBtn">Hacer predeterminada</button></li>
+        <li><button class="dropdown-item" id="resetBtn">Restablecer</button></li>
+    </ul>
+
 
     {{-- <div id="contenido"></div> --}}
 
@@ -370,197 +404,194 @@
 
     <script>
         const sidebar = document.querySelector('.sidebar');
-        const toggleBtn = sidebar.querySelector('.toggle');
-        const menuItems = sidebar.querySelectorAll('li.menu-item');
+        const toggleBtn = sidebar?.querySelector('.toggle'); // si sidebar es null, toggleBtn será undefined
+        const menuItems = sidebar?.querySelectorAll('li.menu-item') || []; // si null, devuelve array vacío
         const body = document.body;
-
+        const key = 'rutaDefecto';
+        const guardar = ruta => localStorage.setItem(key, ruta);
+        const leer = () => localStorage.getItem(key);
+        const rutaGuardada = leer();
+        let ajaxActual = null;
 
         $(document).ready(function() {
+            if (rutaGuardada) {
+                const enlace = $(`.menu a[href='${rutaGuardada}']`);
+                if (enlace.length) {
+                    cargarContenido(rutaGuardada);
+                } else {
+                    mensaje('La ruta guardada no se encontró en el menú.', 'danger');
+                }
+            }
 
+            function buscarEnlace(texto) {
+                const lower = texto.toLowerCase();
+                return $('.menu a').filter(function() {
+                    return $(this).text().toLowerCase().includes(lower);
+                }).first();
+            }
 
+            // Mostrar menú contextual al hacer click derecho sobre li dentro de submenu
+            $('.submenu > li').on('contextmenu', function(e) {
+                e.preventDefault();
+                const $contextMenu = $('#customContextMenu');
+                $contextMenu.data('targetElement', this);
 
+                const $li = $(this);
+                const offset = $li.offset();
+                const liWidth = $li.outerWidth();
 
+                $contextMenu.css({
+                    display: 'block',
+                    top: offset.top,
+                    left: offset.left + liWidth
+                }).attr('aria-hidden', 'false');
 
+                return false;
+            });
 
-            $(function() {
-                const key = 'rutaDefecto',
-                    $input = $('#rutaDefecto');
-                const guardar = t => localStorage.setItem(key, t),
-                    leer = () => localStorage.getItem(key);
+            // Ocultar menú contextual al hacer clic fuera
+            $(document).on('click', function(e) {
+                const $contextMenu = $('#customContextMenu');
+                if (!$(e.target).closest('#customContextMenu').length) {
+                    $contextMenu.hide().attr('aria-hidden', 'true');
+                }
+            });
 
-                function buscarEnlace(texto) {
-                    const lower = texto.toLowerCase();
-                    return $('.menu a').filter(function() {
-                        return $(this).text().toLowerCase().includes(lower);
-                    }).first();
+            // Botón "Hacer predeterminada"
+            // En el botón "Hacer predeterminada"
+            $('#makeDefaultBtn').on('click', function(e) {
+                e.preventDefault();
+                const $contextMenu = $('#customContextMenu');
+                const $target = $contextMenu.data('targetElement');
+                if (!$target) {
+                    mensaje('No se pudo identificar el elemento seleccionado.', 'danger');
+                    $contextMenu.hide();
+                    return;
                 }
 
-                const guardada = leer();
-                if (guardada) {
-                    $input.val(guardada);
-                    const a = buscarEnlace(guardada);
-                    if (a.length) cargarContenido(a.attr('href'));
+                const texto = $target.textContent.trim();
+                const enlace = buscarEnlace(texto);
+
+                if (!enlace.length) {
+                    mensaje('No se encontró el ítem en el menú para guardar.', 'danger');
+                    $contextMenu.hide();
+                    return;
                 }
 
-                $('#guardarRuta').on('click', () => {
-                    const txt = $input.val().trim();
-                    if (!txt) return mensaje('Escribe el nombre del ítem del menú.', 'warning');
-                    const a = buscarEnlace(txt);
-                    if (!a.length) return mensaje('No se encontró ese ítem del menú.',
-                        'danger       ');
-                    guardar(txt);
-                    mensaje('Ruta guardada.', 'success');
-                    cargarContenido(a.attr('href'));
-                });
+                const href = enlace.attr('href');
+                if (!href || href === '#' || href.trim() === '') {
+                    mensaje('El ítem seleccionado no tiene una ruta válida.', 'danger');
+                    $contextMenu.hide();
+                    return;
+                }
+
+                guardar(href);
+                mensaje('Ruta guardada como predeterminada.', 'success');
+                //   cargarContenido(href);
+                $contextMenu.hide();
+            });
+
+            $('#btnRestablecerRutas').on('click', function() {
+                localStorage.removeItem('rutaDefecto'); // borra solo esa ruta guardada
+                mensaje('Se han restablecido todas las rutas guardadas.', 'success');
+
+                // Opcional: recargar contenido predeterminado o página si quieres
+                // location.reload(); // si quieres refrescar la página para que el cambio se note
             });
 
 
 
 
+             // para guardar la petición activa
+
+            function cargarContenido(url) {
+                if (!url) {
+                    $('#contenido').html('<p style="color:red;">No se ha proporcionado una URL.</p>');
+                    return;
+                }
+
+                // Si hay una petición activa, cancelarla
+                if (ajaxActual) {
+                    ajaxActual.abort();
+                    ajaxActual = null;
+                }
+
+                // Reiniciar barra visualmente SIN glitch
+                $('#miBarra').stop(true, true).css({
+                    'transition': 'none',
+                    'width': '0%'
+                });
+                // $('#miBarra').stop(true, true).css({ 'transition': 'none', 'height': '100%' });
+                $('.barra-progreso-contenedor').show();
+
+                // Forzar reflujo para que el navegador aplique el 0%
+                $('#miBarra')[0].offsetHeight;
+                $('#miBarra').css('transition', 'width 0.5s ease-out');
+
+                // Crear la nueva petición AJAX
+                ajaxActual = $.ajax({
+                    url: url,
+                    type: "GET",
+                    xhr: function() {
+                        var xhr = $.ajaxSettings.xhr();
+
+                        let width = 0;
+                        // Simular progreso mientras se descarga
+                        let simInterval = setInterval(() => {
+                            if (width < 90) {
+                                width += Math.random() * 5; // progreso visual variable
+                                $('#miBarra').css('width', width + '%');
+                            }
+                        }, 150);
+
+                        xhr.onprogress = function(evt) {
+                            // console.log("Evento progreso recibido:", evt);
+                            // console.log("lengthComputable:", evt.lengthComputable, "loaded:", evt
+                            //     .loaded, "total:", evt.total);
+
+                            if (evt.lengthComputable) {
+                                let porcentaje = Math.floor((evt.loaded / evt.total) * 100);
+                                $('#miBarra').css('width', porcentaje + '%');
+                                // console.log("Porcentaje real:", porcentaje + "%");
+                            } else {
+                                // si no se puede medir, dejamos que el intervalo maneje el avance
+                                // console.log(
+                                //     "No se puede calcular el porcentaje (Content-Length ausente)"
+                                // );
+                            }
+                        };
+
+                        // Cuando termine (éxito o error), detener simulación
+                        xhr.onloadend = function() {
+                            clearInterval(simInterval);
+                            $('#miBarra').css('width', '100%');
+                            setTimeout(() => $('.barra-progreso-contenedor').fadeOut(300), 400);
+                        };
+
+                        return xhr;
+                    },
+
+                    success: function(data) {
+                        // $('#contenido').html(data);
+                        $('#miBarra').css('width', '100%');
+
+                        setTimeout(() => {
+                            $('#contenido').html(data);
+
+                            // Oculta suavemente la barra
+                            setTimeout(() => {
+                                $('.barra-progreso-contenedor').fadeOut(300);
+                                $('#miBarra').css('width', '0%');
+                            }, 500);
+
+                        }, 0); // ← 5 segundos de retraso
 
 
-            // 🔹 También guardar cuando cambia el input
-            // $inputRuta.on('change', function () {
-            //     const nuevaRuta = $(this).val().trim();
-            //     if (nuevaRuta) {
-            //         localStorage.setItem(storageKey, nuevaRuta);
-            //     }
-            // });
-
-
-
-
-            // const urlPorDefecto = $('#primario').attr('href');
-            // cargarContenido(urlPorDefecto)
-
-            // $('.custtom').trigger('click');
-
-            // $('#contenido').on('click', '.cargar', function(e) {
-            // function cargarContenido(url) {
-            //     if (!url) {
-            //         $('#contenido').html('<p style="color:red;">No se ha proporcionado una URL.</p>');
-            //         return;
-            //     }
-
-
-            //     // Simular progreso
-            //     let width = 0;
-            //     let interval = setInterval(() => {
-            //         if (width <
-            //             90) { // Límite antes de completar (90% para que no llegue al 100% hasta terminar)
-            //             width += Math.random() * 5; // Incremento aleatorio para efecto visual
-            //             $('#progress-bar').css('width', width + '%');
-            //         }
-            //     }, 100); // cada 100ms
-
-
-            //     $.get(url, function(data) {
-            //         $('#contenido').html(data);
-            //     }).fail(function(jqXHR, textStatus, errorThrown) {
-            //         $('#contenido').html(
-            //             `<div style="
-            //             color: red;
-            //             padding: 10px;
-            //             border: 1px solid red;
-            //             background: #ffe6e6;
-            //             max-width: 100%;
-            //             width: fit-content;
-            //             word-wrap: break-word;
-            //             box-sizing: border-box;
-            //             ">
-            // <strong>Error al cargar el contenido:</strong><br>
-            // ${ jqXHR.responseText }
-            // </div>`
-            //         );
-            //         // ${jqXHR.responseText || textStatus + ': ' + errorThrown}
-            //         //   console.error('Error AJAX:', textStatus, errorThrown);
-            //     });
-            // }
-
-let ajaxActual = null; // para guardar la petición activa
-
-function cargarContenido(url) {
-    if (!url) {
-        $('#contenido').html('<p style="color:red;">No se ha proporcionado una URL.</p>');
-        return;
-    }
-
-    // Si hay una petición activa, cancelarla
-    if (ajaxActual) {
-        ajaxActual.abort();
-        ajaxActual = null;
-    }
-
-    // Reiniciar barra visualmente SIN glitch
-    $('#miBarra').stop(true, true).css({ 'transition': 'none', 'width': '0%' });
-    // $('#miBarra').stop(true, true).css({ 'transition': 'none', 'height': '100%' });
-    $('.barra-progreso-contenedor').show();
-
-    // Forzar reflujo para que el navegador aplique el 0%
-    $('#miBarra')[0].offsetHeight; 
-    $('#miBarra').css('transition', 'width 0.5s ease-out');
-
-    // Crear la nueva petición AJAX
-    ajaxActual = $.ajax({
-        url: url,
-        type: "GET",
-        xhr: function() {
-    var xhr = $.ajaxSettings.xhr();
-
-    let width = 0;
-    // Simular progreso mientras se descarga
-    let simInterval = setInterval(() => {
-        if (width < 90) {
-            width += Math.random() * 5; // progreso visual variable
-            $('#miBarra').css('width', width + '%');
-        }
-    }, 150);
-
-    xhr.onprogress = function(evt) {
-        console.log("Evento progreso recibido:", evt);
-        console.log("lengthComputable:", evt.lengthComputable, "loaded:", evt.loaded, "total:", evt.total);
-
-        if (evt.lengthComputable) {
-            let porcentaje = Math.floor((evt.loaded / evt.total) * 100);
-            $('#miBarra').css('width', porcentaje + '%');
-            console.log("Porcentaje real:", porcentaje + "%");
-        } else {
-            // si no se puede medir, dejamos que el intervalo maneje el avance
-            console.log("No se puede calcular el porcentaje (Content-Length ausente)");
-        }
-    };
-
-    // Cuando termine (éxito o error), detener simulación
-    xhr.onloadend = function() {
-        clearInterval(simInterval);
-        $('#miBarra').css('width', '100%');
-        setTimeout(() => $('.barra-progreso-contenedor').fadeOut(300), 400);
-    };
-
-    return xhr;
-},
-
-        success: function(data) {
-            // $('#contenido').html(data);
-            $('#miBarra').css('width', '100%');
-
-             setTimeout(() => {
-        $('#contenido').html(data);
-
-        // Oculta suavemente la barra
-        setTimeout(() => {
-            $('.barra-progreso-contenedor').fadeOut(300);
-            $('#miBarra').css('width', '0%');
-        }, 500);
-
-    }, 0); // ← 5 segundos de retraso
-
-        
-            ajaxActual = null; // liberar
-        },
-        error: function(xhr, status, error) {
-            if (status !== 'abort') { // no mostrar error si fue cancelada
-                $('#contenido').html(`
+                        ajaxActual = null; // liberar
+                    },
+                    error: function(xhr, status, error) {
+                        if (status !== 'abort') { // no mostrar error si fue cancelada
+                            $('#contenido').html(`
                     <div style="
                         color: red;
                         padding: 10px;
@@ -574,27 +605,25 @@ function cargarContenido(url) {
                         ${xhr.responseText}
                     </div>
                 `);
+                        }
+                        $('#miBarra').css('width', '0%');
+                        ajaxActual = null;
+                    }
+                });
             }
-            $('#miBarra').css('width', '0%');
-            ajaxActual = null;
-        }
-    });
-}
 
 
 
 
 
             $('.cargar').on('click', function(e) {
-
-
                 e.preventDefault(); // Evita que se siga el enlace
-
                 // Quitar clase 'selected' de otros enlaces
                 $('ul.submenu li a.selected').removeClass('selected');
 
                 // Añadir clase 'selected' al actual
                 $(this).addClass('selected');
+
 
                 // Obtener URL desde href o data-url
                 let url = $(this).attr('href') || $(this).data('url');
@@ -602,10 +631,6 @@ function cargarContenido(url) {
 
                 // Cargar contenido dinámico con AJAX
                 cargarContenido(url)
-
-
-
-
 
             })
 
@@ -635,30 +660,41 @@ function cargarContenido(url) {
 
 
         // Toggle sidebar width
-        toggleBtn.addEventListener('click', () => {
-            // Close all submenus if minimized
-            // sidebar.classList.toggle('close');
-            // if (sidebar.classList.contains('close')) {
-            //     menuItems.forEach(item => {
-            //         item.classList.remove('open');
-            //     });
-            // }
-
-            menuItems.forEach(item => {
-                item.classList.remove('open');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                menuItems.forEach(item => {
+                    item.classList.remove('open');
+                });
+                // Paso 2: esperar 300ms y luego cerrar sidebar
+                setTimeout(() => {
+                    sidebar.classList.toggle('close');
+                }, 30); // Espera igual a la transición de los submenús
             });
+        }
 
-            // Paso 2: esperar 300ms y luego cerrar sidebar
-            setTimeout(() => {
-                sidebar.classList.toggle('close');
-            }, 30); // Espera igual a la transición de los submenús
 
-        });
 
         menuItems.forEach(item => {
             const mainItem = item.querySelector('.main-item');
             const submenu = item.querySelector('.submenu');
 
+
+
+            mainItem.addEventListener('keydown', e => {
+                if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+                    e.preventDefault();
+                    mainItem.click(); // simula el click para reutilizar la lógica
+                }
+            });
+
+
+
+
+
+            // Al cargar la página, deshabilitar tab en enlaces del submenu
+            if (submenu) {
+                submenu.querySelectorAll('a').forEach(link => link.setAttribute('tabindex', '-1'));
+            }
             mainItem.addEventListener('click', e => {
                 e.preventDefault();
 
@@ -667,23 +703,29 @@ function cargarContenido(url) {
                     sidebar.classList.remove('close');
                 }
 
-                // Abrir/cerrar submenu
                 const isOpen = item.classList.contains('open');
 
-                // Cerrar todos los demás submenus
-                // const keepOpen = document.getElementById('keepOpen');
-                // if (!keepOpen.checked) {
+                // Cerrar todos los demás submenus y deshabilitar tab
                 menuItems.forEach(i => {
                     if (i !== item) {
                         i.classList.remove('open');
+                        const otherSubmenu = i.querySelector('.submenu');
+                        if (otherSubmenu) {
+                            otherSubmenu.querySelectorAll('a').forEach(link => link.setAttribute(
+                                'tabindex', '-1'));
+                        }
                     }
                 });
-                // }
+
 
                 if (isOpen) {
+                    // Cerrar este submenu y deshabilitar tab
                     item.classList.remove('open');
+                    submenu.querySelectorAll('a').forEach(link => link.setAttribute('tabindex', '-1'));
                 } else {
+                    // Abrir submenu y habilitar tab
                     item.classList.add('open');
+                    submenu.querySelectorAll('a').forEach(link => link.removeAttribute('tabindex'));
                 }
             });
         });

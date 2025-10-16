@@ -4,6 +4,7 @@ use App\Http\Controllers\ActivoController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\AjustesController;
 use App\Http\Controllers\BajaController;
+use App\Http\Controllers\DevolucionController;
 use App\Http\Controllers\DoctoController;
 use App\Http\Controllers\EntregaController;
 use App\Http\Controllers\InventarioController;
@@ -143,6 +144,7 @@ Route::get('/bajas', [BajaController::class, 'create'])->name('bajas.create');
 // Route::get('/traslados/registrar', [TrasladoController::class, 'create'])->name('traslados.create');
 // Route::post('/traslados/store', [TrasladoController::class, 'store'])->name('traslados.store');
 Route::get('/traslados/mostrarBuscar', [TrasladoController::class, 'mostrarBuscar'])->name('traslados.mostrarBuscar');
+Route::get('/traslados/mostrarInventario', [TrasladoController::class, 'mostrarInventario'])->name('traslados.montrarInventario');
 Route::get('/traslados/{id}', [TrasladoController::class,'show'])->name('traslados.show');
 Route::get('/traslados', [TrasladoController::class, 'create'])->name('traslados.create');
 Route::post('/traslados/guardar', [TrasladoController::class, 'store'])->name('traslados.store');
@@ -158,19 +160,16 @@ Route::put('/traslados/{id}/update', [TrasladoController::class, 'update'])->nam
 // Vista parcial de tabla de activos
 Route::get('/traslados/{id}/activos', [TrasladoController::class,'tablaActivos']);
 Route::get('/traslados/{id}/detalle', [TrasladoController::class, 'detalleParcial'])->name('traslados.detalleParcial');
-
-// Agregar activo desde el frontend (ya tienes ajax)
-
-// Editar cantidad / observaciones
 Route::post('/traslados/{id}/activos/editar', [TrasladoController::class,'editarActivo']);
-
-// Eliminar activo
 Route::post('/traslados/{id}/activos/eliminar', [TrasladoController::class,'eliminarActivo']);
 
 
+//                                                                      SECCION DEVOLUCIONES
 
+// Route::post('/traslados/{id}/activos/eliminar', [TrasladoController::class,'eliminarActivo']);
 
-
+Route::get('/devoluciones/mostrarBuscar', [DevolucionController::class, 'mostrarBuscar'])->name('devolucion.mostrarBuscar');
+Route::get('/devoluciones/{id}', [DevolucionController::class,'show'])->name('devolucion.show');
 
 
 
@@ -184,3 +183,4 @@ Route::post('/traslados/{id}/activos/eliminar', [TrasladoController::class,'elim
 
 
 Route::get('/prueba', [TrasladoController::class, 'prueba'])->name('pruebas');
+

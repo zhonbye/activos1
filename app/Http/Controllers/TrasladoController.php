@@ -19,7 +19,7 @@ class TrasladoController extends Controller
      */
     public function prueba()
     {
-       
+
         // Retornar vista con variables
         return view('user.prueba');
     }
@@ -86,6 +86,27 @@ class TrasladoController extends Controller
 
 
     public function mostrarBuscar()
+    {
+        try {
+            $servicios = Servicio::all(); // Para llenar los selects
+            return view('user.traslados.parcial_buscar', compact('servicios'));
+        } catch (\Exception $e) {
+            // Opcional: loguear el error
+            // \Log::error('Error al cargar parcial de búsqueda: '.$e->getMessage());
+
+            // Si quieres devolver JSON (para AJAX)
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ocurrió un error al cargar la vista de búsqueda.'
+                ], 500);
+            }
+
+            // Para petición normal, devolver vista con mensaje de error
+            return view('user.traslados.parcial_buscar')->with(['message' => 'Ocurrió un error al cargar la vista de búsqueda.']);
+        }
+    }
+        public function mostrarInventario()
     {
         try {
             $servicios = Servicio::all(); // Para llenar los selects

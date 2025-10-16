@@ -4,6 +4,20 @@
 
 @section('styles')
 <style>
+       body {
+            /* background: url("{{ asset('img/hwk.jpg') }}") no-repeat center center fixed; */
+            /* background-size: cover;
+            min-height: 100vh;
+            height: 100vh;
+            max-height: 100vh;
+            padding: 0px;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--color-texto-principal);
+            overflow-x: hidden;
+            min-width: 0;
+            max-height: 50vh; */
+        }
     .card-login {
         width: var(--ancho-tarjeta);
         border-radius: var(--border-radius-tarjeta);
