@@ -137,7 +137,7 @@
         .barra-progreso-contenedor {
             position: absolute;
             width: 100%;
-            height: 3px;
+            height: 7px;
             background-color: #7ae7c628;
             border-radius: 10px;
             margin-bottom: 10px;
@@ -168,18 +168,6 @@
 
 
 
-                <li class="menu-item" data-submenu="submenuActivos" role="none">
-                    <div class="main-item bg-success bg-opacity-10" tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false" aria-controls="submenuActivos">
-                      <i class="bi bi-boxes icon" aria-hidden="true"></i>
-                      <span class="text">Activos Fijos</span>
-                      <i class="bi bi-caret-down caret" aria-hidden="true"></i>
-                    </div>
-                    <ul class="submenu" id="submenuActivos">
-                      <li><a href="{{ route('activos.index') }}" role="menuitem" class="cargar" id="primario" tabindex="-1">Listar Activos</a></li>
-                      <li><a href="{{ route('activos.create') }}" role="menuitem" class="cargar" tabindex="-1">Registrar Activo</a></li>
-                      <!-- resto de enlaces con tabindex="-1" -->
-                    </ul>
-                  </li>
 
 
 

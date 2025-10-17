@@ -95,9 +95,9 @@ $(document).on('click', '#btn_buscar_traslado', function() {
 $(document).on('click', '#seleccionar_traslado', function() {
     var idTraslado = $(this).data('id');
     // console.log("Traslado seleccionado:", idTraslado);
-    alert(idTraslado    )
+    // alert(idTraslado    )
     cargarDetalleTraslado(idTraslado);
     cargarTablaActivos(idTraslado);
-    $('#buscarTraslado').modal('hide'); 
+    // $('#buscarTraslado').modal('hide');
 });
 </script>

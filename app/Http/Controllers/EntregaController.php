@@ -293,7 +293,9 @@ if ($inventario->estado === 'finalizado') {
                     ],
                     [
                         'cantidad' => $cantidad,
-                        'observaciones' => $comentario
+                        'observaciones' => $comentario,
+                        'estado_actual' => 'nuevo'
+                            // 'estado_actual' => $activo['id_estado']
                     ]
                 );
             }

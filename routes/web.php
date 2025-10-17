@@ -144,15 +144,20 @@ Route::get('/bajas', [BajaController::class, 'create'])->name('bajas.create');
 // Route::get('/traslados/registrar', [TrasladoController::class, 'create'])->name('traslados.create');
 // Route::post('/traslados/store', [TrasladoController::class, 'store'])->name('traslados.store');
 Route::get('/traslados/mostrarBuscar', [TrasladoController::class, 'mostrarBuscar'])->name('traslados.mostrarBuscar');
-Route::get('/traslados/mostrarInventario', [TrasladoController::class, 'mostrarInventario'])->name('traslados.montrarInventario');
+// Route::get('/traslados/mostrarInventario', [TrasladoController::class, 'mostrarInventario'])->name('traslados.mostrarInventario');
+Route::get('/traslados/mostrarInventario', [TrasladoController::class, 'mostrarInventario'])->name('traslados.mostrarInventario');
 Route::get('/traslados/{id}', [TrasladoController::class,'show'])->name('traslados.show');
 Route::get('/traslados', [TrasladoController::class, 'create'])->name('traslados.create');
 Route::post('/traslados/guardar', [TrasladoController::class, 'store'])->name('traslados.store');
 Route::post('/traslados/buscar', [TrasladoController::class, 'buscar'])->name('traslados.buscar');
+Route::post('/traslados/buscarActivos', [TrasladoController::class, 'buscarActivos'])->name('traslados.buscarActivos');
+// Route::post('/traslados/buscarInventario', [TrasladoController::class, 'buscar'])->name('traslados.buscarInventario');
 Route::get('/traslados/generar-numero/{gestion}', [TrasladoController::class, 'generarNumeroAjax'])->name('traslados.generarNumero');
 
 
 Route::post('/traslados/{id}/activos/agregar', [TrasladoController::class,'agregarActivo']);
+Route::post('/traslados/{id}/activos/eliminar', [TrasladoController::class, 'eliminarActivo'])->name('traslados.activos.eliminar');
+
 
 Route::get('/traslados/{id}/editar', [TrasladoController::class, 'edit'])->name('traslados.edit');
 Route::put('/traslados/{id}/update', [TrasladoController::class, 'update'])->name('traslados.update');

@@ -1,4 +1,4 @@
-<div class="col-md-12 col-lg-12 text-white">
+<div class="col-md-12 col-lg-6 text-white">
     <div class="card mt-4 p-4 rounded shadow" style="background-color: var(--color-fondo); min-height: 90vh;">
         <h2 class="mb-4 text-center" style="color: var(--color-texto-principal);">Crear entrega</h2>
 
@@ -64,10 +64,10 @@
                         class=" col-md-12 col-lg-8 mt-4 mt-lg-0 d-flex flex-lg-nowrap flex-wrap justify-content-end align-items-center gap-1 order-3 order-lg-2">
                         <!-- Botones -->
                         <input type="submit" id="btn_guardar_borrador"
-                            class="btn btn-sm btn-secondary w-100 w-lg-auto text-nowrap" value="Guardar Acta">
+                            class="btn  btn-success w-20 w-lg-auto text-nowrap" value="Guardar Acta">
 
 
-                        
+
                         {{-- <button type="submit" id="btn_entregar" class="btn btn-success w-100 w-lg-50 text-nowrap">
                             Entregar y Añadir a Inventario
                         </button> --}}

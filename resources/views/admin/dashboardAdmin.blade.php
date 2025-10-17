@@ -98,7 +98,7 @@
                 </li>
 
                 <!-- Gestión de Activos Fijos -->
-                <li class="menu-item" data-submenu="submenuActivos" role="none">
+                {{-- <li class="menu-item" data-submenu="submenuActivos" role="none">
                     <div class="main-item" tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"
                         aria-controls="submenuActivos">
                         <i class="bi bi-boxes icon" aria-hidden="true"></i>
@@ -110,7 +110,7 @@
                         <li role="none"><a href="#" role="menuitem" class="cargar">Registrar Activo</a></li>
                         <li role="none"><a href="#" role="menuitem" class="cargar">Dar de Baja</a></li>
                     </ul>
-                </li>
+                </li> --}}
 
                 <!-- Categorías y Unidades -->
                 <li class="menu-item" data-submenu="submenuCategorias" role="none">
@@ -143,7 +143,7 @@
                 </li>
 
                 <!-- Entregas y Devoluciones -->
-                <li class="menu-item" data-submenu="submenuEntregas" role="none">
+                {{-- <li class="menu-item" data-submenu="submenuEntregas" role="none">
                     <div class="main-item" tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"
                         aria-controls="submenuEntregas">
                         <i class="bi bi-card-checklist icon" aria-hidden="true"></i>
@@ -159,10 +159,10 @@
                         <li role="none"><a href="#" role="menuitem" class="cargar">Consultar Devoluciones</a>
                         </li>
                     </ul>
-                </li>
+                </li> --}}
 
                 <!-- Inventarios y Movimientos -->
-                <li class="menu-item" data-submenu="submenuInventarios" role="none">
+                {{-- <li class="menu-item" data-submenu="submenuInventarios" role="none">
                     <div class="main-item" tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"
                         aria-controls="submenuInventarios">
                         <i class="bi bi-clipboard-data icon" aria-hidden="true"></i>
@@ -178,7 +178,7 @@
                         <li role="none"><a href="#" role="menuitem" class="cargar">Consultar Movimientos</a>
                         </li>
                     </ul>
-                </li>
+                </li> --}}
 
                 <!-- Configuración del Sistema -->
                 <li class="menu-item" data-submenu="submenuConfig" role="none">
@@ -235,6 +235,9 @@
     <!-- admin.blade.php -->
 
     <div class="col ">
+        <div class="barra-progreso-contenedor">
+            <div id="miBarra" class="barra-progreso "></div>
+        </div>
         <div id="mensaje" class="w-100"></div>
         <div id="contenido" class="bg-fdanger flex-grow-1 p-4 m-0 ">
             <div id="mensaje" class="w-100"></div>
@@ -251,6 +254,11 @@
 
         </div>
     </div>
+
+
+
+
+
     @endsection
     @push('scripts')
     <script>

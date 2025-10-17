@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Activo;
+use App\Models\Categoria;
+use App\Models\DetalleInventario;
 use App\Models\DetalleTraslado;
+use App\Models\Inventario;
 use App\Models\Responsable;
 use App\Models\Servicio;
 use App\Models\Traslado;
@@ -78,8 +81,112 @@ class TrasladoController extends Controller
             ], 500);
         }
     }
+    // public function buscarInventario(Request $request)
+    // {
+    //     try {
+    //         $query = Activo::query()->activos();
+
+    //         // Filtro por servicio (por ejemplo, si tienes activo relacionado con servicio)
+    //         if ($request->id_servicio) {
+    //             // Supongo que en la tabla activo tienes algún campo id_servicio o alguna relación
+    //             // Si no, debes ajustar esto a la relación correcta
+    //             $query->where('id_servicio', $request->id_servicio);
+    //         }
+
+    //         // Filtro por código (insensible a mayúsculas/minúsculas)
+    //         if ($request->codigo_activo) {
+    //             $codigo = $request->codigo_activo;
+    //             $query->whereRaw('LOWER(codigo) LIKE ?', ['%' . strtolower($codigo) . '%']);
+    //         }
+
+    //         // Filtro por nombre
+    //         if ($request->nombre_activo) {
+    //             $nombre = $request->nombre_activo;
+    //             $query->whereRaw('LOWER(nombre) LIKE ?', ['%' . strtolower($nombre) . '%']);
+    //         }
+
+    //         // Filtro por categoría
+    //         if ($request->categoria_activo) {
+    //             $categoria = $request->categoria_activo;
+    //             // Puede ser por id o por nombre, ajusta según cómo envíes el filtro
+    //             $query->whereHas('categoria', function ($q) use ($categoria) {
+    //                 $q->whereRaw('LOWER(nombre) LIKE ?', ['%' . strtolower($categoria) . '%']);
+    //             });
+    //         }
+
+    //         $activos = $query->orderBy('nombre')->get();
+
+    //         return view('user.activos.parcial_resultados_busqueda', compact('activos'));
+    //     } catch (\Exception $e) {
+    //         // \Log::error('Error en búsqueda de activos: '.$e->getMessage());
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Ocurrió un error al buscar los activos.'
+    //         ], 500);
+    //     }
+    // }
 
 
+    public function buscarActivos(Request $request)
+    {
+        try {
+            $inventariosQuery = Inventario::query();
+
+            if ($request->filled('id_servicio_origen')) {
+                $inventariosQuery->where('id_servicio', $request->id_servicio_origen);
+            }
+
+            $inventarios = $inventariosQuery->pluck('id_inventario');
+
+            $detalleQuery = DetalleInventario::with(['activo', 'inventario'])
+            ->whereIn('id_inventario', $inventarios)
+            ->where('estado_actual', '!=', 'eliminado')
+            ->whereHas('activo', function($q) {
+                $q->soloActivos(); // Aquí aplicas el scope para solo activos que no están eliminados
+            });
+
+            // dd($detalleQuery->get());
+
+
+            if ($request->filled('codigo_activo')) {
+                $codigo = strtolower($request->codigo_activo);
+                $detalleQuery->whereHas('activo', function ($q) use ($codigo) {
+                    $q->soloActivos()
+                      ->whereRaw('LOWER(codigo) LIKE ?', ["%{$codigo}%"]);
+                });
+            }
+
+            if ($request->filled('nombre_activo')) {
+                $nombre = strtolower($request->nombre_activo);
+                $detalleQuery->whereHas('activo', function ($q) use ($nombre) {
+                    $q->soloActivos()
+                      ->whereRaw('LOWER(nombre) LIKE ?', ["%{$nombre}%"]);
+                });
+            }
+
+            if ($request->filled('categoria_activo')) {
+                $categoria = strtolower($request->categoria_activo);
+                $detalleQuery->whereHas('activo.categoria', function ($q) use ($categoria) {
+                    $q->whereRaw('LOWER(nombre) LIKE ?', ["%{$categoria}%"]);
+                });
+            }
+
+            $detalles = $detalleQuery->get();
+
+            return view('user.traslados.parcial_resultados_inventario', compact('detalles'));
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ocurrió un error al buscar en el inventario: ' . $e->getMessage()
+            ], 500);
+        }
+
+
+
+
+
+    }
 
 
 
@@ -109,13 +216,14 @@ class TrasladoController extends Controller
         public function mostrarInventario()
     {
         try {
-            $servicios = Servicio::all(); // Para llenar los selects
-            return view('user.traslados.parcial_buscar', compact('servicios'));
+            // $servicios = Servicio::all();     // Para llenar selects de servicios
+            $categorias = Categoria::all();   // Para llenar selects de categorías
+
+            return view('user.traslados.parcial_inventario', compact('categorias'));
         } catch (\Exception $e) {
             // Opcional: loguear el error
             // \Log::error('Error al cargar parcial de búsqueda: '.$e->getMessage());
 
-            // Si quieres devolver JSON (para AJAX)
             if (request()->ajax()) {
                 return response()->json([
                     'success' => false,
@@ -123,9 +231,9 @@ class TrasladoController extends Controller
                 ], 500);
             }
 
-            // Para petición normal, devolver vista con mensaje de error
-            return view('user.traslados.parcial_buscar')->with(['message' => 'Ocurrió un error al cargar la vista de búsqueda.']);
+            return view('user.traslados.parcial_inventario')->with(['message' => 'Ocurrió un error al cargar la vista de búsqueda.']);
         }
+
     }
 
 
@@ -367,25 +475,34 @@ public function generarNumeroAjax($gestion)
                 ], 422);
             }
 
-            // Buscar el activo y asegurarse de que esté activo
+            // Buscar el activo (solo si está activo)
             $activo = Activo::activos()->findOrFail($request->id_activo);
 
-            // Evitar duplicados en el traslado
-            $existe = DetalleTraslado::where('id_traslado', $id)
-                ->where('id_activo', $activo->id_activo)
+            // Buscar cantidad desde detalle inventario
+            $detalleInventario = DetalleInventario::where('id_activo', $activo->id_activo)
+                ->where('estado_actual', '!=', 'eliminado')
                 ->first();
-            if ($existe) {
+
+            if (!$detalleInventario) {
                 return response()->json([
                     'success' => false,
-                    'error' => 'Activo ya agregado '
+                    'error' => 'No se encontró el detalle de inventario para este activo.'
+                ], 404);
+            }
+
+            // Evitar duplicados en el traslado
+            if (DetalleTraslado::where('id_traslado', $id)->where('id_activo', $activo->id_activo)->exists()) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'El activo ya fue agregado a este traslado.'
                 ], 422);
             }
 
-            // Crear el detalle del traslado
+            // Crear detalle con cantidad real
             $detalle = DetalleTraslado::create([
                 'id_traslado' => $id,
                 'id_activo' => $activo->id_activo,
-                'cantidad' => $request->cantidad ?? 1,
+                'cantidad' => $detalleInventario->cantidad, // 👈 cantidad real
                 'observaciones' => $request->observaciones ?? ''
             ]);
 
@@ -395,10 +512,11 @@ public function generarNumeroAjax($gestion)
                 'activo' => $activo,
                 'message' => 'Activo agregado correctamente.'
             ]);
+
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
-                'error' => 'Traslado o Activo no encontrado.'
+                'error' => 'Traslado o activo no encontrado.'
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
@@ -414,26 +532,78 @@ public function generarNumeroAjax($gestion)
         $detalle = DetalleTraslado::where('id_traslado', $id)
             ->where('id_activo', $request->id_activo)
             ->first();
-        if (!$detalle) return response()->json(['error' => 'Detalle no encontrado'], 404);
 
-        if ($request->cantidad !== null) $detalle->cantidad = $request->cantidad;
-        if ($request->observaciones !== null) $detalle->observaciones = $request->observaciones;
-        $detalle->save();
+if (!$detalle) {
+    return response()->json(['error' => 'Detalle no encontrado'], 404);
+}
 
-        return response()->json(['success' => true, 'detalle' => $detalle]);
+// Validar longitud de observaciones
+if ($request->observaciones !== null) {
+    if (strlen($request->observaciones) > 100) {
+        return response()->json(['error' => 'El campo observaciones no puede tener más de 100 caracteres'], 422);
+    }
+    $detalle->observaciones = $request->observaciones;
+}
+
+if ($request->cantidad !== null) {
+    $detalle->cantidad = $request->cantidad;
+}
+
+$detalle->save();
+
+return response()->json(['success' => true, 'detalle' => $detalle]);
+
     }
 
     // Eliminar activo
     public function eliminarActivo(Request $request, $id)
     {
-        $detalle = DetalleTraslado::where('id_traslado', $id)
-            ->where('id_activo', $request->id_activo)
-            ->first();
-        if (!$detalle) return response()->json(['error' => 'Detalle no encontrado'], 404);
+        try {
+            // 1️⃣ Verificar que el traslado exista
+            $traslado = Traslado::findOrFail($id);
 
-        $detalle->delete();
-        return response()->json(['success' => true]);
+            // 2️⃣ Comprobar si está editable (pendiente)
+            if (!$traslado->isEditable()) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'No se puede eliminar activos de un traslado FINALIZADO o ELIMINADO.'
+                ], 422);
+            }
+
+            // 3️⃣ Buscar el detalle del traslado (activo específico)
+            $detalle = DetalleTraslado::where('id_traslado', $id)
+                ->where('id_activo', $request->id_activo)
+                ->first();
+
+            if (!$detalle) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'El activo no se encuentra en este traslado.'
+                ], 404);
+            }
+
+            // 4️⃣ Eliminar el detalle
+            $detalle->delete();
+
+            // 5️⃣ Respuesta exitosa
+            return response()->json([
+                'success' => true,
+                'message' => 'Activo eliminado correctamente del traslado.'
+            ]);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Traslado no encontrado.'
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Ocurrió un error inesperado: ' . $e->getMessage()
+            ], 500);
+        }
     }
+
     /**
      * Show the form for creating a new resource.
      */

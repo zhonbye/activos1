@@ -221,7 +221,7 @@ class ActivoController extends Controller
     $activos = Activo::activos()->with(['unidad','estado','categoria'])->paginate(20);
     $categorias = Categoria::all();
     $unidades = Unidad::all();
-    sleep(5);
+    sleep(2);
 
     return view('user.activos.listar', compact('activos','categorias','unidades'));
 }
@@ -305,7 +305,7 @@ public function filtrar(Request $request)
 
         return view('user.activos.registrar', compact('estados', 'categorias', 'unidadesmed', 'proveedores', 'donantes'));
     }
-    
+
 
     public function obtenerSiguienteCodigo(Request $request)
     {
@@ -410,7 +410,7 @@ public function filtrar(Request $request)
     public function store(Request $request)
     {
         $rules = [
-            'codigo' => 'required|string|max:50|unique:activos,codigo',
+            'codigo' => 'required|string|max:50',
             'nombre' => 'required|string|max:255',
             'cantidad' => 'required|integer|min:1',
             'detalle' => 'nullable|string|max:500',
@@ -443,7 +443,7 @@ public function filtrar(Request $request)
         // Mensajes de validación personalizados
         $messages = [
             'codigo.required' => 'El código es obligatorio.',
-            'codigo.unique' => 'El código ya está en uso.',
+            // 'codigo.unique' => 'El código ya está en uso.',
             'nombre.required' => 'El nombre es obligatorio.',
             'cantidad.required' => 'La cantidad es obligatoria.',
             'cantidad.integer'  => 'La cantidad debe ser un número entero.',
@@ -482,6 +482,13 @@ public function filtrar(Request $request)
                 'message' => 'Errores de validación en los campos.'
             ], 422);
         }
+       // ✅ Verifica duplicados solo en activos con estado "activo"
+if (Activo::soloActivos()->where('codigo', $request->codigo)->exists()) {
+    return response()->json([
+        'success' => false,
+        'message' => 'El código ya está en uso por un activo con estado activo.'
+    ], 422);
+}
 
         DB::beginTransaction();
 
@@ -595,11 +602,11 @@ public function filtrar(Request $request)
     /**
      * Show the form for editing the specified resource.
      */
-   
+
     /**
      * Update the specified resource in storage.
      */
-  
+
 
     /**
      * Remove the specified resource from storage.

@@ -26,6 +26,11 @@ class Activo extends Model
         'created_at',
         'updated_at',
     ];
+    public function scopeSoloActivos($query)
+{
+    return $query->where('estado_situacional', 'activo');
+}
+
     public function scopeActivos($query)
     {
         return $query->where('estado_situacional', '!=', 'eliminado');

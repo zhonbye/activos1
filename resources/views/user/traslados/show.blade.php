@@ -75,7 +75,7 @@
             <div class="acciones-traslado d-grid gap-3">
                 <h3 class="fs-6 my-3">Acciones rápidas</h3>
 
-                <div class="card action-card border-0 shadow-sm p-3 text-center hover-card primary" >
+                <div class="card action-card border-0 shadow-sm p-3 text-center hover-card primary">
                     <i class="bi bi-plus-circle text-primary fs-2 mb-2"></i>
                     <h5 class="fw-semibold">Nuevo Traslado</h5>
                     <p class="text-muted small mb-3">Registra un nuevo acta de traslado.</p>
@@ -143,7 +143,7 @@
                 <div class="col-lg-6">
                     <button type="button" id="btn_consultar_inventario" class="btn btn-primary" data-bs-toggle="modal"
                         data-bs-target="#modalInventario">
-                        Consultar Inventario
+                        Agreegar desde Inventario
                     </button>
                 </div>
             </div>
@@ -173,21 +173,21 @@
 <!-- Modal -->
 <div class="modal fade" id="modalInventario" tabindex="-1" aria-labelledby="modalInventarioLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modalInventarioLabel">Inventario</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalInventarioLabel">Inventario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body"id="modal_body_inventario">
+                <!-- Aquí puedes poner el contenido dinámico de inventario -->
+                <p>Aquí va el contenido del inventario...</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
         </div>
-        <div class="modal-body"id="modal_body_inventario">
-          <!-- Aquí puedes poner el contenido dinámico de inventario -->
-          <p>Aquí va el contenido del inventario...</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-        </div>
-      </div>
     </div>
-  </div>
+</div>
 
 <div class="modal fade" id="modalTraslado" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -225,6 +225,7 @@
     // Ejecutar al cargar la página
 
     function cargarTablaActivos(traslado_id = null) {
+        // alert("fdaf")
         if (!traslado_id) traslado_id = $('#traslado_id').val()
         if (!traslado_id) {
             mensaje('No se encontró el ID del traslado', 'danger');
@@ -276,6 +277,21 @@
         cargarTablaActivos();
 
 
+        $('#btn_consultar_inventario').click(function() {
+            // alert("fsdaf")
+            $.ajax({
+                url: "{{ route('traslados.mostrarInventario') }}", // ruta que devuelve la vista parcial
+                method: "GET",
+                success: function(view) {
+                    $('#modal_body_inventario').html(view);
+                    // $('#buscarTraslado').modal('show'); // abre el modal
+                },
+                error: function(xhr) {
+                    console.error(xhr.responseText);
+                    mensaje('Error al cargar el formulario', 'danger');
+                }
+            });
+        });
         $('#buscar_traslado').click(function() {
             $.ajax({
                 url: "{{ route('traslados.mostrarBuscar') }}", // ruta que devuelve la vista parcial
@@ -319,79 +335,78 @@
 
 
         // Agregar activo (tu código)
-        $('#btn_agregar_activo').click(function() {
-            let codigo = $('#input_activo_codigo').val().trim();
-            if (!codigo) {
-                mensaje('Ingrese código o nombre del activo.', 'danger');
-                return;
-            }
+        // $('#btn_agregar_activo').click(function() {
+        //     let codigo = $('#input_activo_codigo').val().trim();
+        //     if (!codigo) {
+        //         mensaje('Ingrese código o nombre del activo.', 'danger');
+        //         return;
+        //     }
 
-            $.ajax({
-                url: baseUrl + '/activos/buscarXcod',
-                method: 'GET',
-                dataType: 'json',
-                data: {
-                    codigo: codigo
-                },
-                success: function(response) {
-                    if (!response.activo) {
-                        mensaje(response.error || 'Activo no encontrado.', 'danger');
-                        return;
-                    }
+        //     $.ajax({
+        //         url: baseUrl + '/activos/buscarXcod',
+        //         method: 'GET',
+        //         dataType: 'json',
+        //         data: {
+        //             codigo: codigo
+        //         },
+        //         success: function(response) {
+        //             if (!response.activo) {
+        //                 mensaje(response.error || 'Activo no encontrado.', 'danger');
+        //                 return;
+        //             }
 
-                    const activo = response.activo;
-                    const traslado_id = $('#btn_editar_traslado').data('id');
-                    // alert(traslado_id)
-                    $.ajax({
-                        url: `${baseUrl}/traslados/${traslado_id}/activos/agregar`,
-                        type: 'POST',
-                        data: {
-                            id_activo: activo.id_activo,
-                            cantidad: 1,
-                            observaciones: '',
-                            _token: '{{ csrf_token() }}'
-                        },
-                        dataType: 'json',
-                        success: function(response) {
-                            if (response.success) {
-                                // Registro exitoso
-                                cargarTablaActivos
-                            (); // recarga tabla automáticamente
-                                $('#input_activo_codigo').val('');
-                                mensaje(response.message ||
-                                    'Activo agregado correctamente.',
-                                    'success');
-                            } else {
-                                // Caso que devuelvas success = false desde el controlador
-                                mensaje(response.error || 'Ocurrió un error.',
-                                    'danger');
-                            }
-                        },
-                        error: function(xhr) {
-                            // Errores de validación 422
-                            if (xhr.status === 422 && xhr.responseJSON.errors) {
-                                let msg = '';
-                                $.each(xhr.responseJSON.errors, function(key,
-                                    val) {
-                                    msg += val[0] + '<br>';
-                                });
-                                mensaje(msg, 'danger');
-                            } else if (xhr.responseJSON && xhr.responseJSON
-                                .error) {
-                                // Otros errores devueltos con response()->json(['error' => '...'])
-                                mensaje(xhr.responseJSON.error, 'danger');
-                            } else {
-                                // Cualquier otro error inesperado
-                                mensaje('Ocurrió un error inesperado.',
-                                    'danger');
-                            }
-                        }
-                    });
+        //             const activo = response.activo;
+        //             const traslado_id = $('#btn_editar_traslado').data('id');
+        //             // alert(traslado_id)
+        //             $.ajax({
+        //                 url: `${baseUrl}/traslados/${traslado_id}/activos/agregar`,
+        //                 type: 'POST',
+        //                 data: {
+        //                     id_activo: activo.id_activo,
+        //                     cantidad: 1,
+        //                     observaciones: '',
+        //                     _token: '{{ csrf_token() }}'
+        //                 },
+        //                 dataType: 'json',
+        //                 success: function(response) {
+        //                     if (response.success) {
+        //                         // Registro exitoso
+        //                         cargarTablaActivos(); // recarga tabla automáticamente
+        //                         $('#input_activo_codigo').val('');
+        //                         mensaje(response.message ||
+        //                             'Activo agregado correctamente.',
+        //                             'success');
+        //                     } else {
+        //                         // Caso que devuelvas success = false desde el controlador
+        //                         mensaje(response.error || 'Ocurrió un error.',
+        //                             'danger');
+        //                     }
+        //                 },
+        //                 error: function(xhr) {
+        //                     // Errores de validación 422
+        //                     if (xhr.status === 422 && xhr.responseJSON.errors) {
+        //                         let msg = '';
+        //                         $.each(xhr.responseJSON.errors, function(key,
+        //                             val) {
+        //                             msg += val[0] + '<br>';
+        //                         });
+        //                         mensaje(msg, 'danger');
+        //                     } else if (xhr.responseJSON && xhr.responseJSON
+        //                         .error) {
+        //                         // Otros errores devueltos con response()->json(['error' => '...'])
+        //                         mensaje(xhr.responseJSON.error, 'danger');
+        //                     } else {
+        //                         // Cualquier otro error inesperado
+        //                         mensaje('Ocurrió un error inesperado.',
+        //                             'danger');
+        //                     }
+        //                 }
+        //             });
 
 
-                }
-            });
-        });
+        //         }
+        //     });
+        // });
 
     });
 </script>

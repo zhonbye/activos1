@@ -1,16 +1,16 @@
 <style>
-   
+
 </style>
 
 
 <div class="row  p-0 mb-4 pb-4" style="height: 90vh;">
-     <div class="sidebar-wrapper col-md-12 col-lg-2 order-lg-2 order-2 d-flex flex-column gap-3 transition"
+    <div class="sidebar-wrapper col-md-12 col-lg-2 order-lg-2 order-2 d-flex flex-column gap-3 transition"
         style=" max-height: 95vh;">
         {{-- <div class="sidebar-col col-md-12 col-lg-2 order-lg-2 order-2 transition h-100"> --}}
         {{-- <div class="sidebar-col order-lg-2 order-2 transition h-100"> --}}
         {{-- <div class="sidebar-card card h-auto bg-light mt-4 shadow p-3 text-nowrap overflow-hidden" style="height: 300px;"> --}}
         <div class="sidebar-col card p-3">
-        {{-- <div class="sidebar-card card h-auto bg-light mt-4 shadow p-3 text-nowrap overflow-hidden" style="height: 300px;"> --}}
+            {{-- <div class="sidebar-card card h-auto bg-light mt-4 shadow p-3 text-nowrap overflow-hidden" style="height: 300px;"> --}}
             <div class="sidebar-header d-flex justify-content-between align-items-start">
                 <button class="toggleSidebar btn btn-primary">⮞</button>
                 <h2 class="sidebar-title fs-5 text-fw mb-0 ms-2">Acta</h2><br>
@@ -75,11 +75,11 @@
         <div class="card mt-4 p-4 rounded shadow" style="background-color: var(--color-fondo); min-height: 90vh;">
             <h2 class="mb-4 text-center" style="color: var(--color-texto-principal);">Registro de Activo</h2> --}}
     <div class="main-col col-md-12 col-lg-10 order-lg-1 order-1 mb-4 p-1 transition" style="max-height: 95vh;">
-    
+
         <div class="card  p-4 rounded shadow" style="background-color: var(--color-fondo); min-height: 100vh;">
             <h2 class="mb-4 text-center" style="color: var(--color-texto-principal);">Registro de Activo</h2>
 
-                         <div id="alerta_estado_finalizado" class="alert alert-danger d-none text-center fw-bold" role="alert">
+            <div id="alerta_estado_finalizado" class="alert alert-danger d-none text-center fw-bold" role="alert">
                 ❌ Esta acta ya fue finalizada y no puedes agregar mas activos.
             </div>
             <form method="POST" id="form_activo" action="{{ route('activos.store') }}">
@@ -92,7 +92,8 @@
                     <h5 class="col-lg-4 col-md-12 mb-0">Datos del Activo</h5>
                     <div class="col-lg-8 col-md-12  d-flex justify-content-end">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="chk_agregar_activo" name="chk_agregar_activo" disabled>
+                            <input class="form-check-input" type="checkbox" id="chk_agregar_activo"
+                                name="chk_agregar_activo" disabled>
                             <label class="form-check-label" for="chk_agregar_activo">
                                 Agregar activo al acta encontrada
                             </label>
@@ -163,16 +164,10 @@
                         </select>
                     </div>
                     <div class="col-md-6 col-lg-3">
-    <label for="cantidad" class="form-label">Cantidad</label>
-    <input type="number" 
-           class="form-control" 
-           id="cantidad" 
-           name="cantidad" 
-           min="1" 
-           value=1
-           placeholder="Ingrese la cantidad" 
-           required>
-</div>
+                        <label for="cantidad" class="form-label">Cantidad</label>
+                        <input type="number" class="form-control" id="cantidad" name="cantidad" min="1"
+                            value=1 placeholder="Ingrese la cantidad" required>
+                    </div>
 
 
                 </div>
@@ -282,9 +277,9 @@
 <script>
     $(document).ready(function() {
 
-       $(function() {
-    $('#buscarCodigoBtn').trigger('click');
-});
+        $(function() {
+            $('#buscarCodigoBtn').trigger('click');
+        });
         $('#form_activo').submit(function(e) {
             e.preventDefault(); // Evita recargar la página al enviar el formulario
 
@@ -321,15 +316,23 @@
                     }
                 },
                 error: function(xhr) {
-                    if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
-                        let mensajes = [];
-                        $.each(xhr.responseJSON.errors, function(key, errors) {
-                            mensajes = mensajes.concat(errors);
-                        });
-                        mensaje(mensajes.join('<br>'), 'danger');
-                    } else {
-                        mensaje('Error inesperado en el servidor.', 'danger');
+                    console.error(xhr.responseText);
+
+                    let msg = 'Error inesperado en el servidor.';
+
+                    if (xhr.status === 422 && xhr.responseJSON) {
+                        if (xhr.responseJSON.errors) {
+                            msg = Object.values(xhr.responseJSON.errors).flat().join(
+                            '<br>');
+                        } else if (xhr.responseJSON.message) {
+                            msg = xhr.responseJSON.message;
+                        }
+                    } else if (xhr.responseJSON?.message) {
+                        msg = xhr.responseJSON.message;
                     }
+
+                    mensaje(msg, 'danger');
+
                 }
             });
         });
@@ -366,29 +369,31 @@
                         mensaje("Acta encontrada correctamente", "success");
                         $('#confirmar_agregar_activo').prop('checked', false);
                         // Aquí habilitas el checkbox:
-                        
+
                         $('#acta_id').val(acta.id);
                         if (acta.estado === "finalizado") {
-                            $('#alerta_estado_finalizado').removeClass('d-none').addClass('show');
+                            $('#alerta_estado_finalizado').removeClass('d-none').addClass(
+                                'show');
                             $('#chk_agregar_activo').prop('disabled', true);
-                        }else{
-                            $('#alerta_estado_finalizado').addClass('d-none').removeClass('show');
+                        } else {
+                            $('#alerta_estado_finalizado').addClass('d-none').removeClass(
+                                'show');
                             $('#chk_agregar_activo').prop('disabled', false);
                         }
-                            
+
                     } else {
                         mensaje(response.message || "Acta no encontrada", "warning");
                         $('.resultado_busqueda_acta').hide();
                         $('#chk_agregar_activo').prop('checked', false).prop('disabled',
                             true);
-                            $('#tipo_acta_oculto').val('');
-                            $('#acta_id').val('');
+                        $('#tipo_acta_oculto').val('');
+                        $('#acta_id').val('');
                     }
                 },
                 error: function(xhr) {
-                 var response = xhr.responseJSON;
-        mensaje(response?.message || "Error al buscar el acta", "warning");
-                      //  mensaje("Error al buscar el acta", "danger");
+                    var response = xhr.responseJSON;
+                    mensaje(response?.message || "Error al buscar el acta", "warning");
+                    //  mensaje("Error al buscar el acta", "danger");
                     $('.resultado_busqueda_acta').hide();
                     $('#chk_agregar_activo').prop('checked', false).prop('disabled', true);
                     $('#acta_id').val('');
@@ -398,34 +403,34 @@
         });
 
 
-$('#buscarCodigoBtn').on('click', function() {
-    const codigo = $('#codigo').val();
+        $('#buscarCodigoBtn').on('click', function() {
+            const codigo = $('#codigo').val();
 
-    if (!codigo) {
-        alert('Por favor ingresa un código');
-        return;
-    }
-
-    $.ajax({
-        url: `${baseUrl}/activo/siguiente-codigo`,  // Cambia la ruta según tu ruta en Laravel
-        method: 'POST',
-        data: {
-            codigo_base: codigo,
-            _token: '{{ csrf_token() }}'  // Asegúrate de pasar el token CSRF
-        },
-        success: function(response) {
-            if (response.success) {
-                $('#codigo').val(response.siguiente_codigo);
-                mensaje('Código generado','success');
-            } else {
-                mensaje('Error: ' + response.message,'danger');
+            if (!codigo) {
+                alert('Por favor ingresa un código');
+                return;
             }
-        },
-        error: function() {
-            mensaje('Error al buscar el siguiente código','danger');
-        }
-    });
-});
+
+            $.ajax({
+                url: `${baseUrl}/activo/siguiente-codigo`, // Cambia la ruta según tu ruta en Laravel
+                method: 'POST',
+                data: {
+                    codigo_base: codigo,
+                    _token: '{{ csrf_token() }}' // Asegúrate de pasar el token CSRF
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#codigo').val(response.siguiente_codigo);
+                        mensaje('Código generado', 'success');
+                    } else {
+                        mensaje('Error: ' + response.message, 'danger');
+                    }
+                },
+                error: function() {
+                    mensaje('Error al buscar el siguiente código', 'danger');
+                }
+            });
+        });
 
 
 

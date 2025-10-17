@@ -31,7 +31,7 @@
             bottom: 20px;
             /* top: 20px; */
             right: 20px;
-            z-index: 1;
+            z-index: 999 !important;
             max-width: 13%;
             font-size: 0.9rem;
             /* margin: 10px; */
