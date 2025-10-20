@@ -11,7 +11,7 @@
                 <!-- Aquí se cargará el formulario de edición vía AJAX o parcial -->
             </div>
             <div class="modal-footer">
-               
+
                 {{--                                 
                                 <button type="button" class="btn btn-secondary"
                                     data-bs-dismiss="modal">Cerrar</button> --}}
@@ -24,17 +24,29 @@
 
 
 <div class="col-12 mt-0" id="div_traslado">
-    <h5>Último Traslado</h5>
+    <h5>Detalles del traslado</h5>
     <div class="card shadow-sm mb-3">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0" id="numero_traslado">Nro. {{ $traslado->numero_documento ?? '...' }}</h5>
             <div>
                 <span class="badge bg-light text-dark me-2"
                     id="gestion_traslado">{{ $traslado->gestion ?? date('Y') }}</span>
-                <span class="badge {{ $traslado->estado == 'FINALIZADO' ? 'bg-danger' : 'bg-secondary' }} me-2"
+                <span class="badge {{ $traslado->estado == 'finalizado' ? 'bg-danger' : 'bg-success' }} me-2"
                     id="estado_traslado">
-                    {{ $traslado->estado ?? 'PENDIENTE' }}
+                    {{ $traslado->estado ?? 'pendiente' }}
                 </span>
+                <!-- Botón de colapsar -->
+                {{-- <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#cardBodyTraslado" aria-expanded="false" aria-controls="cardBodyTraslado">
+                    ⮟
+                </button> --}}
+                <!-- Card body colapsable -->
+                {{-- 
+    <div class="card-body">
+        Contenido del card body aquí.
+    </div>
+</div> --}}
+
                 <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="collapse"
                     data-bs-target="#cardBodyTraslado" aria-expanded="true" aria-controls="cardBodyTraslado">
                     ⮟
@@ -43,13 +55,15 @@
         </div>
 
         <div id="cardBodyTraslado" class="collapse show">
+        {{-- <div id="cardBodyTraslado" class="show "> --}}
             <div class="card-body">
                 <div class="row g-3">
                     {{-- Origen --}}
                     <div class="col-12 col-md-4">
                         <div class="border p-2 rounded h-100">
                             <strong>Origen</strong><br>
-                            <span id="servicio_responsable_origen">
+                            <span id="servicio_responsable_origen"
+                                data-nombre=" {{ $traslado->servicioOrigen->nombre ?? 'N/D' }}">
                                 {{ $traslado->servicioOrigen->nombre ?? 'N/D' }} -
                                 {{ $traslado->servicioOrigen->responsable->nombre ?? 'N/D' }}
                             </span>
@@ -95,41 +109,54 @@
             </div>
 
             <div class="card-footer d-flex justify-content-end">
-                <button class="btn btn-sm btn-outline-primary me-2" id="btn_editar_traslado"
-                    data-id="{{ $traslado->id_traslado }}">Editar</button>
-                <button class="btn btn-sm btn-outline-success" id="recargar_traslado">Recargar</button>
+                @if ($traslado->estado === 'finalizado')
+                    <button class="btn btn-sm btn-outline-secondary" disabled
+                        title="No se puede editar un traslado finalizado">
+                        No se puede editar
+                    </button>
+                @else
+                    <button class="btn btn-sm btn-outline-primary me-2" id="btn_editar_traslado"
+                        data-id="{{ $traslado->id_traslado }}">Editar</button>
+                    <button class="btn btn-sm btn-outline-success" id="recargar_traslado">Recargar</button>
+                @endif
             </div>
+            @if ($traslado->estado === 'finalizado')
+                <div class="alert alert-danger p-2 m-0 w-100 text-center" role="alert">
+                    ⚠ No puede modificar un traslado finalizado.
+                </div>
+            @endif
+
         </div>
     </div>
 </div>
 
 <script>
-    function cargarDetalleTraslado(traslado_id = null) {
-        // Toma el ID del input si no se pasa
-        if (!traslado_id) traslado_id = $('#btn_editar_traslado').data('id');
+    // function cargarDetalleTraslado(traslado_id = null) {
+    //     // Toma el ID del input si no se pasa
+    //     if (!traslado_id) traslado_id = $('#btn_editar_traslado').data('id');
 
-        if (!traslado_id) {
-            mensaje('No se encontró el ID del traslado', 'danger');
-            return;
-        }
+    //     if (!traslado_id) {
+    //         mensaje('No se encontró el ID del traslado', 'danger');
+    //         return;
+    //     }
 
-        // AJAX GET para traer la vista parcial
-        $.ajax({
-            url: `${baseUrl}/traslados/${traslado_id}/detalle`,
-            type: 'GET',
-            success: function(data) {
-                $('#contenedor_detalle_traslado').html(data);
-            },
-            error: function(xhr) {
-                // Si el controlador devuelve JSON con error
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    mensaje(xhr.responseJSON.message, 'danger');
-                } else {
-                    mensaje('Ocurrió un error inesperado.', 'danger');
-                }
-            }
-        });
-    }
+    //     // AJAX GET para traer la vista parcial
+    //     $.ajax({
+    //         url: `${baseUrl}/traslados/${traslado_id}/detalle`,
+    //         type: 'GET',
+    //         success: function(data) {
+    //             $('#contenedor_detalle_traslado').html(data);
+    //         },
+    //         error: function(xhr) {
+    //             // Si el controlador devuelve JSON con error
+    //             if (xhr.responseJSON && xhr.responseJSON.message) {
+    //                 mensaje(xhr.responseJSON.message, 'danger');
+    //             } else {
+    //                 mensaje('Ocurrió un error inesperado.', 'danger');
+    //             }
+    //         }
+    //     });
+    // }
     $('#recargar_traslado').click(function() {
         // alert(idTraslado)
         // alert("fdsaf")
@@ -137,21 +164,21 @@
     });
 
     $('#btn_editar_traslado').click(function() {
-    // $(document).on('click', '#btn_editar_traslado', function() {
+        // $(document).on('click', '#btn_editar_traslado', function() {
         var idTraslado = $(this).data('id'); // Debes tener un botón con data-id del traslado
         var url = baseUrl + '/traslados/' + idTraslado + '/editar';
         $.ajax({
             url: url,
             type: 'GET',
             success: function(data) {
-               $('#modalEditarTraslado .modal-body').html(data);
+                $('#modalEditarTraslado .modal-body').html(data);
 
-            // Crear instancia de modal y mostrarlo
-            const modal = new bootstrap.Modal(document.getElementById('modalEditarTraslado'));
-            modal.show();
+                // Crear instancia de modal y mostrarlo
+                const modal = new bootstrap.Modal(document.getElementById('modalEditarTraslado'));
+                modal.show();
 
-            // Guardar la instancia en el modal para poder cerrarlo desde dentro del contenido
-            $('#modalEditarTraslado').data('bs.modal', modal);
+                // Guardar la instancia en el modal para poder cerrarlo desde dentro del contenido
+                $('#modalEditarTraslado').data('bs.modal', modal);
             },
             error: function() {
                 alert('No se pudo cargar la información del traslado.');

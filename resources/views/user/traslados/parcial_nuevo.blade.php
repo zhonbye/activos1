@@ -129,24 +129,44 @@ $(document).on('change', 'input[name="gestion"]', function() {
             form.find('.invalid-feedback').remove();
         },
         success: function(response) {
-            if (response.success) {
-                mensaje(response.message, 'success');
+    if (response.success) {
+        mensaje(response.message, 'success');
 
-                var traslado = response.data;
-                var idtraslado = traslado.id_traslado;
+        var traslado = response.data;
+        var idtraslado = traslado.id_traslado;
 
-                cargarDetalleTraslado(idtraslado);
-                cargarTablaActivos(idtraslado);
+        cargarDetalleTraslado(idtraslado);
+        cargarTablaActivos(idtraslado);
 
-                if ($('#modalTraslado').length) {
-                    bootstrap.Modal.getInstance(document.getElementById('modalTraslado')).hide();
-                }
+        // Referencia directa al modal
+        var $modal = $('#modalTraslado');
 
-                form[0].reset();
-            } else {
-                mensaje(response.message, 'danger');
-            }
-        },
+        // Cerrar modal
+        var modalInstance = bootstrap.Modal.getInstance($modal[0]);
+        if (modalInstance) modalInstance.hide();
+
+    //    var $modal = $('#modalTraslado');
+// var modalInstance = bootstrap.Modal.getInstance($modal[0]);
+
+if (modalInstance) {
+    modalInstance.hide();
+
+    // Limpiar contenido cuando realmente se haya cerrado
+    $modal.one('hidden.bs.modal', function() {
+        $(this).find('.modal-body').html('');
+    });
+}
+
+// También asegurarse de que no queden backdrops colgados
+$('.modal-backdrop').remove();
+
+
+        form[0].reset();
+    } else {
+        mensaje(response.message, 'danger');
+    }
+},
+
         error: function(xhr) {
             form.find('.is-invalid').removeClass('is-invalid');
             form.find('.invalid-feedback').remove();

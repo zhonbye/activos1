@@ -325,8 +325,97 @@
 
     <script>
         const baseUrl = "{{ url('/') }}";
+        const key = 'rutaDefecto';
+        const guardar = ruta => localStorage.setItem(key, ruta);
+        const leer = () => localStorage.getItem(key);
+        const rutaGuardada = leer();
 
         $(document).ready(function() {
+              if (rutaGuardada) {
+                const enlace = $(`.menu a[href='${rutaGuardada}']`);
+                if (enlace.length) {
+                    cargarContenido(rutaGuardada);
+                } else {
+                    mensaje('La ruta guardada no se encontró en el menú.', 'danger');
+                }
+            }
+
+            function buscarEnlace(texto) {
+                const lower = texto.toLowerCase();
+                return $('.menu a').filter(function() {
+                    return $(this).text().toLowerCase().includes(lower);
+                }).first();
+            }
+
+            // Mostrar menú contextual al hacer click derecho sobre li dentro de submenu
+            $('.submenu > li').on('contextmenu', function(e) {
+                e.preventDefault();
+                const $contextMenu = $('#customContextMenu');
+                $contextMenu.data('targetElement', this);
+$contextMenu.focus()
+                const $li = $(this);
+                const offset = $li.offset();
+                const liWidth = $li.outerWidth();
+
+                $contextMenu.css({
+                    display: 'block',
+                    top: offset.top,
+                    left: offset.left + liWidth
+                }).attr('aria-hidden', 'false');
+
+                return false;
+            });
+
+            // Ocultar menú contextual al hacer clic fuera
+            $(document).on('click', function(e) {
+                const $contextMenu = $('#customContextMenu');
+                if (!$(e.target).closest('#customContextMenu').length) {
+                    $contextMenu.hide().attr('aria-hidden', 'true');
+                }
+            });
+
+            // Botón "Hacer predeterminada"
+            // En el botón "Hacer predeterminada"
+            $('#makeDefaultBtn').on('click', function(e) {
+                e.preventDefault();
+                const $contextMenu = $('#customContextMenu');
+                const $target = $contextMenu.data('targetElement');
+                if (!$target) {
+                    mensaje('No se pudo identificar el elemento seleccionado.', 'danger');
+                    $contextMenu.hide();
+                    return;
+                }
+
+                const texto = $target.textContent.trim();
+                const enlace = buscarEnlace(texto);
+
+                if (!enlace.length) {
+                    mensaje('No se encontró el ítem en el menú para guardar.', 'danger');
+                    $contextMenu.hide();
+                    return;
+                }
+
+                const href = enlace.attr('href');
+                if (!href || href === '#' || href.trim() === '') {
+                    mensaje('El ítem seleccionado no tiene una ruta válida.', 'danger');
+                    $contextMenu.hide();
+                    return;
+                }
+
+                guardar(href);
+                mensaje('Ruta guardada como predeterminada.', 'success');
+                //   cargarContenido(href);
+                $contextMenu.hide();
+            });
+
+            $('#btnRestablecerRutas').on('click', function() {
+                localStorage.removeItem('rutaDefecto'); // borra solo esa ruta guardada
+                mensaje('Se han restablecido todas las rutas guardadas.', 'success');
+
+                // Opcional: recargar contenido predeterminado o página si quieres
+                // location.reload(); // si quieres refrescar la página para que el cambio se note
+            });
+
 
             $('#contenido').on('keydown', '.con-ceros', function(e) {
                 if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {

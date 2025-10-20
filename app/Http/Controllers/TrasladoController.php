@@ -129,7 +129,9 @@ class TrasladoController extends Controller
 
     public function buscarActivos(Request $request)
     {
+
         try {
+            // Consulta base de inventarios
             $inventariosQuery = Inventario::query();
 
             if ($request->filled('id_servicio_origen')) {
@@ -139,20 +141,18 @@ class TrasladoController extends Controller
             $inventarios = $inventariosQuery->pluck('id_inventario');
 
             $detalleQuery = DetalleInventario::with(['activo', 'inventario'])
-            ->whereIn('id_inventario', $inventarios)
-            ->where('estado_actual', '!=', 'eliminado')
-            ->whereHas('activo', function($q) {
-                $q->soloActivos(); // Aquí aplicas el scope para solo activos que no están eliminados
-            });
+                ->whereIn('id_inventario', $inventarios)
+                ->where('estado_actual', '!=', 'eliminado')
+                ->whereHas('activo', function ($q) {
+                    $q->soloActivos();
+                });
 
-            // dd($detalleQuery->get());
-
-
+            // Filtros opcionales
             if ($request->filled('codigo_activo')) {
                 $codigo = strtolower($request->codigo_activo);
                 $detalleQuery->whereHas('activo', function ($q) use ($codigo) {
                     $q->soloActivos()
-                      ->whereRaw('LOWER(codigo) LIKE ?', ["%{$codigo}%"]);
+                        ->whereRaw('LOWER(codigo) LIKE ?', ["%{$codigo}%"]);
                 });
             }
 
@@ -160,7 +160,7 @@ class TrasladoController extends Controller
                 $nombre = strtolower($request->nombre_activo);
                 $detalleQuery->whereHas('activo', function ($q) use ($nombre) {
                     $q->soloActivos()
-                      ->whereRaw('LOWER(nombre) LIKE ?', ["%{$nombre}%"]);
+                        ->whereRaw('LOWER(nombre) LIKE ?', ["%{$nombre}%"]);
                 });
             }
 
@@ -172,20 +172,71 @@ class TrasladoController extends Controller
             }
 
             $detalles = $detalleQuery->get();
+            $idTrasladoActual = $request->id_traslado ?? null;
+
+            // Recorrer resultados para agregar estado de disponibilidad y datos del traslado
+            foreach ($detalles as $detalle) {
+                $idActivo = $detalle->activo->id_activo ?? null;
+
+                if (!$idActivo) {
+                    $detalle->estado_asignacion = 'N/D';
+                    $detalle->traslado_info = null;
+                    continue;
+                }
+
+                // Verificar si el activo está en otro traslado
+                $trasladoOtro = DetalleTraslado::with('traslado') // trae relación del traslado
+                    ->where('id_activo', $idActivo)
+                    ->whereHas('activo', function ($q) {
+                        $q->soloActivos();
+                    })
+                    ->when($idTrasladoActual, function ($q) use ($idTrasladoActual) {
+                        $q->where('id_traslado', '!=', $idTrasladoActual);
+                    })
+                    ->first(); // solo trae uno, si quieres todos puedes usar ->get()
+                // dd($trasladoOtro->traslado->id_traslado);
+                // dd($request->id_traslado ?? 'ec');
+                // Verificar si está en el traslado actual
+                $trasladoActual = null;
+                if ($idTrasladoActual) {
+                    $trasladoActual = DetalleTraslado::with('traslado')
+                        ->where('id_activo', $idActivo)
+                        ->where('id_traslado', $idTrasladoActual)
+                        ->whereHas('activo', function ($q) {
+                            $q->soloActivos();
+                        })
+                        ->first();
+                }
+
+                // Asignar estado temporal y detalles del traslado
+                if ($trasladoActual) {
+                    $detalle->estado_asignacion = 'Activo ya agregado en esta acta';
+                    $detalle->traslado_info = [
+                        'id_traslado' => $trasladoActual->id_traslado,
+                        'numero' => $trasladoActual->traslado->numero ?? null,
+                        'otros' => $trasladoActual->traslado // puedes mandar toda la info
+                    ];
+                } elseif ($trasladoOtro) {
+                    $detalle->estado_asignacion = 'Activo ya agregado en otro acta';
+                    $detalle->traslado_info = [
+                        'id_traslado' => $trasladoOtro->traslado->id_traslado,
+                        'numero' => $trasladoOtro->traslado->numero_documento ?? null,
+                        // 'otros' => $trasladoOtro->traslado
+                    ];
+                    // dd($trasladoOtro->traslado);
+                } else {
+                    $detalle->estado_asignacion = 'Disponible';
+                    $detalle->traslado_info = null;
+                }
+            }
 
             return view('user.traslados.parcial_resultados_inventario', compact('detalles'));
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Ocurrió un error al buscar en el inventario: ' . $e->getMessage()
             ], 500);
         }
-
-
-
-
-
     }
 
 
@@ -213,7 +264,7 @@ class TrasladoController extends Controller
             return view('user.traslados.parcial_buscar')->with(['message' => 'Ocurrió un error al cargar la vista de búsqueda.']);
         }
     }
-        public function mostrarInventario()
+    public function mostrarInventario()
     {
         try {
             // $servicios = Servicio::all();     // Para llenar selects de servicios
@@ -233,83 +284,86 @@ class TrasladoController extends Controller
 
             return view('user.traslados.parcial_inventario')->with(['message' => 'Ocurrió un error al cargar la vista de búsqueda.']);
         }
-
     }
 
 
 
 
-// use Illuminate\Database\QueryException;
+    // use Illuminate\Database\QueryException;
 
-public function store(Request $request)
-{
-    $rules = [
-        'numero_documento' => ['required', 'regex:/^\d+$/', 'max:3'],
-        'gestion' => ['required', 'digits:4'],
-        'fecha' => 'required|date',
-        'id_servicio_origen' => 'required|exists:servicios,id_servicio',
-        'id_servicio_destino' => 'required|exists:servicios,id_servicio|different:id_servicio_origen',
-        'observaciones' => 'nullable|string|max:100',
-    ];
+    public function store(Request $request)
+    {
+       $rules = [
+    'numero_documento' => ['required', 'regex:/^\d+$/', 'max:3'],
+    'gestion' => ['required', 'digits:4'],
+    'fecha' => 'required|date|after_or_equal:' . $request->gestion . '-01-01|before_or_equal:' . $request->gestion . '-12-31',
+    'id_servicio_origen' => 'required|exists:servicios,id_servicio',
+    'id_servicio_destino' => 'required|exists:servicios,id_servicio|different:id_servicio_origen',
+    'observaciones' => 'nullable|string|max:100',
+];
 
-    $messages = [
-        'numero_documento.required' => 'El número de documento es obligatorio.',
-        'numero_documento.regex' => 'El número de documento solo puede contener números.',
-        'numero_documento.max' => 'El número de documento no puede superar 3 dígitos.',
-        'gestion.required' => 'La gestión es obligatoria.',
-        'gestion.digits' => 'La gestión debe tener exactamente 4 dígitos.',
-        'fecha.required' => 'La fecha es obligatoria.',
-        'id_servicio_origen.required' => 'Debe seleccionar un servicio de origen.',
-        'id_servicio_destino.required' => 'Debe seleccionar un servicio de destino.',
-        'id_servicio_destino.different' => 'El servicio destino no puede ser igual al origen.',
-        'observaciones.max' => 'Las observaciones no pueden superar 100 caracteres.',
-    ];
+$messages = [
+    'numero_documento.required' => 'El número de documento es obligatorio.',
+    'numero_documento.regex' => 'El número de documento solo puede contener números.',
+    'numero_documento.max' => 'El número de documento no puede superar 3 dígitos.',
+    'gestion.required' => 'La gestión es obligatoria.',
+    'gestion.digits' => 'La gestión debe tener exactamente 4 dígitos.',
+    'fecha.required' => 'La fecha es obligatoria.',
+    'fecha.date' => 'La fecha no es válida.',
+    'fecha.after_or_equal' => 'La fecha no puede ser anterior al año de la gestión.',
+    'fecha.before_or_equal' => 'La fecha no puede ser posterior al año de la gestión.',
+    'id_servicio_origen.required' => 'Debe seleccionar un servicio de origen.',
+    'id_servicio_destino.required' => 'Debe seleccionar un servicio de destino.',
+    'id_servicio_destino.different' => 'El servicio destino no puede ser igual al origen.',
+    'observaciones.max' => 'Las observaciones no pueden superar 100 caracteres.',
+];
 
-    $validator = Validator::make($request->all(), $rules, $messages);
 
-    // 🔢 Formatear número y gestión
-    $numero = str_pad((int) $request->numero_documento, 3, '0', STR_PAD_LEFT);
-    $gestion = (int) $request->gestion;
+        $validator = Validator::make($request->all(), $rules, $messages);
 
-    // 🚫 Verificar si ya existe ese número y gestión
-    $existe = Traslado::where('numero_documento', $numero)
-        ->where('gestion', $gestion)
-        ->where('estado', '!=', 'ELIMINADO')
-        ->exists();
+        // 🔢 Formatear número y gestión
+        $numero = str_pad((int) $request->numero_documento, 3, '0', STR_PAD_LEFT);
+        $gestion = (int) $request->gestion;
 
-    if ($existe) {
-        $validator->errors()->add('numero_documento', 'El número de documento ya existe para esta gestión.');
-    }
+        // 🚫 Verificar si ya existe ese número y gestión
+        $existe = Traslado::where('numero_documento', $numero)
+            ->where('gestion', $gestion)
+            ->where('estado', '!=', 'ELIMINADO')
+            ->exists();
 
-    // ❌ Si hay errores, retornar sin guardar
-    if ($validator->fails() || $existe) {
+        if ($existe) {
+            $validator->errors()->add('numero_documento', 'El número de documento ya existe para esta gestión.');
+        }
+
+        // ❌ Si hay errores, retornar sin guardar
+        if ($validator->fails() || $existe) {
+            return response()->json([
+                'success' => false,
+                'message' => $existe
+                    ? 'No se puede registrar: el número de documento ya existe para esta gestión.'
+                    : 'Existen errores en el formulario.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        // ✅ Si pasó todas las validaciones, guardar
+        $traslado = Traslado::create([
+            'numero_documento' => $numero,
+            'gestion' => $gestion,
+            'fecha' => $request->fecha,
+            'id_usuario' => auth()->id(),
+            'id_servicio_origen' => $request->id_servicio_origen,
+            'id_servicio_destino' => $request->id_servicio_destino,
+            'observaciones' => $request->observaciones,
+            'estado' => 'pendiente',
+        ]);
+
         return response()->json([
-            'success' => false,
-            'message' => $existe
-                ? 'No se puede registrar: el número de documento ya existe para esta gestión.'
-                : 'Existen errores en el formulario.',
-            'errors' => $validator->errors(),
-        ], 422);
+            'success' => true,
+            'message' => 'Traslado guardado correctamente.',
+            'data' => $traslado,
+        ]);
     }
-
-    // ✅ Si pasó todas las validaciones, guardar
-    $traslado = Traslado::create([
-        'numero_documento' => $numero,
-        'gestion' => $gestion,
-        'fecha' => $request->fecha,
-        'id_usuario' => auth()->id(),
-        'id_servicio_origen' => $request->id_servicio_origen,
-        'id_servicio_destino' => $request->id_servicio_destino,
-        'observaciones' => $request->observaciones,
-        'estado' => 'activo',
-    ]);
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Traslado guardado correctamente.',
-        'data' => $traslado,
-    ]);
-}
 
 
 
@@ -397,43 +451,43 @@ public function store(Request $request)
     // }
 
 
-public function generarNumeroAjax($gestion)
-{
-    try {
-        $numero = $this->generarNumeroDocumento($gestion);
-        return response()->json([
-            'success' => true,
-            'numero' => $numero
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => $e->getMessage()
-        ], 400);
-    }
-}
-
-    public function generarNumeroDocumento(string $gestion): string
-{
-    $maxNumero = 999;
-
-    $numerosExistentes = Traslado::where('gestion', $gestion)
-        ->where('estado', '!=', 'ELIMINADO')
-        ->pluck('numero_documento')
-        ->toArray();
-
-    // Asegurarse que no haya espacios
-    $numerosExistentesSet = array_flip(array_map('trim', $numerosExistentes));
-
-    for ($i = 1; $i <= $maxNumero; $i++) {
-        $numeroFormateado = str_pad($i, 3, '0', STR_PAD_LEFT);
-        if (!isset($numerosExistentesSet[$numeroFormateado])) {
-            return $numeroFormateado;
+    public function generarNumeroAjax($gestion)
+    {
+        try {
+            $numero = $this->generarNumeroDocumento($gestion);
+            return response()->json([
+                'success' => true,
+                'numero' => $numero
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
         }
     }
 
-    throw new \Exception('No hay números disponibles para la gestión ' . $gestion);
-}
+    public function generarNumeroDocumento(string $gestion): string
+    {
+        $maxNumero = 999;
+
+        $numerosExistentes = Traslado::where('gestion', $gestion)
+            ->where('estado', '!=', 'ELIMINADO')
+            ->pluck('numero_documento')
+            ->toArray();
+
+        // Asegurarse que no haya espacios
+        $numerosExistentesSet = array_flip(array_map('trim', $numerosExistentes));
+
+        for ($i = 1; $i <= $maxNumero; $i++) {
+            $numeroFormateado = str_pad($i, 3, '0', STR_PAD_LEFT);
+            if (!isset($numerosExistentesSet[$numeroFormateado])) {
+                return $numeroFormateado;
+            }
+        }
+
+        throw new \Exception('No hay números disponibles para la gestión ' . $gestion);
+    }
 
 
     public function show($id)
@@ -512,7 +566,6 @@ public function generarNumeroAjax($gestion)
                 'activo' => $activo,
                 'message' => 'Activo agregado correctamente.'
             ]);
-
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
@@ -533,26 +586,25 @@ public function generarNumeroAjax($gestion)
             ->where('id_activo', $request->id_activo)
             ->first();
 
-if (!$detalle) {
-    return response()->json(['error' => 'Detalle no encontrado'], 404);
-}
+        if (!$detalle) {
+            return response()->json(['error' => 'Detalle no encontrado'], 404);
+        }
 
-// Validar longitud de observaciones
-if ($request->observaciones !== null) {
-    if (strlen($request->observaciones) > 100) {
-        return response()->json(['error' => 'El campo observaciones no puede tener más de 100 caracteres'], 422);
-    }
-    $detalle->observaciones = $request->observaciones;
-}
+        // Validar longitud de observaciones
+        if ($request->observaciones !== null) {
+            if (strlen($request->observaciones) > 100) {
+                return response()->json(['error' => 'El campo observaciones no puede tener más de 100 caracteres'], 422);
+            }
+            $detalle->observaciones = $request->observaciones;
+        }
 
-if ($request->cantidad !== null) {
-    $detalle->cantidad = $request->cantidad;
-}
+        if ($request->cantidad !== null) {
+            $detalle->cantidad = $request->cantidad;
+        }
 
-$detalle->save();
+        $detalle->save();
 
-return response()->json(['success' => true, 'detalle' => $detalle]);
-
+        return response()->json(['success' => true, 'detalle' => $detalle]);
     }
 
     // Eliminar activo
@@ -569,12 +621,13 @@ return response()->json(['success' => true, 'detalle' => $detalle]);
                     'error' => 'No se puede eliminar activos de un traslado FINALIZADO o ELIMINADO.'
                 ], 422);
             }
-
             // 3️⃣ Buscar el detalle del traslado (activo específico)
             $detalle = DetalleTraslado::where('id_traslado', $id)
                 ->where('id_activo', $request->id_activo)
                 ->first();
 
+            // dd("traslado".$id. " detalle".$detalle);
+            // dd($request->id_activo);
             if (!$detalle) {
                 return response()->json([
                     'success' => false,
@@ -590,7 +643,6 @@ return response()->json(['success' => true, 'detalle' => $detalle]);
                 'success' => true,
                 'message' => 'Activo eliminado correctamente del traslado.'
             ]);
-
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
@@ -647,94 +699,82 @@ return response()->json(['success' => true, 'detalle' => $detalle]);
     /**
      * Update the specified resource in storage.
      */
-  public function update(Request $request, $id)
-{
-    try {
-        $traslado = Traslado::editable()->find($id);
+    public function update(Request $request, $id)
+    {
+        try {
+            $traslado = Traslado::editable()->find($id);
 
-        if (!$traslado) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No se puede modificar este acta: está finalizada o eliminada.'
+            if (!$traslado) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se puede modificar este acta: está finalizada o eliminada.'
+                ], 403);
+            }
+
+            $rules = [
+                'numero_documento' => [
+                    'required',
+                    'regex:/^\d{1,20}$/',
+                    // Regla para que sea único por gestión, excluyendo el registro actual
+                    'unique:traslados,numero_documento,' . $id . ',id_traslado,gestion,' . $request->gestion
+                ],
+                'gestion' => 'required|digits:4|integer',
+                'fecha' => 'required|date|after_or_equal:' . $request->gestion . '-01-01|before_or_equal:' . $request->gestion . '-12-31',
+                'observaciones' => 'nullable|string|max:100',
+                'id_servicio_origen' => 'required|exists:servicios,id_servicio',
+                'id_servicio_destino' => 'required|exists:servicios,id_servicio|different:id_servicio_origen',
+            ];
+
+            $messages = [
+                'numero_documento.required' => 'El número de traslado es obligatorio.',
+                'numero_documento.regex' => 'El número de traslado debe contener solo números.',
+                'numero_documento.unique' => 'El número de documento ya existe para esta gestión.',
+                'gestion.required' => 'La gestión es obligatoria.',
+                'gestion.digits' => 'La gestión debe tener 4 dígitos.',
+                'fecha.required' => 'Debe indicar una fecha.',
+                'fecha.date' => 'La fecha no es válida.',
+                'fecha.after_or_equal' => 'La fecha no puede ser anterior al año de la gestión.',
+                'fecha.before_or_equal' => 'La fecha no puede ser posterior al año de la gestión.',
+                'observaciones.max' => 'Las observaciones no pueden superar 100 caracteres.',
+                'id_servicio_origen.required' => 'Debe seleccionar un servicio de origen.',
+                'id_servicio_destino.required' => 'Debe seleccionar un servicio de destino.',
+                'id_servicio_destino.different' => 'El servicio destino no puede ser igual al origen.',
+            ];
+
+            $validator = Validator::make($request->all(), $rules, $messages);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Existen errores en el formulario.',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            // ✅ Actualizar datos
+            $traslado->update([
+                'numero_documento' => str_pad((int)$request->numero_documento, 3, '0', STR_PAD_LEFT),
+                'gestion' => (int)$request->gestion,
+                'fecha' => $request->fecha,
+                'observaciones' => $request->observaciones ?? '',
+                'id_servicio_origen' => $request->id_servicio_origen,
+                'id_servicio_destino' => $request->id_servicio_destino,
             ]);
-        }
 
-        $rules = [
-            'numero_documento' => ['required', 'regex:/^\d{1,20}$/'],
-            'gestion' => 'required|digits:4|integer',
-            'fecha' => 'required|date',
-            'observaciones' => 'nullable|string|max:100',
-            'id_servicio_origen' => 'required|exists:servicios,id_servicio',
-            'id_servicio_destino' => 'required|exists:servicios,id_servicio|different:id_servicio_origen',
-        ];
-
-        $messages = [
-            'numero_documento.required' => 'El número de traslado es obligatorio.',
-            'numero_documento.regex' => 'El número de traslado debe contener solo números.',
-            'gestion.required' => 'La gestión es obligatoria.',
-            'gestion.digits' => 'La gestión debe tener 4 dígitos.',
-            'fecha.required' => 'Debe indicar una fecha.',
-            'fecha.date' => 'La fecha no es válida.',
-            'observaciones.max' => 'Las observaciones no pueden superar 100 caracteres.',
-            'id_servicio_origen.required' => 'Debe seleccionar un servicio de origen.',
-            'id_servicio_destino.required' => 'Debe seleccionar un servicio de destino.',
-            'id_servicio_destino.different' => 'El servicio destino no puede ser igual al origen.',
-        ];
-
-        $validator = Validator::make($request->all(), $rules, $messages);
-
-        $numero = str_pad((int)$request->numero_documento, 3, '0', STR_PAD_LEFT);
-        $gestion = (int)$request->gestion;
-
-        $existe = Traslado::where('numero_documento', $numero)
-            ->where('gestion', $gestion)
-            ->where('estado', '!=', 'ELIMINADO')
-            ->where('id_traslado', '!=', $id)
-            ->exists();
-
-        if ($existe) {
-            $validator->errors()->add('numero_documento', 'El número de documento ya existe para esta gestión.');
-        }
-
-        if ($validator->fails()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'El traslado ha sido actualizado correctamente.',
+                'traslado' => $traslado
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Existen errores en el formulario.',
-                'errors' => $validator->errors()
-            ], 422);
+                'message' => 'Ocurrió un error inesperado al actualizar: ' . $e->getMessage()
+            ], 500);
         }
-
-        // 🚫 Si ya existe otro con mismo número/gestión, no actualizar
-        if ($existe) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No se puede actualizar: ya existe un traslado con este número y gestión.'
-            ], 409);
-        }
-
-        // ✅ Actualizar datos
-        $traslado->update([
-            'numero_documento' => $numero,
-            'gestion' => $gestion,
-            'fecha' => $request->fecha,
-            'observaciones' => $request->observaciones ?? '',
-            'id_servicio_origen' => $request->id_servicio_origen,
-            'id_servicio_destino' => $request->id_servicio_destino,
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'El traslado ha sido actualizado correctamente.',
-            'traslado' => $traslado
-        ]);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Ocurrió un error inesperado al actualizar: ' . $e->getMessage()
-        ], 500);
     }
-}
+
+
 
 
 

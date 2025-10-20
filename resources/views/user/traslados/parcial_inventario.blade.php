@@ -31,7 +31,7 @@
 
                     <!-- Botones -->
                     <div class="col-12 text-center mt-4 d-flex gap-3 justify-content-center">
-                        <button type="button" id="btn_buscar_inventario" class="btn btn-primary w-25">
+                        <button type="button" id="btn_buscar_inventario" class="btn btn-primary w-75">
                             <i class="bi bi-search me-1"></i> Buscar
                         </button>
                         <button type="reset" class="btn btn-danger w-25">
@@ -91,6 +91,21 @@ $(document).off('click', '.btn_agregar_activo')
         success: function (response) {
             if (response.success) {
                 mensaje(response.message, 'success');
+                 const $td = $btn.closest('td');
+                  const numero = response.numero_acta || 'N/A'; // si quieres pasar número dinámico
+        const idTraslado = $('#btn_editar_traslado').data('id');
+
+        $td.html(`   <div class="d-flex align-items-center border p-2 rounded justify-content-between">
+            <span class="text-primary fw-semibold">Añadido</span>
+            <button class="btn btn-sm btn-outline-danger btn-eliminar-activo"
+                data-id-activo="${idActivo}"
+                data-id-traslado="${idTraslado}"
+                data-acta="${numero}">
+                Remover
+            </button>
+            </div>
+
+        `);
                 cargarTablaActivos(); // recargar tabla
             } else {
                 mensaje(response.error || 'No se pudo agregar el activo.', 'danger');
@@ -119,37 +134,49 @@ $(document).off('click', '#btn_buscar_inventario')
 
     // Evitar clicks repetidos mientras procesa
     if ($btn.data('processing')) return;
-
+    
     const idServicioOrigen = $('#id_servicio_origen').val();
+    let idTraslado = $('#traslado_id').val(); // obtiene el valor del hidden
     let data = $('#form_buscar_inventario').serialize();
 
     if (idServicioOrigen) {
         data += '&id_servicio_origen=' + encodeURIComponent(idServicioOrigen);
     }
+    if (idTraslado) {
+    data += '&id_traslado=' + encodeURIComponent(idTraslado);
+}
 
     // Marcar como procesando (bloquear botón temporalmente)
     $btn.data('processing', true).prop('disabled', true);
 
-    $.ajax({
-        url: "{{ route('traslados.buscarActivos') }}", // Usa baseUrl en lugar de Blade route
-        type: 'POST',
-        data: data,
-        success: function (html) {
-            $('#resultado_inventario').html(html);
-        },
-        error: function (xhr) {
-            let msg = 'Ocurrió un error inesperado.';
-            if (xhr.responseJSON && xhr.responseJSON.message) {
-                msg = xhr.responseJSON.message;
-            }
-            mensaje(msg, 'danger');
-            console.error(xhr.responseText);
-        },
-        complete: function () {
-            // Restablecer estado del botón
-            $btn.data('processing', false).prop('disabled', false);
+    
+    // Crear objeto data
+// let data = $('#form_buscar_traslado').serializeArray(); // array de objetos {name, value}
+
+// Agregar id_traslado al array
+// data.push({ name: 'id_traslado', value: idTraslado });
+
+// AJAX
+$.ajax({
+    url: "{{ route('traslados.buscarActivos') }}",
+    type: 'POST',
+    data: data,
+    success: function (html) {
+        $('#resultado_inventario').html(html);
+    },
+    error: function (xhr) {
+        let msg = 'Ocurrió un error inesperado.';
+        if (xhr.responseJSON && xhr.responseJSON.message) {
+            msg = xhr.responseJSON.message;
         }
-    });
+        mensaje(msg, 'danger');
+        console.error(xhr.responseText);
+    },
+    complete: function () {
+        // Restablecer estado del botón
+        $btn.data('processing', false).prop('disabled', false);
+    }
+});
 });
 
 

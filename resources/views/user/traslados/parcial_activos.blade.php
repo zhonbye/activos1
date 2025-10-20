@@ -45,7 +45,7 @@
 
                 <td>
                     <button type="button" class="btn btn-danger btn-sm btn-eliminar-activo"
-                        data-id-activo="{{ $detalle->id_activo }}">
+                        data-id-activo="{{ $detalle->id_activo }}" data-id-traslado="{{ $detalle->id_traslado }}">
                         <i class="bi bi-trash"></i>
                     </button>
 
@@ -91,16 +91,17 @@
         // 1) Quitamos handlers previos y registramos el nuevo (evita duplicados)
         $(document).off('click', '.btn-eliminar-activo').on('click', '.btn-eliminar-activo', function(e) {
                 e.preventDefault();
-
+// alert("jhon")
+// return;
                 const $btn = $(this);
 
                 // 2) Protegemos contra clicks repetidos: si ya está procesando, salimos
                 if ($btn.data('processing')) return;
 
-                const idTraslado = $('#traslado_id').val();
-                const idActivo = $btn.data(
-                'id-activo'); // asegúrate que data attribute sea "data-id-activo"
-
+                // const idTraslado = $('#traslado_id').val();
+                const idActivo = $btn.data('id-activo'); 
+                const idTraslado = $btn.data('id-traslado'); 
+                // alert("activo"+idActivo +" traslado "+ idTraslado)
                 if (!idTraslado || !idActivo) {
                     mensaje('Faltan datos: no se pudo identificar el traslado o el activo.', 'warning');
                     return;
@@ -119,10 +120,20 @@
                     success: function(response) {
                         if (response.success) {
                             mensaje(response.message, 'success');
+                             const $div = $btn.closest('div.d-flex');
+
+                // Volver a mostrar "Disponible" + Agregar
+                $div.html(`
+                    <span class="text-success fw-semibold">Disponible</span>
+                    <button class="btn btn-sm btn-outline-primary btn_agregar_activo"
+                        data-id="${idActivo}">
+                        Agregar
+                    </button>
+                `);
                             cargarTablaActivos
                         (); // recarga la tabla (evita manipular filas manualmente)
                         } else {
-                            mensaje(response.error || 'No se pudo eliminar el activo.',
+                            mensaje(response.error || 'No se pudo eliminar el activo.','danger',
                             'error');
                         }
                     },

@@ -380,6 +380,8 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script> --}}
+
     <!-- printThis -->
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/printThis/1.15.0/printThis.min.js"></script> --}}
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/html-docx-js/0.4.1/html-docx.js"></script> --}}
@@ -392,10 +394,11 @@
 
     <!-- Aquí el menú contextual (inicialmente oculto) -->
     <!-- Menú contextual Bootstrap -->
-    <ul id="customContextMenu" class="dropdown-menu" style="display:none; position:absolute;">
-        <li><button class="dropdown-item" id="makeDefaultBtn">Hacer predeterminada</button></li>
-        <li><button class="dropdown-item" id="resetBtn">Restablecer</button></li>
-    </ul>
+ <ul id="customContextMenu" class="dropdown-menu" style="display:none; position:absolute;" tabindex="0">
+    <li><button class="dropdown-item" id="makeDefaultBtn">Hacer predeterminada</button></li>
+    <li><button class="dropdown-item" id="resetBtn">Restablecer</button></li>
+</ul>
+
 
 
     {{-- <div id="contenido"></div> --}}
@@ -407,104 +410,37 @@
         const toggleBtn = sidebar?.querySelector('.toggle'); // si sidebar es null, toggleBtn será undefined
         const menuItems = sidebar?.querySelectorAll('li.menu-item') || []; // si null, devuelve array vacío
         const body = document.body;
-        const key = 'rutaDefecto';
-        const guardar = ruta => localStorage.setItem(key, ruta);
-        const leer = () => localStorage.getItem(key);
-        const rutaGuardada = leer();
+        
         let ajaxActual = null;
+// Detectar cuando cualquier modal se cierra
+// Listener global para todos los modales
+$(document).on('hidden.bs.modal', '.modal', function() {
+    var $modal = $(this);
+if ($modal.hasClass('constante')) {
+    // alert("constante")    
+    return;
 
-        $(document).ready(function() {
-            if (rutaGuardada) {
-                const enlace = $(`.menu a[href='${rutaGuardada}']`);
-                if (enlace.length) {
-                    cargarContenido(rutaGuardada);
-                } else {
-                    mensaje('La ruta guardada no se encontró en el menú.', 'danger');
-                }
-            }
+    }
+    // 🔹 Limpiar inputs con errores
+    $modal.find('.is-invalid').removeClass('is-invalid');
+    $modal.find('.invalid-feedback').remove();
 
-            function buscarEnlace(texto) {
-                const lower = texto.toLowerCase();
-                return $('.menu a').filter(function() {
-                    return $(this).text().toLowerCase().includes(lower);
-                }).first();
-            }
+    // 🔹 Resetear formularios si existen
+    $modal.find('form').each(function() {
+        this.reset();
+    });
 
-            // Mostrar menú contextual al hacer click derecho sobre li dentro de submenu
-            $('.submenu > li').on('contextmenu', function(e) {
-                e.preventDefault();
-                const $contextMenu = $('#customContextMenu');
-                $contextMenu.data('targetElement', this);
+    // 🔹 Vaciar contenido dinámico (si lo cargaste via AJAX)
+    $modal.find('.modal-body').html('');
 
-                const $li = $(this);
-                const offset = $li.offset();
-                const liWidth = $li.outerWidth();
+    // 🔹 Opcional: mensaje de prueba
+    // alert('Se cerró el modal: ' + $modal.attr('id'));
 
-                $contextMenu.css({
-                    display: 'block',
-                    top: offset.top,
-                    left: offset.left + liWidth
-                }).attr('aria-hidden', 'false');
-
-                return false;
-            });
-
-            // Ocultar menú contextual al hacer clic fuera
-            $(document).on('click', function(e) {
-                const $contextMenu = $('#customContextMenu');
-                if (!$(e.target).closest('#customContextMenu').length) {
-                    $contextMenu.hide().attr('aria-hidden', 'true');
-                }
-            });
-
-            // Botón "Hacer predeterminada"
-            // En el botón "Hacer predeterminada"
-            $('#makeDefaultBtn').on('click', function(e) {
-                e.preventDefault();
-                const $contextMenu = $('#customContextMenu');
-                const $target = $contextMenu.data('targetElement');
-                if (!$target) {
-                    mensaje('No se pudo identificar el elemento seleccionado.', 'danger');
-                    $contextMenu.hide();
-                    return;
-                }
-
-                const texto = $target.textContent.trim();
-                const enlace = buscarEnlace(texto);
-
-                if (!enlace.length) {
-                    mensaje('No se encontró el ítem en el menú para guardar.', 'danger');
-                    $contextMenu.hide();
-                    return;
-                }
-
-                const href = enlace.attr('href');
-                if (!href || href === '#' || href.trim() === '') {
-                    mensaje('El ítem seleccionado no tiene una ruta válida.', 'danger');
-                    $contextMenu.hide();
-                    return;
-                }
-
-                guardar(href);
-                mensaje('Ruta guardada como predeterminada.', 'success');
-                //   cargarContenido(href);
-                $contextMenu.hide();
-            });
-
-            $('#btnRestablecerRutas').on('click', function() {
-                localStorage.removeItem('rutaDefecto'); // borra solo esa ruta guardada
-                mensaje('Se han restablecido todas las rutas guardadas.', 'success');
-
-                // Opcional: recargar contenido predeterminado o página si quieres
-                // location.reload(); // si quieres refrescar la página para que el cambio se note
-            });
-
-
-
-
-             // para guardar la petición activa
-
-            function cargarContenido(url) {
+    // 🔹 Evitar overlay oscuro pegado
+    $('body').removeClass('modal-open');
+    $('.modal-backdrop').remove();
+});
+ function cargarContenido(url) {
                 if (!url) {
                     $('#contenido').html('<p style="color:red;">No se ha proporcionado una URL.</p>');
                     return;
@@ -612,6 +548,15 @@
                 });
             }
 
+
+        $(document).ready(function() {
+          
+
+
+
+             // para guardar la petición activa
+
+           
 
 
 

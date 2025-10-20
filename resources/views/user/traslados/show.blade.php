@@ -75,12 +75,12 @@
             <div class="acciones-traslado d-grid gap-3">
                 <h3 class="fs-6 my-3">Acciones rápidas</h3>
 
-                <div class="card action-card border-0 shadow-sm p-3 text-center hover-card primary">
+                <div id="nuevo_traslado"  class="card action-card border-0 shadow-sm p-3 text-center hover-card primary"data-bs-toggle="modal"
+                        data-bs-target="#modalTraslado">
                     <i class="bi bi-plus-circle text-primary fs-2 mb-2"></i>
                     <h5 class="fw-semibold">Nuevo Traslado</h5>
                     <p class="text-muted small mb-3">Registra un nuevo acta de traslado.</p>
-                    <button class="btn btn-outline-primary w-100" id="nuevo_traslado" data-bs-toggle="modal"
-                        data-bs-target="#modalTraslado">
+                    <button class="btn btn-outline-primary w-100" >
                         <i class="bi bi-file-earmark-plus"></i> Crear Acta
                     </button>
                 </div>
@@ -89,21 +89,30 @@
                     <i class="bi bi-search text-success fs-2 mb-2"></i>
                     <h5 class="fw-semibold">Buscar Acta</h5>
                     <p class="text-muted small mb-3">Consulta un acta registrada.</p>
-                    <button class="btn btn-outline-success w-100" id="buscar_traslado">
+
+                    <button class="btn btn-outline-success w-100" id="buscar_traslado"data-bs-toggle="modal"   data-bs-target="#buscarTraslado" >
                         <i class="bi bi-search"></i> Buscar Traslado
                     </button>
                 </div>
+<div class="card action-card border-0 shadow-sm p-3 text-center hover-card warning">
+    <i class="bi bi-clock-history text-warning fs-2 mb-2"></i>
+    <h5 class="fw-semibold">Traslados Recientes</h5>
+    <p class="text-muted small mb-3">Consulta tus traslados más recientes fácilmente.</p>
+    <button class="btn btn-outline-warning w-100" id="btn_recientes_traslados">
+        <i class="bi bi-clock-history"></i> Ver Traslados
+    </button>
+</div>
 
-                <div class="card action-card border-0 shadow-sm p-3 text-center hover-card warning">
+                {{-- <div class="card action-card border-0 shadow-sm p-3 text-center hover-card warning">
                     <i class="bi bi-folder2-open text-warning fs-2 mb-2"></i>
                     <h5 class="fw-semibold">Mis Actas</h5>
                     <p class="text-muted small mb-3">Visualiza tus actas de traslado recientes.</p>
                     <button class="btn btn-outline-warning w-100" id="btn_mis_traslados">
                         <i class="bi bi-folder2-open"></i> Ver Actas
                     </button>
-                </div>
+                </div> --}}
                 <div class="card action-card border-0 shadow-sm p-3 text-center hover-card info">
-                    <i class="bi bi-clock-history text-info fs-2 mb-2"></i>
+                    <i class="bi  bi-hourglass-split text-info fs-2 mb-2"></i>
                     <h5 class="fw-semibold">Pendientes</h5>
                     <p class="text-muted small mb-3">Revisa traslados aún no finalizados.</p>
                     <button class="btn btn-outline-info w-100" id="btn_pendientes">
@@ -120,7 +129,7 @@
     <div class="main-col col-md-12 col-lg-10 order-lg-1 order-1 mb-4 p-1 transition" style="max-height: 95vh;">
         <div class="card p-4 rounded shadow" style="background-color: var(--color-fondo); min-height: 100vh;">
 
-            <h2 class="mb-4 text-center" style="color: var(--color-texto-principal);">Registrar Traslado de Activos</h2>
+            <h2 class="mb-4 text-center" style="color: var(--color-texto-principal);">Traslado de Activos</h2>
 
             <input type="hidden" id="traslado_id" value="{{ $traslado->id_traslado ?? '' }}">
 
@@ -140,13 +149,15 @@
             </div> --}}
 
             <div class="row g-3 mb-3">
-                <div class="col-lg-6">
-                    <button type="button" id="btn_consultar_inventario" class="btn btn-primary" data-bs-toggle="modal"
-                        data-bs-target="#modalInventario">
-                        Agreegar desde Inventario
-                    </button>
-                </div>
-            </div>
+    <div class="col-lg-12 d-flex justify-content-between">
+        <button type="button" id="btn_consultar_inventario" class="btn btn-primary" data-bs-toggle="modal"
+            data-bs-target="#modalInventario">
+            Agregar desde Inventario
+        </button>
+        <button type="submit" class="btn btn-success">Registrar Traslado</button>
+    </div>
+</div>
+
 
 
 
@@ -159,23 +170,24 @@
 
             <!-- Botones -->
             <div class="d-flex justify-content-end gap-2 mt-4">
-                <button type="reset" class="btn btn-danger">Limpiar</button>
-                <button type="submit" class="btn btn-success">Registrar Traslado</button>
-                <button class="btn btn-sm btn-primary editar-traslado-btn" data-id="{{ $traslado->id_traslado }}">
+                {{-- <button type="reset" class="btn btn-danger">Limpiar</button> --}}
+               
+                {{-- <button class="btn btn-sm btn-primary editar-traslado-btn" data-id="{{ $traslado->id_traslado }}">
                     Editar Acta
-                </button>
+                </button> --}}
             </div>
 
         </div>
     </div>
 
 </div>
+
 <!-- Modal -->
 <div class="modal fade" id="modalInventario" tabindex="-1" aria-labelledby="modalInventarioLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalInventarioLabel">Inventario</h5>
+                <h5 class="modal-title text-muted fst-italic" id="modalInventarioLabel">Mostrando inventario de: <span id="servicio_nombre" class="fw-bold" ></span> </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body"id="modal_body_inventario">
@@ -205,12 +217,11 @@
 </div>
 
 
-
 <div class="modal fade w-100" id="buscarTraslado" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Nuevo Traslado</h5>
+                <h5 class="modal-title">Buscar Traslado</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body" id="body_buscarTraslado">
@@ -223,6 +234,8 @@
 
 <script>
     // Ejecutar al cargar la página
+let inventarioCargado = false;
+let trasladoCargado = false;
 
     function cargarTablaActivos(traslado_id = null) {
         // alert("fdaf")
@@ -233,19 +246,20 @@
         }
         // let traslado_id = $('#traslado_id').val();
         $('#contenedor_tabla_activos').load(`${baseUrl}/traslados/${traslado_id}/activos`);
-        $('#traslado_id').val($('#btn_editar_traslado').data('id'));
+        // $('#traslado_id').val($('#btn_editar_traslado').data('id'));
+        $('#traslado_id').val(traslado_id);
     }
 
     function cargarDetalleTraslado(traslado_id = null) {
         // Toma el ID del input si no se pasa
         if (!traslado_id) traslado_id = $('#btn_editar_traslado').data('id');
-
+        
         if (!traslado_id) {
             mensaje('No se encontró el ID del traslado', 'danger');
             return;
         }
         // alert($('#btn_editar_traslado').data('id'));
-
+        
         // AJAX GET para traer la vista parcial
         $.ajax({
             url: `${baseUrl}/traslados/${traslado_id}/detalle`,
@@ -254,6 +268,11 @@
                 $('#contenedor_detalle_traslado').html(data);
                 // $('#traslado_id').val(data.id_traslado);
                 // alert(data.id_traslado)
+                $('#traslado_id').val(traslado_id);
+                         $('#servicio_nombre').text(($('#servicio_responsable_origen').data('nombre')))
+                inventarioCargado = false;
+                 if(inventarioCargado){$("#modalInventario").removeClass('constante')}
+           
             },
             error: function(xhr) {
                 // Si el controlador devuelve JSON con error
@@ -276,14 +295,17 @@
         cargarDetalleTraslado();
         cargarTablaActivos();
 
-
         $('#btn_consultar_inventario').click(function() {
             // alert("fsdaf")
+            // alert(inventarioCargado)
+            if (inventarioCargado) return; 
             $.ajax({
                 url: "{{ route('traslados.mostrarInventario') }}", // ruta que devuelve la vista parcial
                 method: "GET",
                 success: function(view) {
                     $('#modal_body_inventario').html(view);
+                    inventarioCargado = true; 
+                    if(inventarioCargado){$("#modalInventario").addClass('constante')}
                     // $('#buscarTraslado').modal('show'); // abre el modal
                 },
                 error: function(xhr) {
@@ -293,16 +315,19 @@
             });
         });
         $('#buscar_traslado').click(function() {
+             if (trasladoCargado) return; 
             $.ajax({
                 url: "{{ route('traslados.mostrarBuscar') }}", // ruta que devuelve la vista parcial
                 method: "GET",
                 success: function(view) {
                     $('#body_buscarTraslado').html(view);
-                    $('#buscarTraslado').modal('show'); // abre el modal
+                    trasladoCargado=true;
+                     if(trasladoCargado){$("#buscarTraslado").addClass('constante')}
+                    // $('#buscarTraslado').modal('show'); // abre el modal
                 },
                 error: function(xhr) {
                     console.error(xhr.responseText);
-                    alert('Error al cargar el formulario');
+                    mensaje('Error al cargar el formulario','danger');
                 }
             });
         });
@@ -313,100 +338,16 @@
                 method: "GET",
                 success: function(view) {
                     $('#modal_body_traslado').html(view);
-                    // $('#modalTraslado').modal('show'); // abre el modal
                 },
                 error: function(xhr) {
                     console.error(xhr.responseText);
-                    alert('Error al cargar el formulario');
+                    mensaje('Error al cargar el formulario','danger');
                 }
             });
         });
 
 
 
-
-
-
-
-
-
-
-        // Botón de recargar
-
-
-        // Agregar activo (tu código)
-        // $('#btn_agregar_activo').click(function() {
-        //     let codigo = $('#input_activo_codigo').val().trim();
-        //     if (!codigo) {
-        //         mensaje('Ingrese código o nombre del activo.', 'danger');
-        //         return;
-        //     }
-
-        //     $.ajax({
-        //         url: baseUrl + '/activos/buscarXcod',
-        //         method: 'GET',
-        //         dataType: 'json',
-        //         data: {
-        //             codigo: codigo
-        //         },
-        //         success: function(response) {
-        //             if (!response.activo) {
-        //                 mensaje(response.error || 'Activo no encontrado.', 'danger');
-        //                 return;
-        //             }
-
-        //             const activo = response.activo;
-        //             const traslado_id = $('#btn_editar_traslado').data('id');
-        //             // alert(traslado_id)
-        //             $.ajax({
-        //                 url: `${baseUrl}/traslados/${traslado_id}/activos/agregar`,
-        //                 type: 'POST',
-        //                 data: {
-        //                     id_activo: activo.id_activo,
-        //                     cantidad: 1,
-        //                     observaciones: '',
-        //                     _token: '{{ csrf_token() }}'
-        //                 },
-        //                 dataType: 'json',
-        //                 success: function(response) {
-        //                     if (response.success) {
-        //                         // Registro exitoso
-        //                         cargarTablaActivos(); // recarga tabla automáticamente
-        //                         $('#input_activo_codigo').val('');
-        //                         mensaje(response.message ||
-        //                             'Activo agregado correctamente.',
-        //                             'success');
-        //                     } else {
-        //                         // Caso que devuelvas success = false desde el controlador
-        //                         mensaje(response.error || 'Ocurrió un error.',
-        //                             'danger');
-        //                     }
-        //                 },
-        //                 error: function(xhr) {
-        //                     // Errores de validación 422
-        //                     if (xhr.status === 422 && xhr.responseJSON.errors) {
-        //                         let msg = '';
-        //                         $.each(xhr.responseJSON.errors, function(key,
-        //                             val) {
-        //                             msg += val[0] + '<br>';
-        //                         });
-        //                         mensaje(msg, 'danger');
-        //                     } else if (xhr.responseJSON && xhr.responseJSON
-        //                         .error) {
-        //                         // Otros errores devueltos con response()->json(['error' => '...'])
-        //                         mensaje(xhr.responseJSON.error, 'danger');
-        //                     } else {
-        //                         // Cualquier otro error inesperado
-        //                         mensaje('Ocurrió un error inesperado.',
-        //                             'danger');
-        //                     }
-        //                 }
-        //             });
-
-
-        //         }
-        //     });
-        // });
 
     });
 </script>
