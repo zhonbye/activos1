@@ -13,6 +13,7 @@ use App\Models\Traslado;
 use App\Models\Usuario;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class TrasladoController extends Controller
@@ -39,6 +40,126 @@ class TrasladoController extends Controller
         // Retornar vista con variables
         return view('user.traslados.parcial_nuevo', compact('servicios', 'gestionActual', 'numeroDisponible'));
     }
+
+
+
+
+
+    public function guardarTraslado(Request $request, $id)
+    {
+        $traslado = Traslado::find($id);
+        if (!$traslado) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Traslado no encontrado.'
+            ], 404);
+        }
+
+        if ($traslado->estado === 'finalizado') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Este traslado ya está finalizado.'
+            ], 422);
+        }
+
+        // Buscar último inventario pendiente para el servicio destino y misma gestión
+        $inventarioDestino = Inventario::where('id_servicio', $traslado->id_servicio_destino)
+            ->where('gestion', $traslado->gestion)
+            ->where('estado', 'pendiente')
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if (!$inventarioDestino) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No existe inventario pendiente para el servicio destino en la gestión actual.'
+            ], 422);
+        }
+
+        // Obtener detalles traslado
+        $detallesTraslado = DetalleTraslado::where('id_traslado', $id)->get();
+
+        if ($detallesTraslado->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No hay activos asociados a este traslado.'
+            ], 422);
+        }
+
+        DB::beginTransaction();
+        try {
+            foreach ($detallesTraslado as $detalle) {
+                // Validar que el activo existe en el inventario origen (servicio origen) con estado activo o pendiente y cantidad suficiente
+                $detalleInventarioOrigen = DetalleInventario::whereHas('inventario', function ($q) use ($traslado) {
+                    $q->where('id_servicio', $traslado->id_servicio_origen)
+                      ->where('gestion', $traslado->gestion)
+                      ->where('estado', 'pendiente');
+                })
+                ->where('id_activo', $detalle->id_activo)
+                ->where('cantidad', '>=', $detalle->cantidad)
+                ->first();
+
+                if (!$detalleInventarioOrigen) {
+                    DB::rollBack();
+                    return response()->json([
+                        'success' => false,
+                        'message' => "El activo ID {$detalle->id_activo} no está disponible en el inventario de origen o cantidad insuficiente."
+                    ], 422);
+                }
+
+                // Reducir cantidad en inventario origen
+                $detalleInventarioOrigen->cantidad -= $detalle->cantidad;
+                if ($detalleInventarioOrigen->cantidad <= 0) {
+                    $detalleInventarioOrigen->delete();
+                } else {
+                    $detalleInventarioOrigen->save();
+                }
+
+                // Agregar o actualizar detalle inventario destino
+                $detalleInventarioDestino = DetalleInventario::firstOrNew([
+                    'id_inventario' => $inventarioDestino->id_inventario,
+                    'id_activo' => $detalle->id_activo,
+                ]);
+                $detalleInventarioDestino->estado_actual = 'activo'; // o pendiente según lógica
+                $detalleInventarioDestino->cantidad = ($detalleInventarioDestino->cantidad ?? 0) + $detalle->cantidad;
+                $detalleInventarioDestino->observaciones = $detalle->observaciones ?? '';
+                $detalleInventarioDestino->save();
+
+                // Finalmente eliminar el detalle traslado
+                $detalle->delete();
+            }
+
+            // Cambiar estado traslado a finalizado
+            $traslado->estado = 'finalizado';
+            $traslado->save();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Traslado finalizado correctamente y activos movidos al inventario destino.',
+                'data' => ['id_traslado' => $id]
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al finalizar traslado: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
     public function buscar(Request $request)
     {
         try {

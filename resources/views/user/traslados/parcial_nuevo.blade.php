@@ -73,8 +73,8 @@
 </div>
 <script>
 $(document).ready(function() {
-   
-    
+
+
 // $(document).on('change', '#id_servicio_origen', function() {
 //     hola();
 // });
@@ -90,7 +90,7 @@ $(document).on('change', 'input[name="gestion"]', function() {
 
     // Mostrar cargando (opcional)
     $('#numero_documento').val('...');
-    
+
     $.ajax({
         url: baseUrl + '/traslados/generar-numero/' + gestion,
         type: 'GET',

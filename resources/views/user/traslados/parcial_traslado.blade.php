@@ -12,7 +12,7 @@
             </div>
             <div class="modal-footer">
 
-                {{--                                 
+                {{--
                                 <button type="button" class="btn btn-secondary"
                                     data-bs-dismiss="modal">Cerrar</button> --}}
             </div>
@@ -31,7 +31,7 @@
             <div>
                 <span class="badge bg-light text-dark me-2"
                     id="gestion_traslado">{{ $traslado->gestion ?? date('Y') }}</span>
-                <span class="badge {{ $traslado->estado == 'finalizado' ? 'bg-danger' : 'bg-success' }} me-2"
+                <span class="badge {{ $traslado->estado == 'finalizado' ? 'bg-danger' : 'bg-success' }} me-2" data-estado-traslado="{{ $traslado->estado}}"
                     id="estado_traslado">
                     {{ $traslado->estado ?? 'pendiente' }}
                 </span>
@@ -41,7 +41,7 @@
                     ⮟
                 </button> --}}
                 <!-- Card body colapsable -->
-                {{-- 
+                {{--
     <div class="card-body">
         Contenido del card body aquí.
     </div>
@@ -58,6 +58,7 @@
         {{-- <div id="cardBodyTraslado" class="show "> --}}
             <div class="card-body">
                 <div class="row g-3">
+                    <input type="hidden" name="id_traslado" value="{{ $traslado->id_traslado }}">
                     {{-- Origen --}}
                     <div class="col-12 col-md-4">
                         <div class="border p-2 rounded h-100">

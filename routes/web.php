@@ -167,6 +167,8 @@ Route::get('/traslados/{id}/activos', [TrasladoController::class,'tablaActivos']
 Route::get('/traslados/{id}/detalle', [TrasladoController::class, 'detalleParcial'])->name('traslados.detalleParcial');
 Route::post('/traslados/{id}/activos/editar', [TrasladoController::class,'editarActivo']);
 Route::post('/traslados/{id}/activos/eliminar', [TrasladoController::class,'eliminarActivo']);
+Route::post('/traslados/{id}/finalizar', [TrasladoController::class, 'guardarTraslado'])->name('traslados.finalizar');
+
 
 
 //                                                                      SECCION DEVOLUCIONES

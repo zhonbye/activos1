@@ -91,16 +91,14 @@
         // 1) Quitamos handlers previos y registramos el nuevo (evita duplicados)
         $(document).off('click', '.btn-eliminar-activo').on('click', '.btn-eliminar-activo', function(e) {
                 e.preventDefault();
-// alert("jhon")
-// return;
                 const $btn = $(this);
 
                 // 2) Protegemos contra clicks repetidos: si ya está procesando, salimos
                 if ($btn.data('processing')) return;
 
                 // const idTraslado = $('#traslado_id').val();
-                const idActivo = $btn.data('id-activo'); 
-                const idTraslado = $btn.data('id-traslado'); 
+                const idActivo = $btn.data('id-activo');
+                const idTraslado = $btn.data('id-traslado');
                 // alert("activo"+idActivo +" traslado "+ idTraslado)
                 if (!idTraslado || !idActivo) {
                     mensaje('Faltan datos: no se pudo identificar el traslado o el activo.', 'warning');

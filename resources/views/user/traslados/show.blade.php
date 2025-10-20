@@ -75,12 +75,13 @@
             <div class="acciones-traslado d-grid gap-3">
                 <h3 class="fs-6 my-3">Acciones rápidas</h3>
 
-                <div id="nuevo_traslado"  class="card action-card border-0 shadow-sm p-3 text-center hover-card primary"data-bs-toggle="modal"
-                        data-bs-target="#modalTraslado">
+                <div id="nuevo_traslado"
+                    class="card action-card border-0 shadow-sm p-3 text-center hover-card primary"data-bs-toggle="modal"
+                    data-bs-target="#modalTraslado">
                     <i class="bi bi-plus-circle text-primary fs-2 mb-2"></i>
                     <h5 class="fw-semibold">Nuevo Traslado</h5>
                     <p class="text-muted small mb-3">Registra un nuevo acta de traslado.</p>
-                    <button class="btn btn-outline-primary w-100" >
+                    <button class="btn btn-outline-primary w-100">
                         <i class="bi bi-file-earmark-plus"></i> Crear Acta
                     </button>
                 </div>
@@ -90,18 +91,19 @@
                     <h5 class="fw-semibold">Buscar Acta</h5>
                     <p class="text-muted small mb-3">Consulta un acta registrada.</p>
 
-                    <button class="btn btn-outline-success w-100" id="buscar_traslado"data-bs-toggle="modal"   data-bs-target="#buscarTraslado" >
+                    <button class="btn btn-outline-success w-100" id="buscar_traslado"data-bs-toggle="modal"
+                        data-bs-target="#buscarTraslado">
                         <i class="bi bi-search"></i> Buscar Traslado
                     </button>
                 </div>
-<div class="card action-card border-0 shadow-sm p-3 text-center hover-card warning">
-    <i class="bi bi-clock-history text-warning fs-2 mb-2"></i>
-    <h5 class="fw-semibold">Traslados Recientes</h5>
-    <p class="text-muted small mb-3">Consulta tus traslados más recientes fácilmente.</p>
-    <button class="btn btn-outline-warning w-100" id="btn_recientes_traslados">
-        <i class="bi bi-clock-history"></i> Ver Traslados
-    </button>
-</div>
+                <div class="card action-card border-0 shadow-sm p-3 text-center hover-card warning">
+                    <i class="bi bi-clock-history text-warning fs-2 mb-2"></i>
+                    <h5 class="fw-semibold">Traslados Recientes</h5>
+                    <p class="text-muted small mb-3">Consulta tus traslados más recientes fácilmente.</p>
+                    <button class="btn btn-outline-warning w-100" id="btn_recientes_traslados">
+                        <i class="bi bi-clock-history"></i> Ver Traslados
+                    </button>
+                </div>
 
                 {{-- <div class="card action-card border-0 shadow-sm p-3 text-center hover-card warning">
                     <i class="bi bi-folder2-open text-warning fs-2 mb-2"></i>
@@ -149,14 +151,14 @@
             </div> --}}
 
             <div class="row g-3 mb-3">
-    <div class="col-lg-12 d-flex justify-content-between">
-        <button type="button" id="btn_consultar_inventario" class="btn btn-primary" data-bs-toggle="modal"
-            data-bs-target="#modalInventario">
-            Agregar desde Inventario
-        </button>
-        <button type="submit" class="btn btn-success">Registrar Traslado</button>
-    </div>
-</div>
+                <div class="col-lg-12 d-flex justify-content-between">
+                    <button type="button" id="btn_consultar_inventario" class="btn btn-primary" data-bs-toggle="modal"
+                        data-bs-target="#modalInventario">
+                        Agregar desde Inventario
+                    </button>
+                    <button type="submit" id="btnRegistrarTraslado" class="btn btn-success">Registrar Traslado</button>
+                </div>
+            </div>
 
 
 
@@ -171,7 +173,7 @@
             <!-- Botones -->
             <div class="d-flex justify-content-end gap-2 mt-4">
                 {{-- <button type="reset" class="btn btn-danger">Limpiar</button> --}}
-               
+
                 {{-- <button class="btn btn-sm btn-primary editar-traslado-btn" data-id="{{ $traslado->id_traslado }}">
                     Editar Acta
                 </button> --}}
@@ -187,7 +189,8 @@
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title text-muted fst-italic" id="modalInventarioLabel">Mostrando inventario de: <span id="servicio_nombre" class="fw-bold" ></span> </h5>
+                <h5 class="modal-title text-muted fst-italic" id="modalInventarioLabel">Mostrando inventario de: <span
+                        id="servicio_nombre" class="fw-bold"></span> </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body"id="modal_body_inventario">
@@ -234,11 +237,12 @@
 
 <script>
     // Ejecutar al cargar la página
-let inventarioCargado = false;
-let trasladoCargado = false;
+    let inventarioCargado = false;
+    let trasladoCargado = false;
 
     function cargarTablaActivos(traslado_id = null) {
         // alert("fdaf")
+        controlarBotones($('#estado_traslado').data('estado-traslado'));
         if (!traslado_id) traslado_id = $('#traslado_id').val()
         if (!traslado_id) {
             mensaje('No se encontró el ID del traslado', 'danger');
@@ -253,13 +257,13 @@ let trasladoCargado = false;
     function cargarDetalleTraslado(traslado_id = null) {
         // Toma el ID del input si no se pasa
         if (!traslado_id) traslado_id = $('#btn_editar_traslado').data('id');
-        
+
         if (!traslado_id) {
             mensaje('No se encontró el ID del traslado', 'danger');
             return;
         }
         // alert($('#btn_editar_traslado').data('id'));
-        
+
         // AJAX GET para traer la vista parcial
         $.ajax({
             url: `${baseUrl}/traslados/${traslado_id}/detalle`,
@@ -269,10 +273,15 @@ let trasladoCargado = false;
                 // $('#traslado_id').val(data.id_traslado);
                 // alert(data.id_traslado)
                 $('#traslado_id').val(traslado_id);
-                         $('#servicio_nombre').text(($('#servicio_responsable_origen').data('nombre')))
+                $('#servicio_nombre').text(($('#servicio_responsable_origen').data('nombre')))
+
+                controlarBotones($('#estado_traslado').data('estado-traslado'));
+
                 inventarioCargado = false;
-                 if(inventarioCargado){$("#modalInventario").removeClass('constante')}
-           
+                if (inventarioCargado) {
+                    $("#modalInventario").removeClass('constante')
+                }
+
             },
             error: function(xhr) {
                 // Si el controlador devuelve JSON con error
@@ -285,6 +294,20 @@ let trasladoCargado = false;
         });
     }
 
+    function controlarBotones(estado) {
+    if (estado === 'finalizado') {
+        // Desactivar botones
+        $('#btn_consultar_inventario').prop('disabled', true);
+        $('.col-lg-12.d-flex.justify-content-between button[type="submit"]').prop('disabled', true);
+    } else if (estado === 'pendiente') {
+        // Activar botones
+        $('#btn_consultar_inventario').prop('disabled', false);
+        $('.col-lg-12.d-flex.justify-content-between button[type="submit"]').prop('disabled', false);
+    }
+}
+
+
+
 
 
 
@@ -295,17 +318,76 @@ let trasladoCargado = false;
         cargarDetalleTraslado();
         cargarTablaActivos();
 
+
+
+
+        $('#btnRegistrarTraslado').on('click', function(e) {
+    e.preventDefault();
+    // $('#btn_editar_traslado').data('id');
+    const idTraslado = $('#div_traslado').find('input[name="id_traslado"]').val();
+    alert(idTraslado)
+    if (!idTraslado) {
+        mensaje('No se pudo identificar el traslado.', 'warning');
+        return;
+    }
+
+    if (!confirm('¿Está seguro que desea finalizar y registrar este traslado?')) return;
+
+    $.ajax({
+        url: `${baseUrl}/traslados/${idTraslado}/finalizar`,
+        method: 'POST',
+        data: {
+            _token: $('meta[name="csrf-token"]').attr('content'),
+        },
+        dataType: 'json',
+        beforeSend: function() {
+            // Opcional: deshabilitar botones, mostrar spinner
+        },
+        success: function(response) {
+            if (response.success) {
+                mensaje(response.message, 'success');
+                // Opcional: cerrar modal, recargar tabla, etc.
+                bootstrap.Modal.getInstance(document.getElementById('modalEditarTraslado')).hide();
+                cargarDetalleTraslado(idTraslado);
+            } else {
+                mensaje(response.message || 'No se pudo finalizar el traslado.', 'danger');
+            }
+        },
+        error: function(xhr) {
+            let msg = 'Ocurrió un error inesperado al finalizar el traslado.';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                msg = xhr.responseJSON.message;
+            }
+            mensaje(msg, 'danger');
+        },
+        complete: function() {
+            // Opcional: reactivar botones, ocultar spinner
+        }
+    });
+});
+
+
+
+
+
+
+
+
+
+
         $('#btn_consultar_inventario').click(function() {
             // alert("fsdaf")
             // alert(inventarioCargado)
-            if (inventarioCargado) return; 
+            if (inventarioCargado) return;
             $.ajax({
                 url: "{{ route('traslados.mostrarInventario') }}", // ruta que devuelve la vista parcial
                 method: "GET",
                 success: function(view) {
                     $('#modal_body_inventario').html(view);
-                    inventarioCargado = true; 
-                    if(inventarioCargado){$("#modalInventario").addClass('constante')}
+                    inventarioCargado = true;
+                    if (inventarioCargado) {
+                        $("#modalInventario").addClass('constante')
+                    }
                     // $('#buscarTraslado').modal('show'); // abre el modal
                 },
                 error: function(xhr) {
@@ -315,19 +397,21 @@ let trasladoCargado = false;
             });
         });
         $('#buscar_traslado').click(function() {
-             if (trasladoCargado) return; 
+            if (trasladoCargado) return;
             $.ajax({
                 url: "{{ route('traslados.mostrarBuscar') }}", // ruta que devuelve la vista parcial
                 method: "GET",
                 success: function(view) {
                     $('#body_buscarTraslado').html(view);
-                    trasladoCargado=true;
-                     if(trasladoCargado){$("#buscarTraslado").addClass('constante')}
+                    trasladoCargado = true;
+                    if (trasladoCargado) {
+                        $("#buscarTraslado").addClass('constante')
+                    }
                     // $('#buscarTraslado').modal('show'); // abre el modal
                 },
                 error: function(xhr) {
                     console.error(xhr.responseText);
-                    mensaje('Error al cargar el formulario','danger');
+                    mensaje('Error al cargar el formulario', 'danger');
                 }
             });
         });
@@ -341,7 +425,7 @@ let trasladoCargado = false;
                 },
                 error: function(xhr) {
                     console.error(xhr.responseText);
-                    mensaje('Error al cargar el formulario','danger');
+                    mensaje('Error al cargar el formulario', 'danger');
                 }
             });
         });
