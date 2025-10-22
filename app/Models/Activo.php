@@ -59,4 +59,9 @@ class Activo extends Model
     {
         return $this->belongsTo(Adquisicion::class, 'id_adquisicion');
     }
+    public function detalleInventario()
+    {
+        return $this->hasOne(DetalleInventario::class, 'id_activo', 'id_activo');
+    }
+
 }

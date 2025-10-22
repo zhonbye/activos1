@@ -18,25 +18,37 @@
 
                 <!-- Cantidad -->
                 <td>fdsafdaf{{ $detalle->cantidad ?? 'N/D' }}fdsafdsa</td>
-                <td>
-                    @if ($detalle->cantidad > 1)
-                        <!-- Si la cantidad > 1: mostrar input editable -->
-                        <div class="d-flex align-items-center gap-2">
-                            <input type="number" class="form-control form-control-sm cantidad-activo"
-                                data-id-activo="{{ $detalle->id_activo }}" value="{{ $detalle->cantidad }}" min="1"
-                                max="{{ $detalle->cantidad }}" disabled style="width:80px;">
+                @php
+    $cantidadInventario = $detalle->activo->detalleInventario->cantidad ?? 0;
+    $cantidadTraslado = $detalle->cantidad;
+@endphp
 
-                            <div class="form-check mb-0">
-                                <input type="checkbox" class="form-check-input chk-editar-cantidad"
-                                    data-id-activo="{{ $detalle->id_activo }}" id="chk_{{ $detalle->id_activo }}">
-                                <label class="form-check-label" for="chk_{{ $detalle->id_activo }}">Editar</label>
-                            </div>
-                        </div>
-                    @else
-                        <!-- Si la cantidad = 1: solo texto -->
-                        <span class="fw-semibold">{{ $detalle->cantidad }}</span>
-                    @endif
-                </td>
+<td>
+    @if ($cantidadInventario > 1)
+        <div class="d-flex align-items-center gap-2">
+            <input type="number"
+                class="form-control form-control-sm cantidad-activo"
+                data-id-activo="{{ $detalle->id_activo }}"
+                value="{{ $cantidadTraslado }}"
+                min="1"
+                max="{{ $cantidadInventario }}"
+                disabled
+                style="width:80px;">
+
+            <div class="form-check mb-0">
+                <input type="checkbox"
+                    class="form-check-input chk-editar-cantidad"
+                    data-id-activo="{{ $detalle->id_activo }}"
+                    id="chk_{{ $detalle->id_activo }}"
+                    {{ $cantidadInventario > 1 ? '' : 'disabled' }}>
+                <label class="form-check-label" for="chk_{{ $detalle->id_activo }}">Editar</label>
+            </div>
+        </div>
+    @else
+        <span class="fw-semibold">{{ $cantidadTraslado }}</span>
+    @endif
+</td>
+
 
                 <td>{{ $detalle->activo->unidad->nombre ?? 'N/D' }}</td>
                 <td>{{ $detalle->activo->nombre }}</td>
@@ -84,94 +96,146 @@
 
         let filaActual = null;
         const traslado_id = $('#traslado_id').val();
+        let debounceTimeout;
         // const baseUrl = '';
 
 
         // Asegúrate de ejecutar esto una sola vez (por ejemplo en $(document).ready)
         // 1) Quitamos handlers previos y registramos el nuevo (evita duplicados)
         $(document).off('click', '.btn-eliminar-activo').on('click', '.btn-eliminar-activo', function(e) {
-                e.preventDefault();
-                const $btn = $(this);
+            e.preventDefault();
+            const $btn = $(this);
 
-                // 2) Protegemos contra clicks repetidos: si ya está procesando, salimos
-                if ($btn.data('processing')) return;
+            // 2) Protegemos contra clicks repetidos: si ya está procesando, salimos
+            if ($btn.data('processing')) return;
 
-                // const idTraslado = $('#traslado_id').val();
-                const idActivo = $btn.data('id-activo');
-                const idTraslado = $btn.data('id-traslado');
-                // alert("activo"+idActivo +" traslado "+ idTraslado)
-                if (!idTraslado || !idActivo) {
-                    mensaje('Faltan datos: no se pudo identificar el traslado o el activo.', 'warning');
-                    return;
-                }
+            // const idTraslado = $('#traslado_id').val();
+            const idActivo = $btn.data('id-activo');
+            const idTraslado = $btn.data('id-traslado');
+            // alert("activo"+idActivo +" traslado "+ idTraslado)
+            if (!idTraslado || !idActivo) {
+                mensaje('Faltan datos: no se pudo identificar el traslado o el activo.', 'warning');
+                return;
+            }
 
-                // Marcar como procesando y deshabilitar visualmente
-                $btn.data('processing', true).prop('disabled', true);
+            // Marcar como procesando y deshabilitar visualmente
+            $btn.data('processing', true).prop('disabled', true);
 
-                $.ajax({
-                    url: `${baseUrl}/traslados/${idTraslado}/activos/eliminar`,
-                    method: 'POST',
-                    data: {
-                        _token: $('meta[name="csrf-token"]').attr('content'),
-                        id_activo: idActivo
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            mensaje(response.message, 'success');
-                             const $div = $btn.closest('div.d-flex');
+            $.ajax({
+                url: `${baseUrl}/traslados/${idTraslado}/activos/eliminar`,
+                method: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    id_activo: idActivo
+                },
 
-                // Volver a mostrar "Disponible" + Agregar
-                $div.html(`
-                    <span class="text-success fw-semibold">Disponible</span>
-                    <button class="btn btn-sm btn-outline-primary btn_agregar_activo"
-                        data-id="${idActivo}">
-                        Agregar
-                    </button>
-                `);
-                            cargarTablaActivos
-                        (); // recarga la tabla (evita manipular filas manualmente)
+                success: function(response) {
+                    if (response.success) {
+                        mensaje(response.message, 'success');
+                        // const $div = $('#modalInventario').find(`.d-flex[data-id-activo="${idActivo}"]`);
+                        // const $divs = $('#modalInventario').find('.d-flex');
+                        // console.log('divs encontrados:', $divs.length);
+                        // console.log('idActivo:', idActivo);
+                        const $tr = $('#modalInventario').find(
+                            `tr[data-id-activo="${idActivo}"]`);
+                        const $div = $tr.find('.d-flex');
+
+                        // console.log($('#modal_body_inventario').length); // ¿Devuelve 1?
+
+                        if ($div.length) {
+                            $div.html(`
+            <span class="text-success fw-semibold">Disponible</span>
+            <button class="btn btn-sm btn-outline-primary btn_agregar_activo"
+                data-id="${idActivo}">
+                Agregar
+            </button>
+        `);
+                            // alert("entro al if")
                         } else {
-                            mensaje(response.error || 'No se pudo eliminar el activo.','danger',
-                            'error');
+                            console.warn("No se encontró el div dentro del modal.");
                         }
-                    },
-                    error: function(xhr) {
-                        console.error(xhr.responseText);
-                        mensaje('Ocurrió un error al eliminar el activo.', 'error');
-                    },
-                    complete: function() {
-                        // siempre limpiar el estado del botón
-                        $btn.data('processing', false).prop('disabled', false);
+                        cargarTablaActivos();
+                    } else {
+                        mensaje(response.error || 'No se pudo eliminar el activo.',
+                            'danger',
+                            'error');
                     }
-                });
+                },
+                //                 success: function(response) {
+                //                     if (response.success) {
+                //                         mensaje(response.message, 'success');
+                //                         const $div = $btn.closest('div.d-flex');
+                // if ($('#modalInventario')) {
+
+                // alert("el modal invenatrio esa visible")
+                // }else{
+                //     alert("no esta vbisible")
+                // }
+                //                         // Volver a mostrar "Disponible" + Agregar
+                //                         $div.html(`
+                //                     <span class="text-success fw-semibold">Disponible</span>
+                //                     <button class="btn btn-sm btn-outline-primary btn_agregar_activo"
+                //                         data-id="${idActivo}">
+                //                         Agregar
+                //                     </button>
+                //                 `);
+                //                         cargarTablaActivos();
+                //                     } else {
+                //                         mensaje(response.error || 'No se pudo eliminar el activo.',
+                //                             'danger',
+                //                             'error');
+                //                     }
+                //                 },
+                error: function(xhr) {
+    console.error(xhr.responseText); // por si quieres verlo completo en consola
+
+    // Intentar obtener el mensaje del backend
+    let msg = 'Ocurrió un error al eliminar el activo.';
+
+    if (xhr.responseJSON && xhr.responseJSON.error) {
+        msg = xhr.responseJSON.error;
+    } else if (xhr.responseJSON && xhr.responseJSON.message) {
+        msg = xhr.responseJSON.message;
+    }
+
+    // Mostrar mensaje al usuario
+    mensaje(msg, 'danger');
+},
+
+                complete: function() {
+                    // siempre limpiar el estado del botón
+                    $btn.data('processing', false).prop('disabled', false);
+                }
             });
-
-            $('#overlayComentario').off('click', '#btnGuardarComentario').on('click', '#btnGuardarComentario', function() {
-            const comentario = $('#textareaComentario').val();
-            const idActivo = filaActual.data('id-activo');
-            console.log(`${baseUrl}/traslados/${traslado_id}/activos/editar`);
-
-            $.post(`${baseUrl}/traslados/${traslado_id}/activos/editar`, {
-                    id_activo: idActivo,
-                    observaciones: comentario,
-                    _token: '{{ csrf_token() }}'
-                })
-                .done(function(res) {
-                    if (res.success) {
-                        filaActual.find('.comentario-activo').val(comentario);
-                        $('#overlayComentario').hide();
-                        mensaje('Observación guardada', 'success');
-                    }
-                })
-                .fail(function(xhr) {
-                    // Intentamos obtener el mensaje de error del JSON
-                    let mensaje2 = 'Ocurrió un error al guardar la observación.';
-                    if (xhr.responseJSON && xhr.responseJSON.error) {
-                        mensaje2 = xhr.responseJSON.error;
-                    }
-                    mensaje(mensaje2, 'danger');
-                });
         });
+
+        $('#overlayComentario').off('click', '#btnGuardarComentario').on('click', '#btnGuardarComentario',
+            function() {
+                const comentario = $('#textareaComentario').val();
+                const idActivo = filaActual.data('id-activo');
+                console.log(`${baseUrl}/traslados/${traslado_id}/activos/editar`);
+
+                $.post(`${baseUrl}/traslados/${traslado_id}/activos/editar`, {
+                        id_activo: idActivo,
+                        observaciones: comentario,
+                        _token: '{{ csrf_token() }}'
+                    })
+                    .done(function(res) {
+                        if (res.success) {
+                            filaActual.find('.comentario-activo').val(comentario);
+                            $('#overlayComentario').hide();
+                            mensaje('Observación guardada', 'success');
+                        }
+                    })
+                    .fail(function(xhr) {
+                        // Intentamos obtener el mensaje de error del JSON
+                        let mensaje2 = 'Ocurrió un error al guardar la observación.';
+                        if (xhr.responseJSON && xhr.responseJSON.error) {
+                            mensaje2 = xhr.responseJSON.error;
+                        }
+                        mensaje(mensaje2, 'danger');
+                    });
+            });
 
 
 
@@ -181,7 +245,7 @@
 
 
         // Activar edición de cantidad con checkbox
-        $(document).on('change', '.chk-editar-cantidad', function() {
+        $(document).off('change', '.chk-editar-cantidad').on('change', '.chk-editar-cantidad', function() {
             const idActivo = $(this).data('id-activo');
             const inputCantidad = $(`.cantidad-activo[data-id-activo="${idActivo}"]`);
 
@@ -197,30 +261,40 @@
         });
 
         // Guardar cantidad cuando se cambia
-        $(document).on('input', '.cantidad-activo', function() {
-            const input = $(this);
-            const idActivo = input.data('id-activo');
-            const cantidad = input.val();
+        // let debounceTimeout;  // Declárala una vez en el scope global o superior
 
-            // Limpiar timeout previo
-            clearTimeout(debounceTimeout);
+        $(document).off('focus', '.cantidad-activo').on('focus', '.cantidad-activo', function() {
+    // Guarda el valor original cuando entra en foco
+    const input = $(this);
+    input.data('valor-original', input.val());
+});
 
-            // Crear nuevo timeout de 5 segundos
-            debounceTimeout = setTimeout(function() {
-                // Aquí se ejecuta la petición solo después de 5s de inactividad
-                $.post(`${baseUrl}/traslados/${traslado_id}/activos/editar`, {
-                        id_activo: idActivo,
-                        cantidad: cantidad,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    function(res) {
-                        if (res.success) {
-                            console.log('Cantidad actualizada a', cantidad);
-                        }
-                    }
-                );
-            }, 5000); // 5000ms = 5 segundos
-        });
+$(document).off('blur', '.cantidad-activo').on('blur', '.cantidad-activo', function() {
+    const input = $(this);
+    const idActivo = input.data('id-activo');
+    const valorOriginal = input.data('valor-original');
+    const valorActual = input.val();
+
+    // Si el valor cambió, hacer la petición
+    if (valorActual !== valorOriginal) {
+        $.post(`${baseUrl}/traslados/${traslado_id}/activos/editar`, {
+                id_activo: idActivo,
+                cantidad: valorActual,
+                _token: '{{ csrf_token() }}'
+            },
+            function(res) {
+                if (res.success) {
+                    console.log(`Cantidad actualizada a ${valorActual}`);
+                } else {
+                    console.warn('Error al actualizar cantidad');
+                }
+            }
+        );
+    }
+    // Si no cambió, no hace nada
+});
+
+
 
         // Mostrar overlay para observaciones
         $(document).on('click', '.btn-comentar', function() {

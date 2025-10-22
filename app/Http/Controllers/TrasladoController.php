@@ -126,7 +126,7 @@ class TrasladoController extends Controller
                 $detalleInventarioDestino->save();
 
                 // Finalmente eliminar el detalle traslado
-                $detalle->delete();
+                // $detalle->delete();
             }
 
             // Cambiar estado traslado a finalizado
@@ -296,60 +296,151 @@ class TrasladoController extends Controller
             $idTrasladoActual = $request->id_traslado ?? null;
 
             // Recorrer resultados para agregar estado de disponibilidad y datos del traslado
+            // foreach ($detalles as $detalle) {
+            //     $idActivo = $detalle->activo->id_activo ?? null;
+
+            //     if (!$idActivo) {
+            //         $detalle->estado_asignacion = 'N/D';
+            //         $detalle->traslado_info = null;
+            //         continue;
+            //     }
+
+            //     // Verificar si el activo está en otro traslado
+            //     $trasladoOtro = DetalleTraslado::with('traslado') // trae relación del traslado
+            //         ->where('id_activo', $idActivo)
+            //         ->whereHas('activo', function ($q) {
+            //             $q->soloActivos();
+            //         })
+            //         ->when($idTrasladoActual, function ($q) use ($idTrasladoActual) {
+            //             $q->where('id_traslado', '!=', $idTrasladoActual);
+            //         })
+            //         ->first(); // solo trae uno, si quieres todos puedes usar ->get()
+            //     // dd($trasladoOtro->traslado->id_traslado);
+            //     // dd($request->id_traslado ?? 'ec');
+            //     // Verificar si está en el traslado actual
+            //     $trasladoActual = null;
+            //     if ($idTrasladoActual) {
+            //         $trasladoActual = DetalleTraslado::with('traslado')
+            //             ->where('id_activo', $idActivo)
+            //             ->where('id_traslado', $idTrasladoActual)
+            //             ->whereHas('activo', function ($q) {
+            //                 $q->soloActivos();
+            //             })
+            //             ->first();
+            //     }
+
+            //     // Asignar estado temporal y detalles del traslado
+            //     if ($trasladoActual) {
+            //         $detalle->estado_asignacion = 'Activo ya agregado en esta acta';
+            //         $detalle->traslado_info = [
+            //             'id_traslado' => $trasladoActual->id_traslado,
+            //             'numero' => $trasladoActual->traslado->numero ?? null,
+            //             'otros' => $trasladoActual->traslado // puedes mandar toda la info
+            //         ];
+            //     } elseif ($trasladoOtro) {
+            //         $detalle->estado_asignacion = 'Activo ya agregado en otro acta';
+            //         $detalle->traslado_info = [
+            //             'id_traslado' => $trasladoOtro->traslado->id_traslado,
+            //             'numero' => $trasladoOtro->traslado->numero_documento ?? null,
+            //             // 'otros' => $trasladoOtro->traslado
+            //         ];
+            //         // dd($trasladoOtro->traslado);
+            //     } else {
+            //         $detalle->estado_asignacion = 'Disponible';
+            //         $detalle->traslado_info = null;
+            //     }
+            // }
             foreach ($detalles as $detalle) {
                 $idActivo = $detalle->activo->id_activo ?? null;
 
                 if (!$idActivo) {
                     $detalle->estado_asignacion = 'N/D';
+                    $detalle->estado_tipo = 'none';
                     $detalle->traslado_info = null;
+                    // variables numéricas vacías
+                    $detalle->cantidad_inventario = 0;
+                    $detalle->cantidad_usada_otros = 0;
+                    $detalle->cantidad_usada_actual = 0;
+                    $detalle->cantidad_restante = 0;
                     continue;
                 }
 
-                // Verificar si el activo está en otro traslado
-                $trasladoOtro = DetalleTraslado::with('traslado') // trae relación del traslado
-                    ->where('id_activo', $idActivo)
-                    ->whereHas('activo', function ($q) {
-                        $q->soloActivos();
-                    })
-                    ->when($idTrasladoActual, function ($q) use ($idTrasladoActual) {
-                        $q->where('id_traslado', '!=', $idTrasladoActual);
-                    })
-                    ->first(); // solo trae uno, si quieres todos puedes usar ->get()
-                // dd($trasladoOtro->traslado->id_traslado);
-                // dd($request->id_traslado ?? 'ec');
-                // Verificar si está en el traslado actual
+                // 🟩 Cantidad total en inventario (la verdadera)
+                $cantidadInventario = $detalle->cantidad ?? 0;
+
+                // 🟦 Cantidad usada en otros traslados
+                $cantidadUsadaOtros = DetalleTraslado::where('id_activo', $idActivo)
+                    ->when($idTrasladoActual, fn($q) => $q->where('id_traslado', '!=', $idTrasladoActual))
+                    ->sum('cantidad');
+
+                // 🟨 Cantidad usada en este traslado (si aplica)
                 $trasladoActual = null;
+                $cantidadUsadaActual = 0;
+
                 if ($idTrasladoActual) {
                     $trasladoActual = DetalleTraslado::with('traslado')
                         ->where('id_activo', $idActivo)
                         ->where('id_traslado', $idTrasladoActual)
-                        ->whereHas('activo', function ($q) {
-                            $q->soloActivos();
-                        })
                         ->first();
+
+                    $cantidadUsadaActual = $trasladoActual->cantidad ?? 0;
                 }
 
-                // Asignar estado temporal y detalles del traslado
+                // 🟥 Cantidad restante libre (para usar en otros traslados)
+                $cantidadRestante = max(0, $cantidadInventario - $cantidadUsadaOtros - $cantidadUsadaActual);
+
+                // Guardar las variables numéricas en el objeto detalle
+                $detalle->cantidad_inventario = $cantidadInventario;
+                $detalle->cantidad_usada_otros = $cantidadUsadaOtros;
+                $detalle->cantidad_usada_actual = $cantidadUsadaActual;
+                $detalle->cantidad_restante = $cantidadRestante;
+
+                // 🔹 Determinar el estado del activo según cantidades
                 if ($trasladoActual) {
-                    $detalle->estado_asignacion = 'Activo ya agregado en esta acta';
+                    $detalle->estado_asignacion = "Añadido a este traslado ({$cantidadUsadaActual}/{$cantidadInventario})";
+                    $detalle->estado_tipo = 'actual';
                     $detalle->traslado_info = [
                         'id_traslado' => $trasladoActual->id_traslado,
                         'numero' => $trasladoActual->traslado->numero ?? null,
-                        'otros' => $trasladoActual->traslado // puedes mandar toda la info
                     ];
-                } elseif ($trasladoOtro) {
-                    $detalle->estado_asignacion = 'Activo ya agregado en otro acta';
-                    $detalle->traslado_info = [
-                        'id_traslado' => $trasladoOtro->traslado->id_traslado,
-                        'numero' => $trasladoOtro->traslado->numero_documento ?? null,
-                        // 'otros' => $trasladoOtro->traslado
-                    ];
-                    // dd($trasladoOtro->traslado);
+                } elseif ($cantidadRestante > 0) {
+                    $detalle->estado_asignacion = "Disponible ({$cantidadRestante} de {$cantidadInventario} disponibles)";
+                    $detalle->estado_tipo = 'disponible';
+                    $detalle->traslado_info = null;
                 } else {
-                    $detalle->estado_asignacion = 'Disponible';
+                    $detalle->estado_asignacion = "Activo ya asignado completamente en otras actas";
+                    $detalle->estado_tipo = 'otro';
                     $detalle->traslado_info = null;
                 }
             }
+
+//me devuleve todos estos datos......
+
+            // [
+            //     "id_detalle_inventario" => 17,
+            //     "id_inventario" => 3,
+            //     "id_activo" => 8,
+            //     "cantidad" => 5,
+            //     "estado_actual" => "activo",
+            //     "activo" => [
+            //         "id_activo" => 8,
+            //         "codigo" => "MON123",
+            //         "nombre" => "Monitor Dell",
+            //         "categoria" => [ "nombre" => "Equipos" ],
+            //     ],
+            //     // Campos añadidos 👇
+            //     "cantidad_inventario" => 5,
+            //     "cantidad_usada_otros" => 2,
+            //     "cantidad_usada_actual" => 1,
+            //     "cantidad_restante" => 2,
+            //     "estado_asignacion" => "Añadido a este traslado (1/5)",
+            //     "estado_tipo" => "actual",
+            //     "traslado_info" => [
+            //         "id_traslado" => 4,
+            //         "numero" => "ACTA-001"
+            //     ]
+            //   ]
+
 
             return view('user.traslados.parcial_resultados_inventario', compact('detalles'));
         } catch (\Exception $e) {
@@ -632,10 +723,14 @@ $messages = [
     // Vista parcial de tabla de activos
     public function tablaActivos($id)
     {
-        $detalles = DetalleTraslado::with('activo.unidad', 'activo.estado')
-            ->where('id_traslado', $id)->get();
+        $detalles = DetalleTraslado::with('activo.unidad', 'activo.estado', 'activo.detalleInventario')
+    ->where('id_traslado', $id)
+    ->get();
+
+
         return view('user.traslados.parcial_activos', compact('detalles'));
     }
+
 
     // Agregar activo al traslado
     public function agregarActivo(Request $request, $id)
@@ -735,13 +830,13 @@ $messages = [
             // 1️⃣ Verificar que el traslado exista
             $traslado = Traslado::findOrFail($id);
 
-            // 2️⃣ Comprobar si está editable (pendiente)
             if (!$traslado->isEditable()) {
                 return response()->json([
                     'success' => false,
                     'error' => 'No se puede eliminar activos de un traslado FINALIZADO o ELIMINADO.'
                 ], 422);
             }
+
             // 3️⃣ Buscar el detalle del traslado (activo específico)
             $detalle = DetalleTraslado::where('id_traslado', $id)
                 ->where('id_activo', $request->id_activo)

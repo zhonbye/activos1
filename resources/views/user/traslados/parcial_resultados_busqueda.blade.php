@@ -9,6 +9,7 @@
                 <th>Origen</th>
                 <th>Destino</th>
                 <th>Observaciones</th>
+                <th>Estado</th>
                 <th>Seleccionar</th>
             </tr>
         </thead>
@@ -23,7 +24,13 @@
                     <td>{{ $t->servicioDestino->nombre ?? 'N/D' }}</td>
                     <td>{{ $t->observaciones }}</td>
                     <td>
-                        <button type="button" id="seleccionar_traslado" class="btn btn-sm btn-primary btn-seleccionar-traslado" 
+                        <span class="badge p-2 {{ $t->estado == 'finalizado' ? 'bg-danger' : 'bg-success' }}">
+                            {{ ucfirst($t->estado) }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <button type="button" id="seleccionar_traslado" class="btn btn-sm btn-primary btn-seleccionar-traslado"
                                 data-id="{{ $t->id_traslado }}">
                             Seleccionar
                         </button>

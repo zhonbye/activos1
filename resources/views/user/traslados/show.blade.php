@@ -256,7 +256,8 @@
 
     function cargarDetalleTraslado(traslado_id = null) {
         // Toma el ID del input si no se pasa
-        if (!traslado_id) traslado_id = $('#btn_editar_traslado').data('id');
+        if (!traslado_id) traslado_id = $('#traslado_id').val()
+        // if (!traslado_id) traslado_id = $('#btn_editar_traslado').data('id');
 
         if (!traslado_id) {
             mensaje('No se encontró el ID del traslado', 'danger');
@@ -325,7 +326,7 @@
     e.preventDefault();
     // $('#btn_editar_traslado').data('id');
     const idTraslado = $('#div_traslado').find('input[name="id_traslado"]').val();
-    alert(idTraslado)
+    // alert(idTraslado)
     if (!idTraslado) {
         mensaje('No se pudo identificar el traslado.', 'warning');
         return;
@@ -347,8 +348,10 @@
             if (response.success) {
                 mensaje(response.message, 'success');
                 // Opcional: cerrar modal, recargar tabla, etc.
-                bootstrap.Modal.getInstance(document.getElementById('modalEditarTraslado')).hide();
+                // bootstrap.Modal.getInstance(document.getElementById('modalEditarTraslado')).hide();
                 cargarDetalleTraslado(idTraslado);
+                cargarTablaActivos(idTraslado);
+
             } else {
                 mensaje(response.message || 'No se pudo finalizar el traslado.', 'danger');
             }
@@ -398,6 +401,7 @@
         });
         $('#buscar_traslado').click(function() {
             if (trasladoCargado) return;
+            // ALERT("FDSA")
             $.ajax({
                 url: "{{ route('traslados.mostrarBuscar') }}", // ruta que devuelve la vista parcial
                 method: "GET",
@@ -410,7 +414,7 @@
                     // $('#buscarTraslado').modal('show'); // abre el modal
                 },
                 error: function(xhr) {
-                    console.error(xhr.responseText);
+                    // console.error(xhr.responseText);
                     mensaje('Error al cargar el formulario', 'danger');
                 }
             });

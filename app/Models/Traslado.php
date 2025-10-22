@@ -32,8 +32,10 @@ class Traslado extends Model
  */
 public function scopeEditable($query)
 {
-    return $query->whereNotIn('estado', ['FINALIZADO', 'ELIMINADO']);
+    return $query->whereRaw('LOWER(estado) NOT IN (?, ?)', ['finalizado', 'eliminado']);
 }
+
+
 
 /**
  * Método helper para usar en un traslado específico.
@@ -41,8 +43,9 @@ public function scopeEditable($query)
  */
 public function isEditable()
 {
-    return !in_array($this->estado, ['FINALIZADO', 'ELIMINADO']);
+    return !in_array(strtolower($this->estado), ['finalizado', 'eliminado']);
 }
+
 public function scopeNoEliminados($query)
 {
     return $query->where('estado', '!=', 'ELIMINADO');

@@ -27,9 +27,9 @@
                     <td>{{ $detalle->estado_actual ?? 'N/D' }}</td>
                     <td>{{ $detalle->cantidad }}</td>
                     <td>
-                        <div class="d-flex align-items-center border p-2 rounded justify-content-between"
-                           >
-                            @if ($estado === 'Disponible')
+                        <div class="d-flex align-items-center border p-2 rounded justify-content-between" data-id-activo="{{ $idActivo }}">
+
+                            {{-- @if ($estado === 'Disponible')
                                 <span class="text-success fw-semibold">Disponible</span>
                                 <button class="btn btn-sm btn-outline-primary btn_agregar_activo"
                                     data-id="{{ $idActivo }}">Agregar</button>
@@ -49,7 +49,50 @@
                                     data-id-traslado="{{ $trasladoInfo['id_traslado'] ?? '' }}">
                                     Más detalle
                                 </button>
-                            @endif
+                            @endif --}}
+                            @if ($detalle->estado_tipo === 'disponible')
+                            <span class="text-success fw-semibold">
+                                {{ $detalle->estado_asignacion }}
+                            </span>
+                            <button class="btn btn-sm btn-outline-primary btn_agregar_activo"
+                                data-id="{{ $idActivo }}"
+                                data-cantidad-total="{{ $detalle->cantidad_inventario ?? 0 }}"
+                                data-cantidad-restante="{{ $detalle->cantidad_restante ?? 0 }}"
+                                data-cantidad-usada-otros="{{ $detalle->cantidad_usada_otros ?? 0 }}"
+                                data-cantidad-usada-actual="{{ $detalle->cantidad_usada_actual ?? 0 }}">
+                                Agregar
+                            </button>
+
+                        @elseif ($detalle->estado_tipo === 'actual')
+                            <span class="text-primary fw-semibold">
+                                {{ $detalle->estado_asignacion }}
+                            </span>
+                            <button class="btn btn-sm btn-outline-danger btn-eliminar-activo"
+                                data-id-activo="{{ $idActivo }}"
+                                data-id-traslado="{{ $detalle->traslado_info['id_traslado'] ?? '' }}"
+                                data-acta="{{ $detalle->traslado_info['numero'] ?? 'N/A' }}"
+                                data-cantidad-total="{{ $detalle->cantidad_inventario ?? 0 }}"
+                                data-cantidad-usada-actual="{{ $detalle->cantidad_usada_actual ?? 0 }}">
+                                Remover
+                            </button>
+
+                        @elseif ($detalle->estado_tipo === 'otro')
+                            <span class="text-danger fw-semibold">
+                                {{ $detalle->estado_asignacion }}
+                            </span>
+                            <button type="button" class="btn btn-sm btn-outline-info btn-ver-detalle"
+                                data-bs-toggle="button"
+                                data-nombre="{{ $nombreActivo }}"
+                                data-numero="{{ $detalle->traslado_info['numero'] ?? 'N/A' }}"
+                                data-id-activo="{{ $idActivo }}"
+                                data-id-traslado="{{ $detalle->traslado_info['id_traslado'] ?? '' }}"
+                                data-cantidad-total="{{ $detalle->cantidad_inventario ?? 0 }}"
+                                data-cantidad-restante="{{ $detalle->cantidad_restante ?? 0 }}">
+                                Más detalle
+                            </button>
+                        @endif
+
+
                         </div>
                         {{-- Div para detalles dinámicos --}}
                         {{-- <div class="detalle-activo mt-2" style="display:none; border:1px solid #ccc; padding:10px; border-radius:5px;"></div> --}}
@@ -108,9 +151,9 @@
             $detalleDiv.html(`
         <p>Activo: <strong>${nombre}</strong></p>
         <p>Acta: N°<strong>${numero}</strong></p>
-        <button id="popover-btn" class="btn btn-sm btn-danger btn-eliminar-activo" 
-        data-id-activo="${idActivo}" 
-        data-id-traslado="${idTraslado}" 
+        <button id="popover-btn" class="btn btn-sm btn-danger btn-eliminar-activo"
+        data-id-activo="${idActivo}"
+        data-id-traslado="${idTraslado}"
         data-acta="${numero}">
         Eliminar de esta acta
         </button>
@@ -118,7 +161,7 @@
 
         $btn.addClass('active'); // opcional, solo visual
     });
-    
+
     $(document).off('click', '#popover-btn').on('click', '#popover-btn', function(e) {
         // alert("hola")
             var $btn = $(this);
