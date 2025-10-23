@@ -55,9 +55,11 @@
 </div>
 
 <script>
-   // Evita registrar el mismo evento varias veces
+
+
+
 $(document).off('click', '.btn_agregar_activo')
-           .on('click', '.btn_agregar_activo', function (e) {
+.on('click', '.btn_agregar_activo', function (e) {
     e.preventDefault();
 
     const $btn = $(this);
@@ -65,8 +67,9 @@ $(document).off('click', '.btn_agregar_activo')
     // Evita clics múltiples
     if ($btn.data('processing')) return;
 
-    const idActivo   = $btn.data('id');
+    const idActivo = $btn.data('id');
     const idTraslado = $('#btn_editar_traslado').data('id');
+    const cantidadRestante = parseInt($btn.data('cantidad-restante') ?? 0, 10);
 
     if (!idTraslado) {
         mensaje('No se encontró el ID del traslado.', 'warning');
@@ -78,38 +81,49 @@ $(document).off('click', '.btn_agregar_activo')
         return;
     }
 
-    // Marca el botón como procesando (para evitar múltiples envíos)
+    if (cantidadRestante <= 0) {
+        mensaje('No hay disponibilidad para este activo.', 'warning');
+        return;
+    }
+
+    // 🔹 Determinar cantidad
+    let cantidad = 1;
+
+    if (cantidadRestante > 1) {
+        const input = prompt(`Ingrese la cantidad a agregar (máximo ${cantidadRestante}):`, "1");
+        if (input === null) return; // Canceló
+        cantidad = parseInt(input, 10);
+
+        if (isNaN(cantidad) || cantidad < 1) {
+            mensaje('Cantidad inválida.', 'warning');
+            return;
+        }
+
+        if (cantidad > cantidadRestante) {
+            mensaje(`Solo hay ${cantidadRestante} disponibles.`, 'warning');
+            return;
+        }
+    }
+
+    // Marca el botón como procesando
     $btn.data('processing', true).prop('disabled', true);
 
+    // 🔹 Enviar al servidor
     $.ajax({
         url: `${baseUrl}/traslados/${idTraslado}/activos/agregar`,
         type: 'POST',
         data: {
             id_activo: idActivo,
+            cantidad: cantidad,
             _token: $('meta[name="csrf-token"]').attr('content')
         },
         success: function (response) {
             if (response.success) {
-                mensaje(response.message, 'success');
-                 const $td = $btn.closest('td');
-                  const numero = response.numero_acta || 'N/A'; // si quieres pasar número dinámico
-        const idTraslado = $('#btn_editar_traslado').data('id');
-
-        $td.html(`   <div class="d-flex align-items-center border p-2 rounded justify-content-between">
-            <span class="text-primary fw-semibold">Añadido</span>
-            <button class="btn btn-sm btn-outline-danger btn-eliminar-activo"
-                data-id-activo="${idActivo}"
-                data-id-traslado="${idTraslado}"
-                data-acta="${numero}">
-                Remover
-            </button>
-            </div>
-
-        `);
-                cargarTablaActivos(); // recargar tabla
+                mensaje(response.message || 'Activo agregado correctamente.', 'success');
             } else {
                 mensaje(response.error || 'No se pudo agregar el activo.', 'danger');
             }
+            cargarTablaActivos()
         },
         error: function (xhr) {
             const msg = xhr.responseJSON?.error || 'Ocurrió un error al agregar el activo.';
@@ -117,11 +131,98 @@ $(document).off('click', '.btn_agregar_activo')
             console.error(xhr.responseText);
         },
         complete: function () {
-            // Limpia el estado del botón al finalizar (éxito o error)
             $btn.data('processing', false).prop('disabled', false);
         }
     });
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   // Evita registrar el mismo evento varias veces
+// $(document).off('click', '.btn_agregar_activo')
+//            .on('click', '.btn_agregar_activo', function (e) {
+//     e.preventDefault();
+
+//     const $btn = $(this);
+
+//     // Evita clics múltiples
+//     if ($btn.data('processing')) return;
+
+//     const idActivo   = $btn.data('id');
+//     const idTraslado = $('#btn_editar_traslado').data('id');
+
+//     if (!idTraslado) {
+//         mensaje('No se encontró el ID del traslado.', 'warning');
+//         return;
+//     }
+
+//     if (!idActivo) {
+//         mensaje('No se encontró el ID del activo.', 'warning');
+//         return;
+//     }
+
+//     // Marca el botón como procesando (para evitar múltiples envíos)
+//     $btn.data('processing', true).prop('disabled', true);
+
+//     $.ajax({
+//         url: `${baseUrl}/traslados/${idTraslado}/activos/agregar`,
+//         type: 'POST',
+//         data: {
+//             id_activo: idActivo,
+//             _token: $('meta[name="csrf-token"]').attr('content')
+//         },
+//         success: function (response) {
+//             if (response.success) {
+//                 mensaje(response.message, 'success');
+//                  const $td = $btn.closest('td');
+//                   const numero = response.numero_acta || 'N/A'; // si quieres pasar número dinámico
+//         const idTraslado = $('#btn_editar_traslado').data('id');
+
+//         $td.html(`   <div class="d-flex align-items-center border p-2 rounded justify-content-between">
+//             <span class="text-primary fw-semibold">Añadido</span>
+//             <button class="btn btn-sm btn-outline-danger btn-eliminar-activo"
+//                 data-id-activo="${idActivo}"
+//                 data-id-traslado="${idTraslado}"
+//                 data-acta="${numero}">
+//                 Remover
+//             </button>
+//             </div>
+
+//         `);
+//                 cargarTablaActivos(); // recargar tabla
+//             } else {
+//                 mensaje(response.error || 'No se pudo agregar el activo.', 'danger');
+//             }
+//         },
+//         error: function (xhr) {
+//             const msg = xhr.responseJSON?.error || 'Ocurrió un error al agregar el activo.';
+//             mensaje(msg, 'danger');
+//             console.error(xhr.responseText);
+//         },
+//         complete: function () {
+//             // Limpia el estado del botón al finalizar (éxito o error)
+//             $btn.data('processing', false).prop('disabled', false);
+//         }
+//     });
+// });
 
 
 

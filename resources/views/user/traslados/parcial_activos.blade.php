@@ -2,11 +2,11 @@
     <thead>
         <tr>
             <th>Código</th>
-            <th>Cantidad</th>
-            <th>Unidad</th>
             <th>Nombre</th>
             <th>Detalle</th>
             <th>Estado</th>
+            <th>Unidad</th>
+            <th>Cantidad</th>
             {{-- <th>Observaciones</th> --}}
             <th>Acciones</th>
         </tr>
@@ -15,45 +15,40 @@
         @forelse($detalles as $detalle)
             <tr data-id-activo="{{ $detalle->id_activo }}">
                 <td>{{ $detalle->activo->codigo }}</td>
-
-                <!-- Cantidad -->
-                <td>fdsafdaf{{ $detalle->cantidad ?? 'N/D' }}fdsafdsa</td>
-                @php
-    $cantidadInventario = $detalle->activo->detalleInventario->cantidad ?? 0;
-    $cantidadTraslado = $detalle->cantidad;
-@endphp
-
-<td>
-    @if ($cantidadInventario > 1)
-        <div class="d-flex align-items-center gap-2">
-            <input type="number"
-                class="form-control form-control-sm cantidad-activo"
-                data-id-activo="{{ $detalle->id_activo }}"
-                value="{{ $cantidadTraslado }}"
-                min="1"
-                max="{{ $cantidadInventario }}"
-                disabled
-                style="width:80px;">
-
-            <div class="form-check mb-0">
-                <input type="checkbox"
-                    class="form-check-input chk-editar-cantidad"
-                    data-id-activo="{{ $detalle->id_activo }}"
-                    id="chk_{{ $detalle->id_activo }}"
-                    {{ $cantidadInventario > 1 ? '' : 'disabled' }}>
-                <label class="form-check-label" for="chk_{{ $detalle->id_activo }}">Editar</label>
-            </div>
-        </div>
-    @else
-        <span class="fw-semibold">{{ $cantidadTraslado }}</span>
-    @endif
-</td>
-
-
-                <td>{{ $detalle->activo->unidad->nombre ?? 'N/D' }}</td>
                 <td>{{ $detalle->activo->nombre }}</td>
                 <td>{{ $detalle->activo->detalle }}</td>
                 <td>{{ $detalle->activo->estado->nombre ?? 'N/D' }}</td>
+                <td>{{ $detalle->activo->unidad->nombre ?? 'N/D' }}</td>
+
+                <!-- Cantidad -->
+                {{-- <td>{{ $detalle->cantidad ?? 'N/D' }}</td> --}}
+                {{-- @php
+                    $cantidadInventario = $detalle->activo->detalleInventario->cantidad ?? 0;
+                    $cantidadTraslado = $detalle->cantidad;
+                @endphp --}}
+
+                <td>
+                    {{-- {{ $detalle->cantidad_usada}}  --}}
+                    {{-- {{ $detalle->cantidad_disponible-$detalle->cantidad_usada+$detalle->cantidad_en_acta }}  --}}
+                  @if ($detalle->cantidad_disponible > 1)
+                        <div class="d-flex align-items-center gap-2">
+                            <input disabled type="number" class="form-control form-control-sm cantidad-activo"
+                                data-id-activo="{{ $detalle->id_activo }}" value="{{ $detalle->cantidad_en_acta }}" min="1"
+                                max="{{ $detalle->cantidad_disponible-$detalle->cantidad_usada+$detalle->cantidad_en_acta }}"  style="width:80px;">
+
+                            <div class="form-check mb-0">
+                                <input type="checkbox" class="form-check-input chk-editar-cantidad"
+                                    data-id-activo="{{ $detalle->id_activo }}" id="chk_{{ $detalle->id_activo }}"
+                                    {{ $detalle->cantidad_disponible > 1 ? '' : 'disabled' }}>
+                                <label class="form-check-label" for="chk_{{ $detalle->id_activo }}">Editar</label>
+                            </div>
+                        </div>
+                    @else
+                        <span class="fw-semibold">{{ $cantidadTraslado }}</span>
+                    @endif
+                </td>
+
+
 
                 <td>
                     <button type="button" class="btn btn-danger btn-sm btn-eliminar-activo"
@@ -187,20 +182,21 @@
                 //                     }
                 //                 },
                 error: function(xhr) {
-    console.error(xhr.responseText); // por si quieres verlo completo en consola
+                    console.error(xhr
+                        .responseText); // por si quieres verlo completo en consola
 
-    // Intentar obtener el mensaje del backend
-    let msg = 'Ocurrió un error al eliminar el activo.';
+                    // Intentar obtener el mensaje del backend
+                    let msg = 'Ocurrió un error al eliminar el activo.';
 
-    if (xhr.responseJSON && xhr.responseJSON.error) {
-        msg = xhr.responseJSON.error;
-    } else if (xhr.responseJSON && xhr.responseJSON.message) {
-        msg = xhr.responseJSON.message;
-    }
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        msg = xhr.responseJSON.error;
+                    } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                        msg = xhr.responseJSON.message;
+                    }
 
-    // Mostrar mensaje al usuario
-    mensaje(msg, 'danger');
-},
+                    // Mostrar mensaje al usuario
+                    mensaje(msg, 'danger');
+                },
 
                 complete: function() {
                     // siempre limpiar el estado del botón
@@ -264,35 +260,35 @@
         // let debounceTimeout;  // Declárala una vez en el scope global o superior
 
         $(document).off('focus', '.cantidad-activo').on('focus', '.cantidad-activo', function() {
-    // Guarda el valor original cuando entra en foco
-    const input = $(this);
-    input.data('valor-original', input.val());
-});
+            // Guarda el valor original cuando entra en foco
+            const input = $(this);
+            input.data('valor-original', input.val());
+        });
 
-$(document).off('blur', '.cantidad-activo').on('blur', '.cantidad-activo', function() {
-    const input = $(this);
-    const idActivo = input.data('id-activo');
-    const valorOriginal = input.data('valor-original');
-    const valorActual = input.val();
+        $(document).off('blur', '.cantidad-activo').on('blur', '.cantidad-activo', function() {
+            const input = $(this);
+            const idActivo = input.data('id-activo');
+            const valorOriginal = input.data('valor-original');
+            const valorActual = input.val();
 
-    // Si el valor cambió, hacer la petición
-    if (valorActual !== valorOriginal) {
-        $.post(`${baseUrl}/traslados/${traslado_id}/activos/editar`, {
-                id_activo: idActivo,
-                cantidad: valorActual,
-                _token: '{{ csrf_token() }}'
-            },
-            function(res) {
-                if (res.success) {
-                    console.log(`Cantidad actualizada a ${valorActual}`);
-                } else {
-                    console.warn('Error al actualizar cantidad');
-                }
+            // Si el valor cambió, hacer la petición
+            if (valorActual !== valorOriginal) {
+                $.post(`${baseUrl}/traslados/${traslado_id}/activos/editar`, {
+                        id_activo: idActivo,
+                        cantidad: valorActual,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    function(res) {
+                        if (res.success) {
+                            console.log(`Cantidad actualizada a ${valorActual}`);
+                        } else {
+                            console.warn('Error al actualizar cantidad');
+                        }
+                    }
+                );
             }
-        );
-    }
-    // Si no cambió, no hace nada
-});
+            // Si no cambió, no hace nada
+        });
 
 
 

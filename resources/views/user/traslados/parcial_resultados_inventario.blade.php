@@ -8,7 +8,8 @@
                 <th>Categoría</th>
                 <th>Estado Actual</th>
                 <th>Cantidad</th>
-                <th>Disponibilidad / Acción</th>
+                <th>Disponibilidad</th>
+                <th>Acción</th>
             </tr>
         </thead>
         <tbody>
@@ -16,96 +17,67 @@
                 @php
                     $idActivo = $detalle->activo->id_activo ?? '';
                     $nombreActivo = $detalle->activo->nombre ?? '';
-                    $estado = $detalle->estado_asignacion ?? '';
-                    $trasladoInfo = $detalle->traslado_info ?? null;
+                    $cantidadTotal = $detalle->cantidad_inventario ?? 0;
+                    $cantidadRestante = $detalle->cantidad_restante ?? 0;
+                    $estadoTipo = $detalle->estado_tipo ?? 'none';
                 @endphp
+
                 <tr data-id-activo="{{ $idActivo }}">
                     <td>{{ $detalle->activo->codigo ?? 'N/D' }}</td>
-                    <td>{{ $nombreActivo }}</td>
+                    <td>{{ $detalle->activo->id_activo ?? 'N/D' }}</td>
                     <td>{{ $detalle->activo->detalle ?? 'N/D' }}</td>
                     <td>{{ $detalle->activo->categoria->nombre ?? 'N/D' }}</td>
                     <td>{{ $detalle->estado_actual ?? 'N/D' }}</td>
-                    <td>{{ $detalle->cantidad }}</td>
+                    <td>{{ $cantidadTotal }}</td>
                     <td>
-                        <div class="d-flex align-items-center border p-2 rounded justify-content-between" data-id-activo="{{ $idActivo }}">
-
-                            {{-- @if ($estado === 'Disponible')
-                                <span class="text-success fw-semibold">Disponible</span>
-                                <button class="btn btn-sm btn-outline-primary btn_agregar_activo"
-                                    data-id="{{ $idActivo }}">Agregar</button>
-                            @elseif(str_contains($estado, 'esta acta'))
-                                <span class="text-primary fw-semibold">Añadido</span>
-                                <button class="btn btn-sm btn-outline-danger btn-eliminar-activo"
-                                    data-id-activo="{{ $idActivo }}"
-                                    data-id-traslado="{{ $trasladoInfo['id_traslado'] ?? '' }}"
-                                    data-acta="${numero}">Remover</button>
-                            @elseif(str_contains($estado, 'otro acta'))
-                                <span class="text-danger fw-semibold">Registrado en otra acta</span>
-                                <!-- Toggle button nativo de Bootstrap -->
-                                <button type="button" class="btn btn-sm btn-outline-info btn-ver-detalle"
-                                    data-bs-toggle="button" data-nombre="{{ $nombreActivo }}"
-                                    data-numero="{{ $trasladoInfo['numero'] ?? 'N/A' }}"
-                                    data-id-activo="{{ $idActivo }}"
-                                    data-id-traslado="{{ $trasladoInfo['id_traslado'] ?? '' }}">
-                                    Más detalle
-                                </button>
-                            @endif --}}
-                            @if ($detalle->estado_tipo === 'disponible')
+                        {{-- <div class="d-flex align-items-center border p-2 rounded justify-content-between" data-id-activo="{{ $idActivo }}"> --}}
+                        {{-- Mostrar cantidad disponible --}}
+                        @if ($cantidadRestante > 0)
                             <span class="text-success fw-semibold">
-                                {{ $detalle->estado_asignacion }}
+                                {{ $cantidadRestante }} disponibles
                             </span>
-                            <button class="btn btn-sm btn-outline-primary btn_agregar_activo"
-                                data-id="{{ $idActivo }}"
-                                data-cantidad-total="{{ $detalle->cantidad_inventario ?? 0 }}"
-                                data-cantidad-restante="{{ $detalle->cantidad_restante ?? 0 }}"
-                                data-cantidad-usada-otros="{{ $detalle->cantidad_usada_otros ?? 0 }}"
-                                data-cantidad-usada-actual="{{ $detalle->cantidad_usada_actual ?? 0 }}">
-                                Agregar
-                            </button>
-
-                        @elseif ($detalle->estado_tipo === 'actual')
-                            <span class="text-primary fw-semibold">
-                                {{ $detalle->estado_asignacion }}
-                            </span>
-                            <button class="btn btn-sm btn-outline-danger btn-eliminar-activo"
-                                data-id-activo="{{ $idActivo }}"
-                                data-id-traslado="{{ $detalle->traslado_info['id_traslado'] ?? '' }}"
-                                data-acta="{{ $detalle->traslado_info['numero'] ?? 'N/A' }}"
-                                data-cantidad-total="{{ $detalle->cantidad_inventario ?? 0 }}"
-                                data-cantidad-usada-actual="{{ $detalle->cantidad_usada_actual ?? 0 }}">
-                                Remover
-                            </button>
-
-                        @elseif ($detalle->estado_tipo === 'otro')
+                        @else
                             <span class="text-danger fw-semibold">
-                                {{ $detalle->estado_asignacion }}
+                                Sin disponibilidad
                             </span>
-                            <button type="button" class="btn btn-sm btn-outline-info btn-ver-detalle"
-                                data-bs-toggle="button"
-                                data-nombre="{{ $nombreActivo }}"
-                                data-numero="{{ $detalle->traslado_info['numero'] ?? 'N/A' }}"
-                                data-id-activo="{{ $idActivo }}"
-                                data-id-traslado="{{ $detalle->traslado_info['id_traslado'] ?? '' }}"
-                                data-cantidad-total="{{ $detalle->cantidad_inventario ?? 0 }}"
-                                data-cantidad-restante="{{ $detalle->cantidad_restante ?? 0 }}">
-                                Más detalle
-                            </button>
                         @endif
 
 
-                        </div>
-                        {{-- Div para detalles dinámicos --}}
-                        {{-- <div class="detalle-activo mt-2" style="display:none; border:1px solid #ccc; padding:10px; border-radius:5px;"></div> --}}
-                    </td>
+</div>
+</td>
+<td>
+    {{-- Mostrar botón según estado real --}}
+    @if ($detalle->cantidad_en_acta > 0)
+        {{-- Ya está en esta acta --}}
+        <button class="btn btn-sm btn-outline-danger btn-eliminar-activo" data-id-activo="{{ $idActivo }}"
+            data-id-traslado="{{ $detalle->id_traslado }}">
+            Eliminar
+        </button>
+    @elseif ($detalle->cantidad_en_acta == 0 && $detalle->cantidad_restante > 0)
+        {{-- Disponible para agregar --}}
+        <button class="btn btn-sm btn-outline-primary btn_agregar_activo" data-id="{{ $idActivo }}"
+            data-cantidad-restante="{{ $detalle->cantidad_restante }}"
+            data-cantidad-total="{{ $detalle->cantidad_inventario }}">
+            Agregar
+        </button>
+    @elseif ($detalle->cantidad_en_acta == 0 && $detalle->cantidad_restante == 0)
+        {{-- Sin stock, revisar --}}
+        <button type="button" class="btn btn-sm btn-outline-secondary btn-ver-detalle"
+            data-id-activo="{{ $idActivo }}" data-nombre="{{ $nombreActivo }}">
+            Revisar
+        </button>
+    @endif
 
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="7" class="text-center text-muted">No se encontraron activos.</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
+</td>
+</tr>
+@empty
+<tr>
+    <td colspan="7" class="text-center text-muted">No se encontraron activos.</td>
+</tr>
+@endforelse
+</tbody>
+
+</table>
 </div>
 
 <script>
@@ -159,20 +131,20 @@
         </button>
         `).slideDown();
 
-        $btn.addClass('active'); // opcional, solo visual
-    });
+            $btn.addClass('active'); // opcional, solo visual
+        });
 
-    $(document).off('click', '#popover-btn').on('click', '#popover-btn', function(e) {
-        // alert("hola")
+        $(document).off('click', '#popover-btn').on('click', '#popover-btn', function(e) {
+            // alert("hola")
             var $btn = $(this);
-const $td = $btn.closest('td');
-const idActivo = $btn.data('id-activo');
-restaurarBotonDisponible($td, idActivo);
+            const $td = $btn.closest('td');
+            const idActivo = $btn.data('id-activo');
+            restaurarBotonDisponible($td, idActivo);
 
-    });
+        });
 
-function restaurarBotonDisponible($td, idActivo) {
-    $td.html(`
+        function restaurarBotonDisponible($td, idActivo) {
+            $td.html(`
         <div class="d-flex align-items-center border p-2 rounded justify-content-between">
             <span class="text-success fw-semibold">Disponible</span>
             <button class="btn btn-sm btn-outline-primary btn_agregar_activo" data-id="${idActivo}">
@@ -180,6 +152,6 @@ function restaurarBotonDisponible($td, idActivo) {
             </button>
         </div>
     `);
-}
+        }
     });
 </script>

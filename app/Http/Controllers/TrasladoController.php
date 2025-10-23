@@ -92,12 +92,12 @@ class TrasladoController extends Controller
                 // Validar que el activo existe en el inventario origen (servicio origen) con estado activo o pendiente y cantidad suficiente
                 $detalleInventarioOrigen = DetalleInventario::whereHas('inventario', function ($q) use ($traslado) {
                     $q->where('id_servicio', $traslado->id_servicio_origen)
-                      ->where('gestion', $traslado->gestion)
-                      ->where('estado', 'pendiente');
+                        ->where('gestion', $traslado->gestion)
+                        ->where('estado', 'pendiente');
                 })
-                ->where('id_activo', $detalle->id_activo)
-                ->where('cantidad', '>=', $detalle->cantidad)
-                ->first();
+                    ->where('id_activo', $detalle->id_activo)
+                    ->where('cantidad', '>=', $detalle->cantidad)
+                    ->first();
 
                 if (!$detalleInventarioOrigen) {
                     DB::rollBack();
@@ -350,71 +350,52 @@ class TrasladoController extends Controller
             //         $detalle->traslado_info = null;
             //     }
             // }
-            foreach ($detalles as $detalle) {
-                $idActivo = $detalle->activo->id_activo ?? null;
+               foreach ($detalles as $detalle) {
+        $idActivo = $detalle->activo->id_activo ?? null;
 
-                if (!$idActivo) {
-                    $detalle->estado_asignacion = 'N/D';
-                    $detalle->estado_tipo = 'none';
-                    $detalle->traslado_info = null;
-                    // variables numéricas vacías
-                    $detalle->cantidad_inventario = 0;
-                    $detalle->cantidad_usada_otros = 0;
-                    $detalle->cantidad_usada_actual = 0;
-                    $detalle->cantidad_restante = 0;
-                    continue;
-                }
+        if (!$idActivo) {
+            $detalle->cantidad_inventario = 0;
+            $detalle->cantidad_restante = 0;
+            $detalle->estado_tipo = 'none';
+            $detalle->estado_actual = 'N/D';
+            continue;
+        }
 
-                // 🟩 Cantidad total en inventario (la verdadera)
-                $cantidadInventario = $detalle->cantidad ?? 0;
+        // Cantidad total en inventario según el detalle
+        $cantidadInventario = $detalle->cantidad ?? 0;
 
-                // 🟦 Cantidad usada en otros traslados
-                $cantidadUsadaOtros = DetalleTraslado::where('id_activo', $idActivo)
-                    ->when($idTrasladoActual, fn($q) => $q->where('id_traslado', '!=', $idTrasladoActual))
-                    ->sum('cantidad');
+        // Cantidad usada en otros traslados
+        $cantidadUsadaOtros = DetalleTraslado::where('id_activo', $idActivo)
+            ->when($idTrasladoActual, fn($q) => $q->where('id_traslado', '!=', $idTrasladoActual))
+            ->sum('cantidad');
 
-                // 🟨 Cantidad usada en este traslado (si aplica)
-                $trasladoActual = null;
-                $cantidadUsadaActual = 0;
+        // Cantidad usada en este traslado
+        $cantidadUsadaActual = $idTrasladoActual
+            ? DetalleTraslado::where('id_activo', $idActivo)
+                ->where('id_traslado', $idTrasladoActual)
+                ->sum('cantidad')
+            : 0;
 
-                if ($idTrasladoActual) {
-                    $trasladoActual = DetalleTraslado::with('traslado')
-                        ->where('id_activo', $idActivo)
-                        ->where('id_traslado', $idTrasladoActual)
-                        ->first();
+        // Cantidad restante disponible
+        $cantidadRestante = max(0, $cantidadInventario - $cantidadUsadaOtros - $cantidadUsadaActual);
 
-                    $cantidadUsadaActual = $trasladoActual->cantidad ?? 0;
-                }
+        // Asignar propiedades dinámicas para Blade
+        $detalle->setAttribute('cantidad_inventario', $cantidadInventario);
+        $detalle->setAttribute('cantidad_usada_total', $cantidadUsadaOtros + $cantidadUsadaActual);
+        $detalle->setAttribute('cantidad_en_acta', $cantidadUsadaActual);
+        $detalle->setAttribute('cantidad_restante', $cantidadRestante);
 
-                // 🟥 Cantidad restante libre (para usar en otros traslados)
-                $cantidadRestante = max(0, $cantidadInventario - $cantidadUsadaOtros - $cantidadUsadaActual);
+        // Estado simple para la tabla
+        $detalle->estado_tipo = $cantidadRestante > 0 ? 'disponible' : 'sin_disponibilidad';
 
-                // Guardar las variables numéricas en el objeto detalle
-                $detalle->cantidad_inventario = $cantidadInventario;
-                $detalle->cantidad_usada_otros = $cantidadUsadaOtros;
-                $detalle->cantidad_usada_actual = $cantidadUsadaActual;
-                $detalle->cantidad_restante = $cantidadRestante;
+        // Estado actual del inventario
+        $detalle->estado_actual = $detalle->activo->detalleInventario->estado_actual ?? 'N/Dg';
+        $detalle->setAttribute('id_traslado', $idTrasladoActual ?? null);
+    }
 
-                // 🔹 Determinar el estado del activo según cantidades
-                if ($trasladoActual) {
-                    $detalle->estado_asignacion = "Añadido a este traslado ({$cantidadUsadaActual}/{$cantidadInventario})";
-                    $detalle->estado_tipo = 'actual';
-                    $detalle->traslado_info = [
-                        'id_traslado' => $trasladoActual->id_traslado,
-                        'numero' => $trasladoActual->traslado->numero ?? null,
-                    ];
-                } elseif ($cantidadRestante > 0) {
-                    $detalle->estado_asignacion = "Disponible ({$cantidadRestante} de {$cantidadInventario} disponibles)";
-                    $detalle->estado_tipo = 'disponible';
-                    $detalle->traslado_info = null;
-                } else {
-                    $detalle->estado_asignacion = "Activo ya asignado completamente en otras actas";
-                    $detalle->estado_tipo = 'otro';
-                    $detalle->traslado_info = null;
-                }
-            }
 
-//me devuleve todos estos datos......
+
+            //me devuleve todos estos datos......
 
             // [
             //     "id_detalle_inventario" => 17,
@@ -505,30 +486,30 @@ class TrasladoController extends Controller
 
     public function store(Request $request)
     {
-       $rules = [
-    'numero_documento' => ['required', 'regex:/^\d+$/', 'max:3'],
-    'gestion' => ['required', 'digits:4'],
-    'fecha' => 'required|date|after_or_equal:' . $request->gestion . '-01-01|before_or_equal:' . $request->gestion . '-12-31',
-    'id_servicio_origen' => 'required|exists:servicios,id_servicio',
-    'id_servicio_destino' => 'required|exists:servicios,id_servicio|different:id_servicio_origen',
-    'observaciones' => 'nullable|string|max:100',
-];
+        $rules = [
+            'numero_documento' => ['required', 'regex:/^\d+$/', 'max:3'],
+            'gestion' => ['required', 'digits:4'],
+            'fecha' => 'required|date|after_or_equal:' . $request->gestion . '-01-01|before_or_equal:' . $request->gestion . '-12-31',
+            'id_servicio_origen' => 'required|exists:servicios,id_servicio',
+            'id_servicio_destino' => 'required|exists:servicios,id_servicio|different:id_servicio_origen',
+            'observaciones' => 'nullable|string|max:100',
+        ];
 
-$messages = [
-    'numero_documento.required' => 'El número de documento es obligatorio.',
-    'numero_documento.regex' => 'El número de documento solo puede contener números.',
-    'numero_documento.max' => 'El número de documento no puede superar 3 dígitos.',
-    'gestion.required' => 'La gestión es obligatoria.',
-    'gestion.digits' => 'La gestión debe tener exactamente 4 dígitos.',
-    'fecha.required' => 'La fecha es obligatoria.',
-    'fecha.date' => 'La fecha no es válida.',
-    'fecha.after_or_equal' => 'La fecha no puede ser anterior al año de la gestión.',
-    'fecha.before_or_equal' => 'La fecha no puede ser posterior al año de la gestión.',
-    'id_servicio_origen.required' => 'Debe seleccionar un servicio de origen.',
-    'id_servicio_destino.required' => 'Debe seleccionar un servicio de destino.',
-    'id_servicio_destino.different' => 'El servicio destino no puede ser igual al origen.',
-    'observaciones.max' => 'Las observaciones no pueden superar 100 caracteres.',
-];
+        $messages = [
+            'numero_documento.required' => 'El número de documento es obligatorio.',
+            'numero_documento.regex' => 'El número de documento solo puede contener números.',
+            'numero_documento.max' => 'El número de documento no puede superar 3 dígitos.',
+            'gestion.required' => 'La gestión es obligatoria.',
+            'gestion.digits' => 'La gestión debe tener exactamente 4 dígitos.',
+            'fecha.required' => 'La fecha es obligatoria.',
+            'fecha.date' => 'La fecha no es válida.',
+            'fecha.after_or_equal' => 'La fecha no puede ser anterior al año de la gestión.',
+            'fecha.before_or_equal' => 'La fecha no puede ser posterior al año de la gestión.',
+            'id_servicio_origen.required' => 'Debe seleccionar un servicio de origen.',
+            'id_servicio_destino.required' => 'Debe seleccionar un servicio de destino.',
+            'id_servicio_destino.different' => 'El servicio destino no puede ser igual al origen.',
+            'observaciones.max' => 'Las observaciones no pueden superar 100 caracteres.',
+        ];
 
 
         $validator = Validator::make($request->all(), $rules, $messages);
@@ -724,12 +705,26 @@ $messages = [
     public function tablaActivos($id)
     {
         $detalles = DetalleTraslado::with('activo.unidad', 'activo.estado', 'activo.detalleInventario')
-    ->where('id_traslado', $id)
-    ->get();
+            ->where('id_traslado', $id)
+            ->get()
+            ->map(function ($detalle) {
+                $idActivo = $detalle->id_activo;
 
+                $cantidadDisponible = $detalle->activo->detalleInventario->cantidad ?? 0;
+                $cantidadUsada = DetalleTraslado::where('id_activo', $idActivo)->sum('cantidad');
+                $cantidadEnActa = $detalle->cantidad ?? 0;
+
+                // Agregar propiedades dinámicas correctamente
+                $detalle->setAttribute('cantidad_disponible', $cantidadDisponible);
+                $detalle->setAttribute('cantidad_usada', $cantidadUsada);
+                $detalle->setAttribute('cantidad_en_acta', $cantidadEnActa);
+
+                return $detalle;
+            });
 
         return view('user.traslados.parcial_activos', compact('detalles'));
     }
+
 
 
     // Agregar activo al traslado
