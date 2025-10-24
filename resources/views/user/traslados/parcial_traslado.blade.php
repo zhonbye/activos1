@@ -58,7 +58,7 @@
         {{-- <div id="cardBodyTraslado" class="show "> --}}
             <div class="card-body">
                 <div class="row g-3">
-                    <input type="hidden" name="id_traslado" value="{{ $traslado->id_traslado }}">
+                    <input type="hidden" name="id_traslado"  id="id_traslado" value="{{ $traslado->id_traslado }}">
                     {{-- Origen --}}
                     <div class="col-12 col-md-4">
                         <div class="border p-2 rounded h-100">

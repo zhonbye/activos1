@@ -350,48 +350,67 @@ class TrasladoController extends Controller
             //         $detalle->traslado_info = null;
             //     }
             // }
-               foreach ($detalles as $detalle) {
-        $idActivo = $detalle->activo->id_activo ?? null;
+            foreach ($detalles as $detalle) {
+                $idActivo = $detalle->activo->id_activo ?? null;
 
-        if (!$idActivo) {
-            $detalle->cantidad_inventario = 0;
-            $detalle->cantidad_restante = 0;
-            $detalle->estado_tipo = 'none';
-            $detalle->estado_actual = 'N/D';
-            continue;
-        }
+                if (!$idActivo) {
+                    $detalle->cantidad_inventario = 0;
+                    $detalle->cantidad_restante = 0;
+                    $detalle->estado_tipo = 'none';
+                    $detalle->estado_actual = 'N/D';
+                    continue;
+                }
 
-        // Cantidad total en inventario según el detalle
-        $cantidadInventario = $detalle->cantidad ?? 0;
+                $cantidadInventario = $detalle->cantidad ?? 0;
 
-        // Cantidad usada en otros traslados
-        $cantidadUsadaOtros = DetalleTraslado::where('id_activo', $idActivo)
-            ->when($idTrasladoActual, fn($q) => $q->where('id_traslado', '!=', $idTrasladoActual))
-            ->sum('cantidad');
+                // 🔹 Cantidad usada en otros traslados
+                $cantidadUsadaOtros = DetalleTraslado::where('id_activo', $idActivo)
+                    ->when($idTrasladoActual, fn($q) => $q->where('id_traslado', '!=', $idTrasladoActual))
+                    ->sum('cantidad');
 
-        // Cantidad usada en este traslado
-        $cantidadUsadaActual = $idTrasladoActual
-            ? DetalleTraslado::where('id_activo', $idActivo)
-                ->where('id_traslado', $idTrasladoActual)
-                ->sum('cantidad')
-            : 0;
+                // 🔹 NUEVO: actas donde está registrado
+              // 🔹 Obtener IDs y número_documento de las actas donde aparece este activo
+$actas = DetalleTraslado::where('id_activo', $idActivo)
+->join('traslados as t', 't.id_traslado', '=', 'detalle_traslados.id_traslado')
+->select('detalle_traslados.id_traslado', 't.numero_documento')
+->distinct()
+->get()
+->map(function ($a) {
+    return [
+        'id' => $a->id_traslado,
+        'numero_documento' => $a->numero_documento,
+    ];
+})
+->values()
+->toArray();
 
-        // Cantidad restante disponible
-        $cantidadRestante = max(0, $cantidadInventario - $cantidadUsadaOtros - $cantidadUsadaActual);
+// 🔹 Contar cuántas actas distintas lo tienen registrado
+$cantidadActasRegistradas = count($actas);
 
-        // Asignar propiedades dinámicas para Blade
-        $detalle->setAttribute('cantidad_inventario', $cantidadInventario);
-        $detalle->setAttribute('cantidad_usada_total', $cantidadUsadaOtros + $cantidadUsadaActual);
-        $detalle->setAttribute('cantidad_en_acta', $cantidadUsadaActual);
-        $detalle->setAttribute('cantidad_restante', $cantidadRestante);
+// 🔹 Guardar los datos en el modelo (para usarlos en Blade)
+$detalle->setAttribute('actas_info', $actas);
+$detalle->setAttribute('cantidad_actas', $cantidadActasRegistradas);
 
-        // Estado simple para la tabla
-        $detalle->estado_tipo = $cantidadRestante > 0 ? 'disponible' : 'sin_disponibilidad';
 
-        // Estado actual del inventario
-        $detalle->estado_actual = $detalle->activo->detalleInventario->estado_actual ?? 'N/Dg';
-        $detalle->setAttribute('id_traslado', $idTrasladoActual ?? null);
-    }
+                // 🔹 Cantidad usada en este traslado
+                $cantidadUsadaActual = $idTrasladoActual
+                    ? DetalleTraslado::where('id_activo', $idActivo)
+                        ->where('id_traslado', $idTrasladoActual)
+                        ->sum('cantidad')
+                    : 0;
+
+                $cantidadRestante = max(0, $cantidadInventario - $cantidadUsadaOtros - $cantidadUsadaActual);
+
+                $detalle->setAttribute('cantidad_inventario', $cantidadInventario);
+                $detalle->setAttribute('cantidad_usada_total', $cantidadUsadaOtros + $cantidadUsadaActual);
+                $detalle->setAttribute('cantidad_en_acta', $cantidadUsadaActual);
+                $detalle->setAttribute('cantidad_restante', $cantidadRestante);
+
+                $detalle->estado_tipo = $cantidadRestante > 0 ? 'disponible' : 'sin_disponibilidad';
+                $detalle->estado_actual = $detalle->activo->detalleInventario->estado_actual ?? 'N/D';
+                $detalle->setAttribute('id_traslado', $idTrasladoActual ?? null);
+            }
+
 
 
 
@@ -705,24 +724,38 @@ class TrasladoController extends Controller
     public function tablaActivos($id)
     {
         $detalles = DetalleTraslado::with('activo.unidad', 'activo.estado', 'activo.detalleInventario')
-            ->where('id_traslado', $id)
-            ->get()
-            ->map(function ($detalle) {
-                $idActivo = $detalle->id_activo;
+        ->where('id_traslado', $id)
+        ->get()
+        ->map(function ($detalle) {
+            $idActivo = $detalle->id_activo;
 
-                $cantidadDisponible = $detalle->activo->detalleInventario->cantidad ?? 0;
-                $cantidadUsada = DetalleTraslado::where('id_activo', $idActivo)->sum('cantidad');
-                $cantidadEnActa = $detalle->cantidad ?? 0;
+            $cantidadDisponible = $detalle->activo->detalleInventario->cantidad ?? 0;
+            $cantidadUsada = DetalleTraslado::where('id_activo', $idActivo)->sum('cantidad');
+            $cantidadEnActa = $detalle->cantidad ?? 0;
 
-                // Agregar propiedades dinámicas correctamente
-                $detalle->setAttribute('cantidad_disponible', $cantidadDisponible);
-                $detalle->setAttribute('cantidad_usada', $cantidadUsada);
-                $detalle->setAttribute('cantidad_en_acta', $cantidadEnActa);
+            // Obtener todos los traslados donde aparece este mismo activo
+            $actasInfo = DetalleTraslado::where('id_activo', $idActivo)
+                ->with('traslado') // asumimos que hay relación `traslado` que tiene `numero_documento`
+                ->get()
+                ->map(function ($d) {
+                    return [
+                        'id_traslado' => $d->id_traslado,
+                        'numero_documento' => $d->traslado->numero_documento ?? null,
+                        'cantidad' => $d->cantidad ?? 0,
+                    ];
+                });
 
-                return $detalle;
-            });
+            // Agregar propiedades dinámicas correctamente
+            $detalle->setAttribute('cantidad_disponible', $cantidadDisponible);
+            $detalle->setAttribute('cantidad_usada', $cantidadUsada);
+            $detalle->setAttribute('cantidad_en_acta', $cantidadEnActa);
+            $detalle->setAttribute('actas_info', $actasInfo);
 
-        return view('user.traslados.parcial_activos', compact('detalles'));
+            return $detalle;
+        });
+
+    return view('user.traslados.parcial_activos', compact('detalles'));
+
     }
 
 
@@ -731,7 +764,7 @@ class TrasladoController extends Controller
     public function agregarActivo(Request $request, $id)
     {
         try {
-            // Traer traslado y verificar si está editable
+            // 1️⃣ Verificar traslado
             $traslado = Traslado::findOrFail($id);
             if (!$traslado->isEditable()) {
                 return response()->json([
@@ -740,10 +773,10 @@ class TrasladoController extends Controller
                 ], 422);
             }
 
-            // Buscar el activo (solo si está activo)
+            // 2️⃣ Buscar el activo
             $activo = Activo::activos()->findOrFail($request->id_activo);
 
-            // Buscar cantidad desde detalle inventario
+            // 3️⃣ Buscar detalle inventario
             $detalleInventario = DetalleInventario::where('id_activo', $activo->id_activo)
                 ->where('estado_actual', '!=', 'eliminado')
                 ->first();
@@ -755,7 +788,7 @@ class TrasladoController extends Controller
                 ], 404);
             }
 
-            // Evitar duplicados en el traslado
+            // 4️⃣ Evitar duplicados
             if (DetalleTraslado::where('id_traslado', $id)->where('id_activo', $activo->id_activo)->exists()) {
                 return response()->json([
                     'success' => false,
@@ -763,11 +796,35 @@ class TrasladoController extends Controller
                 ], 422);
             }
 
-            // Crear detalle con cantidad real
+            // 5️⃣ Validar cantidad enviada
+            $cantidadSolicitada = (int) $request->cantidad;
+            if ($cantidadSolicitada <= 0) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'La cantidad debe ser mayor a 0.'
+                ], 422);
+            }
+
+            // 6️⃣ Calcular cantidad disponible (restante real)
+            $cantidadUsadaEnOtros = DetalleTraslado::where('id_activo', $activo->id_activo)
+                ->where('id_traslado', '!=', $id)
+                ->sum('cantidad');
+
+            $cantidadDisponible = max(0, $detalleInventario->cantidad - $cantidadUsadaEnOtros);
+
+            // 7️⃣ Validar disponibilidad
+            if ($cantidadSolicitada > $cantidadDisponible) {
+                return response()->json([
+                    'success' => false,
+                    'error' => "Cantidad solicitada no disponible. Solo hay {$cantidadDisponible} unidades disponibles."
+                ], 422);
+            }
+
+            // 8️⃣ Crear el detalle con la cantidad solicitada
             $detalle = DetalleTraslado::create([
                 'id_traslado' => $id,
                 'id_activo' => $activo->id_activo,
-                'cantidad' => $detalleInventario->cantidad, // 👈 cantidad real
+                'cantidad' => $cantidadSolicitada,
                 'observaciones' => $request->observaciones ?? ''
             ]);
 
@@ -775,8 +832,9 @@ class TrasladoController extends Controller
                 'success' => true,
                 'detalle' => $detalle,
                 'activo' => $activo,
-                'message' => 'Activo agregado correctamente.'
+                'message' => "Activo agregado correctamente con {$cantidadSolicitada} unidades."
             ]);
+
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
@@ -789,6 +847,7 @@ class TrasladoController extends Controller
             ], 500);
         }
     }
+
 
     // Editar cantidad u observaciones
     public function editarActivo(Request $request, $id)
@@ -837,8 +896,6 @@ class TrasladoController extends Controller
                 ->where('id_activo', $request->id_activo)
                 ->first();
 
-            // dd("traslado".$id. " detalle".$detalle);
-            // dd($request->id_activo);
             if (!$detalle) {
                 return response()->json([
                     'success' => false,
@@ -846,14 +903,19 @@ class TrasladoController extends Controller
                 ], 404);
             }
 
+            // Guardar la cantidad antes de eliminar
+            $cantidadEliminada = $detalle->cantidad;
+
             // 4️⃣ Eliminar el detalle
             $detalle->delete();
 
-            // 5️⃣ Respuesta exitosa
+            // 5️⃣ Respuesta exitosa con cantidad eliminada
             return response()->json([
                 'success' => true,
-                'message' => 'Activo eliminado correctamente del traslado.'
+                'message' => 'Activo eliminado correctamente del traslado.',
+                'cantidad_eliminada' => $cantidadEliminada
             ]);
+
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
@@ -865,6 +927,7 @@ class TrasladoController extends Controller
                 'error' => 'Ocurrió un error inesperado: ' . $e->getMessage()
             ], 500);
         }
+
     }
 
     /**

@@ -24,16 +24,18 @@
                     {{-- Número de Traslado, Gestión y Fecha --}}
                     <div class="col-md-4 col-sm-6">
                         <small class="text-muted">Número de Traslado</small>
-                       <div class="d-flex ">
-                        <div class="input-group">
-                            <input type="text" id="numerogeneradoedicion" class="form-control" {{-- aquí está la clase is-invalid para simular el error --}}
-                                name="numero_documento" value="{{ $traslado->numero_documento ?? '' }}" required
-                                style="min-width: 0;" {{-- evita que el input crezca demasiado --}}>
+                        <div class="d-flex ">
+                            <div class="input-group">
+                                <input type="text" id="numerogeneradoedicion" class="form-control"
+                                    {{-- aquí está la clase is-invalid para simular el error --}} name="numero_documento"
+                                    value="{{ $traslado->numero_documento ?? '' }}" required style="min-width: 0;"
+                                    {{-- evita que el input crezca demasiado --}}>
+                            </div>
+                            <button class="btn btn-outline-primary" type="button"
+                                id="generarNumero"style="flex-shrink: 0; align-self: flex-start;">
+                                <i class="bi bi-search"></i> <!-- ícono lupa usando Bootstrap Icons -->
+                            </button>
                         </div>
-                        <button class="btn btn-outline-primary" type="button" id="generarNumero"style="flex-shrink: 0; align-self: flex-start;">
-                            <i class="bi bi-search"></i> <!-- ícono lupa usando Bootstrap Icons -->
-                        </button>
-                       </div>
                     </div>
 
 
@@ -99,37 +101,71 @@
         var gestion = $('#gestion').val().trim();
         alert(gestion)
         if (gestion.length !== 4 || isNaN(gestion)) {
-        mensaje('Debe ingresar una gestión válida de 4 dígitos.', 'warning');
-        return;
-    }
-        $.ajax({
-        url: baseUrl + '/traslados/generar-numero/' + gestion,
-        type: 'GET',
-        dataType: 'json',
-        success: function(response) {
-            if (response.success) {
-                $('#numerogeneradoedicion').val(response.numero);
-                mensaje('Número generado correctamente.', 'success');
-            } else {
-                $('#numerogeneradoedicion').val('');
-                mensaje(response.message || 'No se pudo generar el número.', 'danger');
-            }
-        },
-        error: function(xhr) {
-            $('#numerogeneradoedicion').val('');
-            let msg = 'Ocurrió un error al generar el número.';
-            if (xhr.responseJSON && xhr.responseJSON.message) {
-                msg = xhr.responseJSON.message;
-            }
-            mensaje(msg, 'danger');
+            mensaje('Debe ingresar una gestión válida de 4 dígitos.', 'warning');
+            return;
         }
-    });
+        $.ajax({
+            url: baseUrl + '/traslados/generar-numero/' + gestion,
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    $('#numerogeneradoedicion').val(response.numero);
+                    mensaje('Número generado correctamente.', 'success');
+                } else {
+                    $('#numerogeneradoedicion').val('');
+                    mensaje(response.message || 'No se pudo generar el número.', 'danger');
+                }
+            },
+            error: function(xhr) {
+                $('#numerogeneradoedicion').val('');
+                let msg = 'Ocurrió un error al generar el número.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = xhr.responseJSON.message;
+                }
+                mensaje(msg, 'danger');
+            }
+        });
     });
     $('#guardarCambiosTraslado').on('click', function() {
         if (!confirm('¿Está seguro que desea guardar los cambios en este traslado?')) return;
 
         var form = $('#modalEditarTraslado').find('form#formEditarTraslado');
         var idTraslado = form.find('input[name="id_traslado"]').val();
+        var servicioActual = form.find('select[name="id_servicio_origen"]').data('original'); // guardamos el original
+        var servicioActual = $("#contenedor_detalle_traslado #id_servicio_origen").val(); // guardamos el original
+        var servicioNuevo = form.find('select[name="id_servicio_origen"]').val();
+// alert(servicioActual +" y "+servicioNuevo)
+        // Verificar si cambió el servicio
+        if (servicioActual != servicioNuevo) {
+            // alert("fdsafds")
+            var activosSeleccionados = $('#tabla_activos tbody tr').length;
+            if (activosSeleccionados > 0 ) {
+                if (!confirm(
+                        'Se ha cambiado el servicio de origen. Todos los activos seleccionados serán eliminados. ¿Desea continuar?'
+                        )) {
+                    return; // Detener acción
+                }
+
+                // Eliminar visualmente los activos de la tabla
+                $('#tablaActivosTraslado tbody').empty();
+
+                // Opcional: también enviar petición al servidor para limpiar los activos guardados
+                $.post(`${baseUrl}/traslados/${idTraslado}/activos/limpiar`, {
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                });
+            }
+        }
+
+
+
+
+
+
+
+
+
+
         var url = baseUrl + '/traslados/' + idTraslado + '/update';
 
         $.ajax({

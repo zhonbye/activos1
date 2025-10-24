@@ -57,6 +57,41 @@
     .action-card:hover i {
         transform: scale(1.4);
     }
+
+
+    .wheel-container {
+    height: 320px;           /* altura visible */
+    overflow-y: scroll;      /* permite deslizar */
+    scroll-snap-type: y mandatory;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    text-align: center;
+}
+
+.wheel-container ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.wheel-container li {
+    height: 40px;
+    line-height: 40px;
+    scroll-snap-align: center;
+    transition: background 0.3s, color 0.3s;
+    cursor: pointer;
+}
+
+.wheel-container li.selected {
+    background: #0d6efd;
+    color: white;
+    font-weight: bold;
+}
+
+
+
+
+
 </style>
 
 <div class="row p-0 mb-4 pb-4" style="height: 90vh;">
@@ -184,6 +219,26 @@
 
 </div>
 
+
+{{-- modal donde se muestra informacion del activo en actas --}}
+<div id="modalDetalleActivos" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="modalActivoNombre"></h5>
+                <span id="modalActivoCantidad" class="ms-3 text-primary"></span>
+            </div>
+            <div class="modal-body">
+                <div class="wheel-container" style="max-height: 200px; overflow-y: auto;">
+                    <ul id="actasWheel" class="list-unstyled m-0 p-0"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 <!-- Modal -->
 <div class="modal fade" id="modalInventario" tabindex="-1" aria-labelledby="modalInventarioLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
@@ -195,11 +250,11 @@
             </div>
             <div class="modal-body"id="modal_body_inventario">
                 <!-- Aquí puedes poner el contenido dinámico de inventario -->
-                <p>Aquí va el contenido del inventario...</p>
+                <p>Cargando detalles del inventario...</p>
             </div>
-            <div class="modal-footer">
+            {{-- <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            </div>
+            </div> --}}
         </div>
     </div>
 </div>
