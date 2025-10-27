@@ -73,22 +73,25 @@
 
 <script>
     $(document).on('click', '#btn_buscar_traslado', function() {
-        
+
         $.ajax({
-    url: "{{ route('traslados.buscar') }}",
-    type: 'POST',
-    data: $('#form_buscar_traslado').serialize(),
-    success: function(html) {
-        $('#resultado_traslados').html(html);
-    },
-    error: function(xhr) {
-        if (xhr.responseJSON && xhr.responseJSON.message) {
-            mensaje(xhr.responseJSON.message, 'danger');
-        } else {
-            mensaje('Ocurrió un error inesperado.', 'danger');
-        }
-    }
-});
+            url: "{{ route('traslados.buscar') }}",
+            type: 'POST',
+            data: $('#form_buscar_traslado').serialize(),
+            success: function(html) {
+                $('#resultado_traslados').html(html);
+              
+
+
+            },
+            error: function(xhr) {
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    mensaje(xhr.responseJSON.message, 'danger');
+                } else {
+                    mensaje('Ocurrió un error inesperado.', 'danger');
+                }
+            }
+        });
 
     });
 

@@ -224,14 +224,28 @@
 <div id="modalDetalleActivos" class="modal fade">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 id="modalActivoNombre"></h5>
-                <span id="modalActivoCantidad" class="ms-3 text-primary"></span>
-            </div>
-            <div class="modal-body">
-                <div class="wheel-container" style="max-height: 200px; overflow-y: auto;">
-                    <ul id="actasWheel" class="list-unstyled m-0 p-0"></ul>
+            <!-- Header -->
+            <div class="modal-header d-flex justify-content-between align-items-start">
+                <div>
+                    <h5 id="modalActivoNombre" class="fw-bold mb-1">Nombre del Activo</h5>
+                    <div class="text-primary fw-semibold" id="modalActivoCantidad">Cantidad: 0</div>
                 </div>
+                <button id="btnRevisarActivo" type="button" class="btn btn-lg btn-primary mt-1">Revisar</button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body">
+                <p class="text-muted mb-2">Actas encontradas en este activo:</p>
+                <div class="wheel-container" style="max-height: 200px; overflow-y: auto;">
+                    <ul id="actasWheel" class="list-unstyled m-0 p-0">
+                        <!-- Aquí se llenan los li de actas dinámicamente -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -291,9 +305,15 @@
 
 
 <script>
+    
     // Ejecutar al cargar la página
-    let inventarioCargado = false;
-    let trasladoCargado = false;
+if (inventarioCargado) {
+    var inventarioCargado = false;
+}
+if (trasladoCargado ) {
+    var trasladoCargado = false;
+}
+
 
     function cargarTablaActivos(traslado_id = null) {
         // alert("fdaf")
@@ -455,17 +475,23 @@
             });
         });
         $('#buscar_traslado').click(function() {
-            if (trasladoCargado) return;
+        //    alert(trasladoCargado)
+            if (trasladoCargado) 
+            {console.log("retornando")
+
+            return;
+            }
             // ALERT("FDSA")
             $.ajax({
                 url: "{{ route('traslados.mostrarBuscar') }}", // ruta que devuelve la vista parcial
                 method: "GET",
                 success: function(view) {
                     $('#body_buscarTraslado').html(view);
+                   
                     trasladoCargado = true;
-                    if (trasladoCargado) {
-                        $("#buscarTraslado").addClass('constante')
-                    }
+                if (trasladoCargado) {
+                    $("#buscarTraslado").addClass('constante')
+                }
                     // $('#buscarTraslado').modal('show'); // abre el modal
                 },
                 error: function(xhr) {

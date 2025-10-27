@@ -52,6 +52,9 @@ public function scopeNoEliminados($query)
 }
 
 
+public function detalles() {
+    return $this->hasMany(DetalleTraslado::class, 'id_traslado');
+}
 
     public function usuario()
     {

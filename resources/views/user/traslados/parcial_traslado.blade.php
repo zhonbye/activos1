@@ -102,7 +102,10 @@
                     <div class="col-12">
                         <div class="border p-2 rounded text-start h-100" style=" word-wrap: break-word;">
                             <strong>Observaciones</strong><br>
-                            <span id="observaciones_traslado">{{ $traslado->observaciones ?? 'N/D' }}</span>
+                            <span id="observaciones_traslado">
+    {{ $traslado->observaciones ?: '— No se registraron observaciones —' }}
+</span>
+
                         </div>
                     </div>
 

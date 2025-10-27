@@ -4,6 +4,7 @@ use App\Http\Controllers\ActivoController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\AjustesController;
 use App\Http\Controllers\BajaController;
+use App\Http\Controllers\DetalleTrasladoController;
 use App\Http\Controllers\DevolucionController;
 use App\Http\Controllers\DoctoController;
 use App\Http\Controllers\EntregaController;
@@ -170,6 +171,8 @@ Route::post('/traslados/{id}/activos/eliminar', [TrasladoController::class,'elim
 Route::post('/traslados/{id}/finalizar', [TrasladoController::class, 'guardarTraslado'])->name('traslados.finalizar');
 
 
+Route::post('/traslados/{id}/activos/limpiar', [DetalleTrasladoController::class, 'limpiarActivos'])
+     ->name('traslados.activos.limpiar');
 
 //                                                                      SECCION DEVOLUCIONES
 

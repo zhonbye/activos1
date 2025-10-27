@@ -127,104 +127,77 @@
             }
         });
     });
-    $('#guardarCambiosTraslado').on('click', function() {
-        if (!confirm('¿Está seguro que desea guardar los cambios en este traslado?')) return;
+   $('#guardarCambiosTraslado').on('click', function() {
+    if (!confirm('¿Está seguro que desea guardar los cambios en este traslado?')) return;
 
-        var form = $('#modalEditarTraslado').find('form#formEditarTraslado');
-        var idTraslado = form.find('input[name="id_traslado"]').val();
-        var servicioActual = form.find('select[name="id_servicio_origen"]').data('original'); // guardamos el original
-        var servicioActual = $("#contenedor_detalle_traslado #id_servicio_origen").val(); // guardamos el original
-        var servicioNuevo = form.find('select[name="id_servicio_origen"]').val();
-// alert(servicioActual +" y "+servicioNuevo)
-        // Verificar si cambió el servicio
-        if (servicioActual != servicioNuevo) {
-            // alert("fdsafds")
-            var activosSeleccionados = $('#tabla_activos tbody tr').length;
-            if (activosSeleccionados > 0 ) {
-                if (!confirm(
-                        'Se ha cambiado el servicio de origen. Todos los activos seleccionados serán eliminados. ¿Desea continuar?'
-                        )) {
-                    return; // Detener acción
-                }
+    var form = $('#modalEditarTraslado').find('form#formEditarTraslado');
+    var idTraslado = form.find('input[name="id_traslado"]').val();
+    var servicioActual = $("#contenedor_detalle_traslado #id_servicio_origen").val();
+    var servicioNuevo = form.find('select[name="id_servicio_origen"]').val();
 
-                // Eliminar visualmente los activos de la tabla
-                $('#tablaActivosTraslado tbody').empty();
+    var activosSeleccionados = $('#tabla_activos tbody tr[data-id-activo]').length;
 
-                // Opcional: también enviar petición al servidor para limpiar los activos guardados
-                $.post(`${baseUrl}/traslados/${idTraslado}/activos/limpiar`, {
-                    _token: $('meta[name="csrf-token"]').attr('content')
-                });
-            }
-        }
-
-
-
-
-
-
-
-
-
-
-        var url = baseUrl + '/traslados/' + idTraslado + '/update';
-
+    // Función para guardar traslado
+    function guardarTraslado() {
         $.ajax({
-            url: url,
+            url: baseUrl + '/traslados/' + idTraslado + '/update',
             type: 'PUT',
             data: form.serialize(),
             dataType: 'json',
             beforeSend: function() {
-                // Limpiar errores anteriores
                 form.find('.is-invalid').removeClass('is-invalid');
                 form.find('.invalid-feedback').remove();
             },
             success: function(response) {
                 if (response.success) {
                     mensaje(response.message || 'Traslado actualizado correctamente', 'success');
-
-                    // Cerrar modal
-                    bootstrap.Modal.getInstance(document.getElementById('modalEditarTraslado'))
-                        .hide();
-
-                    // Actualizar tabla o recargar detalle
+                    bootstrap.Modal.getInstance($('#modalEditarTraslado')[0]).hide();
                     cargarDetalleTraslado(idTraslado);
-
+                    cargarTablaActivos(idTraslado);
                 } else {
-                    if (response.errors) {
-                        // Mostrar errores directamente en el formulario
-                        $.each(response.errors, function(key, msgs) {
-                            var input = form.find('[name="' + key + '"]');
-                            input.addClass('is-invalid');
-                            if (input.next('.invalid-feedback').length === 0) {
-                                input.after('<div class="invalid-feedback d-block">' + msgs[
-                                    0] + '</div>');
-                            }
-                        });
-                        mensaje('Existen errores en el formulario.', 'danger');
-                    } else {
-                        mensaje(response.message || 'No se pudo actualizar el traslado.', 'danger');
-                    }
+                    mensaje(response.message || 'No se pudo actualizar el traslado.', 'danger');
                 }
             },
             error: function(xhr) {
-                if (xhr.status === 422 && xhr.responseJSON?.errors) {
-                    $.each(xhr.responseJSON.errors, function(key, msgs) {
-                        var input = form.find('[name="' + key + '"]');
-                        input.addClass('is-invalid');
-                        if (input.next('.invalid-feedback').length === 0) {
-                            input.after('<div class="invalid-feedback d-block">' + msgs[0] +
-                                '</div>');
-                        }
-                    });
-                    mensaje('Existen errores en el formulario.', 'danger');
-                } else {
-                    let errorMsg = xhr.responseJSON?.message ||
-                        'Ocurrió un error inesperado al actualizar.';
-                    mensaje(errorMsg, 'danger');
-                }
+                const errorMsg = xhr.responseJSON?.message || 'Error inesperado al actualizar.';
+                mensaje(errorMsg, 'danger');
             }
         });
-    });
+    }
+
+    // Si cambio de servicio y hay activos, limpiar primero
+    if (servicioActual != servicioNuevo && activosSeleccionados > 0) {
+        if (!confirm('Se ha cambiado el servicio de origen. Todos los activos seleccionados serán eliminados. ¿Desea continuar?')) return;
+
+        $('#tabla_activos tbody').empty();
+
+        $.ajax({
+            url: `${baseUrl}/traslados/${idTraslado}/activos/limpiar`,
+            type: 'POST',
+            data: { _token: $('meta[name="csrf-token"]').attr('content') },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    mensaje(response.message || 'Activos eliminados correctamente.', 'success');
+                    inventarioCargado = false;
+
+                    // ¡Solo ahora se guarda el traslado!
+                    guardarTraslado();
+                } else {
+                    mensaje(response.message || 'Error al eliminar los activos.', 'danger');
+                }
+            },
+            error: function(xhr) {
+                const msg = xhr.responseJSON?.message || 'Error de comunicación con el servidor.';
+                mensaje(msg, 'danger');
+            }
+        });
+    } else {
+        // No hay cambio de servicio o no hay activos, guardar directamente
+        guardarTraslado();
+    }
+});
+
 
 
 
