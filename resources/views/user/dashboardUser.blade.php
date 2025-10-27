@@ -152,8 +152,54 @@
             transition: width 0.5s ease-out;
             /* Añade una transición suave */
         }
-    </style>
 
+
+
+
+        .loader-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  height: 50px;
+}
+
+.loader-dots span {
+  width: 15px;
+  height: 15px;
+  background-color: #3498db;
+  border-radius: 50%;
+  display: inline-block;
+  animation: bounce 1s infinite ease-in-out;
+}
+
+.loader-dots span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.loader-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loader-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
+    </style>
+<div id="loader" class="loader-dots" style="display: none;">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
     <div class="col-auto">
         <nav class="sidebar">
             <header>
@@ -197,7 +243,9 @@
                         {{-- <li><a href="#" role="menuitem">Dar de Baja Activo</a></li> --}}
                         <li><a href="#" role="menuitem"></a></li>
                         <li><a href="{{ route('traslados.show', ['id' => 1 ?? 1]) }}" role="menuitem"
-                                class="cargar">Registrar Traslado</a></li>
+                                class="cargar">Realizar Traslado</a></li>
+                        <li><a href="{{ route('entregas.show', ['id' => 1 ?? 1]) }}" role="menuitem"
+                                class="cargar">Realizar Entrega</a></li>
                         <li><a href="{{ route('devolucion.show', ['id' => 1 ?? 1]) }}" role="menuitem"
                                 class="cargar">Registrar Devolución</a></li>
 

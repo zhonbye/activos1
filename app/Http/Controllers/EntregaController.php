@@ -18,6 +18,83 @@ use Illuminate\Support\Facades\Validator;
 
 class EntregaController extends Controller
 {
+
+
+
+
+//estos son los nuevos metodos del traslado
+
+
+
+
+public function show($id)
+    {
+        $entrega = Entrega::findOrFail($id);
+        $traslado = Traslado::findOrFail($id);
+        return view('user.Entregas2.show', compact('entrega', 'traslado'));
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//hasta aqui son los nuevos metodos los de abajo son los antiguos
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * Display a listing of the resource.
      */
@@ -670,10 +747,24 @@ public function getDocto(Request $request)
     /**
      * Display the specified resource.
      */
-    public function show(Entrega $entrega)
-    {
-        //
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public function buscarActaPorTipo($tipo, $numero, $gestion)
     {
         $tipo = strtolower($tipo);
@@ -761,4 +852,26 @@ public function getDocto(Request $request)
     {
         //
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

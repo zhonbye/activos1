@@ -192,5 +192,21 @@ Route::get('/devoluciones/{id}', [DevolucionController::class,'show'])->name('de
 
 
 
-Route::get('/prueba', [TrasladoController::class, 'prueba'])->name('pruebas');
 
+
+Route::get('/entregas/{id}', [EntregaController::class,'show'])->name('entregas.show');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Route::get('/prueba', [TrasladoController::class, 'prueba'])->name('pruebas');
