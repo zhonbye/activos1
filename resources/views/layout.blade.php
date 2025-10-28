@@ -410,36 +410,36 @@
         const toggleBtn = sidebar?.querySelector('.toggle'); // si sidebar es null, toggleBtn será undefined
         const menuItems = sidebar?.querySelectorAll('li.menu-item') || []; // si null, devuelve array vacío
         const body = document.body;
-        
+
         let ajaxActual = null;
 // Detectar cuando cualquier modal se cierra
 // Listener global para todos los modales
-$(document).on('hidden.bs.modal', '.modal', function() {
-    var $modal = $(this);
-if ($modal.hasClass('constante')) {
-    // alert("constante")    
-    return;
+// $(document).on('hidden.bs.modal', '.modal', function() {
+//     var $modal = $(this);
+// if ($modal.hasClass('constante')) {
+//     // alert("constante")
+//     return;
 
-    }
-    // 🔹 Limpiar inputs con errores
-    $modal.find('.is-invalid').removeClass('is-invalid');
-    $modal.find('.invalid-feedback').remove();
+//     }
+//     // 🔹 Limpiar inputs con errores
+//     $modal.find('.is-invalid').removeClass('is-invalid');
+//     $modal.find('.invalid-feedback').remove();
 
-    // 🔹 Resetear formularios si existen
-    $modal.find('form').each(function() {
-        this.reset();
-    });
+//     // 🔹 Resetear formularios si existen
+//     $modal.find('form').each(function() {
+//         this.reset();
+//     });
 
-    // 🔹 Vaciar contenido dinámico (si lo cargaste via AJAX)
-    $modal.find('.modal-body').html('');
+//     // 🔹 Vaciar contenido dinámico (si lo cargaste via AJAX)
+//     $modal.find('.modal-body').html('');
 
-    // 🔹 Opcional: mensaje de prueba
-    // alert('Se cerró el modal: ' + $modal.attr('id'));
+//     // 🔹 Opcional: mensaje de prueba
+//     // alert('Se cerró el modal: ' + $modal.attr('id'));
 
-    // 🔹 Evitar overlay oscuro pegado
-    $('body').removeClass('modal-open');
-    $('.modal-backdrop').remove();
-});
+//     // 🔹 Evitar overlay oscuro pegado
+//     $('body').removeClass('modal-open');
+//     $('.modal-backdrop').remove();
+// });
  function cargarContenido(url) {
                 if (!url) {
                     $('#contenido').html('<p style="color:red;">No se ha proporcionado una URL.</p>');
@@ -550,13 +550,13 @@ if ($modal.hasClass('constante')) {
 
 
         $(document).ready(function() {
-          
+
 
 
 
              // para guardar la petición activa
 
-           
+
 
 
 

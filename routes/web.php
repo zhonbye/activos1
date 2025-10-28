@@ -143,8 +143,8 @@ Route::get('/bajas', [BajaController::class, 'create'])->name('bajas.create');
 
 // web.php
 // Route::get('/traslados/registrar', [TrasladoController::class, 'create'])->name('traslados.create');
-// Route::post('/traslados/store', [TrasladoController::class, 'store'])->name('traslados.store');
 Route::get('/traslados/mostrarBuscar', [TrasladoController::class, 'mostrarBuscar'])->name('traslados.mostrarBuscar');
+// Route::post('/traslados/store', [TrasladoController::class, 'store'])->name('traslados.store');
 // Route::get('/traslados/mostrarInventario', [TrasladoController::class, 'mostrarInventario'])->name('traslados.mostrarInventario');
 Route::get('/traslados/mostrarInventario', [TrasladoController::class, 'mostrarInventario'])->name('traslados.mostrarInventario');
 Route::get('/traslados/{id}', [TrasladoController::class,'show'])->name('traslados.show');
@@ -171,16 +171,28 @@ Route::post('/traslados/{id}/activos/eliminar', [TrasladoController::class,'elim
 Route::post('/traslados/{id}/finalizar', [TrasladoController::class, 'guardarTraslado'])->name('traslados.finalizar');
 
 
-Route::post('/traslados/{id}/activos/limpiar', [DetalleTrasladoController::class, 'limpiarActivos'])
-     ->name('traslados.activos.limpiar');
+Route::post('/traslados/{id}/activos/limpiar', [DetalleTrasladoController::class, 'limpiarActivos'])->name('traslados.activos.limpiar');
 
-//                                                                      SECCION DEVOLUCIONES
 
-// Route::post('/traslados/{id}/activos/eliminar', [TrasladoController::class,'eliminarActivo']);
 
-Route::get('/devoluciones/mostrarBuscar', [DevolucionController::class, 'mostrarBuscar'])->name('devolucion.mostrarBuscar');
-Route::get('/devoluciones/{id}', [DevolucionController::class,'show'])->name('devolucion.show');
 
+
+
+
+
+
+Route::get('/devolucion/generar-numero/{gestion}', [DevolucionController::class, 'generarNumeroAjax'])->name('devolucion.generarNumero');
+
+
+Route::get('/devolucion/mostrarBuscarActa', [DevolucionController::class, 'mostrarBuscarActa'])->name('devolucion.mostrarBuscarActa');
+Route::get('/devolucion/mostrarInventario', [DevolucionController::class, 'mostrarInventario'])->name('devolucion.mostrarInventario');
+Route::get('/devolucion/{id}/activos', [DevolucionController::class,'tablaActivos']);
+Route::get('/devolucion/{id}', [DevolucionController::class,'show'])->name('devolucion.show');
+Route::get('/devolucion', [DevolucionController::class, 'create'])->name('devolucion.create');
+Route::post('/devolucion/guardar', [DevolucionController::class, 'store'])->name('devolucion.store');
+Route::get('/devolucion/{id}/detalleDevolucion', [DevolucionController::class, 'detalleParcialDevolucion'])->name('traslados.detalleDevolucion');
+
+// Route::get('/devoluciones/{id}/detalleDevolucion', [DevolucionController::class, 'detalleParcialDevolucion'])->name('devolucion.detalleParcialDevolucion');
 
 
 
