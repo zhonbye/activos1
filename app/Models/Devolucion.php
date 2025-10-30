@@ -22,7 +22,32 @@ class Devolucion extends Model
         'id_servicio',
         'observaciones',
     ];
+public function scopeEditable($query)
+{
+    return $query->whereRaw('LOWER(estado) NOT IN (?, ?)', ['finalizado', 'eliminado']);
+}
 
+
+
+/**
+ * Método helper para usar en un traslado específico.
+ * Devuelve true si se puede modificar.
+ */
+public function isEditable()
+{
+    return !in_array(strtolower($this->estado), ['finalizado', 'eliminado']);
+}
+
+public function scopeNoEliminados($query)
+{
+    return $query->where('estado', '!=', 'ELIMINADO');
+}
+
+
+public function detalles() {
+    return $this->hasMany(DetalleDevolucion::class, 'id_devolucion');
+
+}
     public function usuario()
     {
         return $this->belongsTo(Usuario::class, 'id_usuario', 'id_usuario');

@@ -68,20 +68,16 @@
 
 
 <!-- Tabla de resultados -->
-<div class="mt-4" id="resultado_traslados"></div>
+<div class="mt-4" id="resultado_devoluciones"></div>
 
 <script>
-    $(document).on('click', '#btn_buscar_traslado', function() {
-
+    $(document).on('click', '#btn_buscar_devolucion', function() {
         $.ajax({
-            url: "{{ route('traslados.buscar') }}",
+            url: "{{ route('devolucion.buscar') }}",
             type: 'POST',
-            data: $('#form_buscar_traslado').serialize(),
+            data: $('#form_buscar_devolucion').serialize(),
             success: function(html) {
-                $('#resultado_traslados').html(html);
-
-
-
+                $('#resultado_devoluciones').html(html);
             },
             error: function(xhr) {
                 if (xhr.responseJSON && xhr.responseJSON.message) {
@@ -91,17 +87,27 @@
                 }
             }
         });
-
     });
+
 
     // Capturar ID al presionar "Seleccionar"
-    $(document).on('click', '#seleccionar_traslado', function() {
-        var idTraslado = $(this).data('id');
+//     $(document).on('click', '#seleccionar_devolucion', function() {
+//         var idDevolucion = $(this).data('id');
 
-        // console.log("Traslado seleccionado:", idTraslado);
-        // alert(idTraslado    )
-        cargarDetalleTraslado(idTraslado);
-        cargarTablaActivos(idTraslado);
-        $('#buscarTraslado .btn-close').trigger('click');
-    });
+//         // console.log("Devolución seleccionada:", idDevolucion);
+//         // alert(idDevolucion);
+// alert("fdafdsafd")
+//         // cargarDetalleDevolucion(idDevolucion);
+//         cargarTablaActivos(idDevolucion);
+//         $('#buscarDevolucion .btn-close').trigger('click');
+//     });
+    //  $(document).on('click', '#seleccionar_devolucion', function() {
+    //     var idTraslado = $(this).data('id');
+
+    //     // console.log("Traslado seleccionado:", idTraslado);
+    //     // alert(idTraslado    )
+    //     cargarDetalleTraslado(idTraslado);
+    //     cargarTablaActivos(idTraslado);
+    //     $('#buscarTraslado .btn-close').trigger('click');
+    // });
 </script>

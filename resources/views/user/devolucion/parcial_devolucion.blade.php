@@ -1,10 +1,10 @@
 <!-- Modal para editar acta de traslado -->
-<div class="modal fade" id="modalEditarTraslado" tabindex="-1" aria-labelledby="modalEditarTrasladoLabel"
+<div class="modal fade" id="modalEditarDevolucion" tabindex="-1" aria-labelledby="modalEditarDevolucionLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header bg-light">
-                <h5 class="modal-title" id="modalEditarTrasladoLabel">Editar Acta de Traslado</h5>
+                <h5 class="modal-title" id="modalEditarDevolucionLabel">Editar Acta de Devolucion</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body p-4">
@@ -38,8 +38,7 @@
                 </span>
 
                 <span class="badge {{ $devolucion->estado == 'finalizado' ? 'bg-danger' : 'bg-success' }} me-2"
-                    data-estado-devolucion="{{ $devolucion->estado }}"
-                    id="estado_devolucion">
+                    data-estado-devolucion="{{ $devolucion->estado }}" id="estado_devolucion">
                     {{ $devolucion->estado ?? 'pendiente' }}
                 </span>
 
@@ -60,16 +59,13 @@
                     <div class="col-12 col-md-6">
                         <div class="border p-2 rounded h-100">
                             <strong>Servicio</strong><br>
-                            <span id="servicio_responsable"
-                                data-nombre="{{ $devolucion->servicio->nombre ?? 'N/D' }}">
+                            <span id="servicio_responsable" data-nombre="{{ $devolucion->servicio->nombre ?? 'N/D' }}">
                                 {{ $devolucion->servicio->nombre ?? 'N/D' }}
                                 -
                                 {{ $devolucion->responsable->nombre ?? 'N/D' }}
                             </span>
-                            <input type="hidden" id="id_servicio"
-                                value="{{ $devolucion->id_servicio ?? '' }}">
-                            <input type="hidden" id="id_responsable"
-                                value="{{ $devolucion->id_responsable ?? '' }}">
+                            <input type="hidden" id="id_servicio" value="{{ $devolucion->id_servicio ?? '' }}">
+                            <input type="hidden" id="id_responsable" value="{{ $devolucion->id_responsable ?? '' }}">
                         </div>
                     </div>
 
@@ -118,58 +114,40 @@
 
 
 <script>
-    // function cargarDetalleTraslado(traslado_id = null) {
-    //     // Toma el ID del input si no se pasa
-    //     if (!traslado_id) traslado_id = $('#btn_editar_traslado').data('id');
-
-    //     if (!traslado_id) {
-    //         mensaje('No se encontró el ID del traslado', 'danger');
-    //         return;
-    //     }
-
-    //     // AJAX GET para traer la vista parcial
-    //     $.ajax({
-    //         url: `${baseUrl}/traslados/${traslado_id}/detalle`,
-    //         type: 'GET',
-    //         success: function(data) {
-    //             $('#contenedor_detalle_traslado').html(data);
-    //         },
-    //         error: function(xhr) {
-    //             // Si el controlador devuelve JSON con error
-    //             if (xhr.responseJSON && xhr.responseJSON.message) {
-    //                 mensaje(xhr.responseJSON.message, 'danger');
-    //             } else {
-    //                 mensaje('Ocurrió un error inesperado.', 'danger');
-    //             }
-    //         }
-    //     });
-    // }
-    $('#recargar_traslado').click(function() {
-        // alert(idTraslado)
-        // alert("fdsaf")
-        cargarDetalleTraslado($('#btn_editar_traslado').data('id'))
+    $('#recargar_devolucion').click(function() {
+        // Recargar los detalles de la devolución actual
+        cargarDetalleDevolucion($('#btn_editar_devolucion').data('id'));
     });
 
-    $('#btn_editar_traslado').click(function() {
-        // $(document).on('click', '#btn_editar_traslado', function() {
-        var idTraslado = $(this).data('id'); // Debes tener un botón con data-id del traslado
-        var url = baseUrl + '/traslados/' + idTraslado + '/editar';
+    $('#btn_editar_devolucion').click(function() {
+        var idDevolucion = $(this).data('id'); // El botón debe tener data-id con el id de la devolución
+        var url = baseUrl + '/devolucion/' + idDevolucion + '/editar';
+
+
         $.ajax({
             url: url,
             type: 'GET',
             success: function(data) {
-                $('#modalEditarTraslado .modal-body').html(data);
+                $('#modalEditarDevolucion .modal-body').html(data);
 
-                // Crear instancia de modal y mostrarlo
-                const modal = new bootstrap.Modal(document.getElementById('modalEditarTraslado'));
+                // Crear instancia del modal y mostrarlo
+                const modal = new bootstrap.Modal(document.getElementById('modalEditarDevolucion'));
                 modal.show();
 
-                // Guardar la instancia en el modal para poder cerrarlo desde dentro del contenido
-                $('#modalEditarTraslado').data('bs.modal', modal);
+                // Guardar la instancia para poder cerrarla luego
+                $('#modalEditarDevolucion').data('bs.modal', modal);
             },
-            error: function() {
-                alert('No se pudo cargar la información del traslado.');
+           error: function(xhr) {
+            console.log('XHR object:', xhr); // Muestra todo el objeto
+            console.log('Response Text:', xhr.responseText); // Ver el HTML o mensaje de error
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                alert('Error: ' + xhr.responseJSON.message);
+            } else {
+                alert('No se pudo cargar la información de la devolución. Revisa la consola.');
             }
+        }
         });
+
+
     });
 </script>

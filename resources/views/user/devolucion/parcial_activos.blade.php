@@ -54,7 +54,7 @@
 
                 <td>
                     <button type="button" class="btn btn-danger btn-sm btn-eliminar-activo"
-                        data-id-activo="{{ $detalle->id_activo }}" data-id-traslado="{{ $detalle->id_traslado }}">
+                        data-id-activo="{{ $detalle->id_activo }}" data-id-devolucion="{{ $detalle->id_devolucion }}">
                         <i class="bi bi-trash"></i>
                     </button>
 
@@ -102,7 +102,7 @@
     $(document).ready(function() {
 
         var filaActual = null;
-        const traslado_id = $('#traslado_id').val();
+        const devolucion_id = $('#devolucion_id').val();
         var debounceTimeout;
         // const baseUrl = '';
 
@@ -212,118 +212,97 @@ $btnRevisar
 
 
 
+$(document).off('click', '.btn-eliminar-activo')
+    .on('click', '.btn-eliminar-activo', function(e) {
+        e.preventDefault();
 
-        $(document).off('click', '.btn-eliminar-activo').on('click', '.btn-eliminar-activo', function(e) {
-                e.preventDefault();
+        const $btn = $(this);
 
-                const $btn = $(this);
+        // Evitar clicks múltiples
+        if ($btn.data('processing')) return;
 
-                // Evitar clicks múltiples
-                if ($btn.data('processing')) return;
+        const idActivo = $btn.data('id-activo');
+        const idDevolucion = $btn.data('id-devolucion');
 
-                const idActivo = $btn.data('id-activo');
-                const idTraslado = $btn.data('id-traslado');
+        if (!idActivo || !idDevolucion) {
+            mensaje('Faltan datos: no se pudo identificar la devolución o el activo.', 'warning');
+            return;
+        }
 
-                if (!idActivo || !idTraslado) {
-                    mensaje('Faltan datos: no se pudo identificar el traslado o el activo.', 'warning');
-                    return;
-                }
+        $btn.data('processing', true).prop('disabled', true);
 
-                $btn.data('processing', true).prop('disabled', true);
+        $.ajax({
+            url: `${baseUrl}/devolucion/${idDevolucion}/activos/eliminar`,
+            method: 'POST',
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                id_activo: idActivo
+            },
+            success: function(response) {
+                if (response.success) {
+                    mensaje(response.message, 'success');
 
-                $.ajax({
-                    url: `${baseUrl}/traslados/${idTraslado}/activos/eliminar`,
-                    method: 'POST',
-                    data: {
-                        _token: $('meta[name="csrf-token"]').attr('content'),
-                        id_activo: idActivo
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            mensaje(response.message, 'success');
+                    // Actualizar la fila de inventario en el modal
+                    const $tr = $('#modalInventario').find(`tr[data-id-activo="${idActivo}"]`);
 
-                            // Actualizar la fila de inventario en el modal
-                            const $tr = $('#modalInventario').find(
-                                `tr[data-id-activo="${idActivo}"]`);
+                    if ($tr.length) {
+                        const $spanCantidad = $tr.find('span[data-cantidad-restante]');
+                        if ($spanCantidad.length === 0) return;
 
-                            if ($tr.length) {
-                                // Encontrar el span que contiene la cantidad
-                                const $spanCantidad = $tr.find(
-                                    'span[data-cantidad-restante]');
+                        let cantidadActual = parseInt($spanCantidad.data('cantidad-restante')) || 0;
+                        const cantidadNueva = cantidadActual + (response.cantidad_eliminada || 0);
 
-                                if ($spanCantidad.length === 0) {
-                                    console.warn(
-                                        'No se encontró el span con data-cantidad-restante en esta fila'
-                                    );
-                                    return;
-                                }
+                        if (cantidadNueva > 0) {
+                            $spanCantidad
+                                .attr('data-cantidad-restante', cantidadNueva)
+                                .removeClass('text-danger')
+                                .addClass('text-success')
+                                .text(`${cantidadNueva} disponible${cantidadNueva > 1 ? 's' : ''}`);
+                        } else {
+                            $spanCantidad
+                                .attr('data-cantidad-restante', 0)
+                                .removeClass('text-success')
+                                .addClass('text-danger')
+                                .text('Sin disponibilidad');
+                        }
 
-                                // Tomamos la cantidad actual desde el atributo data
-                                let cantidadActual = parseInt($spanCantidad.data(
-                                    'cantidad-restante')) || 0;
-
-                                // Sumar la cantidad eliminada
-                                const cantidadNueva = cantidadActual + (response
-                                    .cantidad_eliminada || 0);
-
-                                // Actualizamos el span con data-cantidad-restante y texto correcto
-                                if (cantidadNueva > 0) {
-                                    $spanCantidad
-                                        .attr('data-cantidad-restante', cantidadNueva)
-                                        .removeClass('text-danger')
-                                        .addClass('text-success')
-                                        .text(
-                                            `${cantidadNueva} disponible${cantidadNueva > 1 ? 's' : ''}`
-                                        );
-                                } else {
-                                    $spanCantidad
-                                        .attr('data-cantidad-restante', 0)
-                                        .removeClass('text-success')
-                                        .addClass('text-danger')
-                                        .text('Sin disponibilidad');
-                                }
-
-                                // Reemplazar botón por "Agregar" solo si hay stock
-                                const $tdBoton = $tr.find('button').closest('td');
-                                if (cantidadNueva > 0) {
-                                    $tdBoton.html(`
+                        const $tdBoton = $tr.find('button').closest('td');
+                        if (cantidadNueva > 0) {
+                            $tdBoton.html(`
                                 <button class="btn btn-sm btn-outline-primary btn_agregar_activo"
                                     data-id="${idActivo}"
                                     data-cantidad-restante="${cantidadNueva}">
                                     Agregar
                                 </button>
                             `);
-                                } else {
-                                    // Opcional: si no hay stock, puedes poner un botón deshabilitado o de "Revisar"
-                                    $tdBoton.html(`
-                                                <button type="button"
-                                                    class="btn btn-sm btn-outline-secondary btn-ver-detalle"
-                                                    data-id-activo="${idActivo}">
-                                                    Revisar
-                                                </button>
-                                            `);
-                                }
-                            }
-
-                            // Recargar tabla principal si tienes
-                            cargarTablaActivos();
-
                         } else {
-                            mensaje(response.error || 'No se pudo eliminar el activo.',
-                                'danger');
+                            $tdBoton.html(`
+                                <button type="button"
+                                    class="btn btn-sm btn-outline-secondary btn-ver-detalle"
+                                    data-id-activo="${idActivo}">
+                                    Revisar
+                                </button>
+                            `);
                         }
-                    },
-                    error: function(xhr) {
-                        const msg = xhr.responseJSON?.error ||
-                            'Ocurrió un error al eliminar el activo.';
-                        mensaje(msg, 'danger');
-                        console.error(xhr.responseText);
-                    },
-                    complete: function() {
-                        $btn.data('processing', false).prop('disabled', false);
                     }
-                });
-            });
+
+                    // Recargar tabla principal de devoluciones
+                    cargarTablaActivos();
+
+                } else {
+                    mensaje(response.error || 'No se pudo eliminar el activo.', 'danger');
+                }
+            },
+            error: function(xhr) {
+                const msg = xhr.responseJSON?.error || 'Ocurrió un error al eliminar el activo.';
+                mensaje(msg, 'danger');
+                console.error(xhr.responseText);
+            },
+            complete: function() {
+                $btn.data('processing', false).prop('disabled', false);
+            }
+        });
+    });
 
 
 

@@ -357,9 +357,7 @@
             mensaje('No se encontró el ID del devolucion', 'danger');
             return;
         }
-        // alert($('#btn_editar_devolucion').data('id'));
-
-        // AJAX GET para traer la vista parcial
+        // alert($('#servicio_responsable').data('nombre'))
         $.ajax({
             url: `${baseUrl}/devolucion/${devolucion_id}/detalleDevolucion`,
             type: 'GET',
@@ -368,7 +366,7 @@
                 // $('#devolucion_id').val(data.id_devolucion);
                 // alert(data.id_devolucion)
                 $('#devolucion_id').val(devolucion_id);
-                $('#servicio_nombre').text(($('#servicio_responsable_origen').data('nombre')))
+                $('#servicio_nombre').text(($('#servicio_responsable').data('nombre')))
 
 
                 inventarioCargado = false;
@@ -421,7 +419,7 @@
 
     $(document).ready(function() {
         let iddevolucion = {{ $devolucion->id_devolucion }};
-        // cargarDetalledevolucion();
+        cargarDetalleDevolucion();
         cargarTablaActivos();
 
         $(document).on('click', '#seleccionar_devolucion', function() {
@@ -429,7 +427,7 @@
 
             // console.log("devolucion seleccionado:", iddevolucion);
             // alert(iddevolucion    )
-            cargarDetalledevolucion(iddevolucion);
+            cargarDetalleDevolucion(iddevolucion);
             cargarTablaActivos(iddevolucion);
             var $modal = $('.modal.show');
             // var $botonAbrirModal = $('.btn-ver-detalle-principal[data-id-activo="' + 3 + '"]');

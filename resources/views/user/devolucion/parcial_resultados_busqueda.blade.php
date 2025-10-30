@@ -6,39 +6,37 @@
                 <th>Número</th>
                 <th>Gestión</th>
                 <th>Fecha</th>
-                <th>Origen</th>
-                <th>Destino</th>
+                <th>Servicio</th>
                 <th>Observaciones</th>
                 <th>Estado</th>
                 <th>Seleccionar</th>
             </tr>
         </thead>
         <tbody>
-            @forelse($traslados as $t)
+            @forelse($devoluciones as $d)
                 <tr>
-                    <td>{{ $t->id_traslado }}</td>
-                    <td>{{ $t->numero_documento }}</td>
-                    <td>{{ $t->gestion }}</td>
-                    <td>{{ \Carbon\Carbon::parse($t->fecha)->format('d/m/Y') }}</td>
-                    <td>{{ $t->servicioOrigen->nombre ?? 'N/D' }}</td>
-                    <td>{{ $t->servicioDestino->nombre ?? 'N/D' }}</td>
-                    <td>{{ $t->observaciones }}</td>
+                    <td>{{ $d->id_devolucion }}</td>
+                    <td>{{ $d->numero_documento }}</td>
+                    <td>{{ $d->gestion }}</td>
+                    <td>{{ \Carbon\Carbon::parse($d->fecha)->format('d/m/Y') }}</td>
+                    <td>{{ $d->servicio->nombre ?? 'N/D' }}</td>
+                    <td>{{ $d->observaciones }}</td>
                     <td>
-                        <span class="badge p-2 {{ $t->estado == 'finalizado' ? 'bg-danger' : 'bg-success' }}">
-                            {{ ucfirst($t->estado) }}
+                        <span class="badge p-2 {{ $d->estado == 'finalizado' ? 'bg-danger' : 'bg-success' }}">
+                            {{ ucfirst($d->estado) }}
                         </span>
                     </td>
-
                     <td>
-                        <button type="button" id="seleccionar_traslado" class="btn btn-sm btn-primary btn-seleccionar-traslado"
-                                data-id="{{ $t->id_traslado }}">
+                        <button type="button" id="seleccionar_devolucion" 
+                                class="btn btn-sm btn-primary btn-seleccionar-devolucion"
+                                data-id="{{ $d->id_devolucion }}">
                             Seleccionar
                         </button>
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" class="text-center text-muted">No se encontraron traslados.</td>
+                    <td colspan="8" class="text-center text-muted">No se encontraron devoluciones.</td>
                 </tr>
             @endforelse
         </tbody>

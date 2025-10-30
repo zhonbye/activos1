@@ -14,12 +14,7 @@
             <div class="card-body">
                 <div class="row g-3">
 
-                    {{-- Observaciones (ocupa toda la fila) --}}
-                    <div class="col-12">
-                        <small class="text-muted">Observaciones</small>
-                        <input type="text" class="form-control" name="observaciones"
-                            value="{{ $traslado->observaciones ?? '' }}">
-                    </div>
+                
 
                     {{-- Número de Traslado, Gestión y Fecha --}}
                     <div class="col-md-4 col-sm-6">
@@ -78,6 +73,12 @@
                                 </option>
                             @endforeach
                         </select>
+                    </div>
+                        {{-- Observaciones (ocupa toda la fila) --}}
+                    <div class="col-12">
+                        <small class="text-muted">Observaciones</small>
+                        <input type="text" class="form-control" name="observaciones"
+                            value="{{ $traslado->observaciones ?? '' }}">
                     </div>
 
                 </div>
@@ -158,10 +159,31 @@
                     mensaje(response.message || 'No se pudo actualizar el traslado.', 'danger');
                 }
             },
+            // error: function(xhr) {
+            //     const errorMsg = xhr.responseJSON?.message || 'Error inesperado al actualizar.';
+            //     mensaje(errorMsg, 'danger');
+            // }
             error: function(xhr) {
-                const errorMsg = xhr.responseJSON?.message || 'Error inesperado al actualizar.';
-                mensaje(errorMsg, 'danger');
-            }
+    if (xhr.status === 422 && xhr.responseJSON.errors) {
+        // Mostrar todos los mensajes de validación
+        let errores = xhr.responseJSON.errors;
+        let mensajes = [];
+        Object.keys(errores).forEach(function(key) {
+            errores[key].forEach(function(msg) {
+                mensajes.push(msg);
+                // Opcional: marcar los campos con error
+                form.find('[name="' + key + '"]').addClass('is-invalid')
+                    .after('<div class="invalid-feedback">' + msg + '</div>');
+            });
+        });
+        mensaje(mensajes.join('<br>'), 'warning');
+    } else {
+        // Otros errores (500, excepciones, etc.)
+        const msg = xhr.responseJSON?.message || 'Ocurrió un error inesperado.';
+        mensaje(msg, 'danger');
+    }
+}
+
         });
     }
 

@@ -186,11 +186,18 @@ Route::get('/devolucion/generar-numero/{gestion}', [DevolucionController::class,
 
 Route::get('/devolucion/mostrarBuscarActa', [DevolucionController::class, 'mostrarBuscarActa'])->name('devolucion.mostrarBuscarActa');
 Route::get('/devolucion/mostrarInventario', [DevolucionController::class, 'mostrarInventario'])->name('devolucion.mostrarInventario');
+Route::post('/devolucion/buscarActivos', [DevolucionController::class, 'buscarActivos'])->name('devolucion.buscarActivos');
+Route::post('/devolucion/buscar', [DevolucionController::class, 'buscar'])->name('devolucion.buscar');
 Route::get('/devolucion/{id}/activos', [DevolucionController::class,'tablaActivos']);
 Route::get('/devolucion/{id}', [DevolucionController::class,'show'])->name('devolucion.show');
 Route::get('/devolucion', [DevolucionController::class, 'create'])->name('devolucion.create');
 Route::post('/devolucion/guardar', [DevolucionController::class, 'store'])->name('devolucion.store');
 Route::get('/devolucion/{id}/detalleDevolucion', [DevolucionController::class, 'detalleParcialDevolucion'])->name('traslados.detalleDevolucion');
+Route::get('/devolucion/{id}/editar', [DevolucionController::class, 'edit'])->name('devolucion.edit');
+Route::put('/devolucion/{id}/update', [DevolucionController::class, 'update'])->name('devolucion.update');
+Route::post('/devolucion/{id}/activos/editar', [DevolucionController::class,'editarActivo']);
+Route::post('/devolucion/{id}/activos/eliminar', [DevolucionController::class,'eliminarActivo']);
+Route::post('/devolucion/{id}/activos/agregar', [DevolucionController::class,'agregarActivo']);
 
 // Route::get('/devoluciones/{id}/detalleDevolucion', [DevolucionController::class, 'detalleParcialDevolucion'])->name('devolucion.detalleParcialDevolucion');
 
