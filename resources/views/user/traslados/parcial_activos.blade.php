@@ -30,6 +30,7 @@
                 <td>
                     {{-- {{ $detalle->cantidad_usada}}  --}}
                     {{-- {{ $detalle->cantidad_disponible-$detalle->cantidad_usada+$detalle->cantidad_en_acta }}  --}}
+                    {{-- <span>cantidad disponible: {{  $detalle->cantidad_disponible }}</span> --}}
                     @if ($detalle->cantidad_disponible > 1)
                         <div class="d-flex align-items-center gap-2">
                             <input disabled type="number" class="form-control form-control-sm cantidad-activo"
@@ -37,7 +38,6 @@
                                 min="1"
                                 max="{{ $detalle->cantidad_disponible - $detalle->cantidad_usada + $detalle->cantidad_en_acta }}"
                                 style="width:80px;" >
-
                             <div class="form-check mb-0">
                                 <input type="checkbox" class="form-check-input chk-editar-cantidad"
                                     data-id-activo="{{ $detalle->id_activo }}" id="chk_{{ $detalle->id_activo }}"
@@ -46,7 +46,7 @@
                             </div>
                         </div>
                     @else
-                        <span class="fw-semibold">{{ $cantidadTraslado }}</span>
+                        <span class="fw-semibold">{{ $detalle->cantidad }}</span>
                     @endif
                 </td>
 

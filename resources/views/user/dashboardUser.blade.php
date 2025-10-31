@@ -246,7 +246,9 @@
                                 class="cargar">Realizar Traslado</a></li>
                         <li><a href="{{ route('entregas.show', ['id' => 1 ?? 1]) }}" role="menuitem"
                                 class="cargar">Realizar Entrega</a></li>
-                        <li><a href="{{ route('devolucion.show', ['id' => 1 ?? 1]) }}" role="menuitem"
+                        {{-- <li><a href="{{ route('devolucion.show', ['id' => 1 ?? 1]) }}" role="menuitem"
+                                class="cargar">Registrar Devolución</a></li> --}}
+                        <li><a href="{{ route('devolucion.show')}}" role="menuitem"
                                 class="cargar">Registrar Devolución</a></li>
 
                         {{-- <li><a href="#" role="menuitem"></a></li> --}}

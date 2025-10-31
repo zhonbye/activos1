@@ -100,7 +100,8 @@
 
 
 
-        $(document).on('click', '.btn-ver-detalle', function() {
+        $(document).off('click', '.btn-ver-detalle').on('click', '.btn-ver-detalle', function() {
+            // alert("fdsaf")
         const idActivo = $(this).data('id-activo');
         const nombreActivo = $(this).data('nombre');
         const actas = $(this).data('actas') || [];
@@ -121,8 +122,10 @@
                 </option>
             `).join('') :
             '<option value="">Sin actas registradas</option>';
-
+const primerIdDevolucion = actas[0]?.id ?? null;
         // Crear la nueva fila de detalle
+        // const idDevolucion = $('#id_devolucion').val(); // O la variable que tengas
+
         const filaDetalle = `
             <tr class="table-light" data-detalle-id="${idActivo}">
                 <td colspan="8">
@@ -132,12 +135,15 @@
                         </div>
                         <div class="d-flex align-items-center gap-2 flex-wrap">
                             <label class="fw-semibold mb-0">Número de documento:</label>
-                            <select class="form-select form-select-sm w-auto" id="select-acta-${idActivo}">
+                            <select class="form-select form-select-sm w-auto" id="select-acta">
                                 ${opciones}
                             </select>
-                            <button type="button" class="btn btn-sm btn-outline-primary btn-ver-acta" data-id-activo="${idActivo}">
-                                Revisar acta
-                            </button>
+                            <button type="button" id="seleccionar_devolucion"
+    class="btn btn-sm btn-outline-primary btn-seleccionar-devolucion btn-ver-acta"
+    data-id="${primerIdDevolucion}">
+    Revisar acta
+</button>
+
                             <span class="text-muted small ms-2">
                                 (${cantidadActas} acta${cantidadActas !== 1 ? 's' : ''} registradas)
                             </span>
@@ -150,15 +156,25 @@
         // Insertar debajo de la fila actual
         $(this).closest('tr').after(filaDetalle);
     });
+// Detectar cambio en el select
+$(document).on('change', '#select-acta', function() {
+    const idDevolucionSeleccionada = $(this).val(); // Obtiene el valor seleccionado
+
+    // Actualizar el botón con el id de devolución correcto
+    $('.btn-ver-acta').data('id', idDevolucionSeleccionada);
+    $('.btn-ver-acta').attr('data-id', idDevolucionSeleccionada);
+    // alert($('#seleccionar_devolucion').data('id'))
+    // console.log('ID de devolución actualizado en el botón:', idDevolucionSeleccionada);
+});
 
     // Acción del botón "Revisar acta"
-    $(document).on('click', '.btn-ver-acta', function() {
-        const idActivo = $(this).data('id-activo');
-        const actaSeleccionada = $(`#select-acta-${idActivo}`).val();
-        if (!actaSeleccionada) return alert('Seleccione un número de documento para revisar.');
+    // $(document).on('click', '.btn-ver-acta', function() {
+    //     const idActivo = $(this).data('id-activo');
+    //     const actaSeleccionada = $(`#select-acta-${idActivo}`).val();
+    //     if (!actaSeleccionada) return alert('Seleccione un número de documento para revisar.');
 
-        alert(`Revisando activo ${idActivo} en el acta con ID ${actaSeleccionada}`);
-    });
+    //     alert(`Revisando activo ${idActivo} en el acta con ID ${actaSeleccionada}`);
+    // });
 
     // Limpiar filas de detalle al cerrar el modal
     $('#modalInventario').on('hidden.bs.modal', function() {

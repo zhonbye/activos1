@@ -763,7 +763,35 @@ $detalle->setAttribute('cantidad_actas', $cantidadActasRegistradas);
         ->map(function ($detalle) {
             $idActivo = $detalle->id_activo;
 
-            $cantidadDisponible = $detalle->activo->detalleInventario->cantidad ?? 0;
+            // $cantidadDisponible = $detalle->activo->detalleInventario->cantidad ?? 0;
+            // Buscar el último inventario PENDIENTE del servicio de la devolución
+$ultimoInventario = Inventario::where('id_servicio', $detalle->traslado->id_servicio_origen)
+    ->where('estado', 'pendiente')
+    ->orderByDesc('fecha')
+    ->first();
+
+$cantidadDisponible = 0;
+
+if ($ultimoInventario) {
+    $cantidadDisponible = DetalleInventario::where('id_activo', $detalle->id_activo)
+        ->where('id_inventario', $ultimoInventario->id_inventario)
+        ->value('cantidad') ?? 0;
+}
+// dd($cantidadDisponible);
+            // Buscar el último inventario PENDIENTE del servicio de la devolución
+// $ultimoInventario = Inventario::where('id_servicio', $detalle->traslado->id_servicio)
+//     ->where('estado', 'pendiente')
+//     ->orderByDesc('fecha')
+//     ->first();
+
+// $cantidadDisponible = 0;
+
+// if ($ultimoInventario) {
+//     $cantidadDisponible = DetalleInventario::where('id_activo', $detalle->id_activo)
+//         ->where('id_inventario', $ultimoInventario->id_inventario)
+//         ->value('cantidad') ?? 0;
+// }
+
             $cantidadUsada = DetalleTraslado::where('id_activo', $idActivo)->sum('cantidad');
             $cantidadEnActa = $detalle->cantidad ?? 0;
 

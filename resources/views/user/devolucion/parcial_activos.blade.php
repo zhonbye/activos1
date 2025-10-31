@@ -37,7 +37,7 @@
                                 min="1"
                                 max="{{ $detalle->cantidad_disponible - $detalle->cantidad_usada + $detalle->cantidad_en_acta }}"
                                 style="width:80px;" >
-
+                        
                             <div class="form-check mb-0">
                                 <input type="checkbox" class="form-check-input chk-editar-cantidad"
                                     data-id-activo="{{ $detalle->id_activo }}" id="chk_{{ $detalle->id_activo }}"
@@ -110,7 +110,7 @@
         // Asegúrate de ejecutar esto una sola vez (por ejemplo en $(document).ready)
         // 1) Quitamos handlers previos y registramos el nuevo (evita duplicados)
 
-       $(document).off('click', '.btn-ver-detalle-principal').on('click', '.btn-ver-detalle-principal', function(e) {
+    $(document).off('click', '.btn-ver-detalle-principal').on('click', '.btn-ver-detalle-principal', function(e) {
     e.preventDefault();
     const $btn = $(this);
     if ($btn.data('processing')) return;
@@ -119,11 +119,11 @@
     const idActivo = $btn.data('id-activo');
     const nombreActivo = $btn.data('nombre');
     const actas = $btn.data('actas') || [];
-    const idTrasladoActual = parseInt($('#id_traslado').val()) || null;
+    const idDevolucionActual = parseInt($('#id_devolucion').val()) || null;
 
     const $modal = $('#modalDetalleActivos');
     const $cantidadLabel = $('#modalActivoCantidad');
-    const $btnRevisar = $('#seleccionar_traslado');
+    const $btnRevisar = $('#seleccionar_devolucion');
 
     // Verificar si UL existe, si no crear todo el body
     let $lista = $modal.find('#actasWheel');
@@ -142,22 +142,21 @@
 
     const cantidadFila = parseInt($(`input.cantidad-activo[data-id-activo="${idActivo}"]`).val()) || 0;
     $lista.empty();
-// alert(cantidadFila)
+
     actas.forEach(a => {
-        const selected = idTrasladoActual === a.id_traslado ? 'selected' : '';
+        const selected = idDevolucionActual === a.id_devolucion ? 'selected' : '';
         $lista.append(`
-            <li class="${selected}" data-id-traslado="${a.id_traslado}" data-cantidad="${a.cantidad || cantidadFila}">
+            <li class="${selected}" data-id-devolucion="${a.id_devolucion}" data-cantidad="${a.cantidad || cantidadFila}">
                 ${a.numero_documento}
             </li>
         `);
     });
 
-    // Selección por defecto
     const $default = $lista.find('li.selected');
-    const cantidadActual =  cantidadFila;
+    const cantidadActual = cantidadFila;
     $cantidadLabel.text(`Cantidad: ${cantidadActual}`);
-    $btnRevisar.text($default.data('id-traslado') === idTrasladoActual ? 'Actual' : 'Revisar')
-               .prop('disabled', $default.data('id-traslado') === idTrasladoActual);
+    $btnRevisar.text($default.data('id-devolucion') === idDevolucionActual ? 'Actual' : 'Revisar')
+               .prop('disabled', $default.data('id-devolucion') === idDevolucionActual);
 
     // Click en LI
     $lista.off('click', 'li').on('click', 'li', function() {
@@ -165,25 +164,18 @@
         $(this).addClass('selected');
 
         const cant = $(this).data('cantidad');
-        const idTraslado = $(this).data('id-traslado');
+        const idDevolucion = $(this).data('id-devolucion');
         $cantidadLabel.text(`Cantidad: ${cant}`);
-        $btnRevisar.text($(this).data('id-traslado') === idTrasladoActual ? 'Actual' : 'Revisar')
-                   .prop('disabled', $(this).data('id-traslado') === idTrasladoActual);
-$btnRevisar
-        .data('id', idTraslado)           // actualiza en memoria
-        .attr('data-id', idTraslado);
-    });
+        $btnRevisar.text($(this).data('id-devolucion') === idDevolucionActual ? 'Actual' : 'Revisar')
+                   .prop('disabled', $(this).data('id-devolucion') === idDevolucionActual);
 
-    // Botón revisar
-    // $btnRevisar.off('click').on('click', function() {
-    //     const idSel = $lista.find('li.selected').data('id-traslado');
-    //     if (idSel === idTrasladoActual) return;
-    //     alert('Revisando acta: ' + idSel);
-    // });
+        $btnRevisar
+            .data('id', idDevolucion)
+            .attr('data-id', idDevolucion);
+    });
 
     $modal.modal('show');
 
-    // Reset al cerrar modal
     $modal.one('hidden.bs.modal', function() {
         $lista.empty();
         $cantidadLabel.text('');
@@ -193,17 +185,6 @@ $btnRevisar
 });
 
 
-        // Botón de “Seleccionar acta”
-        // $('#btnSeleccionarActa').on('click', function() {
-        //     const seleccionado = $('#actasWheel li.selected');
-        //     if (seleccionado.length === 0) {
-        //         alert('Seleccione un acta');
-        //         return;
-        //     }
-        //     const idTraslado = seleccionado.data('id-traslado');
-        //     const numeroDoc = seleccionado.data('num-documento');
-        //     alert(`Seleccionaste el acta ${numeroDoc} del traslado ${idTraslado}`);
-        // });
 
 
 
@@ -311,34 +292,31 @@ $(document).off('click', '.btn-eliminar-activo')
 
 
 
-        $('#overlayComentario').off('click', '#btnGuardarComentario').on('click',
-            '#btnGuardarComentario',
-            function() {
-                const comentario = $('#textareaComentario').val();
-                const idActivo = filaActual.data('id-activo');
-                console.log(`${baseUrl}/traslados/${traslado_id}/activos/editar`);
+      $('#overlayComentario').off('click', '#btnGuardarComentario').on('click', '#btnGuardarComentario', function() {
+    const comentario = $('#textareaComentario').val();
+    const idActivo = filaActual.data('id-activo');
+    console.log(`${baseUrl}/devolucion/${devolucion_id}/activos/editar`);
 
-                $.post(`${baseUrl}/traslados/${traslado_id}/activos/editar`, {
-                        id_activo: idActivo,
-                        observaciones: comentario,
-                        _token: '{{ csrf_token() }}'
-                    })
-                    .done(function(res) {
-                        if (res.success) {
-                            filaActual.find('.comentario-activo').val(comentario);
-                            $('#overlayComentario').hide();
-                            mensaje('Observación guardada', 'success');
-                        }
-                    })
-                    .fail(function(xhr) {
-                        // Intentamos obtener el mensaje de error del JSON
-                        let mensaje2 = 'Ocurrió un error al guardar la observación.';
-                        if (xhr.responseJSON && xhr.responseJSON.error) {
-                            mensaje2 = xhr.responseJSON.error;
-                        }
-                        mensaje(mensaje2, 'danger');
-                    });
-            });
+    $.post(`${baseUrl}/devolucion/${devolucion_id}/activos/editar`, {
+            id_activo: idActivo,
+            observaciones: comentario,
+            _token: '{{ csrf_token() }}'
+        })
+        .done(function(res) {
+            if (res.success) {
+                filaActual.find('.comentario-activo').val(comentario);
+                $('#overlayComentario').hide();
+                mensaje('Observación guardada', 'success');
+            }
+        })
+        .fail(function(xhr) {
+            let mensaje2 = 'Ocurrió un error al guardar la observación.';
+            if (xhr.responseJSON && xhr.responseJSON.error) {
+                mensaje2 = xhr.responseJSON.error;
+            }
+            mensaje(mensaje2, 'danger');
+        });
+});
 
 
 
@@ -378,67 +356,65 @@ $(document).off('click', '.btn-eliminar-activo')
 
 
 
-        $(document).off('blur', '.cantidad-activo').on('blur', '.cantidad-activo', function() {
-            const input = $(this);
-            const idActivo = input.data('id-activo');
-            const valorOriginal = parseInt(input.data('valor-original')) || 0;
-            const valorActual = parseInt(input.val()) || 0;
+       $(document).off('blur', '.cantidad-activo').on('blur', '.cantidad-activo', function() {
+    const input = $(this);
+    const idActivo = input.data('id-activo');
+    const valorOriginal = parseInt(input.data('valor-original')) || 0;
+    const valorActual = parseInt(input.val()) || 0;
 
-            if (valorActual === valorOriginal) return; // No cambió
-            if ($('#modalInventario table').length !== 0) {
-                // alert($('#modalInventario table').length)
+    if (valorActual === valorOriginal) return; // No cambió
 
-                const $tr = $('#modalInventario').find(`tr[data-id-activo="${idActivo}"]`);
-                const $spanCantidad = $tr.find('span[data-cantidad-restante]');
-                if ($spanCantidad.length === 0) {
-                    console.warn('No se encontró el span con data-cantidad-restante');
-                    return;
-                }
+    if ($('#modalInventario table').length !== 0) {
+        const $tr = $('#modalInventario').find(`tr[data-id-activo="${idActivo}"]`);
+        const $spanCantidad = $tr.find('span[data-cantidad-restante]');
+        if ($spanCantidad.length === 0) {
+            console.warn('No se encontró el span con data-cantidad-restante');
+            return;
+        }
 
-                // Tomamos la cantidad original total disponible + la cantidad original seleccionada
-                // Esto evita que se acumulen cambios
-                let cantidadTotal = parseInt($spanCantidad.data('cantidad-total')) || 0;
-                if (!cantidadTotal) {
-                    // Si no existe, lo inicializamos: total = disponible + seleccionada
-                    cantidadTotal = parseInt($spanCantidad.data('cantidad-restante')) + valorOriginal;
-                    $spanCantidad.attr('data-cantidad-total', cantidadTotal);
-                }
+        // Tomamos la cantidad original total disponible + la cantidad original seleccionada
+        let cantidadTotal = parseInt($spanCantidad.data('cantidad-total')) || 0;
+        if (!cantidadTotal) {
+            // Si no existe, lo inicializamos: total = disponible + seleccionada
+            cantidadTotal = parseInt($spanCantidad.data('cantidad-restante')) + valorOriginal;
+            $spanCantidad.attr('data-cantidad-total', cantidadTotal);
+        }
 
-                // Nueva cantidad disponible
-                let cantidadRestante = cantidadTotal - valorActual;
-                if (cantidadRestante < 0) cantidadRestante = 0;
+        // Nueva cantidad disponible
+        let cantidadRestante = cantidadTotal - valorActual;
+        if (cantidadRestante < 0) cantidadRestante = 0;
 
-                // Actualizamos el span
-                $spanCantidad
-                    .attr('data-cantidad-restante', cantidadRestante)
-                    .removeClass('text-success text-danger')
-                    .addClass(cantidadRestante > 0 ? 'text-success' : 'text-danger')
-                    .text(cantidadRestante > 0 ?
-                        `${cantidadRestante} disponible${cantidadRestante > 1 ? 's' : ''}` :
-                        'Sin disponibilidad');
+        // Actualizamos el span
+        $spanCantidad
+            .attr('data-cantidad-restante', cantidadRestante)
+            .removeClass('text-success text-danger')
+            .addClass(cantidadRestante > 0 ? 'text-success' : 'text-danger')
+            .text(cantidadRestante > 0 ?
+                `${cantidadRestante} disponible${cantidadRestante > 1 ? 's' : ''}` :
+                'Sin disponibilidad');
 
-                // Actualizamos valor original del input para la próxima edición
-                input.data('valor-original', valorActual);
-            }
+        // Actualizamos valor original del input
+        input.data('valor-original', valorActual);
+    }
 
-            // Enviar al servidor
-            const traslado_id = $('input[name="id_traslado"]').val();
-            $.post(`${baseUrl}/traslados/${traslado_id}/activos/editar`, {
-                id_activo: idActivo,
-                cantidad: valorActual,
-                _token: $('meta[name="csrf-token"]').attr('content')
-            }, function(res) {
-                if (!res.success) {
-                    console.warn('Error al actualizar cantidad');
-                    // Revertimos cambios si hay error
-                    input.val(valorOriginal);
-                    let revertCantidad = cantidadTotal - valorOriginal;
-                    $spanCantidad.attr('data-cantidad-restante', revertCantidad)
-                        .text(revertCantidad > 0 ? `${revertCantidad} disponible` :
-                            'Sin disponibilidad');
-                }
-            });
-        });
+    // 🔹 Enviar al servidor (AJAX)
+    const devolucion_id = $('input[name="id_devolucion"]').val();
+    $.post(`${baseUrl}/devolucion/${devolucion_id}/activos/editar`, {
+        id_activo: idActivo,
+        cantidad: valorActual,
+        _token: $('meta[name="csrf-token"]').attr('content')
+    }, function(res) {
+        if (!res.success) {
+            console.warn('Error al actualizar cantidad');
+            // Revertimos cambios si hay error
+            input.val(valorOriginal);
+            let revertCantidad = cantidadTotal - valorOriginal;
+            $spanCantidad.attr('data-cantidad-restante', revertCantidad)
+                .text(revertCantidad > 0 ? `${revertCantidad} disponible` : 'Sin disponibilidad');
+        }
+    });
+});
+
 
 
 

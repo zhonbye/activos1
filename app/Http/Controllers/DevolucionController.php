@@ -553,15 +553,58 @@ public function agregarActivo(Request $request, $id)
         ]);
     }
 
+public function editarActivo(Request $request, $id)
+{
+    // Buscar el detalle de la devolución correspondiente al activo
+    $detalle = DetalleDevolucion::where('id_devolucion', $id)
+        ->where('id_activo', $request->id_activo)
+        ->first();
+
+    if (!$detalle) {
+        return response()->json(['error' => 'Detalle no encontrado'], 404);
+    }
+
+    // Validar longitud de observaciones
+    if ($request->observaciones !== null) {
+        if (strlen($request->observaciones) > 100) {
+            return response()->json([
+                'error' => 'El campo observaciones no puede tener más de 100 caracteres'
+            ], 422);
+        }
+        $detalle->observaciones = $request->observaciones;
+    }
+
+    // Actualizar cantidad si se envió
+    if ($request->cantidad !== null) {
+        $detalle->cantidad = $request->cantidad;
+    }
+
+    $detalle->save();
+
+    return response()->json(['success' => true, 'detalle' => $detalle]);
+}
 
     /**
      * Display the specified resource.
      */
-    public function show($id)
-    {
+    public function show($id = null)
+{
+    if ($id) {
+        // Si se envía el id, buscamos esa devolución
         $devolucion = Devolucion::findOrFail($id);
-        return view('user.devolucion.show', compact('devolucion'));
+    } else {
+        // Si no se envía id, obtenemos la última devolución agregada
+        $devolucion = Devolucion::latest('id_devolucion')->first();
+
+        // Opcional: si no hay devoluciones, puedes lanzar un error o redirigir
+        if (!$devolucion) {
+            abort(404, 'No hay devoluciones registradas.');
+        }
     }
+
+    return view('user.devolucion.show', compact('devolucion'));
+}
+
     public function tablaActivos($id)
     {
         $detalles = DetalleDevolucion::with('activo.unidad', 'activo.estado', 'activo.detalleInventario')
@@ -570,7 +613,21 @@ public function agregarActivo(Request $request, $id)
         ->map(function ($detalle) {
             $idActivo = $detalle->id_activo;
 
-            $cantidadDisponible = $detalle->activo->detalleInventario->cantidad ?? 0;
+            // $cantidadDisponible = $detalle->activo->detalleInventario->cantidad ?? 0;
+            // Buscar el último inventario PENDIENTE del servicio de la devolución
+$ultimoInventario = Inventario::where('id_servicio', $detalle->devolucion->id_servicio)
+    ->where('estado', 'pendiente')
+    ->orderByDesc('fecha')
+    ->first();
+
+$cantidadDisponible = 0;
+
+if ($ultimoInventario) {
+    $cantidadDisponible = DetalleInventario::where('id_activo', $detalle->id_activo)
+        ->where('id_inventario', $ultimoInventario->id_inventario)
+        ->value('cantidad') ?? 0;
+}
+
             $cantidadUsada = DetalleDevolucion::where('id_activo', $idActivo)->sum('cantidad');
             $cantidadEnActa = $detalle->cantidad ?? 0;
 
