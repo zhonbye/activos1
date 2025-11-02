@@ -5,6 +5,7 @@
     }
 </style>
 
+
 <div class="table-responsive mt-3">
     <table class="table table-striped table-hover">
         <thead class="table-light">
@@ -14,33 +15,38 @@
                 <th>Detalle</th>
                 <th>Categoría</th>
                 <th>Estado Actual</th>
-                <th>Cantidad</th>
+                <th>Cantidad Total</th>
                 <th>Disponibilidad</th>
                 <th>Acción</th>
             </tr>
         </thead>
         <tbody>
             @forelse($detalles as $detalle)
-                @php
-                    $idActivo = $detalle->activo->id_activo ?? '';
-                    $nombreActivo = $detalle->activo->nombre ?? '';
-                    $cantidadTotal = $detalle->cantidad_inventario ?? 0;
-                    $cantidadRestante = $detalle->cantidad_restante ?? 0;
-                    $estadoTipo = $detalle->estado_tipo ?? 'none';
-                @endphp
+               @php
+    $idActivo = $detalle->id_activo ?? '';
+    $nombreActivo = $detalle->nombre ?? '';
+    $codigoActivo = $detalle->codigo ?? 'N/D';
+    $detalleActivo = $detalle->detalle ?? 'N/D';
+    $categoriaActivo = $detalle->categoria->nombre ?? 'N/D';
+
+    $cantidadTotal = $detalle->cantidad_inventario ?? 0;
+    $cantidadRestante = $detalle->cantidad_restante ?? 0;
+    $cantidadEnActa = $detalle->cantidad_en_acta ?? 0;
+    $estadoTipo = $detalle->estado_tipo ?? 'none';
+    $estadoActual = $detalle->estado_actual ?? 'N/D';
+@endphp
+
 
                 <tr data-id-activo="{{ $idActivo }}">
-                    <td>{{ $detalle->activo->codigo ?? 'N/D' }}</td>
-                    <td>{{ $detalle->activo->nombre ?? 'N/D' }}</td>
-                    <td>{{ $detalle->activo->detalle ?? 'N/D' }}</td>
-                    <td>{{ $detalle->activo->categoria->nombre ?? 'N/D' }}</td>
-                    <td>{{ $detalle->estado_actual ?? 'N/D' }}</td>
+                    <td>{{ $codigoActivo }}</td>
+                    <td>{{ $nombreActivo }}</td>
+                    <td>{{ $detalleActivo }}</td>
+                    <td>{{ $categoriaActivo }}</td>
+                    <td>{{ $estadoActual }}</td>
                     <td>{{ $cantidadTotal }}</td>
                     <td>
-                        {{-- <div class="d-flex align-items-center border p-2 rounded justify-content-between" data-id-activo="{{ $idActivo }}"> --}}
-                        {{-- Mostrar cantidad disponible --}}
                         @if ($cantidadRestante > 0)
-                            <span class="text-success fw-semibold " data-cantidad-restante="{{ $cantidadRestante }}">
+                            <span class="text-success fw-semibold" data-cantidad-restante="{{ $cantidadRestante }}">
                                 {{ $cantidadRestante }} disponibles
                             </span>
                         @else
@@ -48,60 +54,42 @@
                                 Sin disponibilidad
                             </span>
                         @endif
-
-
                     </td>
-                    {{-- </div> --}}
                     <td>
-                        {{-- Mostrar botón según estado real --}}
-                        @if ($detalle->cantidad_en_acta > 0)
-                            {{-- Ya está en esta acta --}}
+                        @if ($cantidadEnActa > 0)
                             <button class="btn btn-sm btn-outline-danger btn-eliminar-activo"
-                                data-id-activo="{{ $idActivo }}" data-id-traslado="{{ $detalle->id_traslado }}">
+                                data-id-activo="{{ $idActivo }}" data-id-entrega="{{ $detalle->id_entrega }}">
                                 Eliminar
                             </button>
-                            {{-- <button type="button"
-    class="btn btn-sm rounded-circle p-0 btn-ver-detalle"
-    data-id-activo="{{ $idActivo }}"
-    data-nombre="{{ $nombreActivo }}"
-    data-cantidad-actas="{{ $detalle->cantidad_actas }}"
-    data-actas='@json($detalle->actas_info)'
-    title="Ver detalles">
-    <i class="bi bi-info-circle"></i>
-</button> --}}
-
-
-                        @elseif ($detalle->cantidad_en_acta == 0 && $detalle->cantidad_restante > 0)
-                            {{-- Disponible para agregar --}}
+                        @elseif ($cantidadEnActa == 0 && $cantidadRestante > 0)
                             <button class="btn btn-sm btn-outline-primary btn_agregar_activo"
                                 data-id="{{ $idActivo }}"
-                                data-cantidad-restante="{{ $detalle->cantidad_restante }}"
-                                data-cantidad-total="{{ $detalle->cantidad_inventario }}">
+                                data-cantidad-restante="{{ $cantidadRestante }}"
+                                data-cantidad-total="{{ $cantidadTotal }}">
                                 Agregar
                             </button>
-
-
-                        @elseif ($detalle->cantidad_en_acta == 0 && $detalle->cantidad_restante == 0)
-                            {{-- Sin stock, revisar --}}
+                        @elseif ($cantidadEnActa == 0 && $cantidadRestante == 0)
                             <button type="button" class="btn btn-sm btn-outline-secondary btn-ver-detalle"
                                 data-id-activo="{{ $idActivo }}" data-nombre="{{ $nombreActivo }}"
-                                data-cantidad-actas="{{ $detalle->cantidad_actas }}"
-                                data-actas='@json($detalle->actas_info)'>
+                                data-cantidad-actas="{{ $detalle->cantidad_actas ?? 0 }}"
+                                data-actas='@json($detalle->actas_info ?? [])'>
                                 Revisar
                             </button>
                         @endif
-
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" class="text-center text-muted">No se encontraron activos.</td>
+                    <td colspan="8" class="text-center text-muted">No se encontraron activos.</td>
                 </tr>
             @endforelse
         </tbody>
-
     </table>
 </div>
+
+
+
+
 
 <script>
     $(document).ready(function() {

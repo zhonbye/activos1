@@ -13,7 +13,7 @@
 
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Gestión</label>
-                        <input type="number" name="gestion" class="form-control" placeholder="2025">
+                        <input type="number" name="gestion" value="{{ date('Y') }}" class="form-control" placeholder="2025">
                     </div>
 
                     <div class="col-md-4">

@@ -54,7 +54,7 @@
 
                 <td>
                     <button type="button" class="btn btn-danger btn-sm btn-eliminar-activo"
-                        data-id-activo="{{ $detalle->id_activo }}" data-id-traslado="{{ $detalle->id_traslado }}">
+                        data-id-activo="{{ $detalle->id_activo }}" data-id-entrega="{{ $detalle->id_entrega }}">
                         <i class="bi bi-trash"></i>
                     </button>
 
@@ -102,7 +102,7 @@
     $(document).ready(function() {
 
         var filaActual = null;
-        const traslado_id = $('#traslado_id').val();
+        const entrega_id = $('#entrega_id').val();
         var debounceTimeout;
         // const baseUrl = '';
 
@@ -119,11 +119,11 @@
     const idActivo = $btn.data('id-activo');
     const nombreActivo = $btn.data('nombre');
     const actas = $btn.data('actas') || [];
-    const idTrasladoActual = parseInt($('#id_traslado').val()) || null;
+    const idEntregaActual = parseInt($('#id_entrega').val()) || null;
 
     const $modal = $('#modalDetalleActivos');
     const $cantidadLabel = $('#modalActivoCantidad');
-    const $btnRevisar = $('#seleccionar_traslado');
+    const $btnRevisar = $('#seleccionar_entrega');
 
     // Verificar si UL existe, si no crear todo el body
     let $lista = $modal.find('#actasWheel');
@@ -144,9 +144,9 @@
     $lista.empty();
 // alert(cantidadFila)
     actas.forEach(a => {
-        const selected = idTrasladoActual === a.id_traslado ? 'selected' : '';
+        const selected = idEntregaActual === a.id_entrega ? 'selected' : '';
         $lista.append(`
-            <li class="${selected}" data-id-traslado="${a.id_traslado}" data-cantidad="${a.cantidad || cantidadFila}">
+            <li class="${selected}" data-id-entrega="${a.id_entrega}" data-cantidad="${a.cantidad || cantidadFila}">
                 ${a.numero_documento}
             </li>
         `);
@@ -156,8 +156,8 @@
     const $default = $lista.find('li.selected');
     const cantidadActual =  cantidadFila;
     $cantidadLabel.text(`Cantidad: ${cantidadActual}`);
-    $btnRevisar.text($default.data('id-traslado') === idTrasladoActual ? 'Actual' : 'Revisar')
-               .prop('disabled', $default.data('id-traslado') === idTrasladoActual);
+    $btnRevisar.text($default.data('id-entrega') === idEntregaActual ? 'Actual' : 'Revisar')
+               .prop('disabled', $default.data('id-entrega') === idEntregaActual);
 
     // Click en LI
     $lista.off('click', 'li').on('click', 'li', function() {
@@ -165,19 +165,19 @@
         $(this).addClass('selected');
 
         const cant = $(this).data('cantidad');
-        const idTraslado = $(this).data('id-traslado');
+        const idEntrega = $(this).data('id-entrega');
         $cantidadLabel.text(`Cantidad: ${cant}`);
-        $btnRevisar.text($(this).data('id-traslado') === idTrasladoActual ? 'Actual' : 'Revisar')
-                   .prop('disabled', $(this).data('id-traslado') === idTrasladoActual);
+        $btnRevisar.text($(this).data('id-entrega') === idEntregaActual ? 'Actual' : 'Revisar')
+                   .prop('disabled', $(this).data('id-entrega') === idEntregaActual);
 $btnRevisar
-        .data('id', idTraslado)           // actualiza en memoria
-        .attr('data-id', idTraslado);
+        .data('id', idEntrega)           // actualiza en memoria
+        .attr('data-id', idEntrega);
     });
 
     // Botón revisar
     // $btnRevisar.off('click').on('click', function() {
-    //     const idSel = $lista.find('li.selected').data('id-traslado');
-    //     if (idSel === idTrasladoActual) return;
+    //     const idSel = $lista.find('li.selected').data('id-entrega');
+    //     if (idSel === idEntregaActual) return;
     //     alert('Revisando acta: ' + idSel);
     // });
 
@@ -200,9 +200,9 @@ $btnRevisar
         //         alert('Seleccione un acta');
         //         return;
         //     }
-        //     const idTraslado = seleccionado.data('id-traslado');
+        //     const idEntrega = seleccionado.data('id-entrega');
         //     const numeroDoc = seleccionado.data('num-documento');
-        //     alert(`Seleccionaste el acta ${numeroDoc} del traslado ${idTraslado}`);
+        //     alert(`Seleccionaste el acta ${numeroDoc} del entrega ${idEntrega}`);
         // });
 
 
@@ -222,17 +222,17 @@ $btnRevisar
                 if ($btn.data('processing')) return;
 
                 const idActivo = $btn.data('id-activo');
-                const idTraslado = $btn.data('id-traslado');
+                const idEntrega = $btn.data('id-entrega');
 
-                if (!idActivo || !idTraslado) {
-                    mensaje('Faltan datos: no se pudo identificar el traslado o el activo.', 'warning');
+                if (!idActivo || !idEntrega) {
+                    mensaje('Faltan datos: no se pudo identificar el entrega o el activo.', 'warning');
                     return;
                 }
 
                 $btn.data('processing', true).prop('disabled', true);
 
                 $.ajax({
-                    url: `${baseUrl}/traslados/${idTraslado}/activos/eliminar`,
+                    url: `${baseUrl}/entregas/${idEntrega}/activos/eliminar`,
                     method: 'POST',
                     data: {
                         _token: $('meta[name="csrf-token"]').attr('content'),
@@ -337,9 +337,9 @@ $btnRevisar
             function() {
                 const comentario = $('#textareaComentario').val();
                 const idActivo = filaActual.data('id-activo');
-                console.log(`${baseUrl}/traslados/${traslado_id}/activos/editar`);
+                console.log(`${baseUrl}/entregas/${entrega_id}/activos/editar`);
 
-                $.post(`${baseUrl}/traslados/${traslado_id}/activos/editar`, {
+                $.post(`${baseUrl}/entregas/${entrega_id}/activos/editar`, {
                         id_activo: idActivo,
                         observaciones: comentario,
                         _token: '{{ csrf_token() }}'
@@ -443,8 +443,8 @@ $btnRevisar
             }
 
             // Enviar al servidor
-            const traslado_id = $('input[name="id_traslado"]').val();
-            $.post(`${baseUrl}/traslados/${traslado_id}/activos/editar`, {
+            const entrega_id = $('input[name="id_entrega"]').val();
+            $.post(`${baseUrl}/entregas/${entrega_id}/activos/editar`, {
                 id_activo: idActivo,
                 cantidad: valorActual,
                 _token: $('meta[name="csrf-token"]').attr('content')

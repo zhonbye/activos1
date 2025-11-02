@@ -3,7 +3,7 @@
         <div class="d-flex justify-content-between align-items-start mb-4">
             <!-- Columna izquierda: Inputs -->
             <div class="flex-grow-1">
-                <form id="form_buscar_traslado" class="row g-3 text-start">
+                <form id="form_buscar_entrega" class="row g-3 text-start">
                     @csrf
 
                     <div class="col-md-4">
@@ -11,10 +11,11 @@
                         <input type="text" name="numero_documento" class="form-control" placeholder="Ej. 004">
                     </div>
 
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">Gestión</label>
-                        <input type="number" name="gestion" class="form-control" placeholder="2025">
-                    </div>
+                   <div class="col-md-4">
+    <label class="form-label fw-semibold">Gestión</label>
+    <input type="number" name="gestion" class="form-control" placeholder="2025" value="{{ date('Y') }}">
+</div>
+
 
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Fecha Desde</label>
@@ -48,7 +49,7 @@
 
                     <!-- Botón centrado abajo -->
                     <div class="col-12 text-center mt-4 d-flex ">
-                        <button type="button" id="btn_buscar_traslado" class="btn btn-primary w-75">
+                        <button type="button" id="btn_buscar_entrega" class="btn btn-primary w-75">
                             <i class="bi bi-search me-1"></i> Buscar
                         </button>
                         <button type="reset" id="" class="btn btn-danger w-25">
@@ -61,25 +62,25 @@
             <!-- Columna derecha: Icono grande con título y subtítulo -->
             <div class="ms-4 text-center">
                 <i class="bi bi-search text-primary fs-1"></i>
-                <h4 class="fw-bold mt-2">Buscar Traslado</h4>
-                <p class="text-muted small">Ingrese los criterios para encontrar un traslado</p>
+                <h4 class="fw-bold mt-2">Buscar Entrega</h4>
+                <p class="text-muted small">Ingrese los criterios para encontrar un entrega</p>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Tabla de resultados -->
-<div class="mt-4" id="resultado_traslados"></div>
+<div class="mt-4" id="resultado_entregas"></div>
 
 <script>
-    $(document).on('click', '#btn_buscar_traslado', function() {
+    $(document).on('click', '#btn_buscar_entrega', function() {
 
         $.ajax({
-            url: "{{ route('traslados.buscar') }}",
+            url: "{{ route('entregas.buscarActa') }}",
             type: 'POST',
-            data: $('#form_buscar_traslado').serialize(),
+            data: $('#form_buscar_entrega').serialize(),
             success: function(html) {
-                $('#resultado_traslados').html(html);
+                $('#resultado_entregas').html(html);
 
 
 
@@ -96,13 +97,13 @@
     });
 
     // Capturar ID al presionar "Seleccionar"
-    $(document).on('click', '#seleccionar_traslado', function() {
-        var idTraslado = $(this).data('id');
+    $(document).on('click', '#seleccionar_entrega', function() {
+        var idEntrega = $(this).data('id');
 
-        // console.log("Traslado seleccionado:", idTraslado);
-        // alert(idTraslado    )
-        cargarDetalleTraslado(idTraslado);
-        cargarTablaActivos(idTraslado);
-        $('#buscarTraslado .btn-close').trigger('click');
+        // console.log("Entrega seleccionado:", idEntrega);
+        // alert(idEntrega    )
+        cargarDetalleEntrega(idEntrega);
+        cargarTablaActivos(idEntrega);
+        $('#buscarEntrega .btn-close').trigger('click');
     });
 </script>

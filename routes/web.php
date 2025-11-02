@@ -101,20 +101,20 @@ Route::post('/activo/{id}/update', [ActivoController::class, 'update'])->name('a
 
 
 
-Route::get('/dashboard/entregas', [EntregaController::class, 'create'])->name('entregas.create');
-Route::post('/entregas', [EntregaController::class, 'store'])->name('entregas.store');
-Route::get('/dashboard/entregas/realizar', [EntregaController::class, 'createEntrega'])->name('entregas.realizar');
-// Route::get('/dashboard/entregas/realizar', [EntregaController::class, 'mostrarVistaPrueba'])->name('entregas.realizar');
-Route::get('/actas/get-datos', [EntregaController::class, 'getDatosActa'])->name('actas.getDatos');
-Route::post('/actualizar-mensaje', [EntregaController::class, 'actualizarMensaje'])->name('actmensaje');
-Route::get('/entregas/activos', [EntregaController::class, 'obtenerActivosPorEntrega'])->name('entregas.activos');
-Route::get('actas/buscar/{tipo}/{numero}/{gestion}', [EntregaController::class, 'buscarActaPorTipo']);
-Route::post('/entregas/detalles/store', [EntregaController::class, 'storeDetalles']);
+    // Route::get('/dashboard/entregas', [EntregaController::class, 'create'])->name('entregas.create');
+    // Route::post('/entregas', [EntregaController::class, 'store'])->name('entregas.store');
+    // Route::get('/dashboard/entregas/realizar', [EntregaController::class, 'createEntrega'])->name('entregas.realizar');
+    // // Route::get('/dashboard/entregas/realizar', [EntregaController::class, 'mostrarVistaPrueba'])->name('entregas.realizar');
+    // Route::get('/actas/get-datos', [EntregaController::class, 'getDatosActa'])->name('actas.getDatos');
+    // Route::post('/actualizar-mensaje', [EntregaController::class, 'actualizarMensaje'])->name('actmensaje');
+    // // Route::get('/entregas/activos', [EntregaController::class, 'obtenerActivosPorEntrega'])->name('entregas.activos');
+    // Route::get('actas/buscar/{tipo}/{numero}/{gestion}', [EntregaController::class, 'buscarActaPorTipo']);
+    // Route::post('/entregas/detalles/store', [EntregaController::class, 'storeDetalles']);
 
-Route::get('/getDocto', [EntregaController::class, 'getDocto']);
-Route::get('/entregas/{entregaId}/activos', [EntregaController::class, 'activosDeEntrega'])->name('activos.deEntrega');
-Route::post('/entregas/guardar-activos', [EntregaController::class, 'guardarActivos'])->name('activos.guardarPorEntrega');
-Route::post('/entregas/guardar-entrega-realizada', [EntregaController::class, 'guardarEntregaRealizada']);
+    // Route::get('/getDocto', [EntregaController::class, 'getDocto']);
+    // Route::get('/entregas/{entregaId}/activos', [EntregaController::class, 'activosDeEntrega'])->name('activos.deEntrega');
+    // Route::post('/entregas/guardar-activos', [EntregaController::class, 'guardarActivos'])->name('activos.guardarPorEntrega');
+    // Route::post('/entregas/guardar-entrega-realizada', [EntregaController::class, 'guardarEntregaRealizada']);
 
 
 Route::get('/ubicaciones/{id}/servicios', [UbicacionController::class, 'servicios']);
@@ -213,9 +213,25 @@ Route::post('/devolucion/{id}/activos/agregar', [DevolucionController::class,'ag
 
 
 
-Route::get('/entregas/{id}', [EntregaController::class,'show'])->name('entregas.show');
+Route::get('/entregas/generar-numero/{gestion}', [EntregaController::class, 'generarNumeroAjax'])->name('entregas.generarNumero');
 
+// Route::get('/entregas', [EntregaController::class, 'create'])->name('entregas.create');
+// Route::get('/entregas/mostrarBuscarActa', [EntregaController::class, 'mostrarBuscarActa'])->name('entregas.mostrarBuscarActa');
+// Route::get('/entregas/mostrarInventario', [EntregaController::class, 'mostrarInventario'])->name('entregas.mostrarInventario');
+Route::post('/entregas/buscarActivos', [EntregaController::class, 'buscarActivos'])->name('entregas.buscarActivos');
+Route::post('/entregas/buscarActa', [EntregaController::class, 'buscarActa'])->name('entregas.buscarActa');
+Route::post('/entregas/guardar', [EntregaController::class, 'store'])->name('entregas.store');
+// Route::get('/entregas/{id}', [EntregaController::class,'show'])->name('entregas.show');
+Route::get('/entregas/{id}/detalleEntrega', [EntregaController::class, 'detalleParcialEntrega'])->name('entregas.detalleEntrega');
+Route::get('/entregas/{id}/editar', [EntregaController::class, 'edit'])->name('entregas.edit');
+Route::put('/entregas/{id}/update', [EntregaController::class, 'update'])->name('entregas.update');
+Route::post('/entregas/{id}/activos/editar', [EntregaController::class,'editarActivo']);
+Route::post('/entregas/{id}/activos/eliminar', [EntregaController::class,'eliminarActivo']);
+Route::post('/entregas/{id}/activos/agregar', [EntregaController::class,'agregarActivo']);
 
+Route::get('/entregas/{id}/activos', [EntregaController::class,'tablaActivos']);
+Route::get('/entregas/{id?}', [EntregaController::class,'show'])->name('entregas.show');
+Route::get('/entregas', [EntregaController::class,'create'])->name('entregas.create');
 
 
 

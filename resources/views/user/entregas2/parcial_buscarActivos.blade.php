@@ -50,7 +50,7 @@
         </div>
 
         <!-- Resultados -->
-        <div id="resultado_inventario" class="mt-4"></div>
+        <div id="resultado_Busqueda" class="mt-4"></div>
     </div>
 </div>
 
@@ -65,11 +65,11 @@
             if ($btn.data('processing')) return;
 
             const idActivo = $btn.data('id');
-            const idTraslado = $('#btn_editar_traslado').data('id');
+            const idEntrega = $('#btn_editar_entrega').data('id');
             const cantidadRestante = parseInt($btn.data('cantidad-restante') ?? 0, 10);
 
-            if (!idTraslado) {
-                mensaje('No se encontró el ID del traslado.', 'warning');
+            if (!idEntrega) {
+                mensaje('No se encontró el ID del entrega.', 'warning');
                 return;
             }
 
@@ -107,7 +107,7 @@
 
             // 🔹 Enviar al servidor
             $.ajax({
-                url: `${baseUrl}/traslados/${idTraslado}/activos/agregar`,
+                url: `${baseUrl}/entregas/${idEntrega}/activos/agregar`,
                 type: 'POST',
                 data: {
                     id_activo: idActivo,
@@ -126,7 +126,7 @@
             const $btnEliminar = $(`
                 <button class="btn btn-sm btn-outline-danger btn-eliminar-activo"
                         data-id-activo="${idActivo}"
-                        data-id-traslado="${idTraslado}">
+                        data-id-entrega="${idEntrega}">
                     Eliminar
                 </button>
             `);
@@ -205,10 +205,10 @@
     //     if ($btn.data('processing')) return;
 
     //     const idActivo   = $btn.data('id');
-    //     const idTraslado = $('#btn_editar_traslado').data('id');
+    //     const idEntrega = $('#btn_editar_entrega').data('id');
 
-    //     if (!idTraslado) {
-    //         mensaje('No se encontró el ID del traslado.', 'warning');
+    //     if (!idEntrega) {
+    //         mensaje('No se encontró el ID del entrega.', 'warning');
     //         return;
     //     }
 
@@ -221,7 +221,7 @@
     //     $btn.data('processing', true).prop('disabled', true);
 
     //     $.ajax({
-    //         url: `${baseUrl}/traslados/${idTraslado}/activos/agregar`,
+    //         url: `${baseUrl}/entregas/${idEntrega}/activos/agregar`,
     //         type: 'POST',
     //         data: {
     //             id_activo: idActivo,
@@ -232,13 +232,13 @@
     //                 mensaje(response.message, 'success');
     //                  const $td = $btn.closest('td');
     //                   const numero = response.numero_acta || 'N/A'; // si quieres pasar número dinámico
-    //         const idTraslado = $('#btn_editar_traslado').data('id');
+    //         const idEntrega = $('#btn_editar_entrega').data('id');
 
     //         $td.html(`   <div class="d-flex align-items-center border p-2 rounded justify-content-between">
     //             <span class="text-primary fw-semibold">Añadido</span>
     //             <button class="btn btn-sm btn-outline-danger btn-eliminar-activo"
     //                 data-id-activo="${idActivo}"
-    //                 data-id-traslado="${idTraslado}"
+    //                 data-id-entrega="${idEntrega}"
     //                 data-acta="${numero}">
     //                 Remover
     //             </button>
@@ -275,14 +275,14 @@
             if ($btn.data('processing')) return;
 
             const idServicioOrigen = $('#id_servicio_origen').val();
-            let idTraslado = $('#traslado_id').val(); // obtiene el valor del hidden
+            let idEntrega = $('#entrega_id').val(); // obtiene el valor del hidden
             let data = $('#form_buscar_inventario').serialize();
 
             if (idServicioOrigen) {
                 data += '&id_servicio_origen=' + encodeURIComponent(idServicioOrigen);
             }
-            if (idTraslado) {
-                data += '&id_traslado=' + encodeURIComponent(idTraslado);
+            if (idEntrega) {
+                data += '&id_entrega=' + encodeURIComponent(idEntrega);
             }
 
             // Marcar como procesando (bloquear botón temporalmente)
@@ -290,18 +290,18 @@
 
 
             // Crear objeto data
-            // let data = $('#form_buscar_traslado').serializeArray(); // array de objetos {name, value}
+            // let data = $('#form_buscar_entrega').serializeArray(); // array de objetos {name, value}
 
-            // Agregar id_traslado al array
-            // data.push({ name: 'id_traslado', value: idTraslado });
+            // Agregar id_entrega al array
+            // data.push({ name: 'id_entrega', value: idEntrega });
 
             // AJAX
             $.ajax({
-                url: "{{ route('traslados.buscarActivos') }}",
+                url: "{{ route('entregas.buscarActivos') }}",
                 type: 'POST',
                 data: data,
                 success: function(html) {
-                    $('#resultado_inventario').html(html);
+                    $('#resultado_Busqueda').html(html);
                 },
                 error: function(xhr) {
                     let msg = 'Ocurrió un error inesperado.';

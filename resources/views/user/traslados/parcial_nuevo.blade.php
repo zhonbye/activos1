@@ -22,11 +22,7 @@
                 <input type="number" name="gestion" class="form-control" value="{{ $gestionActual }}" required>
             </div>
 
-            <div class="col-md-6">
-                <label class="form-label fw-semibold">Fecha</label>
-                <input type="date" name="fecha" class="form-control" value="{{ date('Y-m-d') }}" required>
-            </div>
-
+            
             <div class="col-md-6">
     <label class="form-label fw-semibold">Servicio Origen</label>
     <select name="id_servicio_origen" id="id_servicio_origen" class="form-select" required>
@@ -56,6 +52,11 @@
         Responsable: N/D
     </div>
 </div>
+<div class="col-md-6">
+                <label class="form-label fw-semibold">Fecha</label>
+                <input type="date" name="fecha" class="form-control" value="{{ date('Y-m-d') }}" required>
+            </div>
+
 
 
             <div class="col-12">

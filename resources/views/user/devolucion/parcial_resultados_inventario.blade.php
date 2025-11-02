@@ -164,7 +164,7 @@ $(document).on('change', '#select-acta', function() {
     $('.btn-ver-acta').data('id', idDevolucionSeleccionada);
     $('.btn-ver-acta').attr('data-id', idDevolucionSeleccionada);
     // alert($('#seleccionar_devolucion').data('id'))
-    // console.log('ID de devolución actualizado en el botón:', idDevolucionSeleccionada);
+    // console.log('ID de dev
 });
 
     // Acción del botón "Revisar acta"

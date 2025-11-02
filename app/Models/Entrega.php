@@ -24,6 +24,33 @@ class Entrega extends Model
         'estado',
         'url',
     ];
+
+    public function scopeEditable($query)
+{
+    return $query->whereRaw('LOWER(estado) NOT IN (?, ?)', ['finalizado', 'eliminado']);
+}
+
+
+
+/**
+ * Método helper para usar en un traslado específico.
+ * Devuelve true si se puede modificar.
+ */
+public function isEditable()
+{
+    return !in_array(strtolower($this->estado), ['finalizado', 'eliminado']);
+}
+
+public function scopeNoEliminados($query)
+{
+    return $query->where('estado', '!=', 'ELIMINADO');
+}
+
+
+public function detalles() {
+    return $this->hasMany(DetalleEntrega::class, 'id_entrega');
+
+}
  public function scopeActivas($query)
     {
         return $query->where('estado', '!=', 'eliminado');

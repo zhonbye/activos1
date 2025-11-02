@@ -39,6 +39,9 @@ class Activo extends Model
     {
         return $this->hasMany(DetalleInventario::class, 'id_activo', 'id_activo');
     }
+    public function detalleEntregas() {
+    return $this->hasMany(DetalleEntrega::class, 'id_activo');
+}
 
     public function categoria()
     {

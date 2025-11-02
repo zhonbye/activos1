@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Activo;
+use App\Models\Categoria;
 use App\Models\DetalleEntrega;
 use App\Models\DetalleInventario;
-use App\Models\Devolucion;
-use App\Models\Docto;
 use App\Models\Entrega;
+use App\Models\Docto;
+// use App\Models\Entrega;
 use App\Models\Inventario;
 use App\Models\Responsable;
 use App\Models\Servicio;
@@ -25,18 +27,323 @@ class EntregaController extends Controller
 //estos son los nuevos metodos del traslado
 
 
+//  public function show($id = null)
+// {
+    
+//     return view('user.entrega.show', compact('entrega'));
+// }
 
-
-public function show($id)
-    {
+public function show($id = null)
+{
+    $servicios = Servicio::all(); // trae todos los servicios con id_responsable
+    $categorias = Categoria::all(); 
+    $numeroSiguiente = $this->generarNumeroDocumento('2025');
+        if ($id) {
+        // Si se envía el id, buscamos esa entrega
         $entrega = Entrega::findOrFail($id);
-        $traslado = Traslado::findOrFail($id);
-        return view('user.Entregas2.show', compact('entrega', 'traslado'));
+        // $entrega = Entrega::findOrFail($id);
+    } else {
+        // Si no se envía id, obtenemos la última entrega agregada
+        $entrega = Entrega::latest('id_entrega')->first();
+
+        // Opcional: si no hay entregas, puedes lanzar un error o redirigir
+        if (!$entrega) {
+            abort(404, 'No hay entregas registradas.');
+        }
+    }
+
+        return view('user.Entregas2.show', compact('entrega','numeroSiguiente', 'servicios','categorias'));
     }
 
 
 
 
+
+
+
+public function tablaActivos($id)
+    {
+//         $detalles = DetalleEntrega::where('id_entrega', $id)->get();
+// dd($detalles);
+        $detalles = DetalleEntrega::with('activo.unidad', 'activo.estado', 'activo.detalleInventario')
+        
+        ->where('id_entrega', $id)
+        ->get()
+        ->map(function ($detalle) {
+            $idActivo = $detalle->id_activo;
+
+            // $cantidadDisponible = $detalle->activo->detalleInventario->cantidad ?? 0;
+            // Buscar el último inventario PENDIENTE del servicio de la entrega
+$ultimoInventario = Inventario::where('id_servicio', $detalle->entrega->id_servicio)
+    ->where('estado', 'pendiente')
+    ->orderByDesc('fecha')
+    ->first();
+
+$cantidadDisponible = 0;
+
+if ($ultimoInventario) {
+    $cantidadDisponible = DetalleInventario::where('id_activo', $detalle->id_activo)
+        ->where('id_inventario', $ultimoInventario->id_inventario)
+        ->value('cantidad') ?? 0;
+}
+
+            $cantidadUsada = DetalleEntrega::where('id_activo', $idActivo)->sum('cantidad');
+            $cantidadEnActa = $detalle->cantidad ?? 0;
+
+            // Obtener todos los traslados donde aparece este mismo activo
+            $actasInfo = DetalleEntrega::where('id_activo', $idActivo)
+                ->with('entrega')
+                ->get()
+                ->map(function ($d) {
+                    return [
+                        'id_entrega' => $d->id_entrega,
+                        'numero_documento' => $d->entrega->numero_documento ?? null,
+                        'cantidad' => $d->cantidad ?? 0,
+                    ];
+                });
+
+            // Agregar propiedades dinámicas correctamente
+            $detalle->setAttribute('cantidad_disponible', $cantidadDisponible);
+            $detalle->setAttribute('cantidad_usada', $cantidadUsada);
+            $detalle->setAttribute('cantidad_en_acta', $cantidadEnActa);
+            $detalle->setAttribute('actas_info', $actasInfo);
+
+            return $detalle; 
+        });
+
+    return view('user.entregas2.parcial_activos', compact('detalles'));
+
+    }
+
+
+
+
+
+
+
+public function buscarActa(Request $request)
+{
+    try {
+        $query = Entrega::query()->noEliminados();
+
+        // Búsqueda insensible a mayúsculas/minúsculas
+        if ($request->numero_documento) {
+            $numero = $request->numero_documento;
+            $query->whereRaw('LOWER(numero_documento) LIKE ?', ['%' . strtolower($numero) . '%']);
+        }
+
+        if ($request->gestion) {
+            $query->where('gestion', $request->gestion);
+        }
+
+        if ($request->fecha_desde) {
+            $query->whereDate('fecha', '>=', $request->fecha_desde);
+        }
+
+        if ($request->fecha_hasta) {
+            $query->whereDate('fecha', '<=', $request->fecha_hasta);
+        }
+
+        if ($request->id_servicio) {
+            $query->where('id_servicio', $request->id_servicio);
+        }
+
+        $entregas = $query->orderBy('fecha', 'desc')->get();
+
+        return view('user.entregas2.parcial_resultados_busqueda', compact('entregas'));
+    } catch (\Exception $e) {
+        // \Log::error('Error en búsqueda de entregas: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Ocurrió un error al buscar las entregas. ' . $e
+        ], 500);
+    }
+}
+
+   public function buscarActivos(Request $request)
+{
+    try {
+        $idEntregaActual = $request->id_entrega ?? null;
+
+        // 🔹 Base: todos los activos
+        $detalleQuery = Activo::with(['detalles', 'detalleEntregas', 'categoria']);
+
+        // 🔹 Filtros opcionales
+        if ($request->filled('codigo_activo')) {
+            $codigo = strtolower($request->codigo_activo);
+            $detalleQuery->whereRaw('LOWER(codigo) LIKE ?', ["%{$codigo}%"]);
+        }
+
+        if ($request->filled('nombre_activo')) {
+            $nombre = strtolower($request->nombre_activo);
+            $detalleQuery->whereRaw('LOWER(nombre) LIKE ?', ["%{$nombre}%"]);
+        }
+
+        if ($request->filled('categoria_activo')) {
+            $categoria = strtolower($request->categoria_activo);
+            $detalleQuery->whereHas('categoria', function ($q) use ($categoria) {
+                $q->whereRaw('LOWER(nombre) LIKE ?', ["%{$categoria}%"]);
+            });
+        }
+
+        $activos = $detalleQuery->get();
+//   dd($activos);
+
+        $detalles = $activos->map(function ($activo) use ($idEntregaActual) {
+
+            $idActivo = $activo->id_activo;
+
+            // 🔹 Total en inventario (todos los servicios)
+            $cantidadInventario = $activo->detalles->sum('cantidad');
+
+            // 🔹 Cantidad usada en entregas diferentes a la actual
+            $cantidadUsadaOtros = DetalleEntrega::where('id_activo', $idActivo)
+                ->when($idEntregaActual, fn($q) => $q->where('id_entrega', '!=', $idEntregaActual))
+                ->sum('cantidad');
+
+            // 🔹 Cantidad usada en la entrega actual
+            $cantidadUsadaActual = $idEntregaActual
+                ? DetalleEntrega::where('id_activo', $idActivo)
+                    ->where('id_entrega', $idEntregaActual)
+                    ->sum('cantidad')
+                : 0;
+
+            // 🔹 Calcular restante
+            $cantidadRestante = max(0, $cantidadInventario - $cantidadUsadaOtros - $cantidadUsadaActual);
+
+            // 🔹 Actas donde aparece este activo
+            $actas = DetalleEntrega::where('id_activo', $idActivo)
+                ->join('entregas as e', 'e.id_entrega', '=', 'detalle_entregas.id_entrega')
+                ->select('detalle_entregas.id_entrega', 'e.numero_documento')
+                ->distinct()
+                ->get()
+                ->map(fn($a) => [
+                    'id' => $a->id_entrega,
+                    'numero_documento' => $a->numero_documento,
+                ])->toArray();
+
+            $activo->setAttribute('cantidad_inventario', $cantidadInventario);
+            $activo->setAttribute('cantidad_usada_total', $cantidadUsadaOtros + $cantidadUsadaActual);
+            $activo->setAttribute('cantidad_en_acta', $cantidadUsadaActual);
+            $activo->setAttribute('cantidad_restante', $cantidadRestante);
+            $activo->setAttribute('actas_info', $actas);
+            $activo->setAttribute('estado_tipo', $cantidadRestante > 0 ? 'disponible' : 'sin_disponibilidad');
+            $activo->setAttribute('estado_actual',  $activo->detalles->first()->estado_actual ?? 'N/D');
+
+            $activo->setAttribute('id_entrega', $idEntregaActual ?? null);
+
+            // 🔹 Solo activos disponibles
+            return $cantidadRestante > 0 ? $activo : null;
+        })->filter(); // eliminar nulos
+
+        // dd($detalles);
+        return view('user.entregas2.parcial_resultados_activos', ['detalles' => $detalles]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Ocurrió un error al buscar activos disponibles: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+
+public function store(Request $request)
+{
+    $rules = [
+        'numero_documento' => ['required', 'regex:/^\d+$/', 'max:3'],
+        'gestion' => ['required', 'digits:4', 'integer', 'max:' . date('Y')], // 👈 agregado: no puede ser mayor al año actual
+        'fecha' => 'required|date|after_or_equal:' . $request->gestion . '-01-01|before_or_equal:' . $request->gestion . '-12-31',
+        'id_servicio' => 'required|exists:servicios,id_servicio',
+        'observaciones' => 'nullable|string|max:100',
+    ];
+
+    $messages = [
+        'numero_documento.required' => 'El número de documento es obligatorio.',
+        'numero_documento.regex' => 'El número de documento solo puede contener números.',
+        'numero_documento.max' => 'El número de documento no puede superar 3 dígitos.',
+        'gestion.required' => 'La gestión es obligatoria.',
+        'gestion.digits' => 'La gestión debe tener exactamente 4 dígitos.',
+        'gestion.max' => 'La gestión no puede ser mayor al año actual (' . date('Y') . ').', // 👈 nuevo mensaje
+        'fecha.required' => 'La fecha es obligatoria.',
+        'fecha.date' => 'La fecha no es válida.',
+        'fecha.after_or_equal' => 'La fecha no puede ser anterior al año de la gestión.',
+        'fecha.before_or_equal' => 'La fecha no puede ser posterior al año de la gestión.',
+        'id_servicio.required' => 'Debe seleccionar un servicio.',
+        'observaciones.max' => 'Las observaciones no pueden superar 100 caracteres.',
+    ];
+
+    $validator = Validator::make($request->all(), $rules, $messages);
+
+    // 🔢 Formatear número y gestión
+    $numero = str_pad((int) $request->numero_documento, 3, '0', STR_PAD_LEFT);
+    $gestion = (int) $request->gestion;
+
+    // 🚫 Verificar si ya existe ese número y gestión en entregas
+    $existe = Entrega::where('numero_documento', $numero)
+        ->where('gestion', $gestion)
+        ->where('estado', '!=', 'ELIMINADO')
+        ->exists();
+
+    if ($existe) {
+        $validator->errors()->add('numero_documento', 'El número de documento ya existe para esta gestión.');
+    }
+
+    // ❌ Si hay errores, retornar sin guardar
+    if ($validator->fails() || $existe) {
+        return response()->json([
+            'success' => false,
+            'message' => $existe
+                ? 'No se puede registrar: el número de documento ya existe para esta gestión.'
+                : 'Existen errores en el formulario.',
+            'errors' => $validator->errors(),
+        ], 422);
+    }
+
+    // ✅ Si pasó todas las validaciones, guardar
+    $entrega = Entrega::create([
+        'numero_documento' => $numero,
+        'gestion' => $gestion,
+        'fecha' => $request->fecha,
+        'id_usuario' => auth()->id(),
+        'id_servicio' => $request->id_servicio,
+        'observaciones' => $request->observaciones,
+        'estado' => 'pendiente',
+    ]);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Nueva Entrega registrada correctamente.',
+        'data' => $entrega,
+    ]);
+}
+public function detalleParcialEntrega($id)
+    {
+        $entrega = Entrega::with([
+            'responsable', // persona responsable
+            'servicio'     // servicio asociado
+            // 'detalles.activo'         // Los activos del traslado
+        ])->findOrFail($id);
+
+        return view('user.entregas2.parcial_entrega', compact('entrega'));
+    }
+
+
+public function generarNumeroAjax($gestion)
+    {
+        try {
+            $numero = $this->generarNumeroDocumento($gestion);
+            return response()->json([
+                'success' => true,
+                'numero' => $numero
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
 
 
 
@@ -684,66 +991,66 @@ public function getDocto(Request $request)
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        //
-        $validator = Validator::make($request->all(), [
-            'numero_documento' => 'required|string|max:10|unique:entregas,numero_documento',
-            'gestion' => 'required|integer|min:2000|max:2100',
-            'fecha' => 'required|date',
-            'id_responsable' => 'required|exists:responsables,id_responsable',
-            'id_servicio' => 'required|exists:servicios,id_servicio',
-            'observaciones' => 'nullable|string|max:100',
-        ], [
-            'numero_documento.required' => 'El número de documento es obligatorio.',
-            'numero_documento.unique' => 'El número de documento ya está en uso.',
-            'gestion.required' => 'La gestión es obligatoria.',
-            'gestion.integer' => 'La gestión debe ser un número entero.',
-            'fecha.required' => 'La fecha es obligatoria.',
-            'fecha.date' => 'La fecha no es válida.',
-            'id_responsable.required' => 'Debe seleccionar un responsable.',
-            'id_responsable.exists' => 'El responsable no existe.',
-            'id_servicio.required' => 'Debe seleccionar un servicio.',
-            'id_servicio.exists' => 'El servicio no existe.',
-        ]);
+    // public function store(Request $request)
+    // {
+    //     //
+    //     $validator = Validator::make($request->all(), [
+    //         'numero_documento' => 'required|string|max:10|unique:entregas,numero_documento',
+    //         'gestion' => 'required|integer|min:2000|max:2100',
+    //         'fecha' => 'required|date',
+    //         'id_responsable' => 'required|exists:responsables,id_responsable',
+    //         'id_servicio' => 'required|exists:servicios,id_servicio',
+    //         'observaciones' => 'nullable|string|max:100',
+    //     ], [
+    //         'numero_documento.required' => 'El número de documento es obligatorio.',
+    //         'numero_documento.unique' => 'El número de documento ya está en uso.',
+    //         'gestion.required' => 'La gestión es obligatoria.',
+    //         'gestion.integer' => 'La gestión debe ser un número entero.',
+    //         'fecha.required' => 'La fecha es obligatoria.',
+    //         'fecha.date' => 'La fecha no es válida.',
+    //         'id_responsable.required' => 'Debe seleccionar un responsable.',
+    //         'id_responsable.exists' => 'El responsable no existe.',
+    //         'id_servicio.required' => 'Debe seleccionar un servicio.',
+    //         'id_servicio.exists' => 'El servicio no existe.',
+    //     ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors(),
-                'message' => 'Errores de validación en los campos.'
-            ], 422);
-        }
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'errors' => $validator->errors(),
+    //             'message' => 'Errores de validación en los campos.'
+    //         ], 422);
+    //     }
 
-        try {
-            $validated = $validator->validated();
+    //     try {
+    //         $validated = $validator->validated();
 
-            $entrega = Entrega::create([
-                'numero_documento' => $validated['numero_documento'],
-                'gestion' => $validated['gestion'],
-                'fecha' => $validated['fecha'],
-                'id_usuario' => auth()->id(), // usuario autenticado
-                'id_responsable' => $validated['id_responsable'],
-                'id_servicio' => $validated['id_servicio'],
-                'observaciones' => $validated['observaciones'] ?? null,
-                'estado' => "pendiente",
-            ]);
-            // Si tienes método para generar siguiente número según gestión:
-            $numeroSiguiente = $this->generarNumeroDocumento(strval($validated['gestion'])) ?? ' error';
+    //         $entrega = Entrega::create([
+    //             'numero_documento' => $validated['numero_documento'],
+    //             'gestion' => $validated['gestion'],
+    //             'fecha' => $validated['fecha'],
+    //             'id_usuario' => auth()->id(), // usuario autenticado
+    //             'id_responsable' => $validated['id_responsable'],
+    //             'id_servicio' => $validated['id_servicio'],
+    //             'observaciones' => $validated['observaciones'] ?? null,
+    //             'estado' => "pendiente",
+    //         ]);
+    //         // Si tienes método para generar siguiente número según gestión:
+    //         $numeroSiguiente = $this->generarNumeroDocumento(strval($validated['gestion'])) ?? ' error';
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Acta creada correctamente.',
-                'entrega_id' => $entrega->id_entrega,
-                'numeroSiguiente' => $numeroSiguiente
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al guardar el acta: ' . $e->getMessage()
-            ], 500);
-        }
-    }
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'Acta creada correctamente.',
+    //             'entrega_id' => $entrega->id_entrega,
+    //             'numeroSiguiente' => $numeroSiguiente
+    //         ], 201);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Error al guardar el acta: ' . $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
     /**
      * Display the specified resource.
      */
@@ -782,12 +1089,12 @@ public function getDocto(Request $request)
                 }
                 break;
 
-            case 'devolucion':
-                $acta = Devolucion::where('numero_documento', $numero)
+            case 'entrega':
+                $acta = Entrega::where('numero_documento', $numero)
                     ->where('gestion', $gestion)
                     ->first();
                 if ($acta) {
-                    $id = $acta->id_devolucion;  // Ajusta al nombre correcto PK
+                    $id = $acta->id_entrega;  // Ajusta al nombre correcto PK
                 }
                 break;
 

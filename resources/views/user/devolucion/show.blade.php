@@ -197,7 +197,7 @@
 
 
             <div id="contenedor_tabla_activos">
-                {{-- @include('user.devolucion.parcial_activos', ['detalles' => []]) --}}
+                {{-- @include('user.entregas2.parcial_activos', ['detalles' => []]) --}}
             </div>
 
             <!-- Contenedor de tabla parcial de activos (se actualizará dinámicamente) -->
