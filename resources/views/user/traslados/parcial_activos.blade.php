@@ -164,7 +164,10 @@
         $lista.find('li').removeClass('selected');
         $(this).addClass('selected');
 
-        const cant = $(this).data('cantidad');
+        // const cant = $(this).data('cantidad');
+         const cant = ($(this).data('id-traslado') === idTrasladoActual) 
+    ? parseInt($(`input.cantidad-activo[data-id-activo="${idActivo}"]`).val()) || 0 
+    : $(this).data('cantidad');
         const idTraslado = $(this).data('id-traslado');
         $cantidadLabel.text(`Cantidad: ${cant}`);
         $btnRevisar.text($(this).data('id-traslado') === idTrasladoActual ? 'Actual' : 'Revisar')

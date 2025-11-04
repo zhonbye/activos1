@@ -56,6 +56,7 @@
                         @endif
                     </td>
                     <td>
+                        {{-- {{ $cantidadEnActa }} --}}
                         @if ($cantidadEnActa > 0)
                             <button class="btn btn-sm btn-outline-danger btn-eliminar-activo"
                                 data-id-activo="{{ $idActivo }}" data-id-entrega="{{ $detalle->id_entrega }}">
@@ -69,10 +70,11 @@
                                 Agregar
                             </button>
                         @elseif ($cantidadEnActa == 0 && $cantidadRestante == 0)
-                            <button type="button" class="btn btn-sm btn-outline-secondary btn-ver-detalle"
-                                data-id-activo="{{ $idActivo }}" data-nombre="{{ $nombreActivo }}"
-                                data-cantidad-actas="{{ $detalle->cantidad_actas ?? 0 }}"
-                                data-actas='@json($detalle->actas_info ?? [])'>
+                                   <button type="button" class="btn btn-sm btn-outline-secondary btn-ver-detalle"
+                                data-id-activo="{{ $idActivo }}"
+                                data-nombre="{{ $nombreActivo }}"
+                                data-cantidad-actas="{{ $detalle->cantidad_actas }}"
+                                data-actas='@json($detalle->actas_info)'>
                                 Revisar
                             </button>
                         @endif
@@ -154,13 +156,13 @@
     });
 
     // Acción del botón "Revisar acta"
-    $(document).on('click', '.btn-ver-acta', function() {
-        const idActivo = $(this).data('id-activo');
-        const actaSeleccionada = $(`#select-acta-${idActivo}`).val();
-        if (!actaSeleccionada) return alert('Seleccione un número de documento para revisar.');
+    // $(document).on('click', '.btn-ver-acta', function() {
+    //     const idActivo = $(this).data('id-activo');
+    //     const actaSeleccionada = $(`#select-acta-${idActivo}`).val();
+    //     if (!actaSeleccionada) return alert('Seleccione un número de documento para revisar.');
 
-        alert(`Revisando activo ${idActivo} en el acta con ID ${actaSeleccionada}`);
-    });
+    //     alert(`Revisando activo ${idActivo} en el acta con ID ${actaSeleccionada}`);
+    // });
 
     // Limpiar filas de detalle al cerrar el modal
     $('#modalInventario').on('hidden.bs.modal', function() {

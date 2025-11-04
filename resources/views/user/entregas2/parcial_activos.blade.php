@@ -24,19 +24,20 @@
                 {{-- <td>{{ $detalle->cantidad ?? 'N/D' }}</td> --}}
                 {{-- @php
                     $cantidadInventario = $detalle->activo->detalleInventario->cantidad ?? 0;
-                    $cantidadTraslado = $detalle->cantidad;
+                    $cantidadEntrega = $detalle->cantidad;
                 @endphp --}}
 
                 <td>
                     {{-- {{ $detalle->cantidad_usada}}  --}}
                     {{-- {{ $detalle->cantidad_disponible-$detalle->cantidad_usada+$detalle->cantidad_en_acta }}  --}}
+                    {{-- {{$detalle->cantidad_disponible}} --}}
                     @if ($detalle->cantidad_disponible > 1)
                         <div class="d-flex align-items-center gap-2">
                             <input disabled type="number" class="form-control form-control-sm cantidad-activo"
                                 data-id-activo="{{ $detalle->id_activo }}" value="{{ $detalle->cantidad_en_acta }}"
                                 min="1"
                                 max="{{ $detalle->cantidad_disponible - $detalle->cantidad_usada + $detalle->cantidad_en_acta }}"
-                                style="width:80px;" >
+                                style="width:80px;">
 
                             <div class="form-check mb-0">
                                 <input type="checkbox" class="form-check-input chk-editar-cantidad"
@@ -46,7 +47,7 @@
                             </div>
                         </div>
                     @else
-                        <span class="fw-semibold">{{ $cantidadTraslado }}</span>
+                        <span class="fw-semibold">{{ $detalle->cantidad }}</span>
                     @endif
                 </td>
 
@@ -60,7 +61,7 @@
 
                     <button type="button" class="btn btn-sm btn-secondary btn-comentar">
                         <i class="bi bi-chat-dots"></i>
-                      </button>
+                    </button>
 
 
                     <input type="hidden" class="comentario-activo" value="{{ $detalle->observaciones }}">
@@ -110,87 +111,86 @@
         // Asegúrate de ejecutar esto una sola vez (por ejemplo en $(document).ready)
         // 1) Quitamos handlers previos y registramos el nuevo (evita duplicados)
 
-       $(document).off('click', '.btn-ver-detalle-principal').on('click', '.btn-ver-detalle-principal', function(e) {
-    e.preventDefault();
-    const $btn = $(this);
-    if ($btn.data('processing')) return;
-    $btn.data('processing', true);
+        $(document).off('click', '.btn-ver-detalle-principal').on('click', '.btn-ver-detalle-principal',
+            function(e) {
+                e.preventDefault();
+                const $btn = $(this);
+                if ($btn.data('processing')) return;
+                $btn.data('processing', true);
 
-    const idActivo = $btn.data('id-activo');
-    const nombreActivo = $btn.data('nombre');
-    const actas = $btn.data('actas') || [];
-    const idEntregaActual = parseInt($('#id_entrega').val()) || null;
+                const idActivo = $btn.data('id-activo');
+                const nombreActivo = $btn.data('nombre');
+                const actas = $btn.data('actas') || [];
+                const idEntregaActual = parseInt($('#id_entrega').val()) || null;
 
-    const $modal = $('#modalDetalleActivos');
-    const $cantidadLabel = $('#modalActivoCantidad');
-    const $btnRevisar = $('#seleccionar_entrega');
+                const $modal = $('#modalDetalleActivos');
+                const $cantidadLabel = $('#modalActivoCantidad');
+                const $btnRevisar = $('#seleccionar_entrega');
 
-    // Verificar si UL existe, si no crear todo el body
-    let $lista = $modal.find('#actasWheel');
-    if ($lista.length === 0) {
-        const bodyHtml = `
+                // Verificar si UL existe, si no crear todo el body
+                let $lista = $modal.find('#actasWheel');
+                if ($lista.length === 0) {
+                    const bodyHtml = `
             <p class="text-muted mb-2">Actas encontradas en este activo:</p>
             <div class="wheel-container" style="max-height: 200px; overflow-y: auto;">
                 <ul id="actasWheel" class="list-unstyled m-0 p-0"></ul>
             </div>
         `;
-        $modal.find('.modal-body').html(bodyHtml);
-        $lista = $modal.find('#actasWheel');
-    }
+                    $modal.find('.modal-body').html(bodyHtml);
+                    $lista = $modal.find('#actasWheel');
+                }
 
-    $('#modalActivoNombre').text(nombreActivo);
+                $('#modalActivoNombre').text(nombreActivo);
 
-    const cantidadFila = parseInt($(`input.cantidad-activo[data-id-activo="${idActivo}"]`).val()) || 0;
-    $lista.empty();
-// alert(cantidadFila)
-    actas.forEach(a => {
-        const selected = idEntregaActual === a.id_entrega ? 'selected' : '';
-        $lista.append(`
+                const cantidadFila = parseInt($(`input.cantidad-activo[data-id-activo="${idActivo}"]`)
+                .val()) || 0;
+                $lista.empty();
+                // alert(cantidadFila)
+                actas.forEach(a => {
+                    const selected = idEntregaActual === a.id_entrega ? 'selected' : '';
+                    $lista.append(`
             <li class="${selected}" data-id-entrega="${a.id_entrega}" data-cantidad="${a.cantidad || cantidadFila}">
                 ${a.numero_documento}
             </li>
         `);
-    });
+                });
 
-    // Selección por defecto
-    const $default = $lista.find('li.selected');
-    const cantidadActual =  cantidadFila;
-    $cantidadLabel.text(`Cantidad: ${cantidadActual}`);
-    $btnRevisar.text($default.data('id-entrega') === idEntregaActual ? 'Actual' : 'Revisar')
-               .prop('disabled', $default.data('id-entrega') === idEntregaActual);
+                // Selección por defecto
+                const $default = $lista.find('li.selected');
+                const cantidadActual = cantidadFila;
+                $cantidadLabel.text(`Cantidad: ${cantidadActual}`);
+                $btnRevisar.text($default.data('id-entrega') === idEntregaActual ? 'Actual' : 'Revisar')
+                    .prop('disabled', $default.data('id-entrega') === idEntregaActual);
 
-    // Click en LI
-    $lista.off('click', 'li').on('click', 'li', function() {
-        $lista.find('li').removeClass('selected');
-        $(this).addClass('selected');
+                // Click en LI
+                $lista.off('click', 'li').on('click', 'li', function() {
+                    $lista.find('li').removeClass('selected');
+                    $(this).addClass('selected');
 
-        const cant = $(this).data('cantidad');
-        const idEntrega = $(this).data('id-entrega');
-        $cantidadLabel.text(`Cantidad: ${cant}`);
-        $btnRevisar.text($(this).data('id-entrega') === idEntregaActual ? 'Actual' : 'Revisar')
-                   .prop('disabled', $(this).data('id-entrega') === idEntregaActual);
-$btnRevisar
-        .data('id', idEntrega)           // actualiza en memoria
-        .attr('data-id', idEntrega);
-    });
+                    // const cant = $(this).data('cantidad');
+                    const cant = ($(this).data('id-entrega') === idEntregaActual) 
+    ? parseInt($(`input.cantidad-activo[data-id-activo="${idActivo}"]`).val()) || 0 
+    : $(this).data('cantidad');
 
-    // Botón revisar
-    // $btnRevisar.off('click').on('click', function() {
-    //     const idSel = $lista.find('li.selected').data('id-entrega');
-    //     if (idSel === idEntregaActual) return;
-    //     alert('Revisando acta: ' + idSel);
-    // });
+                    const idEntrega = $(this).data('id-entrega');
+                    $cantidadLabel.text(`Cantidad: ${cant}`);
+                    $btnRevisar.text($(this).data('id-entrega') === idEntregaActual ? 'Actual' :
+                            'Revisar')
+                        .prop('disabled', $(this).data('id-entrega') === idEntregaActual);
+                    $btnRevisar
+                        .data('id', idEntrega) // actualiza en memoria
+                        .attr('data-id', idEntrega);
+                });
+                $modal.modal('show');
 
-    $modal.modal('show');
+                // Reset al cerrar modal
+                $modal.one('hidden.bs.modal', function() {
+                    $lista.empty();
+                    $cantidadLabel.text('');
+                });
 
-    // Reset al cerrar modal
-    $modal.one('hidden.bs.modal', function() {
-        $lista.empty();
-        $cantidadLabel.text('');
-    });
-
-    $btn.data('processing', false);
-});
+                $btn.data('processing', false);
+            });
 
 
         // Botón de “Seleccionar acta”
@@ -214,116 +214,116 @@ $btnRevisar
 
 
         $(document).off('click', '.btn-eliminar-activo').on('click', '.btn-eliminar-activo', function(e) {
-                e.preventDefault();
+            e.preventDefault();
 
-                const $btn = $(this);
+            const $btn = $(this);
 
-                // Evitar clicks múltiples
-                if ($btn.data('processing')) return;
+            // Evitar clicks múltiples
+            if ($btn.data('processing')) return;
 
-                const idActivo = $btn.data('id-activo');
-                const idEntrega = $btn.data('id-entrega');
+            const idActivo = $btn.data('id-activo');
+            const idEntrega = $btn.data('id-entrega');
 
-                if (!idActivo || !idEntrega) {
-                    mensaje('Faltan datos: no se pudo identificar el entrega o el activo.', 'warning');
-                    return;
-                }
+            if (!idActivo || !idEntrega) {
+                mensaje('Faltan datos: no se pudo identificar el entrega o el activo.', 'warning');
+                return;
+            }
 
-                $btn.data('processing', true).prop('disabled', true);
+            $btn.data('processing', true).prop('disabled', true);
 
-                $.ajax({
-                    url: `${baseUrl}/entregas/${idEntrega}/activos/eliminar`,
-                    method: 'POST',
-                    data: {
-                        _token: $('meta[name="csrf-token"]').attr('content'),
-                        id_activo: idActivo
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            mensaje(response.message, 'success');
+            $.ajax({
+                url: `${baseUrl}/entregas/${idEntrega}/activos/eliminar`,
+                method: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    id_activo: idActivo
+                },
+                success: function(response) {
+                    if (response.success) {
+                        mensaje(response.message, 'success');
 
-                            // Actualizar la fila de inventario en el modal
-                            const $tr = $('#modalInventario').find(
-                                `tr[data-id-activo="${idActivo}"]`);
+                        // Actualizar la fila de inventario en el modal
+                        const $tr = $('#modalBuscarActivos').find(
+                            `tr[data-id-activo="${idActivo}"]`);
 
-                            if ($tr.length) {
-                                // Encontrar el span que contiene la cantidad
-                                const $spanCantidad = $tr.find(
-                                    'span[data-cantidad-restante]');
+                        if ($tr.length) {
+                            // Encontrar el span que contiene la cantidad
+                            const $spanCantidad = $tr.find(
+                                'span[data-cantidad-restante]');
 
-                                if ($spanCantidad.length === 0) {
-                                    console.warn(
-                                        'No se encontró el span con data-cantidad-restante en esta fila'
+                            if ($spanCantidad.length === 0) {
+                                console.warn(
+                                    'No se encontró el span con data-cantidad-restante en esta fila'
+                                );
+                                return;
+                            }
+
+                            // Tomamos la cantidad actual desde el atributo data
+                            let cantidadActual = parseInt($spanCantidad.data(
+                                'cantidad-restante')) || 0;
+
+                            // Sumar la cantidad eliminada
+                            const cantidadNueva = cantidadActual + (response
+                                .cantidad_eliminada || 0);
+
+                            // Actualizamos el span con data-cantidad-restante y texto correcto
+                            if (cantidadNueva > 0) {
+                                $spanCantidad
+                                    .attr('data-cantidad-restante', cantidadNueva)
+                                    .removeClass('text-danger')
+                                    .addClass('text-success')
+                                    .text(
+                                        `${cantidadNueva} disponible${cantidadNueva > 1 ? 's' : ''}`
                                     );
-                                    return;
-                                }
+                            } else {
+                                $spanCantidad
+                                    .attr('data-cantidad-restante', 0)
+                                    .removeClass('text-success')
+                                    .addClass('text-danger')
+                                    .text('Sin disponibilidad');
+                            }
 
-                                // Tomamos la cantidad actual desde el atributo data
-                                let cantidadActual = parseInt($spanCantidad.data(
-                                    'cantidad-restante')) || 0;
-
-                                // Sumar la cantidad eliminada
-                                const cantidadNueva = cantidadActual + (response
-                                    .cantidad_eliminada || 0);
-
-                                // Actualizamos el span con data-cantidad-restante y texto correcto
-                                if (cantidadNueva > 0) {
-                                    $spanCantidad
-                                        .attr('data-cantidad-restante', cantidadNueva)
-                                        .removeClass('text-danger')
-                                        .addClass('text-success')
-                                        .text(
-                                            `${cantidadNueva} disponible${cantidadNueva > 1 ? 's' : ''}`
-                                        );
-                                } else {
-                                    $spanCantidad
-                                        .attr('data-cantidad-restante', 0)
-                                        .removeClass('text-success')
-                                        .addClass('text-danger')
-                                        .text('Sin disponibilidad');
-                                }
-
-                                // Reemplazar botón por "Agregar" solo si hay stock
-                                const $tdBoton = $tr.find('button').closest('td');
-                                if (cantidadNueva > 0) {
-                                    $tdBoton.html(`
+                            // Reemplazar botón por "Agregar" solo si hay stock
+                            const $tdBoton = $tr.find('button').closest('td');
+                            if (cantidadNueva > 0) {
+                                $tdBoton.html(`
                                 <button class="btn btn-sm btn-outline-primary btn_agregar_activo"
                                     data-id="${idActivo}"
                                     data-cantidad-restante="${cantidadNueva}">
                                     Agregar
                                 </button>
                             `);
-                                } else {
-                                    // Opcional: si no hay stock, puedes poner un botón deshabilitado o de "Revisar"
-                                    $tdBoton.html(`
+                            } else {
+                                // Opcional: si no hay stock, puedes poner un botón deshabilitado o de "Revisar"
+                                $tdBoton.html(`
                                                 <button type="button"
                                                     class="btn btn-sm btn-outline-secondary btn-ver-detalle"
                                                     data-id-activo="${idActivo}">
                                                     Revisar
                                                 </button>
                                             `);
-                                }
                             }
-
-                            // Recargar tabla principal si tienes
-                            cargarTablaActivos();
-
-                        } else {
-                            mensaje(response.error || 'No se pudo eliminar el activo.',
-                                'danger');
                         }
-                    },
-                    error: function(xhr) {
-                        const msg = xhr.responseJSON?.error ||
-                            'Ocurrió un error al eliminar el activo.';
-                        mensaje(msg, 'danger');
-                        console.error(xhr.responseText);
-                    },
-                    complete: function() {
-                        $btn.data('processing', false).prop('disabled', false);
+
+                        // Recargar tabla principal si tienes
+                        cargarTablaActivos();
+
+                    } else {
+                        mensaje(response.error || 'No se pudo eliminar el activo.',
+                            'danger');
                     }
-                });
+                },
+                error: function(xhr) {
+                    const msg = xhr.responseJSON?.error ||
+                        'Ocurrió un error al eliminar el activo.';
+                    mensaje(msg, 'danger');
+                    console.error(xhr.responseText);
+                },
+                complete: function() {
+                    $btn.data('processing', false).prop('disabled', false);
+                }
             });
+        });
 
 
 
@@ -406,10 +406,10 @@ $btnRevisar
             const valorActual = parseInt(input.val()) || 0;
 
             if (valorActual === valorOriginal) return; // No cambió
-            if ($('#modalInventario table').length !== 0) {
-                // alert($('#modalInventario table').length)
+            if ($('#modalBuscarActivos table').length !== 0) {
+                // alert($('#modalBuscarActivos table').length)
 
-                const $tr = $('#modalInventario').find(`tr[data-id-activo="${idActivo}"]`);
+                const $tr = $('#modalBuscarActivos').find(`tr[data-id-activo="${idActivo}"]`);
                 const $spanCantidad = $tr.find('span[data-cantidad-restante]');
                 if ($spanCantidad.length === 0) {
                     console.warn('No se encontró el span con data-cantidad-restante');
@@ -443,7 +443,38 @@ $btnRevisar
             }
 
             // Enviar al servidor
-            const entrega_id = $('input[name="id_entrega"]').val();
+            // const entrega_id = $('input[name="id_entrega"]').val();
+            // 🔹 Obtener el array de actas desde data-actas del input
+            // let actas = input.data('actas') || [];
+            // if (typeof actas === 'string') {
+            //     try {
+            //         actas = JSON.parse(actas);
+            //     } catch (e) {
+            //         console.warn('Error al parsear data-actas:', e);
+            //         actas = [];
+            //     }
+            // }
+
+            // const entrega_id = parseInt($('input[name="id_entrega"]').val(), 10);
+
+            // // 🔹 Buscar el acta que corresponde a la entrega actual
+            // let actaActual = actas.find(a => parseInt(a.id_entrega, 10) === entrega_id);
+
+            // if (actaActual) {
+            //     actaActual.cantidad = valorActual; // actualizar cantidad
+            // } else {
+            //     actas.push({id_entrega: entrega_id, numero_documento: '', cantidad: valorActual});
+            // }
+
+            // // 🔹 Guardar en memoria y actualizar data-attribute del HTML
+            // input.data('actas', actas);
+
+            // const $btn = $(`#modalBuscarActivos button.btn-ver-detalle-principal[data-id-activo="${idActivo}"]`);
+            // if ($btn.length) {
+            //     $btn.attr('data-actas', JSON.stringify(actas));
+            // }
+
+
             $.post(`${baseUrl}/entregas/${entrega_id}/activos/editar`, {
                 id_activo: idActivo,
                 cantidad: valorActual,

@@ -59,6 +59,191 @@ public function show($id = null)
 
 
 
+public function eliminarActivo(Request $request, $idEntrega)
+{
+    try {
+        // 1️⃣ Verificar que la entrega exista
+        $entrega = Entrega::findOrFail($idEntrega);
+
+        if (!$entrega->isEditable()) {
+            return response()->json([
+                'success' => false,
+                'error' => 'No se puede eliminar activos de una entrega FINALIZADA o ELIMINADA.'
+            ], 422);
+        }
+
+        // 2️⃣ Buscar el detalle de la entrega (activo específico)
+        $detalle = DetalleEntrega::where('id_entrega', $idEntrega)
+            ->where('id_activo', $request->id_activo)
+            ->first();
+
+        if (!$detalle) {
+            return response()->json([
+                'success' => false,
+                'error' => 'El activo no se encuentra en esta entrega.'
+            ], 404);
+        }
+
+        // Guardar la cantidad antes de eliminar
+        $cantidadEliminada = $detalle->cantidad;
+
+        // 3️⃣ Eliminar el detalle
+        $detalle->delete();
+
+        // 4️⃣ Respuesta exitosa con cantidad eliminada
+        return response()->json([
+            'success' => true,
+            'message' => 'Activo eliminado correctamente de la entrega.',
+            'cantidad_eliminada' => $cantidadEliminada
+        ]);
+
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Entrega no encontrada.'
+        ], 404);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Ocurrió un error inesperado: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public function editarActivo(Request $request, $idEntrega)
+{
+    // Buscar el detalle de la entrega correspondiente al activo
+    $detalle = DetalleEntrega::where('id_entrega', $idEntrega)
+        ->where('id_activo', $request->id_activo)
+        ->first();
+
+    if (!$detalle) {
+        return response()->json(['error' => 'Detalle no encontrado'], 404);
+    }
+
+    // Validar longitud de observaciones
+    if ($request->observaciones !== null) {
+        if (strlen($request->observaciones) > 100) {
+            return response()->json([
+                'error' => 'El campo observaciones no puede tener más de 100 caracteres'
+            ], 422);
+        }
+        $detalle->observaciones = $request->observaciones;
+    }
+
+    // Actualizar cantidad si se envió
+    if ($request->cantidad !== null) {
+        $detalle->cantidad = $request->cantidad;
+    }
+
+    $detalle->save();
+
+    return response()->json(['success' => true, 'detalle' => $detalle]);
+}
+
+
+
+
+public function agregarActivo(Request $request, $idEntrega)
+{
+    try {
+        // 1️⃣ Verificar que la entrega sea editable
+        $entrega = Entrega::findOrFail($idEntrega);
+        if (!$entrega->isEditable()) {
+            return response()->json([
+                'success' => false,
+                'error' => 'No se puede modificar esta entrega (FINALIZADA o ELIMINADA).'
+            ], 422);
+        }
+
+        // 2️⃣ Buscar el activo
+        $activo = Activo::activos()->findOrFail($request->id_activo);
+
+        // 3️⃣ Evitar duplicados en la misma entrega
+        if (DetalleEntrega::where('id_entrega', $idEntrega)
+            ->where('id_activo', $activo->id_activo)
+            ->exists()
+        ) {
+            return response()->json([
+                'success' => false,
+                'error' => 'El activo ya fue agregado a esta entrega.'
+            ], 422);
+        }
+
+        // 4️⃣ Validar cantidad solicitada
+        $cantidadSolicitada = (int) $request->cantidad;
+        if ($cantidadSolicitada <= 0) {
+            return response()->json([
+                'success' => false,
+                'error' => 'La cantidad debe ser mayor a 0.'
+            ], 422);
+        }
+
+        // 5️⃣ Calcular cantidad disponible real basado en la tabla activos y detalle_entregas
+        $cantidadUsadaEnOtros = DetalleEntrega::where('id_activo', $activo->id_activo)
+            ->where('id_entrega', '!=', $idEntrega)
+            ->sum('cantidad');
+        $cantidadDisponible = max(0, $activo->cantidad - $cantidadUsadaEnOtros);
+
+        // 6️⃣ Validar disponibilidad
+        if ($cantidadSolicitada > $cantidadDisponible) {
+            return response()->json([
+                'success' => false,
+                'error' => "Cantidad solicitada no disponible. Solo hay {$cantidadDisponible} unidades disponibles."
+            ], 422);
+        }
+
+        // 7️⃣ Crear el detalle de entrega con la cantidad solicitada
+        $detalle = DetalleEntrega::create([
+            'id_entrega' => $idEntrega,
+            'id_activo' => $activo->id_activo,
+            'cantidad' => $cantidadSolicitada,
+            'observaciones' => $request->observaciones ?? ''
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'detalle' => $detalle,
+            'activo' => $activo,
+            'message' => "Activo agregado correctamente con {$cantidadSolicitada} unidades."
+        ]);
+
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Entrega o activo no encontrado.'
+        ], 404);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Ocurrió un error inesperado: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+
+
+
+
+
+
 
 
 public function tablaActivos($id)
@@ -79,13 +264,15 @@ $ultimoInventario = Inventario::where('id_servicio', $detalle->entrega->id_servi
     ->orderByDesc('fecha')
     ->first();
 
-$cantidadDisponible = 0;
+$cantidadDisponible = $detalle->activo->cantidad ?? 0; // cantidad original del activo
 
 if ($ultimoInventario) {
     $cantidadDisponible = DetalleInventario::where('id_activo', $detalle->id_activo)
         ->where('id_inventario', $ultimoInventario->id_inventario)
-        ->value('cantidad') ?? 0;
+        ->value('cantidad') ?? $cantidadDisponible;
 }
+
+// dd($cantidadDisponible);
 
             $cantidadUsada = DetalleEntrega::where('id_activo', $idActivo)->sum('cantidad');
             $cantidadEnActa = $detalle->cantidad ?? 0;
@@ -160,46 +347,46 @@ public function buscarActa(Request $request)
     }
 }
 
-   public function buscarActivos(Request $request)
+
+public function buscarActivos(Request $request)
 {
     try {
         $idEntregaActual = $request->id_entrega ?? null;
 
-        // 🔹 Base: todos los activos
-        $detalleQuery = Activo::with(['detalles', 'detalleEntregas', 'categoria']);
-
-        // 🔹 Filtros opcionales
-        if ($request->filled('codigo_activo')) {
-            $codigo = strtolower($request->codigo_activo);
-            $detalleQuery->whereRaw('LOWER(codigo) LIKE ?', ["%{$codigo}%"]);
-        }
-
-        if ($request->filled('nombre_activo')) {
-            $nombre = strtolower($request->nombre_activo);
-            $detalleQuery->whereRaw('LOWER(nombre) LIKE ?', ["%{$nombre}%"]);
-        }
-
-        if ($request->filled('categoria_activo')) {
-            $categoria = strtolower($request->categoria_activo);
-            $detalleQuery->whereHas('categoria', function ($q) use ($categoria) {
-                $q->whereRaw('LOWER(nombre) LIKE ?', ["%{$categoria}%"]);
-            });
-        }
-
-        $activos = $detalleQuery->get();
-//   dd($activos);
+        // 🔹 Traer todos los activos inactivos
+        $activos = Activo::soloInactivos() // scope: estado_situacional = 'inactivo'
+            ->with('detalleInventario') // para obtener estado_actual
+            ->get();
 
         $detalles = $activos->map(function ($activo) use ($idEntregaActual) {
 
             $idActivo = $activo->id_activo;
 
-            // 🔹 Total en inventario (todos los servicios)
-            $cantidadInventario = $activo->detalles->sum('cantidad');
+            if (!$idActivo) {
+                $activo->setAttribute('cantidad_inventario', 0);
+                $activo->setAttribute('cantidad_en_acta', 0);
+                $activo->setAttribute('cantidad_usada_total', 0);
+                $activo->setAttribute('cantidad_restante', 0);
+                $activo->setAttribute('estado_tipo', 'none');
+                $activo->setAttribute('estado_actual', 'N/D');
+                return null;
+            }
 
-            // 🔹 Cantidad usada en entregas diferentes a la actual
-            $cantidadUsadaOtros = DetalleEntrega::where('id_activo', $idActivo)
-                ->when($idEntregaActual, fn($q) => $q->where('id_entrega', '!=', $idEntregaActual))
-                ->sum('cantidad');
+            // 🔹 Cantidad original del activo
+            $cantidadInventario = $activo->cantidad ?? 0;
+
+            // 🔹 Si ya está en detalle_inventario, descartarlo
+            $existeEnInventario = \App\Models\DetalleInventario::where('id_activo', $idActivo)->exists();
+            if ($existeEnInventario) {
+                return null;
+            }
+
+            // 🔹 Cantidad usada en otras entregas
+            $cantidadUsadaOtros = $idEntregaActual
+                ? DetalleEntrega::where('id_activo', $idActivo)
+                    ->where('id_entrega', '!=', $idEntregaActual)
+                    ->sum('cantidad')
+                : 0;
 
             // 🔹 Cantidad usada en la entrega actual
             $cantidadUsadaActual = $idEntregaActual
@@ -211,41 +398,50 @@ public function buscarActa(Request $request)
             // 🔹 Calcular restante
             $cantidadRestante = max(0, $cantidadInventario - $cantidadUsadaOtros - $cantidadUsadaActual);
 
-            // 🔹 Actas donde aparece este activo
+            // 🔹 Actas/entregas donde aparece este activo
             $actas = DetalleEntrega::where('id_activo', $idActivo)
                 ->join('entregas as e', 'e.id_entrega', '=', 'detalle_entregas.id_entrega')
                 ->select('detalle_entregas.id_entrega', 'e.numero_documento')
                 ->distinct()
                 ->get()
-                ->map(fn($a) => [
-                    'id' => $a->id_entrega,
-                    'numero_documento' => $a->numero_documento,
-                ])->toArray();
+                ->map(function ($a) {
+                    return [
+                        'id' => $a->id_entrega,
+                        'numero_documento' => $a->numero_documento,
+                    ];
+                })
+                ->values()
+                ->toArray();
 
+            $cantidadActasRegistradas = count($actas);
+
+            // 🔹 Guardar todos los atributos necesarios
             $activo->setAttribute('cantidad_inventario', $cantidadInventario);
             $activo->setAttribute('cantidad_usada_total', $cantidadUsadaOtros + $cantidadUsadaActual);
             $activo->setAttribute('cantidad_en_acta', $cantidadUsadaActual);
             $activo->setAttribute('cantidad_restante', $cantidadRestante);
             $activo->setAttribute('actas_info', $actas);
+            $activo->setAttribute('cantidad_actas', $cantidadActasRegistradas);
             $activo->setAttribute('estado_tipo', $cantidadRestante > 0 ? 'disponible' : 'sin_disponibilidad');
-            $activo->setAttribute('estado_actual',  $activo->detalles->first()->estado_actual ?? 'N/D');
+            $activo->setAttribute('estado_actual', $activo->detalleInventario->estado_actual ?? 'inactivo');
+            $activo->setAttribute('id_entrega', $idEntregaActual);
 
-            $activo->setAttribute('id_entrega', $idEntregaActual ?? null);
+            return $activo;
 
-            // 🔹 Solo activos disponibles
-            return $cantidadRestante > 0 ? $activo : null;
         })->filter(); // eliminar nulos
 
-        // dd($detalles);
         return view('user.entregas2.parcial_resultados_activos', ['detalles' => $detalles]);
 
     } catch (\Exception $e) {
         return response()->json([
             'success' => false,
-            'message' => 'Ocurrió un error al buscar activos disponibles: ' . $e->getMessage()
+            'message' => 'Ocurrió un error al buscar activos inactivos: ' . $e->getMessage()
         ], 500);
     }
 }
+
+
+
 
 
 public function store(Request $request)
