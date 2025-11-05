@@ -27,16 +27,7 @@
                         <input type="date" name="fecha_hasta" class="form-control">
                     </div>
 
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">Servicio Origen</label>
-                        <select name="id_servicio_origen" class="form-select">
-                            <option value="">Todos...</option>
-                            @foreach ($servicios as $s)
-                                <option value="{{ $s->id_servicio }}">{{ $s->nombre }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
+               
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Servicio Destino</label>
                         <select name="id_servicio_destino" class="form-select">
@@ -99,7 +90,7 @@
     // Capturar ID al presionar "Seleccionar"
     $(document).on('click', '#seleccionar_entrega', function() {
         var idEntrega = $(this).data('id');
-
+// alert("fdsaf")
         // console.log("Entrega seleccionado:", idEntrega);
         // alert(idEntrega    )
         cargarDetalleEntrega(idEntrega);

@@ -1,6 +1,6 @@
-<form id="formEditarTraslado">
+<form id="formEditarEntrega">
     @csrf
-    <input type="hidden" id="traslado_id" name="id_traslado" value="{{ $traslado->id_traslado ?? '' }}">
+    <input type="hidden" id="entrega_id" name="id_entrega" value="{{ $entrega->id_entrega ?? '' }}">
 
     <div class="container-fluid py-3">
 
@@ -9,26 +9,21 @@
         {{-- ============================ --}}
         <div class="card shadow-sm mb-4 border-0">
             <div class="card-header bg-dark text-white fw-bold fs-5">
-                <i class="bi bi-card-text me-2"></i> Editar Acta de Traslado
+                <i class="bi bi-card-text me-2"></i> Editar Acta de Entrega
             </div>
             <div class="card-body">
                 <div class="row g-3">
 
-                    {{-- Observaciones (ocupa toda la fila) --}}
-                    <div class="col-12">
-                        <small class="text-muted">Observaciones</small>
-                        <input type="text" class="form-control" name="observaciones"
-                            value="{{ $traslado->observaciones ?? '' }}">
-                    </div>
+                 
 
-                    {{-- Número de Traslado, Gestión y Fecha --}}
+                    {{-- Número de Entrega, Gestión y Fecha --}}
                     <div class="col-md-4 col-sm-6">
-                        <small class="text-muted">Número de Traslado</small>
+                        <small class="text-muted">Número de Entrega</small>
                         <div class="d-flex ">
                             <div class="input-group">
                                 <input type="text" id="numerogeneradoedicion" class="form-control"
                                     {{-- aquí está la clase is-invalid para simular el error --}} name="numero_documento"
-                                    value="{{ $traslado->numero_documento ?? '' }}" required style="min-width: 0;"
+                                    value="{{ $entrega->numero_documento ?? '' }}" required style="min-width: 0;"
                                     {{-- evita que el input crezca demasiado --}}>
                             </div>
                             <button class="btn btn-outline-primary" type="button"
@@ -43,28 +38,17 @@
                     <div class="col-md-4 col-sm-6">
                         <small class="text-muted">Gestión</small>
                         <input type="number" id="gestion" class="form-control" name="gestion"
-                            value="{{ $traslado->gestion ?? date('Y') }}">
+                            value="{{ $entrega->gestion ?? date('Y') }}">
                     </div>
 
                     <div class="col-md-4 col-sm-6">
                         <small class="text-muted">Fecha</small>
                         <input type="date" class="form-control" name="fecha"
-                            value="{{ $traslado->fecha ?? date('Y-m-d') }}">
+                            value="{{ $entrega->fecha ?? date('Y-m-d') }}">
                     </div>
+                    
 
-                    {{-- Servicio Origen --}}
-                    <div class="col-md-6 col-sm-6">
-                        <small class="text-muted">Servicio Origen</small>
-                        <select name="id_servicio_origen" class="form-select" id="servicio_origen">
-                            <option selected disabled>Seleccione...</option>
-                            @foreach ($servicios as $serv)
-                                <option value="{{ $serv->id_servicio }}"
-                                    {{ isset($traslado->servicioOrigen) && $traslado->servicioOrigen->id_servicio == $serv->id_servicio ? 'selected' : '' }}>
-                                    {{ $serv->nombre }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+             
 
                     {{-- Servicio Destino --}}
                     <div class="col-md-6 col-sm-6">
@@ -73,11 +57,17 @@
                             <option selected disabled>Seleccione...</option>
                             @foreach ($servicios as $serv)
                                 <option value="{{ $serv->id_servicio }}"
-                                    {{ isset($traslado->servicioDestino) && $traslado->servicioDestino->id_servicio == $serv->id_servicio ? 'selected' : '' }}>
+                                    {{ isset($entrega->servicio) && $entrega->servicio->id_servicio == $serv->id_servicio ? 'selected' : '' }}>
                                     {{ $serv->nombre }}
                                 </option>
                             @endforeach
                         </select>
+                    </div>
+                       {{-- Observaciones (ocupa toda la fila) --}}
+                    <div class="col-12">
+                        <small class="text-muted">Comentarios</small>
+                        <input type="text" class="form-control" name="observaciones"
+                            value="{{ $entrega->observaciones ?? '' }}">
                     </div>
 
                 </div>
@@ -87,8 +77,8 @@
 
         {{-- Botones dentro del formulario --}}
         {{-- <div class="modal-footer"> --}}
-        <button type="button" class="btn btn-success" id="guardarCambiosTraslado">Guardar cambios</button>
-        <button type="reset" class="btn btn-secondary" id="restablecerTraslado">Restablecer</button>
+        <button type="button" class="btn btn-success" id="guardarCambiosEntrega">Guardar cambios</button>
+        <button type="reset" class="btn btn-secondary" id="restablecerEntrega">Restablecer</button>
         {{-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button> --}}
         {{-- </div> --}}
     </div>
@@ -99,13 +89,13 @@
 
     $('#generarNumero').on('click', function() {
         var gestion = $('#gestion').val().trim();
-        alert(gestion)
+        // alert(gestion)
         if (gestion.length !== 4 || isNaN(gestion)) {
             mensaje('Debe ingresar una gestión válida de 4 dígitos.', 'warning');
             return;
         }
         $.ajax({
-            url: baseUrl + '/traslados/generar-numero/' + gestion,
+            url: baseUrl + '/entregas/generar-numero/' + gestion,
             type: 'GET',
             dataType: 'json',
             success: function(response) {
@@ -127,20 +117,17 @@
             }
         });
     });
-   $('#guardarCambiosTraslado').on('click', function() {
-    if (!confirm('¿Está seguro que desea guardar los cambios en este traslado?')) return;
+   $('#guardarCambiosEntrega').on('click', function() {
+    if (!confirm('¿Está seguro que desea guardar los cambios en este entrega?')) return;
 
-    var form = $('#modalEditarTraslado').find('form#formEditarTraslado');
-    var idTraslado = form.find('input[name="id_traslado"]').val();
-    var servicioActual = $("#contenedor_detalle_traslado #id_servicio_origen").val();
-    var servicioNuevo = form.find('select[name="id_servicio_origen"]').val();
+    var form = $('#modalEditarEntrega').find('form#formEditarEntrega');
+    var idEntrega = form.find('input[name="id_entrega"]').val();
 
-    var activosSeleccionados = $('#tabla_activos tbody tr[data-id-activo]').length;
 
-    // Función para guardar traslado
-    function guardarTraslado() {
+    // Función para guardar entrega
+    function ActualizarEntrega() {
         $.ajax({
-            url: baseUrl + '/traslados/' + idTraslado + '/update',
+            url: baseUrl + '/entregas/' + idEntrega + '/update',
             type: 'PUT',
             data: form.serialize(),
             dataType: 'json',
@@ -150,12 +137,12 @@
             },
             success: function(response) {
                 if (response.success) {
-                    mensaje(response.message || 'Traslado actualizado correctamente', 'success');
-                    bootstrap.Modal.getInstance($('#modalEditarTraslado')[0]).hide();
-                    cargarDetalleTraslado(idTraslado);
-                    cargarTablaActivos(idTraslado);
+                    mensaje(response.message || 'Entrega actualizado correctamente', 'success');
+                    bootstrap.Modal.getInstance($('#modalEditarEntrega')[0]).hide();
+                    cargarDetalleEntrega(idEntrega);
+                    cargarTablaActivos(idEntrega);
                 } else {
-                    mensaje(response.message || 'No se pudo actualizar el traslado.', 'danger');
+                    mensaje(response.message || 'No se pudo actualizar el entrega.', 'danger');
                 }
             },
             error: function(xhr) {
@@ -164,38 +151,8 @@
             }
         });
     }
-
-    // Si cambio de servicio y hay activos, limpiar primero
-    if (servicioActual != servicioNuevo && activosSeleccionados > 0) {
-        if (!confirm('Se ha cambiado el servicio de origen. Todos los activos seleccionados serán eliminados. ¿Desea continuar?')) return;
-
-        $('#tabla_activos tbody').empty();
-
-        $.ajax({
-            url: `${baseUrl}/traslados/${idTraslado}/activos/limpiar`,
-            type: 'POST',
-            data: { _token: $('meta[name="csrf-token"]').attr('content') },
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    mensaje(response.message || 'Activos eliminados correctamente.', 'success');
-                    inventarioCargado = false;
-
-                    // ¡Solo ahora se guarda el traslado!
-                    guardarTraslado();
-                } else {
-                    mensaje(response.message || 'Error al eliminar los activos.', 'danger');
-                }
-            },
-            error: function(xhr) {
-                const msg = xhr.responseJSON?.message || 'Error de comunicación con el servidor.';
-                mensaje(msg, 'danger');
-            }
-        });
-    } else {
-        // No hay cambio de servicio o no hay activos, guardar directamente
-        guardarTraslado();
-    }
+ActualizarEntrega()
+  
 });
 
 

@@ -199,6 +199,8 @@ Route::post('/devolucion/{id}/activos/editar', [DevolucionController::class,'edi
 Route::post('/devolucion/{id}/activos/eliminar', [DevolucionController::class,'eliminarActivo']);
 Route::post('/devolucion/{id}/activos/agregar', [DevolucionController::class,'agregarActivo']);
 
+Route::post('/devolucion/{id}/activos/limpiar', [DevolucionController::class, 'limpiarActivos'])->name('devolucion.activos.limpiar');
+Route::post('/devolucion/{id}/finalizar', [DevolucionController::class, 'guardarDevolucion'])->name('devolucion.finalizar');
 // Route::get('/devoluciones/{id}/detalleDevolucion', [DevolucionController::class, 'detalleParcialDevolucion'])->name('devolucion.detalleParcialDevolucion');
 
 
@@ -232,6 +234,7 @@ Route::post('/entregas/{id}/activos/agregar', [EntregaController::class,'agregar
 Route::get('/entregas/{id}/activos', [EntregaController::class,'tablaActivos']);
 Route::get('/entregas/{id?}', [EntregaController::class,'show'])->name('entregas.show');
 Route::get('/entregas', [EntregaController::class,'create'])->name('entregas.create');
+Route::post('/entregas/{id}/finalizar', [EntregaController::class, 'finalizarEntrega'])->name('entregas.finalizar');
 
 
 

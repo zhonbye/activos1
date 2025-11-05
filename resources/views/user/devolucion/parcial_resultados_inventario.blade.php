@@ -138,7 +138,7 @@ const primerIdDevolucion = actas[0]?.id ?? null;
                             <select class="form-select form-select-sm w-auto" id="select-acta">
                                 ${opciones}
                             </select>
-                            <button type="button" id="seleccionar_devolucion"
+                            <button type="button" id="s eleccionar_devolucion"
     class="btn btn-sm btn-outline-primary btn-seleccionar-devolucion btn-ver-acta"
     data-id="${primerIdDevolucion}">
     Revisar acta

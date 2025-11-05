@@ -218,7 +218,23 @@
 
 </div>
 
+<!-- Modal para editar acta de entrega -->
+<div class="modal fade" id="modalEditarEntrega" tabindex="-1" aria-labelledby="modalEditarEntregaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="modalEditarEntregaLabel">Editar Acta de Entrega</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-4">
+            </div>
+            <div class="modal-footer">
 
+              
+            </div>
+        </div>
+    </div>
+</div>
 {{-- modal donde se muestra informacion del activo en actas --}}
 <div id="modalDetalleActivos" class="modal fade">
     <div class="modal-dialog">
@@ -310,44 +326,37 @@
 
 <script>
     // Ejecutar al cargar la página
-    if (inventarioCargado) {
-        var inventarioCargado = false;
+    // if (inventarioCargado) {
+    //     var inventarioCargado = false;
+    // }
+    // if (entregaCargado) {
+    //     var entregaCargado = false;
+    // }
+
+function cargarTablaActivos(entrega_id = null) {
+    if (!entrega_id) entrega_id = $('#entrega_id').val();
+    if (!entrega_id) {
+        mensaje('No se encontró el ID del entrega', 'danger');
+        return;
     }
-    if (entregaCargado) {
-        var entregaCargado = false;
-    }
 
+    var $contenedor = $('#contenedor_tabla_activos');
+   var $loader = $('#loader').clone(); // clonamos para no mover el original
+$loader.show();
+$contenedor.append($loader);
+    $contenedor.find('table, .tabla-resultados').remove(); // eliminar tabla vieja
+// alert($loader.html())
+    $.get(`${baseUrl}/entregas/${entrega_id}/activos`, function(response) {
+        $contenedor.html(response); // reemplaza solo tabla
+    }).fail(function() {
+        $contenedor.html('<p>Error al cargar los activos.</p>');
+    }).always(function() {
+        $loader.hide(); // ocultar loader
+    });
 
-    function cargarTablaActivos(entrega_id = null) {
-
-        if (!entrega_id) entrega_id = $('#entrega_id').val();
-        if (!entrega_id) {
-            mensaje('No se encontró el ID del entrega', 'danger');
-            return;
-        }
-
-        var $contenedor = $('#contenedor_tabla_activos');
-        var $loader = $('#loader');
-        // alert($loader.length)
-        // Mostrar loader
-        $contenedor.empty().append($loader);
-        $loader.show();
-
-        // Simular carga de 10s
-
-        $contenedor.load(`${baseUrl}/entregas/${entrega_id}/activos`, function(response, status, xhr) {
-            // Ocultar loader al terminar
-            $loader.hide();
-// alert(response)
-            if (status === "error") {
-                $contenedor.html('<p>Error al cargar los activos.</p>');
-            }
-            controlarBotones($('#estado_entrega').data('estado-entrega'));
-        });
-
-
-        $('#entrega_id').val(entrega_id);
+    $('#entrega_id').val(entrega_id);
 }
+
 
 
     function cargarDetalleEntrega(entrega_id = null) {
@@ -360,7 +369,26 @@
             return;
         }
         // alert($('#btn_editar_entrega').data('id'));
+function modaleditar(idEntrega){
+    // alert(idEntrega) 
+    $.ajax({
+                url: baseUrl + '/entregas/' + idEntrega + '/editar',
+                type: 'GET',
+                success: function(data) {
+                    $('#modalEditarEntrega .modal-body').html(data);
 
+                    // // Crear instancia de modal y mostrarlo
+                    // const modal = new bootstrap.Modal(document.getElementById('modalEditarEntrega'));
+                    // modal.show();
+
+                    // // Guardar la instancia en el modal para poder cerrarlo desde dentro del contenido
+                    // $('#modalEditarEntrega').data('bs.modal', modal);
+                },
+                error: function() {
+                    mensaje('No se pudo cargar la información del entrega.','danger');
+                }
+            });
+}
         // AJAX GET para traer la vista parcial
         $.ajax({
             url: `${baseUrl}/entregas/${entrega_id}/detalleEntrega`,
@@ -372,12 +400,13 @@
                 $('#entrega_id').val(entrega_id);
                 $('#servicio_nombre').text(($('#servicio_responsable_destino').data('nombre')))
 
-
-                inventarioCargado = false;
-                if (inventarioCargado) {
-                    $("#modalBuscarActivos").removeClass('constante')
-                }
-                // controlarBotones($('#estado_entrega').data('estado-entrega'));
+modaleditar(entrega_id)
+$('#resultado_Busqueda').html('');
+                // inventarioCargado = false;
+                // if (inventarioCargado) {
+                //     $("#modalBuscarActivos").removeClass('constante')
+                // }
+                controlarBotones($('#estado_entrega').data('estado-entrega'));
 
             },
             error: function(xhr) {
@@ -482,7 +511,7 @@ $('#btnRegistrarEntrega').on('click', function(e) {
         return;
     }
 
-    if (!confirm('¿Está seguro que desea finalizar y registrar este entrega?')) return;
+    if (!confirm('¿Está seguro que desea finalizar y registrar esta entrega?')) return;
 
     $.ajax({
         url: `${baseUrl}/entregas/${idEntrega}/finalizar`,
@@ -519,7 +548,7 @@ $('#btnRegistrarEntrega').on('click', function(e) {
         complete: function() {
             // Reactivar botón
             $btn.prop('disabled', false)
-                .html('<i class="bi bi-check-circle"></i> Finalizar Entrega');
+                .html('<i class="bi bi-check-circle"></i> Entrega finalizada');
         }
     });
 });

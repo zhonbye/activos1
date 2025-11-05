@@ -1,38 +1,18 @@
-<!-- Modal para editar acta de entrega -->
-<div class="modal fade" id="modalEditarEntrega" tabindex="-1" aria-labelledby="modalEditarEntregaLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header bg-light">
-                <h5 class="modal-title" id="modalEditarEntregaLabel">Editar Acta de Entrega</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <div class="modal-body p-4">
-                <!-- Aquí se cargará el formulario de edición vía AJAX o parcial -->
-            </div>
-            <div class="modal-footer">
 
-                {{--
-                                <button type="button" class="btn btn-secondary"
-                                    data-bs-dismiss="modal">Cerrar</button> --}}
-            </div>
-        </div>
-    </div>
-</div>
 
 
 
 
 <div class="col-12 mt-0" id="div_entrega">
-    <h5>Detalles del entrega</h5>
+    <h5>Detalles de la entrega</h5>
     <div class="card shadow-sm mb-3">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0" id="numero_entrega">Nro. {{ $entrega->numero_documento ?? '...' }}</h5>
+            <h5 class="mb-0 fw-bold" id="numero_entrega">Nro. {{ $entrega->numero_documento ?? '...' }}</h5>
             <div>
                 <span class="badge bg-light text-dark me-2"
                     id="gestion_entrega">{{ $entrega->gestion ?? date('Y') }}</span>
-                <span class="badge {{ $entrega->estado == 'finalizado' ? 'bg-danger' : 'bg-success' }} me-2" data-estado-entrega="{{ $entrega->estado}}"
-                    id="estado_entrega">
+                <span class="badge {{ $entrega->estado == 'finalizado' ? 'bg-danger' : 'bg-success' }} me-2"
+                    data-estado-entrega="{{ $entrega->estado }}" id="estado_entrega">
                     {{ $entrega->estado ?? 'pendiente' }}
                 </span>
                 <!-- Botón de colapsar -->
@@ -55,27 +35,42 @@
         </div>
 
         <div id="cardBodyEntrega" class="collapse show">
-        {{-- <div id="cardBodyEntrega" class="show "> --}}
+            {{-- <div id="cardBodyEntrega" class="show "> --}}
             <div class="card-body">
                 <div class="row g-3">
-                    <input type="hidden" name="id_entrega"  id="id_entrega" value="{{ $entrega->id_entrega }}">
+                    <input type="hidden" name="id_entrega" id="id_entrega" value="{{ $entrega->id_entrega }}">
                     {{-- Origen --}}
-                   
+
 
                     {{-- Destino --}}
-                    <div class="col-12 col-md-5">
-                        <div class="border p-2 rounded h-100">
-                            <strong>Destino</strong><br>
-                            <span id="servicio_responsable_destino">
-                                {{ $entrega->servicioDestino->nombre ?? 'N/D' }} -
-                                {{ $entrega->servicioDestino->responsable->nombre ?? 'N/D' }}
-                            </span>
+                    <div class="col-12 col-md-6">
+                        <div class="border p-2 rounded h-100 d-flex">
+                            <div class="me-2">
+                                <strong class="text-nowrap">Destino:</strong>
+                            </div>
+                            <div>
+                                <div>
+                                    <small class="text-muted">Servicio:</small>
+                                    <span id="nombre_servicio_destino" class="text-dark fw-semibold">
+                                        {{ $entrega->servicio->nombre ?? 'N/D' }}
+                                    </span>
+                                </div>
+                                <div>
+                                    <small class="text-muted">Responsable:</small>
+                                    <span id="nombre_responsable_destino" class="text-dark">
+                                        {{ $entrega->servicio->responsable->nombre ?? 'N/D' }}
+                                    </span>
+                                </div>
+                            </div>
+
                             <input type="hidden" id="id_servicio_destino"
                                 value="{{ $entrega->id_servicio_destino ?? '' }}">
                             <input type="hidden" id="id_responsable_destino"
-                                value="{{ $entrega->servicioDestino->responsable->nombre ?? '' }}">
+                                value="{{ $entrega->servicioDestino->responsable->id ?? '' }}">
                         </div>
                     </div>
+
+
 
                     {{-- Fecha --}}
                     <div class="col-6 col-md-3">
@@ -84,14 +79,25 @@
                             <span id="fecha_entrega">{{ $entrega->fecha ?? '...' }}</span>
                         </div>
                     </div>
+                    <div class="col-6 col-md-3">
+                        <div class="border p-2 rounded text-center h-100">
+                            <strong>Creada por</strong><br>
+                            <span id="usuarioEntrega">{{ $entrega->usuario->usuario}}</span>
+                         <small class="text-muted d-block">
+            {{ ucfirst($entrega->usuario->rol ?? 'Sin rol') }}
+        </small>
+                        </div>
+                        
+                    </div>
+                    
 
                     {{-- Observaciones (ocupa todo el ancho restante y permite varias filas) --}}
                     <div class="col-12">
                         <div class="border p-2 rounded text-start h-100" style=" word-wrap: break-word;">
-                            <strong>Observaciones</strong><br>
+                            <strong>Comentarios</strong><br>
                             <span id="observaciones_entrega">
-    {{ $entrega->observaciones ?: '— No se registraron observaciones —' }}
-</span>
+                                {{ $entrega->observaciones ?: '——' }}
+                            </span>
 
                         </div>
                     </div>
@@ -107,7 +113,8 @@
                     </button>
                 @else
                     <button class="btn btn-sm btn-outline-primary me-2" id="btn_editar_entrega"
-                        data-id="{{ $entrega->id_entrega }}">Editar</button>
+                        data-id="{{ $entrega->id_entrega }}"  data-bs-toggle="modal"
+                        data-bs-target="#modalEditarEntrega">Editar</button>
                     <button class="btn btn-sm btn-outline-success" id="recargar_entrega">Recargar</button>
                 @endif
             </div>
@@ -154,26 +161,26 @@
         cargarDetalleEntrega($('#btn_editar_entrega').data('id'))
     });
 
-    $('#btn_editar_entrega').click(function() {
-        // $(document).on('click', '#btn_editar_entrega', function() {
-        var idEntrega = $(this).data('id'); // Debes tener un botón con data-id del entrega
-        var url = baseUrl + '/entregas/' + idEntrega + '/editar';
-        $.ajax({
-            url: url,
-            type: 'GET',
-            success: function(data) {
-                $('#modalEditarEntrega .modal-body').html(data);
+    // $('#btn_editar_entrsega').click(function() {
+    //     // $(document).on('click', '#btn_editar_entrega', function() {
+    //         var idEntrega = $(this).data('id'); // Debes tener un botón con data-id del entrega
+    //         var url = baseUrl + '/entregas/' + idEntrega + '/editar';
+    //         $.ajax({
+    //             url: url,
+    //             type: 'GET',
+    //             success: function(data) {
+    //                 $('#modalEditarEntrega .modal-body').html(data);
 
-                // Crear instancia de modal y mostrarlo
-                const modal = new bootstrap.Modal(document.getElementById('modalEditarEntrega'));
-                modal.show();
+    //                 // Crear instancia de modal y mostrarlo
+    //                 const modal = new bootstrap.Modal(document.getElementById('modalEditarEntrega'));
+    //                 modal.show();
 
-                // Guardar la instancia en el modal para poder cerrarlo desde dentro del contenido
-                $('#modalEditarEntrega').data('bs.modal', modal);
-            },
-            error: function() {
-                alert('No se pudo cargar la información del entrega.');
-            }
-        });
-    });
+    //                 // Guardar la instancia en el modal para poder cerrarlo desde dentro del contenido
+    //                 $('#modalEditarEntrega').data('bs.modal', modal);
+    //             },
+    //             error: function() {
+    //                 alert('No se pudo cargar la información del entrega.');
+    //             }
+    //         });
+    // });
 </script>

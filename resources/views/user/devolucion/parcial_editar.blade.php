@@ -134,7 +134,7 @@
                         mensaje(response.message || 'Devolución actualizada correctamente', 'success');
                         bootstrap.Modal.getInstance($('#modalEditarDevolucion')[0]).hide();
                         cargarDetalleDevolucion(idDevolucion);
-                        cargarTablaActivosDevolucion(idDevolucion);
+                        cargarTablaActivos(idDevolucion);
                     } else {
                         mensaje(response.message || 'No se pudo actualizar la devolución.', 'danger');
                     }

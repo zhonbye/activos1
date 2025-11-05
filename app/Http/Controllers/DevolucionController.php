@@ -45,6 +45,56 @@ class DevolucionController extends Controller
     return view('user.devolucion.parcial_nuevo', compact('servicios', 'gestionActual', 'numeroDisponible'));
 }
 
+public function limpiarActivos($id)
+{
+   try {
+    $devolucion = Devolucion::find($id);
+
+    if (!$devolucion) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No se encontró la devolucion especificado.'
+        ]);
+    }
+
+    // Verificar si el devolucion está finalizado o eliminado
+    if (in_array(strtolower($devolucion->estado), ['finalizado', 'eliminado'])) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No se pueden modificar los activos de esta devolucion porque está finalizado o eliminado.'
+        ]);
+    }
+
+    // Obtener todos los detalles del devolucion
+    $detalles = $devolucion->detalles()->get();
+
+    if ($detalles->isEmpty()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No hay activos para eliminar en esta devolucion.'
+        ]);
+    }
+
+    // Eliminar los detalles
+    $deleted = 0;
+    foreach ($detalles as $detalle) {
+        $detalle->delete();
+        $deleted++;
+    }
+
+    return response()->json([
+        'success' => true,
+        'message' => "Se eliminaron $deleted activos de la devolucion."
+    ]);
+
+} catch (\Exception $e) {
+    return response()->json([
+        'success' => false,
+        'message' => 'Error al eliminar los activos: ' . $e->getMessage()
+    ]);
+}
+
+}
 public function mostrarInventario()
 {
     try {
@@ -288,7 +338,7 @@ public function generarNumeroDocumento(string $gestion): string
 //     {
 //         try {
 //             $servicios = Servicio::all(); // Para llenar los selects
-//             return view('user.traslados.parcial_buscar', compact('servicios'));
+//             return view('user.devolucions.parcial_buscar', compact('servicios'));
 //         } catch (\Exception $e) {
 //             // Opcional: loguear el error
 //             // \Log::error('Error al cargar parcial de búsqueda: '.$e->getMessage());
@@ -302,7 +352,7 @@ public function generarNumeroDocumento(string $gestion): string
 //             }
 
 //             // Para petición normal, devolver vista con mensaje de error
-//             return view('user.traslados.parcial_buscar')->with(['message' => 'Ocurrió un error al cargar la vista de búsqueda.']);
+//             return view('user.devolucions.parcial_buscar')->with(['message' => 'Ocurrió un error al cargar la vista de búsqueda.']);
 //         }
 //     }
     public function mostrarBuscarActa()
@@ -631,7 +681,7 @@ if ($ultimoInventario) {
             $cantidadUsada = DetalleDevolucion::where('id_activo', $idActivo)->sum('cantidad');
             $cantidadEnActa = $detalle->cantidad ?? 0;
 
-            // Obtener todos los traslados donde aparece este mismo activo
+            // Obtener todos los devolucions donde aparece este mismo activo
             $actasInfo = DetalleDevolucion::where('id_activo', $idActivo)
                 ->with('devolucion')
                 ->get()

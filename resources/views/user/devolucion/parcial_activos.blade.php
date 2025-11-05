@@ -298,7 +298,7 @@ $(document).off('click', '.btn-eliminar-activo')
       $('#overlayComentario').off('click', '#btnGuardarComentario').on('click', '#btnGuardarComentario', function() {
     const comentario = $('#textareaComentario').val();
     const idActivo = filaActual.data('id-activo');
-    console.log(`${baseUrl}/devolucion/${devolucion_id}/activos/editar`);
+    // console.log(`${baseUrl}/devolucion/${devolucion_id}/activos/editar`);
 
     $.post(`${baseUrl}/devolucion/${devolucion_id}/activos/editar`, {
             id_activo: idActivo,
