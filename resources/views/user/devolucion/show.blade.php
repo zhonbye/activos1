@@ -109,7 +109,7 @@
 
                 <div id="nuevo_devolucion"
                     class="card action-card border-0 shadow-sm p-3 text-center hover-card primary"data-bs-toggle="modal"
-                    data-bs-target="#modalDevolucion">
+                    data-bs-target="#modalNuevaDevolucion">
                     <i class="bi bi-plus-circle text-primary fs-2 mb-2"></i>
                     <h5 class="fw-semibold">Nuevo devolucion</h5>
                     <p class="text-muted small mb-3">Registra un nuevo acta de devolucion.</p>
@@ -218,38 +218,6 @@
 </div>
 
 
-{{-- modal donde se muestra informacion del activo en actas --}}
-<div id="modalDetalleActivos" class="modal fade">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <!-- Header -->
-            <div class="modal-header d-flex justify-content-between align-items-start">
-                <div>
-                    <h5 id="modalActivoNombre" class="fw-bold mb-1">Nombre del Activo</h5>
-                    <div class="text-primary fw-semibold" id="modalActivoCantidad">Cantidad: 0</div>
-                </div>
-                <button data-id="{{ $devolucion->id_devolucion }}" id="seleccionar_devolucion" type="button"
-                    class="btn btn-lg btn-primary mt-1 btn-seleccionar-devolucion">Revisar</button>
-            </div>
-
-            <!-- Body -->
-            <div class="modal-body">
-                <p class="text-muted mb-2">Actas encontradas en este activo:</p>
-                <div class="wheel-container" style="max-height: 200px; overflow-y: auto;">
-                    <ul id="actasWheel" class="list-unstyled m-0 p-0">
-                        <!-- Aquí se llenan los li de actas dinámicamente -->
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Footer -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 
 
 <!-- Modal -->
@@ -262,8 +230,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body"id="modal_body_inventario">
-                <!-- Aquí puedes poner el contenido dinámico de inventario -->
-                <p>Cargando detalles del inventario...</p>
+                @include('user.devolucion.parcial_inventario')
             </div>
             {{-- <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -272,7 +239,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="modalDevolucion" tabindex="-1" aria-hidden="false" data-bs-backdrop="static"
+<div class="modal fade" id="modalNuevaDevolucion" tabindex="-1" aria-hidden="false" data-bs-backdrop="static"
     data-bs-keyboard="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
@@ -281,8 +248,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body" id="modal_body_devolucion">
-                <!-- Aquí se cargará la vista parcial -->
-                Cargando contenido...
+                @include('user.devolucion.parcial_nuevo')
+
             </div>
         </div>
     </div>
@@ -297,7 +264,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body" id="body_buscardevolucion">
-                <!-- Aquí se cargará la vista parcial -->
+                @include('user.devolucion.parcial_buscarActa')
             </div>
         </div>
     </div>
@@ -429,20 +396,11 @@
             // alert(iddevolucion    )
             cargarDetalleDevolucion(iddevolucion);
             cargarTablaActivos(iddevolucion);
-            var $modal = $('.modal.show');
-            // var $botonAbrirModal = $('.btn-ver-detalle-principal[data-id-activo="' + 3 + '"]');
-            setTimeout(() => {
 
-            }, 10000);
-            $modal.find('button[data-bs-dismiss="modal"]').trigger('click');
-            $(this).blur();
-
-            // Cuando el modal termine de cerrarse, devolvemos el foco al botón que lo abrió
-            //     $modal.on('hidden.bs.modal', function() {
-
-            //             $(this).blur();
-            // $modal.off('hidden.bs.modal');
-            // });
+            $('#resultado_inventario').html('');
+            // $('#modal .btn-close').trigger('click');
+            // $('.modal fade show').find('.btn-close').trigger('click');
+             $('.modal').find('button[data-bs-dismiss="modal"]').trigger('click');
         });
 
         //         $('#modalDetalleActivos').on('hidden.bs.modal', function() {
@@ -527,72 +485,72 @@
 
 
 
-        $('#btn_consultar_inventario').click(function() {
-            // alert("fsdaf")
-            // alert(inventarioCargado)
-            if (inventarioCargado) return;
-            $.ajax({
-                url: "{{ route('devolucion.mostrarInventario') }}", // ruta que devuelve la vista parcial
-                method: "GET",
-                success: function(view) {
-                    $('#modal_body_inventario').html(view);
-                    inventarioCargado = true;
-                    if (inventarioCargado) {
-                        $("#modalInventario").addClass('constante')
-                    }
-                    // $('#buscardevolucion').modal('show'); // abre el modal
-                },
-                error: function(xhr) {
-                    console.error(xhr.responseText);
-                    mensaje('Error al cargar el formulario', 'danger');
-                }
-            });
-        });
-        $('#buscar_devolucion').click(function() {
-            //    alert(devolucionCargado)
-            if (devolucionCargado) {
-                console.log("retornando")
-                return;
-            }
-            // ALERT("FDSA")
-            $.ajax({
-                url: "{{ route('devolucion.mostrarBuscarActa') }}", // ruta que devuelve la vista parcial
-                method: "GET",
-                success: function(view) {
-                    $('#body_buscardevolucion').html(view);
+        // $('#btn_consultar_inventario').click(function() {
+        //     // alert("fsdaf")
+        //     // alert(inventarioCargado)
+        //     if (inventarioCargado) return;
+        //     $.ajax({
+        //         url: "{{ route('devolucion.mostrarInventario') }}", // ruta que devuelve la vista parcial
+        //         method: "GET",
+        //         success: function(view) {
+        //             $('#modal_body_inventario').html(view);
+        //             inventarioCargado = true;
+        //             if (inventarioCargado) {
+        //                 $("#modalInventario").addClass('constante')
+        //             }
+        //             // $('#buscardevolucion').modal('show'); // abre el modal
+        //         },
+        //         error: function(xhr) {
+        //             console.error(xhr.responseText);
+        //             mensaje('Error al cargar el formulario', 'danger');
+        //         }
+        //     });
+        // });
+        // $('#buscar_devolucion').click(function() {
+        //     //    alert(devolucionCargado)
+        //     if (devolucionCargado) {
+        //         console.log("retornando")
+        //         return;
+        //     }
+        //     // ALERT("FDSA")
+        //     $.ajax({
+        //         url: "{{ route('devolucion.mostrarBuscarActa') }}", // ruta que devuelve la vista parcial
+        //         method: "GET",
+        //         success: function(view) {
+        //             $('#body_buscardevolucion').html(view);
 
-                    devolucionCargado = true;
-                    if (devolucionCargado) {
-                        $("#buscardevolucion").addClass('constante')
-                    }
-                    // $('#buscardevolucion').modal('show'); // abre el modal
-                },
-                error: function(xhr) {
-                    // console.error(xhr.responseText);
-                    mensaje('Error al cargar el formulario', 'danger');
-                }
-            });
-        });
+        //             devolucionCargado = true;
+        //             if (devolucionCargado) {
+        //                 $("#buscardevolucion").addClass('constante')
+        //             }
+        //             // $('#buscardevolucion').modal('show'); // abre el modal
+        //         },
+        //         error: function(xhr) {
+        //             // console.error(xhr.responseText);
+        //             mensaje('Error al cargar el formulario', 'danger');
+        //         }
+        //     });
+        // });
 
-        $('#nuevo_devolucion').click(function() {
-            // document.activeElement.blur();
-            // $(this).blur();
-            $.ajax({
-                url: "{{ route('devolucion.create') }}", // ruta que devuelve la vista parcial
-                method: "GET",
-                success: function(view) {
-                    $(this).blur();
-                    $('#modal_body_devolucion').html(view);
-                },
-                error: function(xhr) {
-                    console.error(xhr.responseText);
-                    mensaje('Error al cargar el formulario', 'danger');
-                }
-            });
-            $('.modal').on('hide.bs.modal', function() {
-                $(this).find('input, select, textarea, button').blur();
-            });
-        });
+        // $('#nuevo_devolucion').click(function() {
+        //     // document.activeElement.blur();
+        //     // $(this).blur();
+        //     $.ajax({
+        //         url: "{{ route('devolucion.create') }}", // ruta que devuelve la vista parcial
+        //         method: "GET",
+        //         success: function(view) {
+        //             $(this).blur();
+        //             $('#modal_body_devolucion').html(view);
+        //         },
+        //         error: function(xhr) {
+        //             console.error(xhr.responseText);
+        //             mensaje('Error al cargar el formulario', 'danger');
+        //         }
+        //     });
+        //     $('.modal').on('hide.bs.modal', function() {
+        //         $(this).find('input, select, textarea, button').blur();
+        //     });
+        // });
         // Asumiendo que tu modal tiene la clase .modal
         $('.modal').on('click', function(e) {
             if ($(e.target).is('.modal')) {

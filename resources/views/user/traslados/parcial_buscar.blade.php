@@ -95,14 +95,5 @@
 
     });
 
-    // Capturar ID al presionar "Seleccionar"
-    $(document).on('click', '#seleccionar_traslado', function() {
-        var idTraslado = $(this).data('id');
-
-        // console.log("Traslado seleccionado:", idTraslado);
-        // alert(idTraslado    )
-        cargarDetalleTraslado(idTraslado);
-        cargarTablaActivos(idTraslado);
-        $('#buscarTraslado .btn-close').trigger('click');
-    });
+ 
 </script>

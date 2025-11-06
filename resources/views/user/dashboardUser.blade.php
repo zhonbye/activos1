@@ -242,7 +242,7 @@
 
                         {{-- <li><a href="#" role="menuitem">Dar de Baja Activo</a></li> --}}
                         <li><a href="#" role="menuitem"></a></li>
-                        <li><a href="{{ route('traslados.show', ['id' => 1 ?? 1]) }}" role="menuitem"
+                        <li><a href="{{ route('traslados.show') }}" role="menuitem"
                                 class="cargar">Realizar Traslado</a></li>
                         <li><a href="{{ route('entregas.show')}}" role="menuitem"
                                 class="cargar">Realizar Entrega</a></li>

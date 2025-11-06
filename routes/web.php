@@ -147,8 +147,8 @@ Route::get('/traslados/mostrarBuscar', [TrasladoController::class, 'mostrarBusca
 // Route::post('/traslados/store', [TrasladoController::class, 'store'])->name('traslados.store');
 // Route::get('/traslados/mostrarInventario', [TrasladoController::class, 'mostrarInventario'])->name('traslados.mostrarInventario');
 Route::get('/traslados/mostrarInventario', [TrasladoController::class, 'mostrarInventario'])->name('traslados.mostrarInventario');
-Route::get('/traslados/{id}', [TrasladoController::class,'show'])->name('traslados.show');
-Route::get('/traslados', [TrasladoController::class, 'create'])->name('traslados.create');
+Route::get('/traslados/{id?}', [TrasladoController::class,'show'])->name('traslados.show');
+// Route::get('/traslados', [TrasladoController::class, 'create'])->name('traslados.create');
 Route::post('/traslados/guardar', [TrasladoController::class, 'store'])->name('traslados.store');
 Route::post('/traslados/buscar', [TrasladoController::class, 'buscar'])->name('traslados.buscar');
 Route::post('/traslados/buscarActivos', [TrasladoController::class, 'buscarActivos'])->name('traslados.buscarActivos');

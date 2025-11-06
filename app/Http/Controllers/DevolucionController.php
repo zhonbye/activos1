@@ -180,7 +180,7 @@ public function buscar(Request $request)
         // 🔹 Base de detalle de inventarios con relaciones
         $detalleQuery = DetalleInventario::with(['activo', 'inventario'])
             ->whereIn('id_inventario', $inventarios)
-            ->where('estado_actual', '!=', 'eliminado')
+            // ->where('estado_actual', '!=', 'eliminado')
             ->whereHas('activo', function ($q) {
                 $q->soloActivos();
             });
@@ -205,7 +205,7 @@ public function buscar(Request $request)
         if ($request->filled('categoria_activo')) {
             $categoria = strtolower($request->categoria_activo);
             $detalleQuery->whereHas('activo.categoria', function ($q) use ($categoria) {
-                $q->whereRaw('LOWER(nombre) LIKE ?', ["%{$categoria}%"]);
+                $q->whereRaw('LOWER(id_categoria) LIKE ?', ["%{$categoria}%"]);
             });
         }
 
@@ -213,64 +213,42 @@ public function buscar(Request $request)
         $detalles = $detalleQuery->get();
         $idDevolucionActual = $request->id_devolucion ?? null;
 
-        foreach ($detalles as $detalle) {
-            $idActivo = $detalle->activo->id_activo ?? null;
+         foreach ($detalles as $detalle) {
+                $idActivo = $detalle->activo->id_activo ?? null;
+                // 🔹 Obtener IDs y número_documento de las actas donde aparece este activo
+                $actas = DetalleDevolucion::where('id_activo', $idActivo)
+                    ->join('devoluciones as t', 't.id_devolucion', '=', 'detalle_devoluciones.id_devolucion')
+                    ->where('t.estado', 'pendiente')   // 🔹 solo devoluciones pendientes
+                    ->select('detalle_devoluciones.id_devolucion', 't.numero_documento')
+                    ->distinct()
+                    ->get()
+                    ->map(function ($a) {
+                        return [
+                            'id_devolucion' => $a->id_devolucion,
+                            'numero_documento' => $a->numero_documento,
+                        ];
+                    })
+                    ->values()
+                    ->toArray();
 
-            if (!$idActivo) {
-                $detalle->cantidad_inventario = 0;
-                $detalle->cantidad_restante = 0;
-                $detalle->estado_tipo = 'none';
-                $detalle->estado_actual = 'N/D';
-                continue;
+
+                // 🔹 Determinar si este activo está en el TRASLADO actual
+                $enTrasladoActual = $idDevolucionActual
+                    ? collect($actas)->contains('id_devolucion', $idDevolucionActual)
+                    : false;
+
+                // 🔹 Determinar si está en OTROS devoluciones distintos
+                $enOtrosTraslados = $idDevolucionActual
+                    ? collect($actas)->where('id_devolucion', '!=', $idDevolucionActual)->isNotEmpty()
+                    : collect($actas)->isNotEmpty();
+                // dd($idDevolucionActual ." y ". $enTrasladoActual );
+
+                // ✅ Guardar variables con los nombres que usa tu vista Blade
+                $detalle->setAttribute('en_devolucion_actual', $enTrasladoActual);
+                $detalle->setAttribute('en_otras_devoluciones', $enOtrosTraslados);
+                $detalle->setAttribute('actas_info', $actas);
+                $detalle->setAttribute('id_devolucion_actual', $idDevolucionActual);
             }
-
-            $cantidadInventario = $detalle->cantidad ?? 0;
-
-            // 🔹 Cantidad usada en otras devoluciones
-            $cantidadUsadaOtros = DetalleDevolucion::where('id_activo', $idActivo)
-                ->when($idDevolucionActual, fn($q) => $q->where('id_devolucion', '!=', $idDevolucionActual))
-                ->sum('cantidad');
-
-            // 🔹 Actas (devoluciones) donde aparece este activo
-            $actas = DetalleDevolucion::where('id_activo', $idActivo)
-                ->join('devoluciones as d', 'd.id_devolucion', '=', 'detalle_devoluciones.id_devolucion')
-                ->select('detalle_devoluciones.id_devolucion', 'd.numero_documento')
-                ->distinct()
-                ->get()
-                ->map(function ($a) {
-                    return [
-                        'id' => $a->id_devolucion,
-                        'numero_documento' => $a->numero_documento,
-                    ];
-                })
-                ->values()
-                ->toArray();
-
-            $cantidadActasRegistradas = count($actas);
-
-            $detalle->setAttribute('actas_info', $actas);
-            $detalle->setAttribute('cantidad_actas', $cantidadActasRegistradas);
-
-            // 🔹 Cantidad usada en esta devolución
-            $cantidadUsadaActual = $idDevolucionActual
-                ? DetalleDevolucion::where('id_activo', $idActivo)
-                    ->where('id_devolucion', $idDevolucionActual)
-                    ->sum('cantidad')
-                : 0;
-
-            // 🔹 Calcular restantes
-            $cantidadRestante = max(0, $cantidadInventario - $cantidadUsadaOtros - $cantidadUsadaActual);
-
-            $detalle->setAttribute('cantidad_inventario', $cantidadInventario);
-            $detalle->setAttribute('cantidad_usada_total', $cantidadUsadaOtros + $cantidadUsadaActual);
-            $detalle->setAttribute('cantidad_en_acta', $cantidadUsadaActual);
-            $detalle->setAttribute('cantidad_restante', $cantidadRestante);
-
-            $detalle->estado_tipo = $cantidadRestante > 0 ? 'disponible' : 'sin_disponibilidad';
-            $detalle->estado_actual = $detalle->activo->detalleInventario->estado_actual ?? 'N/D';
-            $detalle->setAttribute('id_devolucion', $idDevolucionActual ?? null);
-        }
-
         return view('user.devolucion.parcial_resultados_inventario', compact('detalles'));
 
     } catch (\Exception $e) {
@@ -451,7 +429,7 @@ public function agregarActivo(Request $request, $id)
 
         // 3️⃣ Buscar detalle inventario
         $detalleInventario = DetalleInventario::where('id_activo', $activo->id_activo)
-            ->where('estado_actual', '!=', 'eliminado')
+            // ->where('estado_actual', '!=', 'eliminado')
             ->first();
 
         if (!$detalleInventario) {
@@ -469,35 +447,11 @@ public function agregarActivo(Request $request, $id)
             ], 422);
         }
 
-        // 5️⃣ Validar cantidad enviada
-        $cantidadSolicitada = (int) $request->cantidad;
-        if ($cantidadSolicitada <= 0) {
-            return response()->json([
-                'success' => false,
-                'error' => 'La cantidad debe ser mayor a 0.'
-            ], 422);
-        }
-
-        // 6️⃣ Calcular cantidad disponible (restante real)
-        $cantidadUsadaEnOtros = DetalleDevolucion::where('id_activo', $activo->id_activo)
-            ->where('id_devolucion', '!=', $id)
-            ->sum('cantidad');
-
-        $cantidadDisponible = max(0, $detalleInventario->cantidad - $cantidadUsadaEnOtros);
-
-        // 7️⃣ Validar disponibilidad
-        if ($cantidadSolicitada > $cantidadDisponible) {
-            return response()->json([
-                'success' => false,
-                'error' => "Cantidad solicitada no disponible. Solo hay {$cantidadDisponible} unidades disponibles."
-            ], 422);
-        }
-
+      
         // 8️⃣ Crear el detalle con la cantidad solicitada
         $detalle = DetalleDevolucion::create([
             'id_devolucion' => $id,
             'id_activo' => $activo->id_activo,
-            'cantidad' => $cantidadSolicitada,
             'observaciones' => $request->observaciones ?? ''
         ]);
 
@@ -505,7 +459,7 @@ public function agregarActivo(Request $request, $id)
             'success' => true,
             'detalle' => $detalle,
             'activo' => $activo,
-            'message' => "Activo agregado correctamente con {$cantidadSolicitada} unidades."
+            'message' => "Activo agregado correctamente."
         ]);
 
     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
@@ -639,6 +593,19 @@ public function editarActivo(Request $request, $id)
      */
     public function show($id = null)
 {
+        $categorias = Categoria::all();
+$categorias = Categoria::all();
+            $unidades = Unidad::all();
+            $estados = Estado::all();
+            $servicios = Servicio::all();
+
+    // Determinar la gestión actual (sin Carbon)
+    $gestionActual = date('Y');
+
+    // Generar número de documento disponible
+    $numeroDisponible = $this->generarNumeroDocumento($gestionActual);
+
+
     if ($id) {
         // Si se envía el id, buscamos esa devolución
         $devolucion = Devolucion::findOrFail($id);
@@ -652,59 +619,41 @@ public function editarActivo(Request $request, $id)
         }
     }
 
-    return view('user.devolucion.show', compact('devolucion'));
+    return view('user.devolucion.show', compact('devolucion', 'gestionActual', 'numeroDisponible', 'categorias','categorias', 'unidades', 'estados','servicios'));
 }
 
     public function tablaActivos($id)
     {
-        $detalles = DetalleDevolucion::with('activo.unidad', 'activo.estado', 'activo.detalleInventario')
-        ->where('id_devolucion', $id)
-        ->get()
-        ->map(function ($detalle) {
-            $idActivo = $detalle->id_activo;
+        $detalles = DetalleDevolucion::with('activo.unidad', 'activo.estado')
+            ->where('id_devolucion', $id)
+            ->get()
+            ->map(function ($detalle) {
+                // Obtener solo datos generales del activo
+                $activo = $detalle->activo;
 
-            // $cantidadDisponible = $detalle->activo->detalleInventario->cantidad ?? 0;
-            // Buscar el último inventario PENDIENTE del servicio de la devolución
-$ultimoInventario = Inventario::where('id_servicio', $detalle->devolucion->id_servicio)
-    ->where('estado', 'pendiente')
-    ->orderByDesc('fecha')
-    ->first();
+                $detalle->setAttribute('codigo', $activo->codigo ?? '');
+                $detalle->setAttribute('nombre', $activo->nombre ?? '');
+                $detalle->setAttribute('detalle', $activo->detalle ?? '');
+                $detalle->setAttribute('estado', $activo->estado->nombre ?? 'N/D');
+                $detalle->setAttribute('unidad', $activo->unidad->nombre ?? '');
 
-$cantidadDisponible = 0;
+                // Opcional: actas en general, si quieres mostrar en botones
+                $detalle->setAttribute('actas_info', DetalleDevolucion::where('id_activo', $detalle->id_activo)
+                    ->with('devolucion')
+                    ->get()
+                    ->map(function ($d) {
+                        return [
+                            'id_devolucion' => $d->id_devolucion,
+                            'numero_documento' => $d->devolucion->numero_documento ?? null,
+                        ];
+                    }));
 
-if ($ultimoInventario) {
-    $cantidadDisponible = DetalleInventario::where('id_activo', $detalle->id_activo)
-        ->where('id_inventario', $ultimoInventario->id_inventario)
-        ->value('cantidad') ?? 0;
-}
-
-            $cantidadUsada = DetalleDevolucion::where('id_activo', $idActivo)->sum('cantidad');
-            $cantidadEnActa = $detalle->cantidad ?? 0;
-
-            // Obtener todos los devolucions donde aparece este mismo activo
-            $actasInfo = DetalleDevolucion::where('id_activo', $idActivo)
-                ->with('devolucion')
-                ->get()
-                ->map(function ($d) {
-                    return [
-                        'id_devolucion' => $d->id_devolucion,
-                        'numero_documento' => $d->devolucion->numero_documento ?? null,
-                        'cantidad' => $d->cantidad ?? 0,
-                    ];
-                });
-
-            // Agregar propiedades dinámicas correctamente
-            $detalle->setAttribute('cantidad_disponible', $cantidadDisponible);
-            $detalle->setAttribute('cantidad_usada', $cantidadUsada);
-            $detalle->setAttribute('cantidad_en_acta', $cantidadEnActa);
-            $detalle->setAttribute('actas_info', $actasInfo);
-
-            return $detalle;
-        });
-
-    return view('user.devolucion.parcial_activos', compact('detalles'));
-
+                return $detalle;
+            });
+        return view('user.devolucion.parcial_activos', compact('detalles'));
     }
+
+    
 
 
 

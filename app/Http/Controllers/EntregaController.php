@@ -543,7 +543,7 @@ public function buscarActivos(Request $request)
             $activo->setAttribute('en_entrega_actual', $enEntregaActual);
             $activo->setAttribute('en_otras_entregas', $enOtrasEntregas);
             $activo->setAttribute('actas_info', $actas);
-            $activo->setAttribute('estado_actual', $activo->estado->nombre ?? 'inactivo');
+            $activo->setAttribute('estado_actual', $activo->estado->nombre );
             $activo->setAttribute('id_entrega_actual', $idEntregaActual);
 
             return $activo;

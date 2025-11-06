@@ -46,142 +46,123 @@ class TrasladoController extends Controller
 
 
     public function guardarTraslado(Request $request, $id)
-{
-    $traslado = Traslado::find($id);
+    {
+        $traslado = Traslado::find($id);
 
-    if (!$traslado) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Traslado no encontrado.'
-        ], 404);
-    }
-
-    // Evitar volver a finalizar un traslado ya cerrado
-    if ($traslado->estado === 'finalizado') {
-        return response()->json([
-            'success' => false,
-            'message' => 'Este traslado ya está finalizado.'
-        ], 422);
-    }
-
-    // Buscar inventario destino (pendiente)
-    $inventarioDestino = Inventario::where('id_servicio', $traslado->id_servicio_destino)
-        ->where('gestion', $traslado->gestion)
-        ->where('estado', 'pendiente')
-        ->orderBy('created_at', 'desc')
-        ->first();
-
-    if (!$inventarioDestino) {
-        return response()->json([
-            'success' => false,
-            'message' => 'No existe inventario pendiente para el servicio destino en la gestión actual.'
-        ], 422);
-    }
-
-    // Buscar inventario origen (pendiente)
-    $inventarioOrigen = Inventario::where('id_servicio', $traslado->id_servicio_origen)
-        ->where('gestion', $traslado->gestion)
-        ->where('estado', 'pendiente')
-        ->orderBy('created_at', 'desc')
-        ->first();
-
-    if (!$inventarioOrigen) {
-        return response()->json([
-            'success' => false,
-            'message' => 'No existe inventario pendiente para el servicio origen en la gestión actual.'
-        ], 422);
-    }
-
-    // Obtener detalles del traslado
-    $detallesTraslado = DetalleTraslado::where('id_traslado', $id)->get();
-
-    if ($detallesTraslado->isEmpty()) {
-        return response()->json([
-            'success' => false,
-            'message' => 'No hay activos asociados a este traslado.'
-        ], 422);
-    }
-
-    DB::beginTransaction();
-
-    try {
-        foreach ($detallesTraslado as $detalle) {
-            $idActivo = $detalle->id_activo;
-            $cantidadTrasladar = $detalle->cantidad;
-
-            // Buscar detalle en inventario origen
-            $detalleOrigen = DetalleInventario::where('id_inventario', $inventarioOrigen->id_inventario)
-                ->where('id_activo', $idActivo)
-                ->first();
-
-            if (!$detalleOrigen) {
-                DB::rollBack();
-                return response()->json([
-                    'success' => false,
-                    'message' => "El activo ID {$idActivo} no se encuentra en el inventario de origen."
-                ], 422);
-            }
-
-            // Verificar cantidad suficiente
-            if ($detalleOrigen->cantidad < $cantidadTrasladar) {
-                DB::rollBack();
-                return response()->json([
-                    'success' => false,
-                    'message' => "Cantidad insuficiente del activo ID {$idActivo} en el inventario de origen."
-                ], 422);
-            }
-
-            // Descontar cantidad del inventario origen
-            $detalleOrigen->cantidad -= $cantidadTrasladar;
-
-            if ($detalleOrigen->cantidad <= 0) {
-                $detalleOrigen->delete();
-            } else {
-                $detalleOrigen->save();
-            }
-
-            // Actualizar o crear detalle en inventario destino
-            $detalleDestino = DetalleInventario::where('id_inventario', $inventarioDestino->id_inventario)
-                ->where('id_activo', $idActivo)
-                ->first();
-
-            if ($detalleDestino) {
-                // Sumar cantidad al inventario destino existente
-                $detalleDestino->cantidad += $cantidadTrasladar;
-                $detalleDestino->save();
-            } else {
-                // Crear nuevo detalle inventario destino
-                DetalleInventario::create([
-                    'id_inventario' => $inventarioDestino->id_inventario,
-                    'id_activo' => $idActivo,
-                    'cantidad' => $cantidadTrasladar,
-                    'estado_actual' => 'activo', // puedes ajustar si tu lógica usa otro estado
-                    'observaciones' => $detalle->observaciones ?? '',
-                ]);
-            }
+        if (!$traslado) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Traslado no encontrado.'
+            ], 404);
         }
 
-        // Finalizar traslado
-        $traslado->estado = 'finalizado';
-        $traslado->updated_at = now();
-        $traslado->save();
+        // Evitar volver a finalizar un traslado ya cerrado
+        if ($traslado->estado === 'finalizado') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Este traslado ya está finalizado.'
+            ], 422);
+        }
 
-        DB::commit();
+        // Buscar inventario destino (pendiente)
+        $inventarioDestino = Inventario::where('id_servicio', $traslado->id_servicio_destino)
+            ->where('gestion', $traslado->gestion)
+            ->where('estado', 'vigente')
+            ->orderBy('created_at', 'desc')
+            ->first();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Traslado finalizado correctamente. Los activos se movieron entre inventarios.',
-            'data' => ['id_traslado' => $traslado->id_traslado]
-        ]);
+        // Obtener detalles del traslado
+        $detallesTraslado = DetalleTraslado::where('id_traslado', $id)->get();
+        if ($detallesTraslado->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No hay activos asociados a este traslado.'
+            ], 422);
+        }
+        if (!$inventarioDestino) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No existe inventario vigente para el servicio destino en la gestión actual.'
+            ], 422);
+        }
 
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json([
-            'success' => false,
-            'message' => 'Error al procesar el traslado: ' . $e->getMessage()
-        ], 500);
+        // Buscar inventario origen (pendiente)
+        $inventarioOrigen = Inventario::where('id_servicio', $traslado->id_servicio_origen)
+            ->where('gestion', $traslado->gestion)
+            ->where('estado', 'vigente')
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if (!$inventarioOrigen) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No existe inventario pendiente para el servicio origen en la gestión actual.'
+            ], 422);
+        }
+
+
+
+        DB::beginTransaction();
+
+        try {
+            foreach ($detallesTraslado as $detalle) {
+                $idActivo = $detalle->id_activo;
+
+                // Buscar detalle en inventario origen
+                $detalleOrigen = DetalleInventario::where('id_inventario', $inventarioOrigen->id_inventario)
+                    ->where('id_activo', $idActivo)
+                    ->first();
+
+                if (!$detalleOrigen) {
+                    DB::rollBack();
+                    return response()->json([
+                        'success' => false,
+                        'message' => "El activo ID {$idActivo} no se encuentra en el inventario de origen."
+                    ], 422);
+                }
+
+                // Guardar el estado antes de eliminar
+                $estadoAnterior = $detalleOrigen->estado_actual;
+
+                // Eliminar el activo del inventario origen
+                $detalleOrigen->delete();
+
+                // Verificar si ya existe en destino
+                $detalleDestino = DetalleInventario::where('id_inventario', $inventarioDestino->id_inventario)
+                    ->where('id_activo', $idActivo)
+                    ->first();
+
+                if (!$detalleDestino) {
+                    // Crear nuevo registro en destino
+                    DetalleInventario::create([
+                        'id_inventario' => $inventarioDestino->id_inventario,
+                        'id_activo' => $idActivo,
+                        'estado_actual' => $estadoAnterior, // se transfiere el estado
+                        'observaciones' => $detalle->observaciones ?? '',
+                    ]);
+                }
+            }
+
+            // Finalizar traslado
+            $traslado->estado = 'finalizado';
+            $traslado->updated_at = now();
+            $traslado->save();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Traslado finalizado correctamente. Los activos se movieron entre inventarios.',
+                'data' => ['id_traslado' => $traslado->id_traslado]
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al procesar el traslado: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
 
 
 
@@ -297,7 +278,7 @@ class TrasladoController extends Controller
 
             $detalleQuery = DetalleInventario::with(['activo', 'inventario'])
                 ->whereIn('id_inventario', $inventarios)
-                ->where('estado_actual', '!=', 'eliminado')
+                // ->where('estado_actual', '!=', 'eliminado')
                 ->whereHas('activo', function ($q) {
                     $q->soloActivos();
                 });
@@ -322,158 +303,50 @@ class TrasladoController extends Controller
             if ($request->filled('categoria_activo')) {
                 $categoria = strtolower($request->categoria_activo);
                 $detalleQuery->whereHas('activo.categoria', function ($q) use ($categoria) {
-                    $q->whereRaw('LOWER(nombre) LIKE ?', ["%{$categoria}%"]);
+                    $q->whereRaw('LOWER(id_categoria) LIKE ?', ["%{$categoria}%"]);
                 });
             }
 
             $detalles = $detalleQuery->get();
             $idTrasladoActual = $request->id_traslado ?? null;
-
-            // Recorrer resultados para agregar estado de disponibilidad y datos del traslado
-            // foreach ($detalles as $detalle) {
-            //     $idActivo = $detalle->activo->id_activo ?? null;
-
-            //     if (!$idActivo) {
-            //         $detalle->estado_asignacion = 'N/D';
-            //         $detalle->traslado_info = null;
-            //         continue;
-            //     }
-
-            //     // Verificar si el activo está en otro traslado
-            //     $trasladoOtro = DetalleTraslado::with('traslado') // trae relación del traslado
-            //         ->where('id_activo', $idActivo)
-            //         ->whereHas('activo', function ($q) {
-            //             $q->soloActivos();
-            //         })
-            //         ->when($idTrasladoActual, function ($q) use ($idTrasladoActual) {
-            //             $q->where('id_traslado', '!=', $idTrasladoActual);
-            //         })
-            //         ->first(); // solo trae uno, si quieres todos puedes usar ->get()
-            //     // dd($trasladoOtro->traslado->id_traslado);
-            //     // dd($request->id_traslado ?? 'ec');
-            //     // Verificar si está en el traslado actual
-            //     $trasladoActual = null;
-            //     if ($idTrasladoActual) {
-            //         $trasladoActual = DetalleTraslado::with('traslado')
-            //             ->where('id_activo', $idActivo)
-            //             ->where('id_traslado', $idTrasladoActual)
-            //             ->whereHas('activo', function ($q) {
-            //                 $q->soloActivos();
-            //             })
-            //             ->first();
-            //     }
-
-            //     // Asignar estado temporal y detalles del traslado
-            //     if ($trasladoActual) {
-            //         $detalle->estado_asignacion = 'Activo ya agregado en esta acta';
-            //         $detalle->traslado_info = [
-            //             'id_traslado' => $trasladoActual->id_traslado,
-            //             'numero' => $trasladoActual->traslado->numero ?? null,
-            //             'otros' => $trasladoActual->traslado // puedes mandar toda la info
-            //         ];
-            //     } elseif ($trasladoOtro) {
-            //         $detalle->estado_asignacion = 'Activo ya agregado en otro acta';
-            //         $detalle->traslado_info = [
-            //             'id_traslado' => $trasladoOtro->traslado->id_traslado,
-            //             'numero' => $trasladoOtro->traslado->numero_documento ?? null,
-            //             // 'otros' => $trasladoOtro->traslado
-            //         ];
-            //         // dd($trasladoOtro->traslado);
-            //     } else {
-            //         $detalle->estado_asignacion = 'Disponible';
-            //         $detalle->traslado_info = null;
-            //     }
-            // }
             foreach ($detalles as $detalle) {
                 $idActivo = $detalle->activo->id_activo ?? null;
-
-                if (!$idActivo) {
-                    $detalle->cantidad_inventario = 0;
-                    $detalle->cantidad_restante = 0;
-                    $detalle->estado_tipo = 'none';
-                    $detalle->estado_actual = 'N/D';
-                    continue;
-                }
-
-                $cantidadInventario = $detalle->cantidad ?? 0;
-
-                // 🔹 Cantidad usada en otros traslados
-                $cantidadUsadaOtros = DetalleTraslado::where('id_activo', $idActivo)
-                    ->when($idTrasladoActual, fn($q) => $q->where('id_traslado', '!=', $idTrasladoActual))
-                    ->sum('cantidad');
-
-                // 🔹 NUEVO: actas donde está registrado
-              // 🔹 Obtener IDs y número_documento de las actas donde aparece este activo
-$actas = DetalleTraslado::where('id_activo', $idActivo)
-->join('traslados as t', 't.id_traslado', '=', 'detalle_traslados.id_traslado')
-->select('detalle_traslados.id_traslado', 't.numero_documento')
-->distinct()
-->get()
-->map(function ($a) {
-    return [
-        'id' => $a->id_traslado,
-        'numero_documento' => $a->numero_documento,
-    ];
-})
-->values()
-->toArray();
-
-// 🔹 Contar cuántas actas distintas lo tienen registrado
-$cantidadActasRegistradas = count($actas);
-
-// 🔹 Guardar los datos en el modelo (para usarlos en Blade)
-$detalle->setAttribute('actas_info', $actas);
-$detalle->setAttribute('cantidad_actas', $cantidadActasRegistradas);
+                // 🔹 Obtener IDs y número_documento de las actas donde aparece este activo
+                $actas = DetalleTraslado::where('id_activo', $idActivo)
+                    ->join('traslados as t', 't.id_traslado', '=', 'detalle_traslados.id_traslado')
+                    ->where('t.estado', 'pendiente')   // 🔹 solo traslados pendientes
+                    ->select('detalle_traslados.id_traslado', 't.numero_documento')
+                    ->distinct()
+                    ->get()
+                    ->map(function ($a) {
+                        return [
+                            'id_traslado' => $a->id_traslado,
+                            'numero_documento' => $a->numero_documento,
+                        ];
+                    })
+                    ->values()
+                    ->toArray();
 
 
-                // 🔹 Cantidad usada en este traslado
-                $cantidadUsadaActual = $idTrasladoActual
-                    ? DetalleTraslado::where('id_activo', $idActivo)
-                        ->where('id_traslado', $idTrasladoActual)
-                        ->sum('cantidad')
-                    : 0;
+                // 🔹 Determinar si este activo está en el TRASLADO actual
+                $enTrasladoActual = $idTrasladoActual
+                    ? collect($actas)->contains('id_traslado', $idTrasladoActual)
+                    : false;
 
-                $cantidadRestante = max(0, $cantidadInventario - $cantidadUsadaOtros - $cantidadUsadaActual);
+                // 🔹 Determinar si está en OTROS traslados distintos
+                $enOtrosTraslados = $idTrasladoActual
+                    ? collect($actas)->where('id_traslado', '!=', $idTrasladoActual)->isNotEmpty()
+                    : collect($actas)->isNotEmpty();
+                // dd($idTrasladoActual ." y ". $enTrasladoActual );
 
-                $detalle->setAttribute('cantidad_inventario', $cantidadInventario);
-                $detalle->setAttribute('cantidad_usada_total', $cantidadUsadaOtros + $cantidadUsadaActual);
-                $detalle->setAttribute('cantidad_en_acta', $cantidadUsadaActual);
-                $detalle->setAttribute('cantidad_restante', $cantidadRestante);
-
-                $detalle->estado_tipo = $cantidadRestante > 0 ? 'disponible' : 'sin_disponibilidad';
-                $detalle->estado_actual = $detalle->activo->detalleInventario->estado_actual ?? 'N/D';
-                $detalle->setAttribute('id_traslado', $idTrasladoActual ?? null);
+                // ✅ Guardar variables con los nombres que usa tu vista Blade
+                $detalle->setAttribute('en_traslado_actual', $enTrasladoActual);
+                $detalle->setAttribute('en_otros_traslados', $enOtrosTraslados);
+                $detalle->setAttribute('actas_info', $actas);
+                $detalle->setAttribute('id_traslado_actual', $idTrasladoActual);
             }
 
 
-
-
-            //me devuleve todos estos datos......
-
-            // [
-            //     "id_detalle_inventario" => 17,
-            //     "id_inventario" => 3,
-            //     "id_activo" => 8,
-            //     "cantidad" => 5,
-            //     "estado_actual" => "activo",
-            //     "activo" => [
-            //         "id_activo" => 8,
-            //         "codigo" => "MON123",
-            //         "nombre" => "Monitor Dell",
-            //         "categoria" => [ "nombre" => "Equipos" ],
-            //     ],
-            //     // Campos añadidos 👇
-            //     "cantidad_inventario" => 5,
-            //     "cantidad_usada_otros" => 2,
-            //     "cantidad_usada_actual" => 1,
-            //     "cantidad_restante" => 2,
-            //     "estado_asignacion" => "Añadido a este traslado (1/5)",
-            //     "estado_tipo" => "actual",
-            //     "traslado_info" => [
-            //         "id_traslado" => 4,
-            //         "numero" => "ACTA-001"
-            //     ]
-            //   ]
 
 
             return view('user.traslados.parcial_resultados_inventario', compact('detalles'));
@@ -734,13 +607,36 @@ $detalle->setAttribute('cantidad_actas', $cantidadActasRegistradas);
 
         throw new \Exception('No hay números disponibles para la gestión ' . $gestion);
     }
-
-
-    public function show($id)
+    public function show($id = null)
     {
-        $traslado = Traslado::findOrFail($id);
-        return view('user.traslados.show', compact('traslado'));
+
+
+        $servicios = Servicio::all(); // para llenar selects
+
+        // Determinar la gestión actual (sin Carbon, con PHP puro)
+        $gestionActual = date('Y');
+
+        // Generar número de documento disponible
+        $numeroDisponible = $this->generarNumeroDocumento($gestionActual);
+        $categorias = Categoria::all();
+
+        if ($id) {
+            $traslado = Traslado::findOrFail($id);
+        } else {
+            // Si no se envía id, obtenemos la última devolución agregada
+            $traslado = Traslado::latest('id_traslado')->first();
+
+            // Opcional: si no hay devoluciones, puedes lanzar un error o redirigir
+            if (!$traslado) {
+                abort(404, 'No hay traslado registrados.');
+            }
+        }
+
+        return view('user.traslados.show', compact('traslado', 'categorias', 'servicios', 'gestionActual', 'numeroDisponible'));
     }
+
+
+
     public function detalleParcial($id)
     {
         $traslado = Traslado::with([
@@ -757,67 +653,62 @@ $detalle->setAttribute('cantidad_actas', $cantidadActasRegistradas);
     // Vista parcial de tabla de activos
     public function tablaActivos($id)
     {
-        $detalles = DetalleTraslado::with('activo.unidad', 'activo.estado', 'activo.detalleInventario')
-        ->where('id_traslado', $id)
-        ->get()
-        ->map(function ($detalle) {
-            $idActivo = $detalle->id_activo;
+        //         $detalles = DetalleTraslado::with('activo.unidad', 'activo.estado', 'activo.detalleInventario')
+        //         ->where('id_traslado', $id)
+        //         ->get()
+        //         ->map(function ($detalle) {
+        //             $idActivo = $detalle->id_activo;
 
-            // $cantidadDisponible = $detalle->activo->detalleInventario->cantidad ?? 0;
-            // Buscar el último inventario PENDIENTE del servicio de la devolución
-$ultimoInventario = Inventario::where('id_servicio', $detalle->traslado->id_servicio_origen)
-    ->where('estado', 'pendiente')
-    ->orderByDesc('fecha')
-    ->first();
+        //             // $cantidadDisponible = $detalle->activo->detalleInventario->cantidad ?? 0;
+        //             // Buscar el último inventario PENDIENTE del servicio de la devolución
+        // $ultimoInventario = Inventario::where('id_servicio', $detalle->traslado->id_servicio_origen)
+        //     ->where('estado', 'pendiente')
+        //     ->orderByDesc('fecha')
+        //     ->first();
 
-$cantidadDisponible = 0;
+        //             // Obtener todos los traslados donde aparece este mismo activo
+        //             $actasInfo = DetalleTraslado::where('id_activo', $idActivo)
+        //                 ->with('traslado') // asumimos que hay relación `traslado` que tiene `numero_documento`
+        //                 ->get()
+        //                 ->map(function ($d) {
+        //                     return [
+        //                         'id_traslado' => $d->id_traslado,
+        //                         'numero_documento' => $d->traslado->numero_documento ?? null,
+        //                         'cantidad' => $d->cantidad ?? 0,
+        //                     ];
+        //                 });
 
-if ($ultimoInventario) {
-    $cantidadDisponible = DetalleInventario::where('id_activo', $detalle->id_activo)
-        ->where('id_inventario', $ultimoInventario->id_inventario)
-        ->value('cantidad') ?? 0;
-}
-// dd($cantidadDisponible);
-            // Buscar el último inventario PENDIENTE del servicio de la devolución
-// $ultimoInventario = Inventario::where('id_servicio', $detalle->traslado->id_servicio)
-//     ->where('estado', 'pendiente')
-//     ->orderByDesc('fecha')
-//     ->first();
 
-// $cantidadDisponible = 0;
 
-// if ($ultimoInventario) {
-//     $cantidadDisponible = DetalleInventario::where('id_activo', $detalle->id_activo)
-//         ->where('id_inventario', $ultimoInventario->id_inventario)
-//         ->value('cantidad') ?? 0;
-// }
+        //             return $detalle;
+        //         });
+        $detalles = DetalleTraslado::with('activo.unidad', 'activo.estado')
+            ->where('id_traslado', $id)
+            ->get()
+            ->map(function ($detalle) {
+                // Obtener solo datos generales del activo
+                $activo = $detalle->activo;
 
-            $cantidadUsada = DetalleTraslado::where('id_activo', $idActivo)->sum('cantidad');
-            $cantidadEnActa = $detalle->cantidad ?? 0;
+                $detalle->setAttribute('codigo', $activo->codigo ?? '');
+                $detalle->setAttribute('nombre', $activo->nombre ?? '');
+                $detalle->setAttribute('detalle', $activo->detalle ?? '');
+                $detalle->setAttribute('estado', $activo->estado->nombre ?? 'N/D');
+                $detalle->setAttribute('unidad', $activo->unidad->nombre ?? '');
 
-            // Obtener todos los traslados donde aparece este mismo activo
-            $actasInfo = DetalleTraslado::where('id_activo', $idActivo)
-                ->with('traslado') // asumimos que hay relación `traslado` que tiene `numero_documento`
-                ->get()
-                ->map(function ($d) {
-                    return [
-                        'id_traslado' => $d->id_traslado,
-                        'numero_documento' => $d->traslado->numero_documento ?? null,
-                        'cantidad' => $d->cantidad ?? 0,
-                    ];
-                });
+                // Opcional: actas en general, si quieres mostrar en botones
+                $detalle->setAttribute('actas_info', DetalleTraslado::where('id_activo', $detalle->id_activo)
+                    ->with('traslado')
+                    ->get()
+                    ->map(function ($d) {
+                        return [
+                            'id_traslado' => $d->id_traslado,
+                            'numero_documento' => $d->traslado->numero_documento ?? null,
+                        ];
+                    }));
 
-            // Agregar propiedades dinámicas correctamente
-            $detalle->setAttribute('cantidad_disponible', $cantidadDisponible);
-            $detalle->setAttribute('cantidad_usada', $cantidadUsada);
-            $detalle->setAttribute('cantidad_en_acta', $cantidadEnActa);
-            $detalle->setAttribute('actas_info', $actasInfo);
-
-            return $detalle;
-        });
-
-    return view('user.traslados.parcial_activos', compact('detalles'));
-
+                return $detalle;
+            });
+        return view('user.traslados.parcial_activos', compact('detalles'));
     }
 
 
@@ -840,7 +731,7 @@ if ($ultimoInventario) {
 
             // 3️⃣ Buscar detalle inventario
             $detalleInventario = DetalleInventario::where('id_activo', $activo->id_activo)
-                ->where('estado_actual', '!=', 'eliminado')
+                // ->where('estado_actual', '=', 'activo')
                 ->first();
 
             if (!$detalleInventario) {
@@ -858,35 +749,14 @@ if ($ultimoInventario) {
                 ], 422);
             }
 
-            // 5️⃣ Validar cantidad enviada
-            $cantidadSolicitada = (int) $request->cantidad;
-            if ($cantidadSolicitada <= 0) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'La cantidad debe ser mayor a 0.'
-                ], 422);
-            }
 
-            // 6️⃣ Calcular cantidad disponible (restante real)
-            $cantidadUsadaEnOtros = DetalleTraslado::where('id_activo', $activo->id_activo)
-                ->where('id_traslado', '!=', $id)
-                ->sum('cantidad');
 
-            $cantidadDisponible = max(0, $detalleInventario->cantidad - $cantidadUsadaEnOtros);
 
-            // 7️⃣ Validar disponibilidad
-            if ($cantidadSolicitada > $cantidadDisponible) {
-                return response()->json([
-                    'success' => false,
-                    'error' => "Cantidad solicitada no disponible. Solo hay {$cantidadDisponible} unidades disponibles."
-                ], 422);
-            }
 
             // 8️⃣ Crear el detalle con la cantidad solicitada
             $detalle = DetalleTraslado::create([
                 'id_traslado' => $id,
                 'id_activo' => $activo->id_activo,
-                'cantidad' => $cantidadSolicitada,
                 'observaciones' => $request->observaciones ?? ''
             ]);
 
@@ -894,9 +764,8 @@ if ($ultimoInventario) {
                 'success' => true,
                 'detalle' => $detalle,
                 'activo' => $activo,
-                'message' => "Activo agregado correctamente con {$cantidadSolicitada} unidades."
+                'message' => "Activo agregado correctamente."
             ]);
-
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
@@ -977,7 +846,6 @@ if ($ultimoInventario) {
                 'message' => 'Activo eliminado correctamente del traslado.',
                 'cantidad_eliminada' => $cantidadEliminada
             ]);
-
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
@@ -989,7 +857,6 @@ if ($ultimoInventario) {
                 'error' => 'Ocurrió un error inesperado: ' . $e->getMessage()
             ], 500);
         }
-
     }
 
     /**
