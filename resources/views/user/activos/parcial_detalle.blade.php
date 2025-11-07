@@ -21,10 +21,7 @@
                         <small class="text-muted">Detalle</small>
                         <div class="text-break">{{ $activo->detalle ?? 'N/A' }}</div>
                     </div>
-                    <div class="col-md-3 col-sm-6">
-                        <small class="text-muted">Cantidad</small>
-                        <div>{{ $activo->cantidad ?? '-' }}</div>
-                    </div>
+                   
                     <div class="col-md-3 col-sm-6">
                         <small class="text-muted">Estado</small>
                         <div>{{ $activo->estado?->nombre ?? 'N/A' }}</div>

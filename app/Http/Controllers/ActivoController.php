@@ -44,7 +44,7 @@ public function filtrarHistorial(Request $request) {
 
     // Entregas
     $entregas = DetalleEntrega::with(['activo', 'entrega.responsable', 'entrega.servicio'])
-        ->when($activoFiltro, fn($q) => $q->whereHas('activo', fn($q2) => 
+        ->when($activoFiltro, fn($q) => $q->whereHas('activo', fn($q2) =>
             $q2->where('nombre', 'like', "%$activoFiltro%")->orWhere('codigo', 'like', "%$activoFiltro%")
         ))
         ->when($fechaInicio, fn($q) => $q->whereHas('entrega', fn($q2) => $q2->where('fecha', '>=', $fechaInicio)))
@@ -64,7 +64,7 @@ public function filtrarHistorial(Request $request) {
 
     // Traslados
     $traslados = DetalleTraslado::with(['activo', 'traslado.servicioOrigen', 'traslado.servicioDestino', 'traslado.usuario'])
-        ->when($activoFiltro, fn($q) => $q->whereHas('activo', fn($q2) => 
+        ->when($activoFiltro, fn($q) => $q->whereHas('activo', fn($q2) =>
             $q2->where('nombre', 'like', "%$activoFiltro%")->orWhere('codigo', 'like', "%$activoFiltro%")
         ))
         ->when($fechaInicio, fn($q) => $q->whereHas('traslado', fn($q2) => $q2->where('fecha', '>=', $fechaInicio)))
@@ -84,7 +84,7 @@ public function filtrarHistorial(Request $request) {
 
     // Devoluciones
     $devoluciones = DetalleDevolucion::with(['activo', 'devolucion.servicio', 'devolucion.usuario'])
-        ->when($activoFiltro, fn($q) => $q->whereHas('activo', fn($q2) => 
+        ->when($activoFiltro, fn($q) => $q->whereHas('activo', fn($q2) =>
             $q2->where('nombre', 'like', "%$activoFiltro%")->orWhere('codigo', 'like', "%$activoFiltro%")
         ))
         ->when($fechaInicio, fn($q) => $q->whereHas('devolucion', fn($q2) => $q2->where('fecha', '>=', $fechaInicio)))
@@ -104,7 +104,7 @@ public function filtrarHistorial(Request $request) {
 
     // Bajas
     $bajas = DetalleBaja::with(['activo', 'baja.usuario'])
-        ->when($activoFiltro, fn($q) => $q->whereHas('activo', fn($q2) => 
+        ->when($activoFiltro, fn($q) => $q->whereHas('activo', fn($q2) =>
             $q2->where('nombre', 'like', "%$activoFiltro%")->orWhere('codigo', 'like', "%$activoFiltro%")
         ))
         ->when($fechaInicio, fn($q) => $q->whereHas('baja', fn($q2) => $q2->where('fecha', '>=', $fechaInicio)))
@@ -151,7 +151,7 @@ public function filtrarHistorial(Request $request) {
 
 
 
-    
+
 
     public function update(Request $request, $id)
 {
@@ -162,7 +162,6 @@ public function filtrarHistorial(Request $request) {
     $rules = [
         'codigo' => 'required|string|max:50|unique:activos,codigo,' . $activo->id_activo . ',id_activo',
         'nombre' => 'required|string|max:255',
-        'cantidad' => 'required|integer|min:1',
         'detalle' => 'nullable|string|max:500',
         'id_categoria' => 'required|exists:categorias,id_categoria',
         'id_unidad' => 'required|exists:unidades,id_unidad',
@@ -193,9 +192,6 @@ public function filtrarHistorial(Request $request) {
         'codigo.required' => 'El código es obligatorio.',
         'codigo.unique' => 'El código ya está en uso.',
         'nombre.required' => 'El nombre es obligatorio.',
-        'cantidad.required' => 'La cantidad es obligatoria.',
-        'cantidad.integer' => 'La cantidad debe ser un número entero.',
-        'cantidad.min' => 'La cantidad debe ser mayor que cero.',
         'id_categoria.required' => 'Debe seleccionar una categoría.',
         'id_categoria.exists' => 'La categoría seleccionada no existe.',
         'id_unidad.required' => 'Debe seleccionar una unidad de medida.',
@@ -234,7 +230,6 @@ public function filtrarHistorial(Request $request) {
             'codigo' => $request->codigo,
             'nombre' => $request->nombre,
             'detalle' => $request->detalle,
-            'cantidad' => $request->cantidad,
             'id_categoria' => $request->id_categoria,
             'id_unidad' => $request->id_unidad,
             'id_estado' => $request->id_estado,
@@ -534,7 +529,6 @@ public function filtrar(Request $request)
         $rules = [
             'codigo' => 'required|string|max:50',
             'nombre' => 'required|string|max:255',
-            'cantidad' => 'required|integer|min:1',
             'detalle' => 'nullable|string|max:500',
             'id_categoria' => 'required|exists:categorias,id_categoria',
             'id_unidad' => 'required|exists:unidades,id_unidad',
@@ -567,11 +561,6 @@ public function filtrar(Request $request)
             'codigo.required' => 'El código es obligatorio.',
             // 'codigo.unique' => 'El código ya está en uso.',
             'nombre.required' => 'El nombre es obligatorio.',
-            'cantidad.required' => 'La cantidad es obligatoria.',
-            'cantidad.integer'  => 'La cantidad debe ser un número entero.',
-            'cantidad.numeric'  => 'La cantidad debe ser un valor numérico.',
-            'cantidad.min'      => 'La cantidad debe ser mayor que cero.',
-            'cantidad.max'      => 'La cantidad no puede superar el valor permitido.',
             'id_categoria.required' => 'Debe seleccionar una categoría.',
             'id_categoria.exists' => 'La categoría seleccionada no existe.',
             'id_unidad.required' => 'Debe seleccionar una unidad de medida.',
@@ -632,7 +621,6 @@ if (Activo::soloActivos()->where('codigo', $request->codigo)->exists()) {
             $activo->codigo = $validated['codigo'];
             $activo->nombre = $validated['nombre'];
             $activo->detalle = $validated['detalle'] ?? null;
-            $activo->cantidad = $validated['cantidad'] ?? 1;
             $activo->id_categoria = $validated['id_categoria'];
             $activo->id_unidad = $validated['id_unidad'];
             $activo->id_estado = $validated['id_estado'];
@@ -656,45 +644,8 @@ if (Activo::soloActivos()->where('codigo', $request->codigo)->exists()) {
                     ]);
                 }
             }
-            $chkAgregarActivo = $request->input('chk_agregar_activo'); // null o "1"
-            $actaId = $request->input('acta_id'); // puede venir vacio si no marcado
-            $tipoActa = $request->input('tipo_acta'); // entrega, devolucion, traslado
 
-            if ($request->has('chk_agregar_activo') && !empty($actaId)) {
-                switch ($tipoActa) {
-                    case 'entrega':
-                        DetalleEntrega::create([
-                            'id_entrega' => $actaId,
-                            // 'id_activo' => 2,
-                            'id_activo' => $activo->id_activo,
-                            'cantidad' => 1,
-                            'observaciones' =>  null,
-                        ]);
-                        break;
 
-                    case 'devolucion':
-                        DetalleDevolucion::create([
-                            'id_devolucion' => $actaId,
-                            'id_activo' => $activo->id_activo,
-                            'cantidad' => 1,
-                            'observaciones' =>  null,
-                        ]);
-                        break;
-
-                    case 'traslado':
-                        DetalleTraslado::create([
-                            'id_traslado' => $actaId,
-                            'id_activo' => $activo->id_activo,
-                            'cantidad' => 1,
-                            'observaciones' => null,
-                        ]);
-                        break;
-
-                    default:
-                        // opcional: error o ignorar
-                        break;
-                }
-            }
             DB::commit();
 
             return response()->json([

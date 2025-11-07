@@ -49,13 +49,7 @@
                         <textarea class="form-control" name="detalle" rows="2">{{ $activo->detalle }}</textarea>
                     </div>
 
-                    {{-- Cantidad --}}
-                    <div class="col-md-3 col-sm-6">
-                        <small class="text-muted">Cantidad</small>
-                        <input type="number" class="form-control" name="cantidad" value="{{ $activo->cantidad }}">
-                        <small class="text-muted">Cantidad recomendada: 1 por activo</small>
-                    </div>
-
+                 
                     {{-- Select de Estado --}}
                     <div class="col-md-4 col-sm-6">
                         <small class="text-muted">Estado</small>
