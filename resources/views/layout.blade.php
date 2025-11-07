@@ -345,31 +345,24 @@
         }
 
 
-
+/* 
         .main-item:focus {
             outline: none;
-            /* quitar el outline por defecto */
             background-color: #e7f1ff !important;
-            /* fondo azul suave */
             border: 2px solid #0d6efd !important;
-            /* borde azul bootstrap */
             border-radius: 6px;
-            /* margin: 2px; ese margen azul que querías */
             box-sizing: border-box;
-            /* para que el tamaño no se desajuste por el borde/margen */
-        }
+        } */
 
-        .cargar:focus {
+        /* .cargar:focus {
             outline: none;
-            /* quitar el outline por defecto */
+            quitar el outline por defecto
             background-color: #e7f1ff !important;
-            /* fondo azul suave */
+            
             border: 2px solid #0d6efd !important;
-            /* borde azul bootstrap */
             border-radius: 19px;
-            /* margin: 2px; ese margen azul que querías */
             box-sizing: border-box;/
-        }
+        } */
     </style>
 
     @yield('styles')

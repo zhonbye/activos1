@@ -157,49 +157,63 @@
 
 
         .loader-dots {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  height: 50px;
-}
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            height: 50px;
+        }
 
-.loader-dots span {
-  width: 15px;
-  height: 15px;
-  background-color: #3498db;
-  border-radius: 50%;
-  display: inline-block;
-  animation: bounce 1s infinite ease-in-out;
-}
+        .loader-dots span {
+            width: 15px;
+            height: 15px;
+            background-color: #3498db;
+            border-radius: 50%;
+            display: inline-block;
+            animation: bounce 1s infinite ease-in-out;
+        }
 
-.loader-dots span:nth-child(1) {
-  animation-delay: 0s;
-}
+        .loader-dots span:nth-child(1) {
+            animation-delay: 0s;
+        }
 
-.loader-dots span:nth-child(2) {
-  animation-delay: 0.2s;
-}
+        .loader-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
 
-.loader-dots span:nth-child(3) {
-  animation-delay: 0.4s;
-}
+        .loader-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
 
-@keyframes bounce {
-  0%, 80%, 100% {
-    transform: scale(0);
-  }
-  40% {
-    transform: scale(1);
-  }
-}
+        @keyframes bounce {
 
+            0%,
+            80%,
+            100% {
+                transform: scale(0);
+            }
+
+            40% {
+                transform: scale(1);
+            }
+        }
+
+
+
+        /* Clase reusable para “desactivar visualmente” */
+        .desactivado {
+            filter: grayscale(200%) opacity(0.4);
+            /* Convierte a gris y rebaja opacidad */
+            pointer-events: none;
+            /* Evita clicks */
+            transition: all 0.3s ease;
+        }
     </style>
-<div id="loader" class="loader-dots" style="display: none;">
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
+    <div id="loader" class="loader-dots" style="display: none;">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
     <div class="col-auto">
         <nav class="sidebar">
             <header>
@@ -237,19 +251,20 @@
                         <li><a href="{{ route('activos.index') }}" role="menuitem" class="cargar" id="primario">Listar
                                 Activos</a></li>
                         <li><a href="{{ route('activos.create') }}" role="menuitem" class="cargar">Registrar Activo</a></li>
-                        <li><a href="#" role="menuitem">Buscar Activo</a></li>
+                        <li><a href="#" class="desactivado" role="menuitem">Buscar Activo</a></li>
                         <li><a href="{{ route('bajas.create') }}" role="menuitem" class="cargar">Dar de Baja Activo</a></li>
+                        <li><a href="{{ route('activos.historial') }}" role="menuitem" class="cargar">Historial de
+                                activo</a></li>
 
                         {{-- <li><a href="#" role="menuitem">Dar de Baja Activo</a></li> --}}
                         <li><a href="#" role="menuitem"></a></li>
-                        <li><a href="{{ route('traslados.show') }}" role="menuitem"
-                                class="cargar">Realizar Traslado</a></li>
-                        <li><a href="{{ route('entregas.show')}}" role="menuitem"
-                                class="cargar">Realizar Entrega</a></li>
+                        <li><a href="{{ route('traslados.show') }}" role="menuitem" class="cargar">Realizar Traslado</a>
+                        </li>
+                        <li><a href="{{ route('entregas.show') }}" role="menuitem" class="cargar">Realizar Entrega</a></li>
                         {{-- <li><a href="{{ route('devolucion.show', ['id' => 1 ?? 1]) }}" role="menuitem"
                                 class="cargar">Registrar Devolución</a></li> --}}
-                        <li><a href="{{ route('devolucion.show')}}" role="menuitem"
-                                class="cargar">Registrar Devolución</a></li>
+                        <li><a href="{{ route('devolucion.show') }}" role="menuitem" class="cargar">Registrar Devolución</a>
+                        </li>
 
                         {{-- <li><a href="#" role="menuitem"></a></li> --}}
                     </ul>
@@ -268,45 +283,45 @@
                     <ul class="submenu" id="submenuEntregas">
                         {{-- <li><a href="{{ route('entregas.create') }}" role="menuitem" class="cargar">Crear Entrega</a></li>
                         <li><a href="{{ route('entregas.realizar') }}" role="menuitem" class="cargar">Realizar Entrega</a> --}}
-                        </li>
-                        <li><a href="#" role="menuitem">Listar Actas Generadas</a></li>
-                    </ul>
                 </li>
+                <li><a href="#" class="desactivado" role="menuitem">Listar Actas Generadas</a></li>
+            </ul>
+            </li>
 
-                <!-- ====================== -->
-                <!-- MÓDULO: INVENTARIOS -->
-                <!-- ====================== -->
-                <li class="menu-item" id="mainMenuBtn" data-submenu="submenuInventario" role="none">
-                    <div class="main-item" tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"
-                        aria-controls="submenuInventario">
-                        <i class="bi bi-clipboard-data icon" aria-hidden="true"></i>
-                        <span class="text">Inventarios</span>
-                        <i class="bi bi-caret-down caret" aria-hidden="true"></i>
-                    </div>
-                    <ul class="submenu" id="submenuInventario">
-                        <li><a href="#" role="menuitem">Realizar Inventario</a></li>
-                        <li><a href="{{ route('inventario.consultar') }}" role="menuitem" class="cargar">Consultar
-                                Inventario</a></li>
-                        <li><a href="{{ route('pruebas') }}" role="menuitem" class="cargar">prueba interfaces</a></li>
-                    </ul>
-                </li>
+            <!-- ====================== -->
+            <!-- MÓDULO: INVENTARIOS -->
+            <!-- ====================== -->
+            <li class="menu-item" id="mainMenuBtn" data-submenu="submenuInventario" role="none">
+                <div class="main-item" tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"
+                    aria-controls="submenuInventario">
+                    <i class="bi bi-clipboard-data icon" aria-hidden="true"></i>
+                    <span class="text">Inventarios</span>
+                    <i class="bi bi-caret-down caret" aria-hidden="true"></i>
+                </div>
+                <ul class="submenu" id="submenuInventario">
+                    <li><a href="#" class="desactivado" role="menuitem">Realizar Inventario</a></li>
+                    <li><a href="{{ route('inventario.consultar') }}" role="menuitem" class="cargar">Consultar
+                            Inventario</a></li>
+                    <li><a href="{{ route('pruebas') }}" role="menuitem" class="cargar">prueba interfaces</a></li>
+                </ul>
+            </li>
 
-                <!-- ====================== -->
-                <!-- MÓDULO: REPORTES -->
-                <!-- ====================== -->
-                <li class="menu-item" data-submenu="submenuReportes" role="none">
-                    <div class="main-item" tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"
-                        aria-controls="submenuReportes">
-                        <i class="bi bi-graph-up icon" aria-hidden="true"></i>
-                        <span class="text">Reportes</span>
-                        <i class="bi bi-caret-down caret" aria-hidden="true"></i>
-                    </div>
-                    <ul class="submenu" id="submenuReportes">
-                        <li><a href="#" role="menuitem">Reportes de Activos</a></li>
-                        <li><a href="#" role="menuitem">Reportes por Responsable</a></li>
-                        <li><a href="#" role="menuitem">Reportes Globales</a></li>
-                    </ul>
-                </li>
+            <!-- ====================== -->
+            <!-- MÓDULO: REPORTES -->
+            <!-- ====================== -->
+            <li class="menu-item" data-submenu="submenuReportes" role="none">
+                <div class="main-item" tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"
+                    aria-controls="submenuReportes">
+                    <i class="bi bi-graph-up icon" aria-hidden="true"></i>
+                    <span class="text">Reportes</span>
+                    <i class="bi bi-caret-down caret" aria-hidden="true"></i>
+                </div>
+                <ul class="submenu" id="submenuReportes">
+                    <li><a href="#" class="desactivado" role="menuitem">Reportes de Activos</a></li>
+                    <li><a href="#" class="desactivado" role="menuitem">Reportes por Responsable</a></li>
+                    <li><a href="#" class="desactivado" role="menuitem">Reportes Globales</a></li>
+                </ul>
+            </li>
 
             </ul>
 
@@ -381,10 +396,16 @@
         const rutaGuardada = leer();
 
         $(document).ready(function() {
-              if (rutaGuardada) {
+            if (rutaGuardada) {
                 const enlace = $(`.menu a[href='${rutaGuardada}']`);
                 if (enlace.length) {
                     cargarContenido(rutaGuardada);
+                    const submenu = enlace.closest('.submenu');
+                    if (submenu) {
+                        const parent = $(submenu).closest('.menu-item');
+                        parent.find('.main-item').attr('aria-expanded', 'true');
+                        $(submenu).slideDown(200); // o agrega tu clase .show si la usas
+                    }
                 } else {
                     mensaje('La ruta guardada no se encontró en el menú.', 'danger');
                 }
@@ -402,7 +423,7 @@
                 e.preventDefault();
                 const $contextMenu = $('#customContextMenu');
                 $contextMenu.data('targetElement', this);
-$contextMenu.focus()
+                $contextMenu.focus()
                 const $li = $(this);
                 const offset = $li.offset();
                 const liWidth = $li.outerWidth();
@@ -538,6 +559,7 @@ $contextMenu.focus()
         function reset(formSelector) {
             formSelector[0].reset();
         }
+
         function mensaje(mensaje, tipo) {
             var nuevaAlerta = $('<div class="alert alert-' + tipo +
                 ' alert-dismissible fade show" role="alert" ><strong>' + mensaje +

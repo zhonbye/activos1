@@ -128,7 +128,7 @@
                         <i class="bi bi-search"></i> Buscar devolucion
                     </button>
                 </div>
-                <div class="card action-card border-0 shadow-sm p-3 text-center hover-card warning">
+                <div class=" desactivado card action-card border-0 shadow-sm p-3 text-center hover-card warning">
                     <i class="bi bi-clock-history text-warning fs-2 mb-2"></i>
                     <h5 class="fw-semibold">devolucion Recientes</h5>
                     <p class="text-muted small mb-3">Consulta tus devolucion más recientes fácilmente.</p>
@@ -145,7 +145,7 @@
                         <i class="bi bi-folder2-open"></i> Ver Actas
                     </button>
                 </div> --}}
-                <div class="card action-card border-0 shadow-sm p-3 text-center hover-card info">
+                <div class="desactivado card action-card border-0 shadow-sm p-3 text-center hover-card info">
                     <i class="bi  bi-hourglass-split text-info fs-2 mb-2"></i>
                     <h5 class="fw-semibold">Pendientes</h5>
                     <p class="text-muted small mb-3">Revisa devolucion aún no finalizados.</p>
@@ -163,7 +163,12 @@
     <div class="main-col col-md-12 col-lg-10 order-lg-1 order-1 mb-4 p-1 transition" style="max-height: 95vh;">
         <div class="card p-4 rounded shadow" style="background-color: var(--color-fondo); min-height: 100vh;">
 
-            <h2 class="mb-4 text-center" style="color: var(--color-texto-principal);">Devolución de Activos</h2>
+<h2 class="mb-4 text-center text-primary">
+  <i class="bi bi-arrow-counterclockwise me-2"></i>Devolución de Activos
+</h2>
+
+
+
 
             <input type="hidden" id="devolucion_id" value="{{ $devolucion->id_devolucion ?? '' }}">
 
@@ -188,7 +193,7 @@
                         data-bs-target="#modalInventario">
                         Agregar desde Inventario
                     </button>
-                    <button type="submit" id="btnRegistrardevolucion" class="btn btn-success">Registrar
+                    <button type="submit" id="btnRegistrardevolucion" class="btn btn-success">Finalizar
                         devolucion</button>
                 </div>
             </div>
@@ -340,7 +345,7 @@
                 if (inventarioCargado) {
                     $("#modalInventario").removeClass('constante')
                 }
-                // controlarBotones($('#estado_devolucion').data('estado-devolucion'));
+                controlarBotones($('#estado_devolucion').data('estado-devolucion'));
 
             },
             error: function(xhr) {
@@ -400,7 +405,7 @@
             $('#resultado_inventario').html('');
             // $('#modal .btn-close').trigger('click');
             // $('.modal fade show').find('.btn-close').trigger('click');
-             $('.modal').find('button[data-bs-dismiss="modal"]').trigger('click');
+            $('.modal').find('button[data-bs-dismiss="modal"]').trigger('click');
         });
 
         //         $('#modalDetalleActivos').on('hidden.bs.modal', function() {
@@ -426,6 +431,7 @@
 
             const $btn = $(this);
             const iddevolucion = $('#div_devolucion').find('input[name="id_devolucion"]').val();
+            const texto = $btn.html()
 
             if (!iddevolucion) {
                 mensaje('No se pudo identificar el devolucion.', 'warning');
@@ -434,45 +440,42 @@
 
             if (!confirm('¿Está seguro que desea finalizar y registrar este devolucion?')) return;
 
-            $.ajax({
-                url: `${baseUrl}/devolucion/${iddevolucion}/finalizar`,
-                method: 'POST',
-                data: {
-                    _token: $('meta[name="csrf-token"]').attr('content'),
-                },
-                dataType: 'json',
+           let textoOriginal = $btn.html();
 
-                beforeSend: function() {
-                    // Deshabilitar botón y mostrar spinner
-                    $btn.prop('disabled', true)
-                        .html('<i class="bi bi-arrow-repeat spin"></i> Guardando...');
-                },
+$.ajax({
+    url: `${baseUrl}/devolucion/${iddevolucion}/finalizar`,
+    method: 'POST',
+    data: {
+        _token: $('meta[name="csrf-token"]').attr('content'),
+    },
+    dataType: 'json',
 
-                success: function(response) {
-                    if (response.success) {
-                        mensaje(response.message, 'success');
-                        cargarDetalledevolucion(iddevolucion);
-                        cargarTablaActivos(iddevolucion);
-                    } else {
-                        mensaje(response.message || 'No se pudo finalizar el devolucion.',
-                            'danger');
-                    }
-                },
+    beforeSend: function() {
+        $btn.prop('disabled', true)
+            .html('<i class="bi bi-arrow-repeat spin"></i> Guardando...');
+    },
 
-                error: function(xhr) {
-                    let msg = 'Ocurrió un error inesperado al finalizar el devolucion.';
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        msg = xhr.responseJSON.message;
-                    }
-                    mensaje(msg, 'danger');
-                },
+    success: function(response) {
+        if (response.success) {
+            mensaje(response.message, 'success');
+            cargarDetalleDevolucion(iddevolucion);
+            cargarTablaActivos(iddevolucion);
+// alert("fdsafdsafd")
+            $btn
+                .prop('disabled', false)
+                .html('<i class="bi bi-check-circle"></i> Devolución finalizada');
+        } else {
+            mensaje(response.message, 'danger');
+            $btn.prop('disabled', false).html(textoOriginal);
+        }
+    },
 
-                complete: function() {
-                    // Reactivar botón
-                    $btn.prop('disabled', false)
-                        .html('<i class="bi bi-check-circle"></i> Finalizar devolucion');
-                }
-            });
+    error: function(xhr) {
+        let msg = xhr.responseJSON?.message || 'Error al finalizar la devolución.';
+        mensaje(msg, 'danger');
+        $btn.prop('disabled', false).html(textoOriginal);
+    }
+});
         });
 
 

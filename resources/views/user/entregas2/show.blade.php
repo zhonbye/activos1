@@ -165,7 +165,9 @@
     <div class="main-col col-md-12 col-lg-10 order-lg-1 order-1 mb-4 p-1 transition" style="max-height: 95vh;">
         <div class="card p-4 rounded shadow" style="background-color: var(--color-fondo); min-height: 100vh;">
 
-            <h2 class="mb-4 text-center" style="color: var(--color-texto-principal);">Entrega de Activos</h2>
+          <h2 class="mb-4 text-center text-primary">
+  <i class="bi bi-box-arrow-in-down me-2"></i>Entrega de Activos
+</h2>
 
             <input type="hidden" id="entrega_id" value="{{ $entrega->id_entrega ?? '' }}">
 
@@ -513,44 +515,42 @@ $('#btnRegistrarEntrega').on('click', function(e) {
 
     if (!confirm('¿Está seguro que desea finalizar y registrar esta entrega?')) return;
 
-    $.ajax({
-        url: `${baseUrl}/entregas/${idEntrega}/finalizar`,
-        method: 'POST',
-        data: {
-            _token: $('meta[name="csrf-token"]').attr('content'),
-        },
-        dataType: 'json',
+   let textoOriginal = $btn.html();
 
-        beforeSend: function() {
-            // Deshabilitar botón y mostrar spinner
-            $btn.prop('disabled', true)
-                .html('<i class="bi bi-arrow-repeat spin"></i> Guardando...');
-        },
+$.ajax({
+    url: `${baseUrl}/entregas/${idEntrega}/finalizar`,
+    method: 'POST',
+    data: {
+        _token: $('meta[name="csrf-token"]').attr('content'),
+    },
+    dataType: 'json',
 
-        success: function(response) {
-            if (response.success) {
-                mensaje(response.message, 'success');
-                cargarDetalleEntrega(idEntrega);
-                cargarTablaActivos(idEntrega);
-            } else {
-                mensaje(response.message || 'No se pudo finalizar el entrega.', 'danger');
-            }
-        },
+    beforeSend: function() {
+        $btn.prop('disabled', true)
+            .html('<i class="bi bi-arrow-repeat spin"></i> Guardando...');
+    },
 
-        error: function(xhr) {
-            let msg = 'Ocurrió un error inesperado al finalizar el entrega.';
-            if (xhr.responseJSON && xhr.responseJSON.message) {
-                msg = xhr.responseJSON.message;
-            }
-            mensaje(msg, 'danger');
-        },
+    success: function(response) {
+        if (response.success) {
+            mensaje(response.message, 'success');
+            cargarDetalleEntrega(idEntrega);
+            cargarTablaActivos(idEntrega);
 
-        complete: function() {
-            // Reactivar botón
             $btn.prop('disabled', false)
                 .html('<i class="bi bi-check-circle"></i> Entrega finalizada');
+        } else {
+            mensaje(response.message || 'No se pudo finalizar la entrega.', 'danger');
+            $btn.prop('disabled', false).html(textoOriginal);
         }
-    });
+    },
+
+    error: function(xhr) {
+        let msg = xhr.responseJSON?.message || 'Ocurrió un error inesperado al finalizar la entrega.';
+        mensaje(msg, 'danger');
+        $btn.prop('disabled', false).html(textoOriginal);
+    }
+});
+
 });
 
 

@@ -110,7 +110,7 @@ Route::post('/activo/{id}/update', [ActivoController::class, 'update'])->name('a
     // // Route::get('/entregas/activos', [EntregaController::class, 'obtenerActivosPorEntrega'])->name('entregas.activos');
     // Route::get('actas/buscar/{tipo}/{numero}/{gestion}', [EntregaController::class, 'buscarActaPorTipo']);
     // Route::post('/entregas/detalles/store', [EntregaController::class, 'storeDetalles']);
-
+    
     // Route::get('/getDocto', [EntregaController::class, 'getDocto']);
     // Route::get('/entregas/{entregaId}/activos', [EntregaController::class, 'activosDeEntrega'])->name('activos.deEntrega');
     // Route::post('/entregas/guardar-activos', [EntregaController::class, 'guardarActivos'])->name('activos.guardarPorEntrega');
@@ -248,3 +248,7 @@ Route::post('/entregas/{id}/finalizar', [EntregaController::class, 'finalizarEnt
 
 
 Route::get('/prueba', [TrasladoController::class, 'prueba'])->name('pruebas');
+// Route::get('/prueba', [ActivoController::class, 'historial'])->name('pruebas');
+
+Route::get('/activo/historial', [ActivoController::class, 'historial'])->name('activos.historial');
+Route::get('/activo/filtrarHistorial', [ActivoController::class, 'filtrarHistorial'])->name('activos.filtrarHistorial');

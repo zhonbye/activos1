@@ -17,27 +17,21 @@
                 <td>{{ $detalle->activo->detalle }}</td>
                 <td>{{ $detalle->activo->estado->nombre ?? 'N/D' }}</td>
                 <td>{{ $detalle->activo->unidad->nombre ?? 'N/D' }}</td>
-
-
-                <td>
+                {{-- <td class="d-flex justify-content-end  gap-2"> --}}
+                <td >
                     <button type="button" class="btn btn-danger btn-sm btn-eliminar-activo"
                         data-id-activo="{{ $detalle->id_activo }}" data-id-devolucion="{{ $detalle->id_devolucion }}">
                         <i class="bi bi-trash"></i>
                     </button>
-
                     <button type="button" class="btn btn-sm btn-secondary btn-comentar">
                         <i class="bi bi-chat-dots"></i>
                       </button>
-
-
                     <input type="hidden" class="comentario-activo" value="{{ $detalle->observaciones }}">
-                  
-
                 </td>
             </tr>
         @empty
             <tr id="fila_vacia">
-                <td colspan="8" class="text-center text-muted">No hay activos</td>
+                <td colspan="6" class="text-center text-muted">No hay activos</td>
             </tr>
         @endforelse
     </tbody>

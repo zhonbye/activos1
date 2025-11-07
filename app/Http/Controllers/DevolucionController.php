@@ -15,6 +15,7 @@ use App\Models\Traslado;
 use App\Models\Unidad;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class DevolucionController extends Controller
@@ -44,6 +45,137 @@ class DevolucionController extends Controller
     // Retornar vista con variables
     return view('user.devolucion.parcial_nuevo', compact('servicios', 'gestionActual', 'numeroDisponible'));
 }
+public function guardarDevolucion(Request $request, $id)
+{
+    $devolucion = Devolucion::find($id);
+
+    if (!$devolucion) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Devolución no encontrada.'
+        ], 404);
+    }
+
+    if ($devolucion->estado === 'finalizado') {
+        return response()->json([
+            'success' => false,
+            'message' => 'Esta devolución ya fue finalizada.'
+        ], 422);
+    }
+
+    // Buscar servicio destino (ACTIVOS FIJOS)
+    $servicioDestino = Servicio::whereRaw('LOWER(nombre) = ?', ['activos fijos'])->first();
+
+    if (!$servicioDestino) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No se encontró el servicio responsable de recepción: "ACTIVOS FIJOS".'
+        ], 422);
+    }
+
+    // Inventario destino (ACTIVOS FIJOS)
+    $inventarioDestino = Inventario::where('id_servicio', $servicioDestino->id_servicio)
+        ->where('gestion', $devolucion->gestion)
+        ->where('estado', 'vigente')
+        ->orderBy('created_at', 'desc')
+        ->first();
+
+    if (!$inventarioDestino) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No existe inventario vigente en ACTIVOS FIJOS para la gestión actual.'
+        ], 422);
+    }
+
+    // Inventario origen
+    $inventarioOrigen = Inventario::where('id_servicio', $devolucion->id_servicio)
+        ->where('gestion', $devolucion->gestion)
+        ->where('estado', 'vigente')
+        ->orderBy('created_at', 'desc')
+        ->first();
+// dd($devolucion->id_servicio);
+    if (!$inventarioOrigen) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No existe inventario vigente para el servicio origen en la gestión actual.'
+        ], 422);
+    }
+
+    // Obtener detalle de la devolución
+   $detalles = DetalleDevolucion::with(['activo' => function($q) {
+    $q->select('id_activo', 'codigo');
+}])->where('id_devolucion', $id)->get();
+
+
+    if ($detalles->isEmpty()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No hay activos registrados en esta devolución.'
+        ], 422);
+    }
+
+    DB::beginTransaction();
+
+    try {
+        foreach ($detalles as $detalle) {
+            $idActivo = $detalle->id_activo;
+
+            // Obtener el activo desde origen
+            $detalleOrigen = DetalleInventario::where('id_inventario', $inventarioOrigen->id_inventario)
+                ->where('id_activo', $idActivo)
+                ->first();
+
+            if (!$detalleOrigen) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => "El activo  {$detalle->activo->codigo} no se encuentra en el inventario de origen."
+                ], 422);
+            }
+
+            // Guardar estado antes de mover
+            $estadoAnterior = $detalleOrigen->estado_actual;
+
+            // Eliminar del inventario de origen
+            $detalleOrigen->delete();
+
+            // Verificar si ya existe en destino
+            $detalleDestino = DetalleInventario::where('id_inventario', $inventarioDestino->id_inventario)
+                ->where('id_activo', $idActivo)
+                ->first();
+
+            if (!$detalleDestino) {
+                DetalleInventario::create([
+                    'id_inventario' => $inventarioDestino->id_inventario,
+                    'id_activo' => $idActivo,
+                    'estado_actual' => $estadoAnterior,
+                    'observaciones' => $detalle->observaciones ?? '',
+                ]);
+            }
+        }
+
+        // Marcar devolución como finalizada
+        $devolucion->estado = 'finalizado';
+        $devolucion->updated_at = now();
+        $devolucion->save();
+
+        DB::commit();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Devolución procesada correctamente. Los activos fueron enviados a ACTIVOS FIJOS.',
+            'data' => ['id_devolucion' => $devolucion->id_devolucion]
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al procesar la devolución: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
 
 public function limpiarActivos($id)
 {

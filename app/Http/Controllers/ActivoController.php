@@ -6,6 +6,7 @@ use App\Models\Activo;
 use App\Models\Adquisicion;
 use App\Models\Categoria;
 use App\Models\Compra;
+use App\Models\DetalleBaja;
 use App\Models\DetalleDevolucion;
 use App\Models\DetalleEntrega;
 use App\Models\DetalleTraslado;
@@ -27,9 +28,130 @@ class ActivoController extends Controller
     /**
      * Display a listing of the resource.
      */
+public function historial() {
+        return view('user.activos.historial'); // solo carga la vista y filtros
+    }
+
+public function filtrarHistorial(Request $request) {
+    $activoFiltro = $request->activo;
+    $tipoFiltro = $request->tipo;
+    $servicioOrigen = $request->servicio_origen;
+    $servicioDestino = $request->servicio_destino;
+    $fechaInicio = $request->fecha_inicio;
+    $fechaFin = $request->fecha_fin;
+
+    $historial = collect();
+
+    // Entregas
+    $entregas = DetalleEntrega::with(['activo', 'entrega.responsable', 'entrega.servicio'])
+        ->when($activoFiltro, fn($q) => $q->whereHas('activo', fn($q2) => 
+            $q2->where('nombre', 'like', "%$activoFiltro%")->orWhere('codigo', 'like', "%$activoFiltro%")
+        ))
+        ->when($fechaInicio, fn($q) => $q->whereHas('entrega', fn($q2) => $q2->where('fecha', '>=', $fechaInicio)))
+        ->when($fechaFin, fn($q) => $q->whereHas('entrega', fn($q2) => $q2->where('fecha', '<=', $fechaFin)))
+        ->get()
+        ->map(fn($d) => [
+            'fecha' => $d->entrega->fecha,
+            'codigo' => $d->activo->codigo,
+            'activo' => $d->activo->nombre,
+            'tipo_movimiento' => 'entrega',
+            'origen' => $d->entrega->servicio->nombre ?? '',
+            'destino' => '',
+            'usuario' => $d->entrega->responsable->nombre ?? '',
+            'observaciones' => $d->observaciones,
+            'id' => $d->entrega->id_entrega
+        ]);
+
+    // Traslados
+    $traslados = DetalleTraslado::with(['activo', 'traslado.servicioOrigen', 'traslado.servicioDestino', 'traslado.usuario'])
+        ->when($activoFiltro, fn($q) => $q->whereHas('activo', fn($q2) => 
+            $q2->where('nombre', 'like', "%$activoFiltro%")->orWhere('codigo', 'like', "%$activoFiltro%")
+        ))
+        ->when($fechaInicio, fn($q) => $q->whereHas('traslado', fn($q2) => $q2->where('fecha', '>=', $fechaInicio)))
+        ->when($fechaFin, fn($q) => $q->whereHas('traslado', fn($q2) => $q2->where('fecha', '<=', $fechaFin)))
+        ->get()
+        ->map(fn($d) => [
+            'fecha' => $d->traslado->fecha,
+            'codigo' => $d->activo->codigo,
+            'activo' => $d->activo->nombre,
+            'tipo_movimiento' => 'traslado',
+            'origen' => $d->traslado->servicioOrigen->nombre ?? '',
+            'destino' => $d->traslado->servicioDestino->nombre ?? '',
+            'usuario' => $d->traslado->usuario->name ?? '',
+            'observaciones' => $d->observaciones,
+            'id' => $d->traslado->id_traslado
+        ]);
+
+    // Devoluciones
+    $devoluciones = DetalleDevolucion::with(['activo', 'devolucion.servicio', 'devolucion.usuario'])
+        ->when($activoFiltro, fn($q) => $q->whereHas('activo', fn($q2) => 
+            $q2->where('nombre', 'like', "%$activoFiltro%")->orWhere('codigo', 'like', "%$activoFiltro%")
+        ))
+        ->when($fechaInicio, fn($q) => $q->whereHas('devolucion', fn($q2) => $q2->where('fecha', '>=', $fechaInicio)))
+        ->when($fechaFin, fn($q) => $q->whereHas('devolucion', fn($q2) => $q2->where('fecha', '<=', $fechaFin)))
+        ->get()
+        ->map(fn($d) => [
+            'fecha' => $d->devolucion->fecha,
+            'codigo' => $d->activo->codigo,
+            'activo' => $d->activo->nombre,
+            'tipo_movimiento' => 'devolución',
+            'origen' => '',
+            'destino' => $d->devolucion->servicio->nombre ?? '',
+            'usuario' => $d->devolucion->usuario->name ?? '',
+            'observaciones' => $d->observaciones,
+            'id' => $d->devolucion->id_devolucion
+        ]);
+
+    // Bajas
+    $bajas = DetalleBaja::with(['activo', 'baja.usuario'])
+        ->when($activoFiltro, fn($q) => $q->whereHas('activo', fn($q2) => 
+            $q2->where('nombre', 'like', "%$activoFiltro%")->orWhere('codigo', 'like', "%$activoFiltro%")
+        ))
+        ->when($fechaInicio, fn($q) => $q->whereHas('baja', fn($q2) => $q2->where('fecha', '>=', $fechaInicio)))
+        ->when($fechaFin, fn($q) => $q->whereHas('baja', fn($q2) => $q2->where('fecha', '<=', $fechaFin)))
+        ->get()
+        ->map(fn($d) => [
+            'fecha' => $d->baja->fecha,
+            'codigo' => $d->activo->codigo,
+            'activo' => $d->activo->nombre,
+            'tipo_movimiento' => 'baja',
+            'origen' => '',
+            'destino' => '',
+            'usuario' => $d->baja->usuario->name ?? '',
+            'observaciones' => $d->observaciones,
+            'id' => $d->baja->id_baja
+        ]);
+
+    // Mezclamos todo y ordenamos por fecha descendente
+    $historial = $entregas->merge($traslados)->merge($devoluciones)->merge($bajas)
+        ->sortByDesc('fecha');
+
+    // Retornamos la vista parcial con los datos filtrados
+    return view('user.activos.parcial_historial', compact('historial'));
+}
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
 
     public function update(Request $request, $id)
 {

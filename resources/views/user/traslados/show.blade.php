@@ -165,7 +165,9 @@
     <div class="main-col col-md-12 col-lg-10 order-lg-1 order-1 mb-4 p-1 transition" style="max-height: 95vh;">
         <div class="card p-4 rounded shadow" style="background-color: var(--color-fondo); min-height: 100vh;">
 
-            <h2 class="mb-4 text-center" style="color: var(--color-texto-principal);">Traslado de Activos</h2>
+<h2 class="mb-4 text-center text-primary">
+  <i class="bi bi-arrow-left-right me-2"></i>Traslado de Activos
+</h2>
 
             <input type="hidden" id="traslado_id" value="{{ $traslado->id_traslado ?? '' }}">
 
@@ -302,8 +304,8 @@
             if (status === "error") {
                 $contenedor.html('<p>Error al cargar los activos.</p>');
             }
-            controlarBotones($('#estado_traslado').data('estado-traslado'));
         });
+            controlarBotones($('#estado_traslado').data('estado-traslado'));
 
 
         $('#traslado_id').val(traslado_id);
@@ -337,7 +339,8 @@
                 if (inventarioCargado) {
                     $("#modalInventario").removeClass('constante')
                 }
-                // controlarBotones($('#estado_traslado').data('estado-traslado'));
+                
+                controlarBotones($('#estado_traslado').data('estado-traslado'));
 
             },
             error: function(xhr) {
@@ -483,7 +486,7 @@ const texto = $btn.html()
         },
 
         complete: function() {
-            // Reactivar botón
+            $btn.prop('disabled', false)
         }
     });
 });
