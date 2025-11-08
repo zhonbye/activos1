@@ -50,126 +50,458 @@
 
 
 
+{{-- 
+
+<!-- 🧩 Modal de filtros -->
+<div class="modal fade" id="modalFiltros" tabindex="-1" aria-labelledby="modalFiltrosLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" style="background-color: var(--color-fondo); color: var(--color-texto-principal);">
+
+            <!-- Header -->
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" id="modalFiltrosLabel"><i class="bi bi-funnel-fill me-2"></i>Filtros de
+                    búsqueda</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body pt-0">
+
+                <form id="formFiltrosActivos" action="{{ route('activos.filtrar') }}" method="GET">
+
+                    <!-- 🧾 Sección 1: Identificación -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold border-bottom pb-1 mb-3"><i class="bi bi-upc-scan me-1"></i> Identificación
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="filtro_codigo" class="form-label">Código</label>
+                                <input type="text" id="filtro_codigo" name="codigo" class="form-control"
+                                    placeholder="Ej: AMD-003">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="filtro_nombre" class="form-label">Nombre</label>
+                                <input type="text" id="filtro_nombre" name="nombre" class="form-control"
+                                    placeholder="Nombre del activo">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="filtro_detalle" class="form-label">Detalle</label>
+                                <input type="text" id="filtro_detalle" name="detalle" class="form-control"
+                                    placeholder="Palabras clave">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 🏷 Clasificación -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold border-bottom pb-1 mb-3"><i class="bi bi-tags-fill me-1"></i> Clasificación
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="filtro_categoria" class="form-label">Categoría</label>
+                                <select id="filtro_categoria" name="categoria" class="form-select">
+                                    <option value="all" selected>Todos</option>
+                                    @foreach ($categorias as $categoria)
+                                        <option value="{{ $categoria->id_categoria }}">{{ $categoria->nombre }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="filtro_unidad" class="form-label">Unidad de Medida</label>
+                                <select id="filtro_unidad" name="unidad" class="form-select">
+                                    <option value="all" selected>Todos</option>
+                                    @foreach ($unidades as $unidad)
+                                        <option value="{{ $unidad->id_unidad }}">{{ $unidad->nombre }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ⚙️ Estado y orden -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold border-bottom pb-1 mb-3"><i class="bi bi-gear-wide-connected me-1"></i>
+                            Estado y Orden</h6>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="filtro_estado" class="form-label">Estado físico</label>
+                               <select id="filtro_estado" name="estado" class="form-select">
+    <option value="all" selected>Todos</option>
+    @foreach ($estados as $estado)
+        <option value="{{ $estado->id_estado }}">{{ $estado->nombre }}</option>
+    @endforeach
+</select>
+
+                            </div>
+                            <div class="col-md-4">
+                                <label for="ordenar_por" class="form-label">Ordenar por</label>
+                                <select id="ordenar_por" name="ordenar_por" class="form-select">
+                                    <option value="created_at" selected>Fecha de creación</option>
+                                    <option value="codigo">Código</option>
+                                    <option value="nombre">Nombre</option>
+                                    <option value="detalle">Detalle</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="direccion" class="form-label">Dirección</label>
+                                <select id="direccion" name="direccion" class="form-select">
+                                    <option value="desc" selected>Descendente</option>
+                                    <option value="asc">Ascendente</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 📅 Rango de fechas -->
+                    <div>
+                        <button type="button" class="btn btn-outline-primary w-100 mb-3" id="toggleFechas">
+                            <i class="bi bi-calendar3"></i> Mostrar / Ocultar rango de fechas
+                        </button>
+
+                        <div id="rangoFechas" class="d-none">
+                            <label class="form-label fw-bold mb-2">Rango de fechas</label>
+                            <div class="row g-3 mb-3">
+
+                                <!-- Fecha Inicio -->
+                                <div class="col-12 col-md-6">
+                                    <label for="fecha_inicio" class="form-label small text-muted">Fecha Inicio</label>
+                                    <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control"
+                                        value="2017-01-01">
+
+                                    <!-- Slider para inicio -->
+                                    <input type="range" id="slider_start" value="0" min="0"
+                                        max="100" step="1" class="form-range mt-1">
+                                </div>
+
+                                <!-- Fecha Fin -->
+                                <div class="col-12 col-md-6">
+                                    <label for="fecha_fin" class="form-label small text-muted">Fecha Fin</label>
+                                    <input type="date" id="fecha_fin" name="fecha_fin" class="form-control"
+                                        value="{{ date('Y-m-d') }}">
+
+                                    <!-- Slider para fin -->
+                                    <input type="range" id="slider_end" value="100" min="0"
+                                        max="100" step="1" class="form-range mt-1">
+                                </div>
 
 
 
+                                {{-- <!-- Fecha Inicio --> <div class="col-12 col-md-6"> <label for="fecha_inicio" class="form-label small text-muted">Fecha Inicio</label> <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control" value="2017-01-01"> <!-- Slider para fecha_inicio --> <input type="range" id="slider_start" value="0" min="0" max="100" step="1" class="form-range mt-1"> </div> <!-- Fecha Fin --> <div class="col-12 col-md-6"> <label for="fecha_fin" class="form-label small text-muted">Fecha Fin</label> <input type="date" id="fecha_fin" name="fecha_fin" class="form-control" value="{{ date('Y-m-d') }}"> <!-- Slider para fecha_fin --> <input type="range" id="slider_end" value="100" min="0" max="100" step="1" class="form-range mt-1"> </div> </div> 
+                            </div>
+                        </div>
+                    </div>
 
 
+                </form>
+            </div>
 
+            <!-- Footer -->
+            <div class="modal-footer border-0">
+                <button type="reset" form="formFiltrosActivos" id="btnLimpiarActivos" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Limpiar
+                </button>
+                <button type="submit" form="formFiltrosActivos" class="btn btn-primary">
+                    <i class="bi bi-search"></i> Aplicar filtros
+                </button>
+            </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="container py-4">
-    <div class="main-col col-md-12 col-lg-12 mb-4 p-1">
-      <div class="card p-4 rounded shadow" style="min-height: 100vh;">
-
-        <!-- Título -->
-        <h2 class="mb-4 text-center text-primary">
-          <i class="bi bi-box-seam me-2"></i>Lista de Activos
-        </h2>
-
-        <!-- Aquí van tus botones principales -->
-        <div class="d-flex justify-content-end mb-3 gap-2">
-          <button class="btn btn-success btn-sm">
-            <i class="bi bi-plus-lg me-1"></i> Nuevo Activo
-          </button>
-          <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalFiltros">
-            <i class="bi bi-funnel-fill me-1"></i> Filtrar
-          </button>
-          <button class="btn btn-azul btn-sm">
-            <i class="bi bi-printer-fill me-1"></i> Imprimir
-          </button>
         </div>
+    </div>
+</div> --}}
 
-        <!-- Card de filtros (mantener tal como lo tienes) -->
-        <div class="card card-filtro mb-4 shadow-sm">
-          <div class="row g-3">
-            <!-- Inputs de filtro tal como los tienes -->
-            <div class="col-md-3">
-              <label class="form-label fw-semibold"><i class="bi bi-search me-1"></i>Buscar activo</label>
-              <input type="text" id="filtroActivo" class="form-control form-control-sm" placeholder="Nombre o código">
+
+<!-- 🧩 Modal de filtros -->
+<div class="modal fade" id="modalFiltros" tabindex="-1" aria-labelledby="modalFiltrosLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" style="background-color: #fdfdfd; color: #212529; border-radius: 12px;">
+
+            <!-- Header -->
+            <div class="modal-header border-0 bg-primary bg-opacity-10">
+                <h5 class="modal-title fw-bold" id="modalFiltrosLabel">
+                    <i class="bi bi-funnel-fill me-2"></i>Filtros de búsqueda
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
-            <div class="col-md-2">
-              <label class="form-label fw-semibold">Tipo de activo</label>
-              <select id="filtroTipo" class="form-select form-select-sm">
-                <option value="">Todos</option>
-                <option value="hardware">Hardware</option>
-                <option value="software">Software</option>
-                <option value="mobiliario">Mobiliario</option>
-              </select>
+
+            <!-- Body -->
+            <div class="modal-body pt-3">
+
+                <form id="formFiltrosActivos" action="{{ route('activos.filtrar') }}" method="GET">
+
+                    <!-- 🧾 Sección 1: Identificación -->
+                    <div class="mb-4 p-3 rounded" style="background-color: #e9f2ff;">
+                        <h6 class="fw-bold border-bottom pb-1 mb-3">
+                            <i class="bi bi-upc-scan me-1"></i> Identificación
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="filtro_codigo" class="form-label">Código</label>
+                                <input type="text" id="filtro_codigo" name="codigo" class="form-control" placeholder="Ej: AMD-003">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="filtro_nombre" class="form-label">Nombre</label>
+                                <input type="text" id="filtro_nombre" name="nombre" class="form-control" placeholder="Nombre del activo">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="filtro_detalle" class="form-label">Detalle</label>
+                                <input type="text" id="filtro_detalle" name="detalle" class="form-control" placeholder="Palabras clave">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 🏷 Clasificación -->
+                    {{-- <div class="mb-4 p-3 rounded" style="background-color: #f0f7e8;"> --}}
+                    <div class="mb-4 p-3 rounded" style="background-color: #b9c8e7ab;">
+                        <h6 class="fw-bold border-bottom pb-1 mb-3">
+                            <i class="bi bi-tags-fill me-1"></i> Clasificación
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="filtro_categoria" class="form-label">Categoría</label>
+                                <select id="filtro_categoria" name="categoria" class="form-select">
+                                    <option value="all" selected>Todos</option>
+                                    @foreach ($categorias as $categoria)
+                                        <option value="{{ $categoria->id_categoria }}">{{ $categoria->nombre }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="filtro_unidad" class="form-label">Unidad de Medida</label>
+                                <select id="filtro_unidad" name="unidad" class="form-select">
+                                    <option value="all" selected>Todos</option>
+                                    @foreach ($unidades as $unidad)
+                                        <option value="{{ $unidad->id_unidad }}">{{ $unidad->nombre }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ⚙️ Estado y orden -->
+                    {{-- <div class="mb-4 p-3 rounded" style="background-color: #fff3e6;"> --}}
+                    <div class="mb-4 p-3 rounded" style="background-color: #ecb3b34f;">
+                        <h6 class="fw-bold border-bottom pb-1 mb-3">
+                            <i class="bi bi-gear-wide-connected me-1"></i> Estado y Orden
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="filtro_estado" class="form-label">Estado físico</label>
+                                <select id="filtro_estado" name="estado" class="form-select">
+                                    <option value="all" selected>Todos</option>
+                                    @foreach ($estados as $estado)
+                                        <option value="{{ $estado->id_estado }}">{{ $estado->nombre }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="ordenar_por" class="form-label">Ordenar por</label>
+                                <select id="ordenar_por" name="ordenar_por" class="form-select">
+                                    <option value="created_at" selected>Fecha de creación</option>
+                                    <option value="codigo">Código</option>
+                                    <option value="nombre">Nombre</option>
+                                    <option value="detalle">Detalle</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="direccion" class="form-label">Dirección</label>
+                                <select id="direccion" name="direccion" class="form-select">
+                                    <option value="desc" selected>Descendente</option>
+                                    <option value="asc">Ascendente</option>
+                                </select>
+                            </div>
+
+                            <!-- 🔹 Nuevo input: Estado Situacional -->
+                            <div class="col-md-4 mt-3">
+                                <label for="estado_situacional" class="form-label">Estado Situacional</label>
+                                <select id="estado_situacional" name="estado_situacional" class="form-select">
+                                    <option value="all" selected>Todos</option>
+                                    <option value="activo">Activo</option>
+                                    <option value="inactivo">Inactivo</option>
+                                    <option value="baja">De Baja</option>
+                                </select>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- 📅 Rango de fechas -->
+                    <div class="mb-3 p-3 rounded" style="background-color: #f5f5f5;">
+                        <button type="button" class="btn btn-outline-primary w-100 mb-3" id="toggleFechas">
+                            <i class="bi bi-calendar3"></i> Mostrar / Ocultar rango de fechas
+                        </button>
+
+                        <div id="rangoFechas" class="d-none">
+                            <label class="form-label fw-bold mb-2">Rango de fechas</label>
+                            <div class="row g-3 mb-3">
+
+                                <!-- Fecha Inicio -->
+                                <div class="col-12 col-md-6">
+                                    <label for="fecha_inicio" class="form-label small text-muted">Fecha Inicio</label>
+                                    <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control" value="2017-01-01">
+                                    <input type="range" id="slider_start" value="0" min="0" max="100" step="1" class="form-range mt-1">
+                                </div>
+
+                                <!-- Fecha Fin -->
+                                <div class="col-12 col-md-6">
+                                    <label for="fecha_fin" class="form-label small text-muted">Fecha Fin</label>
+                                    <input type="date" id="fecha_fin" name="fecha_fin" class="form-control" value="{{ date('Y-m-d') }}">
+                                    <input type="range" id="slider_end" value="100" min="0" max="100" step="1" class="form-range mt-1">
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
             </div>
-            <div class="col-md-2">
-              <label class="form-label fw-semibold">Unidad/Servicio</label>
-              <select id="filtroServicioOrigen" class="form-select form-select-sm">
-                <option value="">Todos</option>
-                <option value="ti">TI</option>
-                <option value="auditorio">Auditorio</option>
-              </select>
+
+            <!-- Footer -->
+            <div class="modal-footer border-0">
+                <button type="reset" form="formFiltrosActivos" id="btnLimpiarActivos" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Limpiar
+                </button>
+                <button type="submit" form="formFiltrosActivos" class="btn btn-primary">
+                    <i class="bi bi-search"></i> Aplicar filtros
+                </button>
             </div>
-            <div class="col-md-2">
-              <label class="form-label fw-semibold">Estado</label>
-              <select id="filtroServicioDestino" class="form-select form-select-sm">
-                <option value="">Todos</option>
-                <option value="nuevo">Nuevo</option>
-                <option value="usado">Usado</option>
-                <option value="baja">Baja</option>
-              </select>
-            </div>
-            <div class="col-md-3 d-flex gap-2">
-              <div class="flex-fill">
-                <label class="form-label fw-semibold">Desde</label>
-                <input type="date" id="fechaInicio" class="form-control form-control-sm">
-              </div>
-              <div class="flex-fill">
-                <label class="form-label fw-semibold">Hasta</label>
-                <input type="date" id="fechaFin" class="form-control form-control-sm">
-              </div>
-            </div>
-            <div class="col-12">
-              <button class="btn btn-azul btn-sm btn-filtro" id="btnFiltrar">
-                <i class="bi bi-funnel-fill me-1"></i> Aplicar filtros
-              </button>
-            </div>
-          </div>
+
         </div>
+    </div>
+</div>
 
-        <!-- Aquí va tu tabla de activos -->
-        <div class="table-responsive shadow-sm">
-          <table class="table table-bordered align-middle">
-            <thead>
-              <tr>
-                <th>Código</th>
-                <th>Nombre</th>
-                <th>Detalle</th>
-                <th>Categoría</th>
-                <th>Unidad/Servicio</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="tablaActivos">
-              <tr>
-                <td colspan="7" class="text-center">No hay activos registrados</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
 
+
+<!-- Modal Registrar Activo -->
+<div class="modal fade" id="modalRegistrarActivo" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content" style="background-color: var(--color-fondo); color: var(--color-texto-principal);">
+
+      <!-- Header -->
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-box-seam me-1"></i> Registrar Activo</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
+      
+
+      <!-- Body (incluye Blade de Laravel) -->
+      <div class="modal-body">
+        @include('user.activos.registrar')
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="submit" form="form_activo" class="btn btn-success">
+          <i class="bi bi-check2-circle me-1"></i> Guardar Activo
+        </button>
+      </div>
+
     </div>
   </div>
+</div>
+
+
+
+
+
+
+
+
+<div class="row  bg-info0 pb-4 justify-content-center" style="height: 90vh;min-height: 30vh;max-height:94vh">
+    {{-- <div class="main-col col-md-12 col-lg-10 bg-danger order-lg-1 order-1 mb-4 p-1 transition"
+         style="position: relative;height: 100%; min-height: 40vh; max-height:100vh display: flex; flex-direction: column; "> --}}
+        <div class="main-col col-md-12 col-lg-11 bg-danger0 order-lg-1 order-1 mb-4 p-1 transition"
+     style="position: relative; height: 80vh; min-height: 40vh; max-height: 80vh; display: flex; flex-direction: column; overflow: visible;">
+
+        {{-- <div class="card p-4 rounded shadow" style="background-color: var(--color-fondo); display: flex; flex-direction: column; height: 100%;"> --}}
+            {{-- <div class="card p-4 rounded shadow"
+     style="background-color: var(--color-fondo);  display: flex; flex-direction: column; min-height 100vh;height: 100vh;"> --}}
+     <div class="card p-4 rounded shadow"
+     style="position: relative;  background-color: var(--color-fondo); display: flex; flex-direction: column; flex: 1 1 auto;">
+
+
+            <!-- Título -->
+            <h2 class="mb-4 text-center text-primary">
+                <i class="bi bi-box-seam me-2"></i>Lista de Activos
+            </h2>
+
+            <!-- Botones principales -->
+            <div class="d-flex justify-content-end mb-3 gap-2">
+                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalRegistrarActivo">
+                    <i class="bi bi-plus-lg me-1"></i> Nuevo Activo
+                </button>
+                {{-- <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalRegistrarActivo">
+    <i class="bi bi-plus-lg me-1"></i> Registrar Activo
+</button> --}}
+                <button class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#modalFiltros">
+                    <i class="bi bi-funnel-fill me-1"></i> Filtrar
+                </button>
+                <button class="desactivado btn btn-azul btn-sm">
+                    <i class="bi bi-printer-fill me-1"></i> Imprimir
+                </button>
+            </div>
+
+            <!-- Card de acciones (buscar, importar, exportar, bajas) -->
+            <div class="card mb-4 shadow-sm">
+                <div class="row g-3 p-3">
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold"><i class="bi bi-search me-1"></i>Buscar activo</label>
+                        <input type="text" id="buscarActivo" class="form-control form-control-sm" placeholder="Nombre, código o detalle ">
+                    </div>
+                    <div class="col-md-1"></div>
+
+                    <div class="col-md-2 d-flex align-items-end">
+                        
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button class="desactivado btn btn-success btn-sm w-100" id="btnImportarExcel"><i class="bi bi-file-earmark-arrow-up me-1"></i> Importar Excel</button>
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button class="desactivado btn btn-light btn-sm w-100" id="btnExportarExcel"><i class="bi bi-file-earmark-arrow-down me-1"></i> Exportar Excel</button>
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button class="desactivado btn btn-dark btn-sm w-100" id="btnVerBajas"><i class="bi bi-archive me-1"></i> Ver bajas</button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Contenedor de resultados -->
+            {{-- <div id="contenedorResultados" 
+                 class="bg-secondary rounded bg-opacity-10 flex-grow-1"
+                 style="overflow-y: auto; padding: 15px;"> --}}
+        <div id="contenedorResultados" 
+     class="d-flex flex-column bg- rounded shadow p-3 bg-info0 p-3"
+     style="height: 60vh; max-height: 80vh; ">
+                <!-- Aquí van los resultados -->
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function() {
+    $('#buscarActivo').on('keyup', function() {
+        let valor = $(this).val().toLowerCase();
+
+        $('#contenedorResultados table tbody tr').filter(function() {
+            // Buscamos en Código, Nombre y Detalle
+            $(this).toggle(
+                $(this).find('td:eq(0)').text().toLowerCase().indexOf(valor) > -1 || 
+                $(this).find('td:eq(1)').text().toLowerCase().indexOf(valor) > -1 ||
+                $(this).find('td:eq(2)').text().toLowerCase().indexOf(valor) > -1
+            );
+        });
+    });
+});
+
+</script>
 
 
 
@@ -209,9 +541,6 @@
 
 
 
-
-
-<div class="row  p-0 mb-4 pb-4 " style="height: 90vh;">
 
 
 
@@ -236,148 +565,29 @@
     {{-- <div class="row g-3" style="min-height: 95vh;"> --}}
 
     <!-- Columna filtros (más ancha) -->
-  <!-- Botones principales fuera del modal -->
-<!-- 🔘 Botones principales fuera del modal -->
+    <!-- Botones principales fuera del modal -->
+    <!-- 🔘 Botones principales fuera del modal -->
 
-<div class="d-flex justify-content-end align-items-center mb-3">
-    <!-- Botón cuadrado para abrir modal -->
-    <button type="button" class="btn btn-outline-primary me-1"
-            data-bs-toggle="modal" data-bs-target="#modalFiltros" title="Agregar filtros">
-        <i class="bi bi-plus-lg"></i>
-    </button>
+    {{-- <div class="d-flex justify-content-end align-items-center mb-3">
+        <!-- Botón cuadrado para abrir modal -->
+        <button type="button" class="btn btn-outline-primary me-1" data-bs-toggle="modal"
+            data-bs-target="#modalFiltros" title="Agregar filtros">
+            <i class="bi bi-plus-lg"></i>
+        </button>
 
-    <!-- Botón Filtrar -->
-    <button type="submit" form="formFiltrosActivos" class="btn btn-primary">
-        <i class="bi bi-funnel me-1"></i> Filtrar
-    </button>
-</div>
-
-
+        <!-- Botón Filtrar -->
+        <button type="submit" form="formFiltrosActivos" class="btn btn-primary">
+            <i class="bi bi-funnel me-1"></i> Filtrar
+        </button>
+    </div> --}}
 
 
 
-<!-- 🧩 Modal de filtros -->
-<div class="modal fade" id="modalFiltros" tabindex="-1" aria-labelledby="modalFiltrosLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content" style="background-color: var(--color-fondo); color: var(--color-texto-principal);">
-
-            <!-- Header -->
-            <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold" id="modalFiltrosLabel">🔍 Filtros de búsqueda</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-
-            <!-- Body -->
-            <div class="modal-body pt-0">
-                <form id="formFiltrosActivos" action="{{ route('activos.filtrar') }}" method="GET">
-
-                    <!-- 🗂 Sección 1: Identificación -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold border-bottom pb-1 mb-3">🧾 Filtros por identificación</h6>
-                        <div class="row g-3">
-                            <div class="col-md-4">
-                                <label for="filtro_codigo" class="form-label">Código</label>
-                                <input type="text" id="filtro_codigo" name="codigo" class="form-control" placeholder="Ej: AMD-003">
-                            </div>
-                            <div class="col-md-4">
-                                <label for="filtro_nombre" class="form-label">Nombre</label>
-                                <input type="text" id="filtro_nombre" name="nombre" class="form-control" placeholder="Nombre del activo">
-                            </div>
-                            <div class="col-md-4">
-                                <label for="filtro_detalle" class="form-label">Detalle</label>
-                                <input type="text" id="filtro_detalle" name="detalle" class="form-control" placeholder="Palabras clave">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 🏷 Sección 2: Clasificación -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold border-bottom pb-1 mb-3">🏷 Filtros por clasificación</h6>
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="filtro_categoria" class="form-label">Categoría</label>
-                                <select id="filtro_categoria" name="categoria" class="form-select">
-                                    <option value="all" selected>Todos</option>
-                                    @foreach ($categorias as $categoria)
-                                        <option value="{{ $categoria->id_categoria }}">{{ $categoria->nombre }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="filtro_unidad" class="form-label">Unidad/Servicio</label>
-                                <select id="filtro_unidad" name="unidad" class="form-select">
-                                    <option value="all" selected>Todos</option>
-                                    @foreach ($unidades as $unidad)
-                                        <option value="{{ $unidad->id_unidad }}">{{ $unidad->nombre }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ⚙️ Sección 3: Estado y orden -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold border-bottom pb-1 mb-3">⚙️ Estado y orden</h6>
-                        <div class="row g-3">
-                            <div class="col-md-4">
-                                <label for="filtro_estado" class="form-label">Estado</label>
-                                <select id="filtro_estado" name="estado" class="form-select">
-                                    <option value="all" selected>Todos</option>
-                                    <option value="nuevo">Nuevo</option>
-                                    <option value="usado">Usado</option>
-                                    <option value="mal_estado">Mal estado</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="ordenar_por" class="form-label">Ordenar por</label>
-                                <select id="ordenar_por" name="ordenar_por" class="form-select">
-                                    <option value="created_at" selected>Fecha de creación</option>
-                                    <option value="codigo">Código</option>
-                                    <option value="nombre">Nombre</option>
-                                    <option value="detalle">Detalle</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="direccion" class="form-label">Dirección</label>
-                                <select id="direccion" name="direccion" class="form-select">
-                                    <option value="desc" selected>Descendente</option>
-                                    <option value="asc">Ascendente</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 📅 Sección 4: Fechas -->
-                    <div>
-                        <h6 class="fw-bold border-bottom pb-1 mb-3">📅 Filtro por fechas</h6>
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="fecha_inicio" class="form-label">Fecha inicio</label>
-                                <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control" value="2017-01-01">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="fecha_fin" class="form-label">Fecha fin</label>
-                                <input type="date" id="fecha_fin" name="fecha_fin" class="form-control" value="{{ date('Y-m-d') }}">
-                            </div>
-                        </div>
-                    </div>
-
-                </form>
-            </div>
-
-            <!-- Footer -->
-            <div class="modal-footer border-0">
-                <button type="reset" form="formFiltrosActivos" id="btnLimpiarActivos" class="btn btn-secondary">
-                    <i class="bi bi-x-circle"></i> Limpiar filtros
-                </button>
-                <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cerrar</button>
-            </div>
-
-        </div>
-    </div>
-</div>
 
 
+
+
+    {{-- 
 
     <!-- Columna principal vacía (más grande) -->
     <div class="col-12 col-lg-9">
@@ -385,17 +595,16 @@
 
             {{-- <div class="col-12 col-lg-9 h-100">
                 <div class="card p-4 rounded shadow d-flex flex-column" --}}
-            {{-- style="height: 90vh; background-color: var(--color-fondo); border: 2px dashed var(--color-texto-principal);"> --}}
+    {{-- style="height: 90vh; background-color: var(--color-fondo); border: 2px dashed var(--color-texto-principal);"> --}}
 
-            <h3 class="text-center text-muted mb-3">Lista de activos </h3>
+    {{-- <h3 class="text-center text-muted mb-3">Lista de activos </h3>
 
             <div id="contenedorResultados" class="d-flex flex-column flex-grow-1 bg-secondary rounded bg-opacity-10">
                 {{-- Aquí se cargará el contenido dinámico por AJAX --}}
-                {{-- @include('user.inventario.parcial', ['inventarios' => $inventarios]) --}}
+    {{-- @include('user.inventario.parcial', ['inventarios' => $inventarios]) 
             </div>
         </div>
-    </div>
-
+    </div> --}}
 
     {{-- </div> --}}
     {{-- </div> --}}

@@ -216,10 +216,21 @@
     </div>
     <div class="col-auto">
         <nav class="sidebar">
-            <header>
-                <span class="text text-center mx-4 fs-5 fw-bold ">Usuario</span>
-                <i class="bi fs-2  bi-caret-left toggle" aria-label="Alternar menú"></i>
-            </header>
+            {{-- <header class="px-3 py-2 d-flex align-items-center font-black justify-content-between bg-light text-white rounded-3">
+    <span class="fs-5 fw-bold">Gestión de Activos Fijos</span>
+    <i class="bi fs-2 bi-caret-left toggle" aria-label="Alternar menú"></i>
+</header> --}}
+<header class="px-3 pt-3 d-flex align-items-center justify-content-between bg- text-white rounded-3 shadow-sm">
+    <!-- Icono o logo opcional -->
+    <div class="d-flex align-items-center p-2 text-truncate overflow-hidden text-dark">
+        <i class="bi bi-building fs-3 me-2"></i> <!-- Ícono representativo, por ejemplo hospital/edificio -->
+        <span class="   fs-5 fw-bold">Gestión de  <br> Activos Fijos</span>
+    </div >
+
+    <!-- Toggle menú -->
+    <i class="bi fs-2 bi-caret-left toggle" aria-label="Alternar menú"></i>
+</header>
+<hr>
 
             <ul class="menu" role="menubar">
 
@@ -232,6 +243,16 @@
 
 
 
+<li class="nav-item" style="max-width: 180px;">
+    <a href="{{ route('user.panel') }}" role="menuitem" class="cargar nav-link d-flex align-items-center py-2 px-3">
+        <i class="bi bi-speedometer2 me-2 fs-5"></i>
+        <span class="fw-semibold text-truncate overflow-hidden">Dashboard</span>
+    </a>
+</li>
+<br>
+<br>
+<br>
+<hr>
 
 
 
@@ -240,6 +261,7 @@
                 <!-- ====================== -->
                 <!-- MÓDULO: ACTIVOS FIJOS -->
                 <!-- ====================== -->
+              
                 <li class="menu-item" data-submenu="submenuActivos" role="btn">
                     <div class="main-item bg-success bg-opacity-10" tabindex="0" role="menuitem" aria-haspopup="true"
                         aria-expanded="false" aria-controls="submenuActivos">
@@ -251,8 +273,7 @@
                         <li><a href="{{ route('activos.index') }}" role="menuitem" class="cargar" id="primario">Listar
                                 Activos</a></li>
                         <li><a href="{{ route('activos.create') }}" role="menuitem" class="cargar">Registrar Activo</a></li>
-                        <li><a href="#" class="desactivado" role="menuitem">Buscar Activo</a></li>
-                        <li><a href="{{ route('bajas.create') }}" role="menuitem" class="cargar">Dar de Baja Activo</a></li>
+                         <li><a href="{{ route('bajas.create') }}" role="menuitem" class="cargar">Dar de Baja Activo</a></li>
                         <li><a href="{{ route('activos.historial') }}" role="menuitem" class="cargar">Historial de
                                 activo</a></li>
 
@@ -382,8 +403,7 @@
 
 
         <div id="contenido" class="bg-dansger flex-grow-1 p-4 m-0 ">
-            <h2>Panel de Usuario</h2>
-            <p>Selecciona una opción del menú para comenzar hh.</p>
+        @include('user.panelControl')    
         </div>
     </div>
 
@@ -398,17 +418,28 @@
         $(document).ready(function() {
             if (rutaGuardada) {
                 const enlace = $(`.menu a[href='${rutaGuardada}']`);
-                if (enlace.length) {
-                    cargarContenido(rutaGuardada);
-                    const submenu = enlace.closest('.submenu');
-                    if (submenu) {
-                        const parent = $(submenu).closest('.menu-item');
-                        parent.find('.main-item').attr('aria-expanded', 'true');
-                        $(submenu).slideDown(200); // o agrega tu clase .show si la usas
-                    }
-                } else {
-                    mensaje('La ruta guardada no se encontró en el menú.', 'danger');
-                }
+               if (enlace.length) {
+    // Subimos hasta el menu-item
+    const menuItem = enlace.closest('.menu-item');
+
+    if (menuItem.length) {
+        // Buscar el .main-item dentro del menu-item
+        const mainItem = menuItem.find('.main-item').first();
+
+        // Simular el "clic" para que se abra el submenu
+        if (mainItem.length) {
+            mainItem.trigger('click');
+        }
+           // Añadir clase selected al enlace encontrado
+    enlace.addClass('selected');
+    }
+
+    // Luego cargar el contenido normalmente
+    cargarContenido(rutaGuardada);
+} else {
+    mensaje('La ruta guardada no se encontró en el menú.', 'danger');
+}
+
             }
 
             function buscarEnlace(texto) {

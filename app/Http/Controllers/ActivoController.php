@@ -166,7 +166,12 @@ public function filtrarHistorial(Request $request) {
         'id_categoria' => 'required|exists:categorias,id_categoria',
         'id_unidad' => 'required|exists:unidades,id_unidad',
         'id_estado' => 'required|exists:estados,id_estado',
-        'fecha' => 'nullable|date',
+        'fecha' => [
+        'nullable',
+        'date',
+        'after_or_equal:2017-01-01',
+        'before_or_equal:' . date('Y-m-d'),
+    ],
         'comentarios' => 'nullable|string|max:100',
         'sin_datos' => 'nullable|boolean',
         'tipo_adquisicion' => 'nullable|string|in:compra,donacion,otro',
@@ -198,7 +203,9 @@ public function filtrarHistorial(Request $request) {
         'id_unidad.exists' => 'La unidad de medida seleccionada no existe.',
         'id_estado.required' => 'Debe seleccionar un estado.',
         'id_estado.exists' => 'El estado seleccionado no existe.',
-        'fecha.date' => 'La fecha no es válida.',
+        'fecha.date' => 'El valor ingresado no es una fecha válida.',
+    'fecha.after_or_equal' => 'La fecha no puede ser anterior al 01/01/2017.',
+    'fecha.before_or_equal' => 'La fecha no puede ser futura.',
         'precio_compra.required' => 'El precio de compra es obligatorio.',
         'precio_compra.numeric' => 'El precio de compra debe ser un número válido.',
         'precio_compra.min' => 'El precio de compra debe ser mínimo 0.',
@@ -333,15 +340,28 @@ public function filtrarHistorial(Request $request) {
 }
 
 
-   public function index()
-{
-    $activos = Activo::activos()->with(['unidad','estado','categoria'])->paginate(20);
-    $categorias = Categoria::all();
-    $unidades = Unidad::all();
-    sleep(2);
+    public function index()
+    {
+        $request = new \Illuminate\Http\Request();
 
-    return view('user.activos.listar', compact('activos','categorias','unidades'));
-}
+    // Llamar a la función sin código base
+    $resultado = $this->obtenerSiguienteCodigo($request);
+
+    // $resultado es un JsonResponse, puedes hacer:
+    $json = $resultado->getData();
+    $siguienteCodigo = $json->siguiente_codigo;//
+        $activos = Activo::activos()->with(['unidad','estado','categoria'])->paginate(2);
+        $categorias = Categoria::all();
+        $unidades = Unidad::all();
+        // sleep(2);
+        $estados = Estado::all();
+            // $categorias = Categoria::all();
+            // $unidadesmed = Unidad::all();
+            $proveedores = Proveedor::all();  // o el query que uses
+            $donantes = Donante::all();
+
+        return view('user.activos.listar', compact( 'siguienteCodigo','activos','categorias','unidades','estados','proveedores','donantes'));
+    }
 
 
 public function detalle($id)
@@ -371,7 +391,7 @@ public function filtrar(Request $request)
 
     // Filtros existentes
     if ($request->filled('codigo')) {
-        $query->where('codigo', $request->codigo);
+        $query->where('codigo','like', "%{$request->codigo}%");
     }
     if ($request->filled('nombre')) {
         $query->where('nombre', 'like', "%{$request->nombre}%");
@@ -388,6 +408,9 @@ public function filtrar(Request $request)
     if ($request->filled('estado') && $request->estado != 'all') {
         $query->where('id_estado', $request->estado);
     }
+    if ($request->filled('estado_situacional') && $request->estado_situacional != 'all') {
+        $query->where('estado_situacional', $request->estado_situacional);
+    }
 
     // Fecha de creación (rango)
     if ($request->filled('fecha_inicio') && $request->filled('fecha_fin')) {
@@ -402,7 +425,7 @@ public function filtrar(Request $request)
     $query->orderBy($ordenarPor, $direccion);
 
     // Paginación
-    $activos = $query->paginate(20)->withQueryString();
+    $activos = $query->paginate(10)->withQueryString();
 
     return view('user.activos.parcial', compact('activos'))->render();
 }
@@ -413,14 +436,23 @@ public function filtrar(Request $request)
      */
     public function create()
     {
-        //
+           $request = new \Illuminate\Http\Request();
+
+    // Llamar a la función sin código base
+    $resultado = $this->obtenerSiguienteCodigo($request);
+
+    // $resultado es un JsonResponse, puedes hacer:
+    $json = $resultado->getData();
+    $siguienteCodigo = $json->siguiente_codigo;//
+
+// dd($siguienteCodigo);
         $estados = Estado::all();
         $categorias = Categoria::all();
-        $unidadesmed = Unidad::all();
+        $unidades = Unidad::all();
         $proveedores = Proveedor::all();  // o el query que uses
         $donantes = Donante::all();
 
-        return view('user.activos.registrar', compact('estados', 'categorias', 'unidadesmed', 'proveedores', 'donantes'));
+        return view('user.activos.registrar', compact('siguienteCodigo','estados', 'categorias', 'unidades', 'proveedores', 'donantes'));
     }
 
 
@@ -428,12 +460,34 @@ public function filtrar(Request $request)
     {
         $codigoBase = $request->input('codigo_base');
 
+        // if (!$codigoBase) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'No se envió código base'
+        //     ]);
+        // }
         if (!$codigoBase) {
+        // Si no se pasa código, buscamos el último código activo en la tabla
+        $ultimoCodigo = Activo::where('estado_situacional', 'activo')
+            ->orderBy('id_activo', 'desc')
+            ->pluck('codigo')
+            ->first();
+
+        if (!$ultimoCodigo) {
+            // Si no hay ningún activo, empezamos con AMD-001 por ejemplo
+            $prefijo = 'AMD-';
+            $longitudNumero = 3;
+            $siguienteNumero = 1;
+            $siguienteCodigo = $prefijo . str_pad($siguienteNumero, $longitudNumero, '0', STR_PAD_LEFT);
+
             return response()->json([
-                'success' => false,
-                'message' => 'No se envió código base'
+                'success' => true,
+                'siguiente_codigo' => $siguienteCodigo
             ]);
         }
+
+        $codigoBase = $ultimoCodigo;
+    }
 
         // Separar prefijo (letras + guiones) y número al final
         if (!preg_match('/^(.*?)(\d+)$/', $codigoBase, $matches)) {
@@ -533,7 +587,13 @@ public function filtrar(Request $request)
             'id_categoria' => 'required|exists:categorias,id_categoria',
             'id_unidad' => 'required|exists:unidades,id_unidad',
             'id_estado' => 'required|exists:estados,id_estado',
-            'fecha' => 'nullable|date',
+           'fecha' => [
+    'nullable',
+    'date',
+    'after_or_equal:2017-01-01', // no menor que 2017
+    'before_or_equal:' . date('Y-m-d'), // no futura
+],
+
             'comentarios' => 'nullable|string|max:500',
             'sin_datos' => 'nullable|boolean',
             'tipo_adquisicion' => 'nullable|string|in:compra,donacion',
@@ -567,7 +627,9 @@ public function filtrar(Request $request)
             'id_unidad.exists' => 'La unidad de medida seleccionada no existe.',
             'id_estado.required' => 'Debe seleccionar un estado.',
             'id_estado.exists' => 'El estado seleccionado no existe.',
-            'fecha.date' => 'La fecha no es válida.',
+           'fecha.date' => 'El valor ingresado no es una fecha válida.',
+    'fecha.after_or_equal' => 'La fecha no puede ser anterior al 01/01/2017.',
+    'fecha.before_or_equal' => 'La fecha no puede ser futura.',
             'precio_compra.required' => 'El precio de compra es obligatorio.',
             'precio_compra.numeric' => 'El precio de compra debe ser un número válido.',
             'precio_compra.min' => 'El precio de compra debe ser mínimo 0.',

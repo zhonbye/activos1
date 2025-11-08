@@ -246,7 +246,9 @@ Route::post('/entregas/{id}/finalizar', [EntregaController::class, 'finalizarEnt
 
 
 
-
+Route::get('/panel-usuario', function () {
+    return view('user.panelControl');
+})->name('user.panel');
 Route::get('/prueba', [TrasladoController::class, 'prueba'])->name('pruebas');
 // Route::get('/prueba', [ActivoController::class, 'historial'])->name('pruebas');
 
