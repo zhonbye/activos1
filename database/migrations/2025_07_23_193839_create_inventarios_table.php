@@ -28,32 +28,47 @@ return new class extends Migration
             $table->foreign('id_servicio')->references('id_servicio')->on('servicios')->onDelete('cascade');
         });
 
-        DB::table('inventarios')->insert([[
-            'numero_documento' => '001',
-            'gestion' => 2025,
-            'fecha' => now(),
-            'id_usuario' => 1,
-            'id_responsable' => 1,
-            'id_servicio' => 1,
-            'observaciones' => 'Inventario inicial de prueba',
-            'estado' => 'pendiente',
-            'url' => '',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ],
-        [
-            'numero_documento' => '002',
+        DB::table('inventarios')->insert([
+            [
+                'numero_documento' => '001',
+                'gestion' => 2025,
+                'fecha' => now(),
+                'id_usuario' => 1,
+                'id_responsable' => 1,
+                'id_servicio' => 1,
+                'observaciones' => 'Inventario absoluto para el area de activos fijos',
+                'estado' => 'vigente',
+                'url' => '',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+            'numero_documento' => '0021',
             'gestion' => 2025,
             'fecha' => now(),
             'id_usuario' => 1,
             'id_responsable' => 2,
             'id_servicio' => 2,
-            'observaciones' => 'Inventario inicial de prueba',
-            'estado' => 'pendiente',
+            'observaciones' => 'Inventario inicial de soporte tecnico',
+            'estado' => 'vigente',
             'url' => '',
             'created_at' => now(),
             'updated_at' => now(),
-        ]]);
+        ],
+        [
+            'numero_documento' => '003',
+            'gestion' => 2025,
+            'fecha' => now(),
+            'id_usuario' => 1,
+            'id_responsable' => 3,
+            'id_servicio' => 3,
+            'observaciones' => 'Inventario inicial de atencion al cliente',
+            'estado' => 'vigente',
+            'url' => '',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]
+    ]);
     }
 
     public function down(): void

@@ -13,7 +13,6 @@ return new class extends Migration
             $table->id('id_detalle_entrega');
             $table->unsignedBigInteger('id_entrega');
             $table->unsignedBigInteger('id_activo');
-            $table->integer('cantidad')->default(1);
             $table->text('observaciones')->nullable();
             $table->timestamps();
 
@@ -24,7 +23,6 @@ return new class extends Migration
         DB::table('detalle_entregas')->insert([
             'id_entrega' => 1,
             'id_activo' => 1,
-            'cantidad' => 2,
             'observaciones' => 'Detalle entrega inicial',
             'created_at' => now(),
             'updated_at' => now(),

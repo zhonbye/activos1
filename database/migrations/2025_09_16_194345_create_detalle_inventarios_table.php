@@ -14,7 +14,6 @@ return new class extends Migration
             $table->unsignedBigInteger('id_inventario');
             $table->unsignedBigInteger('id_activo');
             $table->string('estado_actual');
-            $table->integer('cantidad')->default(1);
            $table->string('observaciones', 100)->nullable();
 
             $table->timestamps();
@@ -27,7 +26,6 @@ return new class extends Migration
             'id_inventario' => 1,
             'id_activo' => 1,
             'estado_actual' => 'nuevo',
-            'cantidad' => 1,
             'observaciones' => 'Detalle inventario inicial',
             'created_at' => now(),
             'updated_at' => now(),

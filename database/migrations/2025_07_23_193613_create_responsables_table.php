@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('nombre', 100);
             $table->string('ci', 30)->unique();
             $table->string('telefono', 30)->nullable();
-            
+
             $table->unsignedBigInteger('id_cargo');
             $table->string('rol', 50)->default('personal operativo')->nullable();
             $table->foreign('id_cargo')->references('id_cargo')->on('cargos')->onDelete('restrict')->onUpdate('cascade');
@@ -28,9 +28,9 @@ return new class extends Migration
        DB::table('responsables')->insert([
     // Personal operativo
     [
-        'nombre' => 'Juan Pérez',
-        'ci' => '12345678',
-        'telefono' => '555-1234',
+        'nombre' => 'Divar Guiterrez',
+        'ci' => '7435345678',
+        'telefono' => '73718313',
         'rol' => 'personal operativo',
         'id_cargo' => 1,  // Doctor por ejemplo
         'created_at' => now(),
@@ -39,7 +39,7 @@ return new class extends Migration
     [
         'nombre' => 'María Gómez',
         'ci' => '87654321',
-        'telefono' => '555-4321',
+        'telefono' => '74392142',
         'rol' => 'personal operativo',
         'id_cargo' => 2, // Licenciada por ejemplo
         'created_at' => now(),

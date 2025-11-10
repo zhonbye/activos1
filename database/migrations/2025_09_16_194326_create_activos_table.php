@@ -14,8 +14,7 @@ return new class extends Migration
             $table->string('codigo');
             $table->string('nombre');
             $table->text('detalle')->nullable();
-            $table->integer('cantidad')->default(1);
-            $table->string('estado_situacional')->default('activo');
+            $table->string('estado_situacional')->default('inactivo');
             // Definir columnas FK como unsignedBigInteger porque las PK referenciadas lo son
             $table->unsignedBigInteger('id_categoria');
             $table->unsignedBigInteger('id_unidad');
@@ -33,10 +32,9 @@ return new class extends Migration
 
         DB::table('activos')->insert([
             [
-                'codigo' => 'A-001',
+                'codigo' => 'AMd-EMG-001',
                 'nombre' => 'Laptop Dell',
                 'detalle' => 'Laptop para oficina',
-                'cantidad' => 1,
                 'estado_situacional' => 'activo',
                 'id_categoria' => 1,
                 'id_unidad' => 1,

@@ -30,14 +30,14 @@ class EntregaController extends Controller
 
 //  public function show($id = null)
 // {
-    
+
 //     return view('user.entrega.show', compact('entrega'));
 // }
 
 public function show($id = null)
 {
     $servicios = Servicio::all(); // trae todos los servicios con id_responsable
-    $categorias = Categoria::all(); 
+    $categorias = Categoria::all();
     $numeroSiguiente = $this->generarNumeroDocumento('2025');
         if ($id) {
         // Si se envía el id, buscamos esa entrega
@@ -134,7 +134,6 @@ public function finalizarEntrega($id)
         foreach ($detallesEntrega as $detalle) {
              $activo = $detalle->activo; // relación cargada
     $idActivo = $detalle->id_activo;
-    $cantidad = $detalle->cantidad;
     $observaciones = $detalle->observaciones ?? '';
     // $idEstado = $activo ? $activo->id_estado : null;
      $nombreEstado = $activo && $activo->estado ? $activo->estado->nombre : 'desconocido';
@@ -146,7 +145,6 @@ public function finalizarEntrega($id)
         ->first();
 
     if ($detalleInventario) {
-        $detalleInventario->cantidad += $cantidad;
         $detalleInventario->observaciones = $observaciones;
         $detalleInventario->estado_actual = $nombreEstado;
         $detalleInventario->save();
@@ -154,7 +152,6 @@ public function finalizarEntrega($id)
         DetalleInventario::create([
             'id_inventario' => $inventarioDestino->id_inventario,
             'id_activo' => $idActivo,
-            'cantidad' => $cantidad,
             'observaciones' => $observaciones,
             'estado_actual' => $nombreEstado,
         ]);
@@ -388,7 +385,6 @@ public function agregarActivo(Request $request, $idEntrega)
         $detalle = DetalleEntrega::create([
             'id_entrega' => $idEntrega,
             'id_activo' => $activo->id_activo,
-            'cantidad' => 1,
             'observaciones' => $request->observaciones ?? ''
         ]);
 
@@ -433,7 +429,7 @@ public function tablaActivos($id)
             $detalle->setAttribute('detalle', $activo->detalle ?? '');
             $detalle->setAttribute('estado', $activo->estado->nombre ?? 'N/D');
             $detalle->setAttribute('unidad', $activo->unidad->nombre ?? '');
-            
+
             // Opcional: actas en general, si quieres mostrar en botones
             $detalle->setAttribute('actas_info', DetalleEntrega::where('id_activo', $detalle->id_activo)
                 ->with('entrega')
@@ -530,7 +526,7 @@ public function buscarActivos(Request $request)
                 ->toArray();
 
             // 🔹 Determinar si el activo está en la entrega actual
-            $enEntregaActual = $idEntregaActual 
+            $enEntregaActual = $idEntregaActual
                 ? collect($actas)->contains('id', $idEntregaActual)
                 : false;
 
@@ -1456,11 +1452,11 @@ $numerosExistentes = Entrega::where('gestion', $gestion)
     /**
      * Show the form for editing the specified resource.
      */
- 
+
     /**
      * Update the specified resource in storage.
 
-    
+
      * Remove the specified resource from storage.
      */
     public function destroy(Entrega $entrega)

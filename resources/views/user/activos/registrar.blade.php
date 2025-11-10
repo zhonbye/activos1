@@ -1,164 +1,170 @@
 <div class="main-col col-md-12 order-lg-1 order-1 mb-4 p-1 transition" style="max-height: 50vh;">
+    <form method="POST" id="form_activo" action="{{ route('activos.store') }}">
+        @csrf
+        <input type="hidden" id="acta_id" name="acta_id" value="">
+        <input type="hidden" id="tipo_acta_oculto" name="tipo_acta" value="">
 
-    {{-- <div class="card  p-4 rounded shadow" style="background-color: var(--color-fondo); min-height: 100vh;"> --}}
-        {{-- <h2 class="mb-4 text-center" style="color: var(--color-texto-principal);">Registro de Activo</h2> --}}
+        <!-- Sección 1: Datos del Activo -->
+        <div class="row g-3 mb-4 p-3 rounded" style="background-color: #f0f4f8;">
+            <h5 class="mb-3 fw-bold"><i class="bi bi-box-seam me-2"></i>Datos del Activo</h5>
 
-        {{-- <div id="alerta_estado_finalizado" class="alert alert-danger d-none text-center fw-bold" role="alert">
-            ❌ Esta acta ya fue finalizada y no puedes agregar mas activos.
-        </div> --}}
-     <form method="POST" id="form_activo" action="{{ route('activos.store') }}">
-    @csrf
-    <input type="hidden" id="acta_id" name="acta_id" value="">
-    <input type="hidden" id="tipo_acta_oculto" name="tipo_acta" value="">
+            <div class="col-md-6 col-lg-4">
+                <label for="codigo" class="form-label">Código</label>
+                <div class="input-group">
+                    <input type="text" class="form-control input-form" name="codigo" id="codigo"
+                        placeholder="Ej: AMD-EMG-001" value="{{ $siguienteCodigo }}" required>
+                    <button class="btn btn-outline-primary" type="button" id="buscarCodigoBtn">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
 
-    <!-- Sección 1: Datos del Activo -->
-    <div class="row g-3 mb-4 p-3 rounded" style="background-color: #f0f4f8;">
-        <h5 class="mb-3 fw-bold"><i class="bi bi-box-seam me-2"></i>Datos del Activo</h5>
+            <div class="col-md-6 col-lg-4">
+                <label for="nombre" class="form-label">Nombre</label>
+                <input type="text" class="form-control input-form" name="nombre" id="nombre" required
+                    placeholder="Ej: Sofá">
+            </div>
 
-        <div class="col-md-6 col-lg-4">
-            <label for="codigo" class="form-label">Código</label>
-            <div class="input-group">
-                <input type="text" class="form-control input-form" name="codigo" id="codigo"
-                    placeholder="Ej: AMD-EMG-001" value="{{ $siguienteCodigo }}" required>
-                <button class="btn btn-outline-primary" type="button" id="buscarCodigoBtn">
-                    <i class="bi bi-search"></i>
-                </button>
+            <div class="col-md-6 col-lg-4">
+                <label for="detalle" class="form-label">Detalle</label>
+                <input type="text" class="form-control input-form" name="detalle" id="detalle" required
+                    placeholder="Ej: Color café">
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <label for="id_categoria" class="form-label">Categoría</label>
+                <select class="form-select input-form" name="id_categoria" id="id_categoria" required>
+                    <option value="" disabled selected>Seleccione una categoría</option>
+                    @foreach ($categorias as $categoria)
+                        <option value="{{ $categoria->id_categoria }}">{{ $categoria->nombre }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <label for="id_unidad" class="form-label">Unidad de Medida</label>
+                <select class="form-select input-form" name="id_unidad" id="id_unidad" required>
+                    <option value="" disabled selected>Seleccione unidad</option>
+                    @foreach ($unidades as $unidad)
+                        <option value="{{ $unidad->id_unidad }}">{{ $unidad->nombre }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <label for="id_estado" class="form-label">Estado</label>
+                <select class="form-select input-form" name="id_estado" id="id_estado" required>
+                    <option value="" disabled selected>Seleccione estado</option>
+                    @foreach ($estados as $estado)
+                        <option value="{{ $estado->id_estado }}"
+                            {{ strtolower($estado->nombre) === 'nuevo' ? 'selected' : '' }}>
+                            {{ $estado->nombre }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
         </div>
 
-        <div class="col-md-6 col-lg-4">
-            <label for="nombre" class="form-label">Nombre</label>
-            <input type="text" class="form-control input-form" name="nombre" id="nombre" required placeholder="Ej: Sofá">
-        </div>
+        <!-- Sección 2: Información de Adquisición -->
+        <div class="row g-3 mb-4 p-3 rounded" style="background-color: #f7f7f7;">
+            <h5 class="mb-3 fw-bold"><i class="bi bi-credit-card-2-front me-2"></i>Información de Adquisición</h5>
 
-        <div class="col-md-6 col-lg-4">
-            <label for="detalle" class="form-label">Detalle</label>
-            <input type="text" class="form-control input-form" name="detalle" id="detalle" required placeholder="Ej: Color café">
-        </div>
+            <div class="col-md-4">
+                <label for="fecha" class="form-label">Fecha</label>
+                <input type="date" class="form-control input-form" name="fecha" id="fecha" required>
+            </div>
 
-        <div class="col-md-6 col-lg-3">
-            <label for="id_categoria" class="form-label">Categoría</label>
-            <select class="form-select input-form" name="id_categoria" id="id_categoria" required>
-                <option value="" disabled selected>Seleccione una categoría</option>
-                @foreach ($categorias as $categoria)
-                    <option value="{{ $categoria->id_categoria }}">{{ $categoria->nombre }}</option>
-                @endforeach
-            </select>
-        </div>
+            <div class="col-md-8">
+                <label for="comentarios" class="form-label">Comentarios</label>
+                <input type="text" class="form-control input-form" name="comentarios" id="comentarios"
+                    placeholder="Ej: Compra realizada en almacén central">
+            </div>
 
-        <div class="col-md-6 col-lg-3">
-            <label for="id_unidad" class="form-label">Unidad de Medida</label>
-            <select class="form-select input-form" name="id_unidad" id="id_unidad" required>
-                <option value="" disabled selected>Seleccione unidad</option>
-                @foreach ($unidades as $unidad)
-                    <option value="{{ $unidad->id_unidad }}">{{ $unidad->nombre }}</option>
-                @endforeach
-            </select>
-        </div>
+            <div class="col-md-12">
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" id="sin_datos_checkbox" name="sin_datos"
+                        value="1" {{ old('sin_datos') ? 'checked' : '' }}>
+                    <label class="form-check-label" for="sin_datos_checkbox">
+                        No tengo los datos necesarios
+                    </label>
+                </div>
+            </div>
 
-        <div class="col-md-6 col-lg-3">
-            <label for="id_estado" class="form-label">Estado</label>
-            <select class="form-select input-form" name="id_estado" id="id_estado" required>
-                <option value="" disabled selected>Seleccione estado</option>
-                @foreach ($estados as $estado)
-                    <option value="{{ $estado->id_estado }}" {{ (strtolower($estado->nombre) === 'nuevo') ? 'selected' : '' }}>
-                        {{ $estado->nombre }}
+            <div class="col-md-4" id="tipo_adquisicion_seccion">
+                <label for="tipo_adquisicion" class="form-label">Tipo de Adquisición</label>
+                <select class="form-select input-form" id="tipo_adquisicion" name="tipo_adquisicion" required>
+                    <option value="" disabled {{ old('tipo_adquisicion') ? '' : 'selected' }}>Seleccione tipo
                     </option>
-                @endforeach
-            </select>
-        </div>
-    </div>
-
-    <!-- Sección 2: Información de Adquisición -->
-    <div class="row g-3 mb-4 p-3 rounded" style="background-color: #f7f7f7;">
-        <h5 class="mb-3 fw-bold"><i class="bi bi-credit-card-2-front me-2"></i>Información de Adquisición</h5>
-
-        <div class="col-md-4">
-            <label for="fecha" class="form-label">Fecha</label>
-            <input type="date" class="form-control input-form" name="fecha" id="fecha">
-        </div>
-
-        <div class="col-md-8">
-            <label for="comentarios" class="form-label">Comentarios</label>
-            <input type="text" class="form-control input-form" name="comentarios" id="comentarios"
-                placeholder="Ej: Compra realizada en almacén central">
-        </div>
-
-        <div class="col-md-12">
-            <div class="form-check mt-2">
-                <input class="form-check-input" type="checkbox" id="sin_datos_checkbox" name="sin_datos" value="1"
-                    {{ old('sin_datos') ? 'checked' : '' }}>
-                <label class="form-check-label" for="sin_datos_checkbox">
-                    No tengo los datos necesarios
-                </label>
-            </div>
-        </div>
-
-        <div class="col-md-4" id="tipo_adquisicion_seccion">
-            <label for="tipo_adquisicion" class="form-label">Tipo de Adquisición</label>
-            <select class="form-select input-form" id="tipo_adquisicion" name="tipo_adquisicion">
-                <option value="" disabled {{ old('tipo_adquisicion') ? '' : 'selected' }}>Seleccione tipo</option>
-                <option value="compra" {{ old('tipo_adquisicion') == 'compra' ? 'selected' : '' }}>Compra</option>
-                <option value="donacion" {{ old('tipo_adquisicion') == 'donacion' ? 'selected' : '' }}>Donación</option>
-            </select>
-        </div>
-    </div>
-
-    <!-- Sección 3: Compra -->
-    <div class="row g-3 mb-4 p-3 rounded" id="form_compra" style="display: none; background-color: #eef7f1;">
-        <h6 class="mb-3 fw-bold"><i class="bi bi-bag-check me-2"></i>Datos de la Compra</h6>
-
-        <div class="col-md-6">
-            <label for="id_proveedor" class="form-label">Proveedor</label>
-            <div class="input-group">
-                <select class="form-select input-form" name="id_proveedor" id="id_proveedor">
-                    <option value="" disabled selected>Seleccione proveedor</option>
-                    @foreach ($proveedores as $proveedor)
-                        <option value="{{ $proveedor->id_proveedor }}">{{ $proveedor->nombre }}</option>
-                    @endforeach
+                    <option value="compra" {{ old('tipo_adquisicion') == 'compra' ? 'selected' : '' }}>Compra</option>
+                    <option value="donacion" {{ old('tipo_adquisicion') == 'donacion' ? 'selected' : '' }}>Donación
+                    </option>
                 </select>
-                <button class="btn btn-outline-secondary" type="button">Agregar</button>
             </div>
         </div>
 
-        <div class="col-md-6">
-            <label for="precio_compra" class="form-label">Precio</label>
-            <input type="number" class="form-control input-form" name="precio_compra" id="precio_compra"
-                step="0.01" placeholder="Ej: 2500.00">
-        </div>
-    </div>
+        <!-- Sección 3: Compra -->
+        <div class="row g-3 mb-4 p-3 rounded" id="form_compra" style="display: none; background-color: #eef7f1;">
+            <h6 class="mb-3 fw-bold"><i class="bi bi-bag-check me-2"></i>Datos de la Compra</h6>
 
-    <!-- Sección 4: Donación -->
-    <div class="row g-3 mb-4 p-3 rounded" id="form_donacion" style="display: none; background-color: #fff4e6;">
-        <h6 class="mb-3 fw-bold"><i class="bi bi-gift me-2"></i>Datos de la Donación</h6>
-
-        <div class="col-md-6">
-            <label for="id_donante" class="form-label">Donante</label>
-            <div class="input-group">
-                <select class="form-select input-form" name="id_donante" id="id_donante">
-                    <option value="" disabled selected>Seleccione donante</option>
-                    @foreach ($donantes as $donante)
-                        <option value="{{ $donante->id_donante }}">{{ $donante->nombre }}</option>
-                    @endforeach
-                </select>
-                <button class="btn btn-outline-secondary" type="button">Agregar</button>
+            <div class="col-md-6">
+                <label for="id_proveedor" class="form-label">Proveedor</label>
+                <div class="input-group">
+                    <select class="form-select input-form" name="id_proveedor" id="id_proveedor">
+                        <option value="" disabled selected>Seleccione proveedor</option>
+                        @foreach ($proveedores as $proveedor)
+                            <option value="{{ $proveedor->id_proveedor }}">{{ $proveedor->nombre }}</option>
+                        @endforeach
+                    </select>
+                    <button class="btn btn-outline-secondary" type="button">Agregar</button>
+                </div>
             </div>
+
+            <div class="col-md-6">
+                <label for="precio_compra" class="form-label">Precio de Compra</label>
+                <div class="input-group">
+                    <span class="input-group-text">Bs.</span>
+                    <input type="number" class="form-control input-form" name="precio_compra" id="precio_compra"
+                        step="0.01" placeholder="Ej: 2,500.00">
+                </div>
+            </div>
+
         </div>
 
-        <div class="col-md-3">
-            <label for="motivo" class="form-label">Motivo</label>
-            <input type="text" class="form-control input-form" name="motivo" id="motivo"
-                placeholder="Ej: Donación empresa XYZ">
+        <!-- Sección 4: Donación -->
+        <div class="row g-3 mb-4 p-3 rounded" id="form_donacion" style="display: none; background-color: #fff4e6;">
+            <h6 class="mb-3 fw-bold"><i class="bi bi-gift me-2"></i>Datos de la Donación</h6>
+
+            <div class="col-md-6">
+                <label for="id_donante" class="form-label">Donante</label>
+                <div class="input-group">
+                    <select class="form-select input-form" name="id_donante" id="id_donante">
+                        <option value="" disabled selected>Seleccione donante</option>
+                        @foreach ($donantes as $donante)
+                            <option value="{{ $donante->id_donante }}">{{ $donante->nombre }}</option>
+                        @endforeach
+                    </select>
+                    <button class="btn btn-outline-secondary" type="button">Agregar</button>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <label for="motivo" class="form-label">Motivo</label>
+                <input type="text" class="form-control input-form" name="motivo" id="motivo"
+                    placeholder="Ej: Donación empresa XYZ">
+            </div>
+
+            <div class="col-md-3">
+                <label for="precio_donacion" class="form-label">Precio Estimado</label>
+                <div class="input-group">
+                    <input type="number" class="form-control input-form" name="precio_donacion" id="precio_donacion"
+                        step="0.01" placeholder="Ej: 2000.00">
+                    <span class="input-group-text">Bs.</span>
+                </div>
+            </div>
+
         </div>
 
-        <div class="col-md-3">
-            <label for="precio_donacion" class="form-label">Precio Estimado</label>
-            <input type="number" class="form-control input-form" name="precio_donacion"
-                id="precio_donacion" step="0.01" placeholder="Ej: 2000.00">
-        </div>
-    </div>
-
-</form>
+    </form>
 
 
     {{-- </div> --}}
@@ -191,23 +197,65 @@
 
             // Convertir array de datos a query string para enviarlo
             let formData = $.param(formDataArray);
-let sinDatos = $('#sin_datos_checkbox').prop('checked');
-let tipoAdq = $('#tipo_adquisicion').val();
+            let sinDatos = $('#sin_datos_checkbox').prop('checked');
+            let tipoAdq = $('#tipo_adquisicion').val();
             $.ajax({
                 url: $(this).attr('action'),
                 method: 'POST',
                 data: formData,
                 success: function(response) {
+                    //     if (response.success) {
+
+
+
                     if (response.success) {
+                        if (response.numeroSiguiente) {
+                            // $('#numero_documento').val(response.numeroSiguiente);
+                        }else{
+                        }
+
                         mensaje('Activo registrado correctamente.', 'success');
                         $('#form_activo')[0].reset(); // Resetea formulario
                         $('#sin_datos_checkbox').prop('checked', sinDatos);
-$('#tipo_adquisicion').val(tipoAdq);
+                        $('#tipo_adquisicion').val(tipoAdq);
+                        // $('#form_activo')[0].reset();
                         $('#buscarCodigoBtn').trigger('click');
 
-                        // if (response.numeroSiguiente) {
-                        //     $('#numero_documento').val(response.numeroSiguiente);
-                        // }
+                        const a = response.activo;
+// alert(a.situacion)
+
+const badges = {
+    activo: '<span class="badge bg-danger">En uso</span>',
+    inactivo: '<span class="badge bg-success">Libre</span>',
+    baja: '<span class="badge bg-dark">Baja</span>',
+};
+const badgeSituacion = badges[a.situacion] || `<span class="badge bg-secondary">${a.situacion}</span>`;
+
+
+                        // Construir la nueva fila
+                        const nuevaFila = `
+            <tr data-id="${a.id}">
+                <td>${a.codigo}</td>
+                <td>${a.nombre}</td>
+                <td>${a.detalle}</td>
+                <td>${a.categoria}</td>
+                <td>${a.unidad}</td>
+                <td>${a.estado_fisico}</td>
+                   <td>${badgeSituacion}</td>
+                <td>${a.fecha}</td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-outline-primary editar-btn" data-id="${a.id}" title="Editar">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-dark visualizar-btn" data-id="${a.id}" title="Visualizar">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+
+                        // Insertar al inicio de la tabla
+                        $('table tbody').prepend(nuevaFila);
                     } else {
                         mensaje('Ocurrió un error inesperado.', 'danger');
                     }
@@ -322,26 +370,52 @@ $('#tipo_adquisicion').val(tipoAdq);
 
 
         $('#sin_datos_checkbox').change(function() {
-            if ($(this).is(':checked')) {
-                $('#tipo_adquisicion_seccion').hide();
-                $('#form_compra, #form_donacion').hide();
-                $('#tipo_adquisicion').val('');
-            } else {
-                $('#tipo_adquisicion_seccion').show();
-            }
-        });
+        const checked = $(this).is(':checked');
 
-        $('#tipo_adquisicion').change(function() {
-            const tipo = $(this).val();
-            if (tipo === 'compra') {
-                $('#form_compra').show();
-                $('#form_donacion').hide();
-            } else if (tipo === 'donacion') {
-                $('#form_donacion').show();
-                $('#form_compra').hide();
-            } else {
-                $('#form_compra, #form_donacion').hide();
-            }
-        });
+        if (checked) {
+            // Si marca "Sin datos"
+            $('#tipo_adquisicion_seccion').hide();
+            $('#form_compra, #form_donacion').hide();
+            $('#tipo_adquisicion').val('');
+
+            // Quitar required de todo
+            $('#tipo_adquisicion').prop('required', false);
+            $('#form_compra input, #form_donacion input, #form_compra select, #form_donacion select').prop('required', false);
+        } else {
+            // Si desmarca "Sin datos"
+            $('#tipo_adquisicion_seccion').show();
+
+            // Hacer obligatorio elegir un tipo de adquisición
+            $('#tipo_adquisicion').prop('required', true);
+        }
+    });
+
+    // 🟢 Select Tipo de adquisición
+    $('#tipo_adquisicion').change(function() {
+        const tipo = $(this).val();
+
+        if (tipo === 'compra') {
+            $('#form_compra').show();
+            $('#form_donacion').hide();
+
+            // Requerir solo los campos visibles
+            $('#form_compra input, #form_compra select').prop('required', true);
+            $('#form_donacion input, #form_donacion select').prop('required', false);
+
+        } else if (tipo === 'donacion') {
+            $('#form_donacion').show();
+            $('#form_compra').hide();
+
+            // Requerir solo los campos visibles
+            $('#form_donacion input, #form_donacion select').prop('required', true);
+            $('#form_compra input, #form_compra select').prop('required', false);
+
+        } else {
+            // Si no hay tipo seleccionado
+            $('#form_compra, #form_donacion').hide();
+            $('#form_compra input, #form_donacion input, #form_compra select, #form_donacion select').prop('required', false);
+        }
+    });
+
     });
 </script>

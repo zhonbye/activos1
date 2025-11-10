@@ -261,7 +261,7 @@
                 <!-- ====================== -->
                 <!-- MÓDULO: ACTIVOS FIJOS -->
                 <!-- ====================== -->
-              
+
                 <li class="menu-item" data-submenu="submenuActivos" role="btn">
                     <div class="main-item bg-success bg-opacity-10" tabindex="0" role="menuitem" aria-haspopup="true"
                         aria-expanded="false" aria-controls="submenuActivos">
@@ -403,7 +403,7 @@
 
 
         <div id="contenido" class="bg-dansger flex-grow-1 p-4 m-0 ">
-        @include('user.panelControl')    
+        @include('user.panelControl')
         </div>
     </div>
 
@@ -583,7 +583,20 @@
 
 
         });
-
+//todo esto cierra los modales correctamente
+        $('.modal').on('click', function(e) {
+            if ($(e.target).is('.modal')) {
+                $(this).find('input, select, textarea, button').blur();
+                console.log('Click fuera del modal, cerrándolo...');
+                $(this).blur()
+                $(this).find('button[data-bs-dismiss="modal"]').trigger('click');
+            }
+        });
+        $(document).on('click', '.modal .btn-close[data-bs-dismiss="modal"]', function() {
+    console.log('Se hizo clic en el botón X del modal Registrar Activo');
+    $(this).blur(); // Quita el foco del botón X
+    // alert($('.modal fade show').html()) // Quita el foco del botón X
+});
 
 
 

@@ -17,7 +17,6 @@ class Activo extends Model
         'codigo',
         'nombre',
         'detalle',
-        'cantidad',
         'estado_situacional',
         'id_categoria',
         'id_unidadmed',

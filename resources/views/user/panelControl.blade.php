@@ -262,9 +262,9 @@
         <!-- 🔹 Sección de Bienvenida -->
         {{-- <div class="row mb-4">
     <div class="col-12">
-        <div class="card shadow-sm p-3 d-flex flex-row align-items-center" 
+        <div class="card shadow-sm p-3 d-flex flex-row align-items-center"
              style="border-radius:12px; background-color:#e9f2fb;">
-            
+
             <!-- Icono o foto de usuario -->
             <div class="me-3">
                 <div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center"
@@ -405,129 +405,138 @@
     </div>
     <script>
         $(document).ready(function() {
-            // 🔹 Activos por Estado
-           let estadoActivosChart = new Chart(document.getElementById('estadoActivosChart').getContext('2d'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Nuevo', 'Usado', 'Mal Estado'],
-                        datasets: [{
-                            data: [50, 60, 15],
-                            backgroundColor: ['rgba(0,123,255,0.8)', 'rgba(220,53,69,0.8)',
-                                'rgba(33,37,41,0.8)'
-                            ],
-                            borderColor: ['rgba(0,123,255,1)', 'rgba(220,53,69,1)', 'rgba(33,37,41,1)'],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    color: '#000', // Texto negro para la leyenda
-                                    font: {
-                                        size: 14,
-                                        weight: 'bold'
-                                    }
+            // 🎯 Configuración general de animación para reutilizar
+            const animacionGeneral = {
+                duration: 1500,
+                easing: 'easeOutBounce' // puedes probar: 'easeOutQuart', 'easeInOutCubic', etc.
+            };
+
+            // 🔹 Activos por Estado (doughnut)
+            const ctxEstado = document.getElementById('estadoActivosChart').getContext('2d');
+            const estadoActivosChart = new Chart(ctxEstado, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Nuevo', 'Usado', 'Mal Estado'],
+                    datasets: [{
+                        data: [50, 60, 15],
+                        backgroundColor: [
+                            'rgba(0,123,255,0.8)',
+                            'rgba(220,53,69,0.8)',
+                            'rgba(33,37,41,0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(0,123,255,1)',
+                            'rgba(220,53,69,1)',
+                            'rgba(33,37,41,1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#000',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
                                 }
-                            },
-                            tooltip: {
-                                backgroundColor: 'rgba(0,0,0,0.7)',
-                                titleColor: '#fff',
-                                bodyColor: '#fff'
                             }
                         },
-                        animation: {
-                            duration: 150,
-                            easing: 'easeOutBounce'
+                        tooltip: {
+                            backgroundColor: 'rgba(0,0,0,0.7)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff'
                         }
-                    
-                
+                    },
+                    animation: animacionGeneral
                 }
             });
-       let estadoActivosChart2 = new Chart(ctx, {
-        type: 'doughnut',
-        data: data,
-        options: options
-    });
 
-    // Forzar animación cada vez que se recarga la página
-    estadoActivosChart2.reset();  // Reinicia el gráfico
+            // 🔹 Movimientos último mes (barras)
+            const ctxMov = document.getElementById('movimientosChart').getContext('2d');
+            new Chart(ctxMov, {
+                type: 'bar',
+                data: {
+                    labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
+                    datasets: [
+                        {
+                            label: 'Entregas',
+                            data: [10, 12, 8, 12],
+                            backgroundColor: 'rgba(0,123,255,0.8)'
+                        },
+                        {
+                            label: 'Traslados',
+                            data: [4, 3, 5, 6],
+                            backgroundColor: 'rgba(220,53,69,0.8)'
+                        },
+                        {
+                            label: 'Bajas',
+                            data: [1, 0, 2, 1],
+                            backgroundColor: 'rgba(33,37,41,0.8)'
+                        },
+                        {
+                            label: 'Devoluciones',
+                            data: [2, 3, 1, 6],
+                            backgroundColor: 'rgba(0,123,255,0.5)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    animation: {
+                        ...animacionGeneral,
+                        delay: (context) => context.dataIndex * 150, // retrasa cada barra
+                    }
+                }
+            });
 
-
-
-
-        // 🔹 Movimientos último mes (entregas, traslados, devoluciones, bajas)
-        new Chart(document.getElementById('movimientosChart').getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
-                datasets: [{
-                        label: 'Entregas',
-                        data: [10, 12, 8, 12],
+            // 🔹 Activos por Servicio (barras horizontales)
+            const ctxServ = document.getElementById('serviciosChart').getContext('2d');
+            new Chart(ctxServ, {
+                type: 'bar',
+                data: {
+                    labels: ['Almacen', 'Servicio A', 'Servicio B', 'Servicio C', 'Servicio D'],
+                    datasets: [{
+                        label: 'Activos',
+                        data: [40, 25, 20, 15, 25],
                         backgroundColor: 'rgba(0,123,255,0.8)'
-                    },
-                    {
-                        label: 'Traslados',
-                        data: [4, 3, 5, 6],
-                        backgroundColor: 'rgba(220,53,69,0.8)'
-                    },
-                    {
-                        label: 'Bajas',
-                        data: [1, 0, 2, 1],
-                        backgroundColor: 'rgba(33,37,41,0.8)'
-                    },
-                    {
-                        label: 'Devoluciones',
-                        data: [2, 3, 1, 6],
-                        backgroundColor: 'rgba(0,123,255,0.5)'
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
+                    }]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true
+                        }
+                    },
+                    animation: {
+                        ...animacionGeneral,
+                        delay: (context) => context.dataIndex * 150
                     }
                 }
-            }
+            });
         });
+        </script>
 
-        // 🔹 Activos por Servicio (horizontal)
-        new Chart(document.getElementById('serviciosChart').getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: ['Almacen', 'Servicio A', 'Servicio B', 'Servicio C', 'Servicio D'],
-                datasets: [{
-                    label: 'Activos',
-                    data: [40, 25, 20, 15, 25],
-                    backgroundColor: 'rgba(0,123,255,0.8)'
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    x: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-        });
-    </script>
 </body>
 
 </html>

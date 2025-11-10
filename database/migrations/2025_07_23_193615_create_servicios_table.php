@@ -30,6 +30,13 @@ return new class extends Migration
         // Insertamos datos de prueba
         DB::table('servicios')->insert([
             [
+                'nombre' => 'Activos fijos',
+                'descripcion' => 'Área encargada de la gestion de activos fijos ',
+                'id_responsable' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
                 'nombre' => 'Soporte Técnico',
                 'descripcion' => 'Área de soporte técnico',
                 'id_responsable' => 2,
@@ -39,7 +46,7 @@ return new class extends Migration
             [
                 'nombre' => 'Atención al Cliente',
                 'descripcion' => 'Área de atención al cliente',
-                'id_responsable' => 1,
+                'id_responsable' => 3,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

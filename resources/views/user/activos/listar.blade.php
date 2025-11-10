@@ -50,7 +50,7 @@
 
 
 
-{{-- 
+{{--
 
 <!-- 🧩 Modal de filtros -->
 <div class="modal fade" id="modalFiltros" tabindex="-1" aria-labelledby="modalFiltrosLabel" aria-hidden="true">
@@ -186,7 +186,7 @@
 
 
 
-                                {{-- <!-- Fecha Inicio --> <div class="col-12 col-md-6"> <label for="fecha_inicio" class="form-label small text-muted">Fecha Inicio</label> <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control" value="2017-01-01"> <!-- Slider para fecha_inicio --> <input type="range" id="slider_start" value="0" min="0" max="100" step="1" class="form-range mt-1"> </div> <!-- Fecha Fin --> <div class="col-12 col-md-6"> <label for="fecha_fin" class="form-label small text-muted">Fecha Fin</label> <input type="date" id="fecha_fin" name="fecha_fin" class="form-control" value="{{ date('Y-m-d') }}"> <!-- Slider para fecha_fin --> <input type="range" id="slider_end" value="100" min="0" max="100" step="1" class="form-range mt-1"> </div> </div> 
+                                {{-- <!-- Fecha Inicio --> <div class="col-12 col-md-6"> <label for="fecha_inicio" class="form-label small text-muted">Fecha Inicio</label> <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control" value="2017-01-01"> <!-- Slider para fecha_inicio --> <input type="range" id="slider_start" value="0" min="0" max="100" step="1" class="form-range mt-1"> </div> <!-- Fecha Fin --> <div class="col-12 col-md-6"> <label for="fecha_fin" class="form-label small text-muted">Fecha Fin</label> <input type="date" id="fecha_fin" name="fecha_fin" class="form-control" value="{{ date('Y-m-d') }}"> <!-- Slider para fecha_fin --> <input type="range" id="slider_end" value="100" min="0" max="100" step="1" class="form-range mt-1"> </div> </div>
                             </div>
                         </div>
                     </div>
@@ -251,7 +251,7 @@
 
                     <!-- 🏷 Clasificación -->
                     {{-- <div class="mb-4 p-3 rounded" style="background-color: #f0f7e8;"> --}}
-                    <div class="mb-4 p-3 rounded" style="background-color: #b9c8e7ab;">
+                    <div class="mb-4 p-3 rounded" style="background-color: #b9c8e72d;">
                         <h6 class="fw-bold border-bottom pb-1 mb-3">
                             <i class="bi bi-tags-fill me-1"></i> Clasificación
                         </h6>
@@ -278,8 +278,8 @@
                     </div>
 
                     <!-- ⚙️ Estado y orden -->
-                    {{-- <div class="mb-4 p-3 rounded" style="background-color: #fff3e6;"> --}}
-                    <div class="mb-4 p-3 rounded" style="background-color: #ecb3b34f;">
+                    {{-- <div class="mb-4 p-3 rounded" style="background-color: #fff3e668;"> --}}
+                    <div class="mb-4 p-3 rounded" style="background-color: #f9cece27;">
                         <h6 class="fw-bold border-bottom pb-1 mb-3">
                             <i class="bi bi-gear-wide-connected me-1"></i> Estado y Orden
                         </h6>
@@ -379,9 +379,9 @@
       <!-- Header -->
       <div class="modal-header">
         <h5 class="modal-title"><i class="bi bi-box-seam me-1"></i> Registrar Activo</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-success" data-bs-dismiss="modal"></button>
       </div>
-      
+
 
       <!-- Body (incluye Blade de Laravel) -->
       <div class="modal-body">
@@ -390,7 +390,7 @@
 
       <!-- Footer -->
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        {{-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button> --}}
         <button type="submit" form="form_activo" class="btn btn-success">
           <i class="bi bi-check2-circle me-1"></i> Guardar Activo
         </button>
@@ -452,7 +452,7 @@
                     <div class="col-md-1"></div>
 
                     <div class="col-md-2 d-flex align-items-end">
-                        
+
                     </div>
 
                     <div class="col-md-2 d-flex align-items-end">
@@ -471,10 +471,10 @@
             </div>
 
             <!-- Contenedor de resultados -->
-            {{-- <div id="contenedorResultados" 
+            {{-- <div id="contenedorResultados"
                  class="bg-secondary rounded bg-opacity-10 flex-grow-1"
                  style="overflow-y: auto; padding: 15px;"> --}}
-        <div id="contenedorResultados" 
+        <div id="contenedorResultados"
      class="d-flex flex-column bg- rounded shadow p-3 bg-info0 p-3"
      style="height: 60vh; max-height: 80vh; ">
                 <!-- Aquí van los resultados -->
@@ -487,13 +487,39 @@
 
 <script>
     $(document).ready(function() {
+        $('.modal').on('click', function(e) {
+            if ($(e.target).is('.modal')) {
+                $(this).find('input, select, textarea, button').blur();
+                console.log('Click fuera del modal, cerrándolo...');
+                $(this).blur()
+                $(this).find('button[data-bs-dismiss="modal"]').trigger('click');
+            }
+        });
+        $(document).on('click', '.modal .btn-close[data-bs-dismiss="modal"]', function() {
+    console.log('Se hizo clic en el botón X del modal Registrar Activo');
+    $(this).blur(); // Quita el foco del botón X
+    // alert($('.modal fade show').html()) // Quita el foco del botón X
+});
+
+
+        // $('.modal fade show').on('hide.bs.modal', function() {
+        //     $(this).find('input, select, textarea, button').blur();
+
+        //     $(this).find('button[data-bs-dismiss="modal"]').blur();
+        //     $(this).focus();
+        //     // $(this).focus();
+        //     // alert($(this).html())
+        //     $('body').attr('tabindex', '-1').focus();
+        // });
+
+
     $('#buscarActivo').on('keyup', function() {
         let valor = $(this).val().toLowerCase();
 
         $('#contenedorResultados table tbody tr').filter(function() {
             // Buscamos en Código, Nombre y Detalle
             $(this).toggle(
-                $(this).find('td:eq(0)').text().toLowerCase().indexOf(valor) > -1 || 
+                $(this).find('td:eq(0)').text().toLowerCase().indexOf(valor) > -1 ||
                 $(this).find('td:eq(1)').text().toLowerCase().indexOf(valor) > -1 ||
                 $(this).find('td:eq(2)').text().toLowerCase().indexOf(valor) > -1
             );
@@ -587,7 +613,7 @@
 
 
 
-    {{-- 
+    {{--
 
     <!-- Columna principal vacía (más grande) -->
     <div class="col-12 col-lg-9">
@@ -601,7 +627,7 @@
 
             <div id="contenedorResultados" class="d-flex flex-column flex-grow-1 bg-secondary rounded bg-opacity-10">
                 {{-- Aquí se cargará el contenido dinámico por AJAX --}}
-    {{-- @include('user.inventario.parcial', ['inventarios' => $inventarios]) 
+    {{-- @include('user.inventario.parcial', ['inventarios' => $inventarios])
             </div>
         </div>
     </div> --}}

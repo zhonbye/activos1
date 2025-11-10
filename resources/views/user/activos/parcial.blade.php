@@ -31,7 +31,7 @@
                         </button>
                         {{-- <button class="btn btn-sm btn-outline-danger dar-baja-btn" data-id="{{ $activo->id_activo }}" title="Dar de baja">
                     <i class="bi bi-trash"></i>
-                </button> 
+                </button>
                         <button class="btn btn-sm btn-outline-primary visualizar-btn" data-id="{{ $activo->id_activo }}"
                             title="Visualizar">
                             <i class="bi bi-eye"></i>
@@ -77,6 +77,10 @@
 @endif --}}
 {{-- <div style="max-height:30vh; height: 30vh; overflow-y: auto;"> --}}
       <!-- Tabla con scroll -->
+
+
+
+
       <div style="height: 90%; overflow:auto;">
     <table class="table table-striped mb-0 rounded">
         <thead class="table-light">
@@ -85,9 +89,34 @@
                 <th>Nombre</th>
                 <th>Detalle</th>
                 <th>Categoría</th>
-                <th>Unidad/Servicio</th>
+                <th>Unidad de Medida</th>
                 <th>Estado físico</th>
-                <th>Situación</th>
+
+
+                <th>
+                    <div class="d-flex align-items-center">
+                      <span>Situación</span>
+                      <div class="dropdown fst-normal fw-normal">
+                        <button class="btn btn-link p-0 text-primary fw-normal" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 1rem;">
+                            <i class="bi bi-info-lg"></i>
+                          </button>
+
+                        <ul class="dropdown-menu p-2  fw-normal" style="min-width: 250px;">
+                          <li class="d-flex align-items-center mb-1">
+                            <span class="badge bg-success me-2">&nbsp;</span>
+                            No está siendo usado por ninguna área
+                          </li>
+                          <li class="d-flex align-items-center mb-1">
+                            <span class="badge bg-danger me-2">&nbsp;</span>
+                            Actualmente asignado a un área
+                          </li>
+                          <li class="d-flex align-items-center">
+                            <span class="badge bg-dark me-2">&nbsp;</span>
+                            El activo ha sido dado de baja
+                          </li>
+                        </ul>
+                      </div>
+                  </th>
                 <th>Fecha</th>
                 <th class="text-center">Acciones</th>
             </tr>
@@ -106,10 +135,10 @@
     @if(isset($activo->estado_situacional))
         @switch($activo->estado_situacional)
             @case('activo')
-                <span class="badge bg-success">Activo</span>
+                <span class="badge bg-danger">En uso</span>
                 @break
             @case('inactivo')
-                <span class="badge bg-danger">Inactivo</span>
+                <span class="badge bg-success">Libre</span>
                 @break
             @case('baja')
                 <span class="badge bg-dark">Baja</span>

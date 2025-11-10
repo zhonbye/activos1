@@ -32,103 +32,492 @@ public function historial() {
         return view('user.activos.historial'); // solo carga la vista y filtros
     }
 
-public function filtrarHistorial(Request $request) {
-    $activoFiltro = $request->activo;
-    $tipoFiltro = $request->tipo;
-    $servicioOrigen = $request->servicio_origen;
-    $servicioDestino = $request->servicio_destino;
-    $fechaInicio = $request->fecha_inicio;
-    $fechaFin = $request->fecha_fin;
+    // public function filtrarHistorial(Request $request)
+    // {
+    //     $activos = Activo::with(['categoria', 'unidad', 'estado', 'adquisicion'])->get();
 
-    $historial = collect();
+    //     $historial = collect();
 
-    // Entregas
-    $entregas = DetalleEntrega::with(['activo', 'entrega.responsable', 'entrega.servicio'])
-        ->when($activoFiltro, fn($q) => $q->whereHas('activo', fn($q2) =>
-            $q2->where('nombre', 'like', "%$activoFiltro%")->orWhere('codigo', 'like', "%$activoFiltro%")
-        ))
-        ->when($fechaInicio, fn($q) => $q->whereHas('entrega', fn($q2) => $q2->where('fecha', '>=', $fechaInicio)))
-        ->when($fechaFin, fn($q) => $q->whereHas('entrega', fn($q2) => $q2->where('fecha', '<=', $fechaFin)))
-        ->get()
-        ->map(fn($d) => [
-            'fecha' => $d->entrega->fecha,
-            'codigo' => $d->activo->codigo,
-            'activo' => $d->activo->nombre,
-            'tipo_movimiento' => 'entrega',
-            'origen' => $d->entrega->servicio->nombre ?? '',
-            'destino' => '',
-            'usuario' => $d->entrega->responsable->nombre ?? '',
-            'observaciones' => $d->observaciones,
-            'id' => $d->entrega->id_entrega
-        ]);
+    //     foreach ($activos as $activo) {
+    //         // 🔹 PRIMERA FILA: registro inicial
+    //         $historial->push([
+    //             'fecha' => $activo->created_at->format('Y-m-d'),
+    //             'codigo' => $activo->codigo,
+    //             'nombre' => $activo->nombre,
+    //             'tipo' => 'Registro',
+    //             'origen' => '',
+    //             'destino' => '',
+    //             'responsable' => '',
+    //             'observaciones' => 'Activo registrado en el sistema.',
+    //             'estado_situacional' => $activo->estado_situacional,
+    //         ]);
 
-    // Traslados
-    $traslados = DetalleTraslado::with(['activo', 'traslado.servicioOrigen', 'traslado.servicioDestino', 'traslado.usuario'])
-        ->when($activoFiltro, fn($q) => $q->whereHas('activo', fn($q2) =>
-            $q2->where('nombre', 'like', "%$activoFiltro%")->orWhere('codigo', 'like', "%$activoFiltro%")
-        ))
-        ->when($fechaInicio, fn($q) => $q->whereHas('traslado', fn($q2) => $q2->where('fecha', '>=', $fechaInicio)))
-        ->when($fechaFin, fn($q) => $q->whereHas('traslado', fn($q2) => $q2->where('fecha', '<=', $fechaFin)))
-        ->get()
-        ->map(fn($d) => [
-            'fecha' => $d->traslado->fecha,
-            'codigo' => $d->activo->codigo,
-            'activo' => $d->activo->nombre,
-            'tipo_movimiento' => 'traslado',
-            'origen' => $d->traslado->servicioOrigen->nombre ?? '',
-            'destino' => $d->traslado->servicioDestino->nombre ?? '',
-            'usuario' => $d->traslado->usuario->name ?? '',
-            'observaciones' => $d->observaciones,
-            'id' => $d->traslado->id_traslado
-        ]);
+    //         // 🔹 ENTREGA
+    //         $entregas = DB::table('detalle_entregas')
+    //             ->join('entregas', 'detalle_entregas.id_entrega', '=', 'entregas.id_entrega')
+    //             ->where('detalle_entregas.id_activo', $activo->id_activo)
+    //             ->where('entregas.estado', 'finalizado')
+    //             ->select('entregas.fecha', 'entregas.id_responsable', 'entregas.id_servicio', 'entregas.observaciones')
+    //             ->get();
 
-    // Devoluciones
-    $devoluciones = DetalleDevolucion::with(['activo', 'devolucion.servicio', 'devolucion.usuario'])
-        ->when($activoFiltro, fn($q) => $q->whereHas('activo', fn($q2) =>
-            $q2->where('nombre', 'like', "%$activoFiltro%")->orWhere('codigo', 'like', "%$activoFiltro%")
-        ))
-        ->when($fechaInicio, fn($q) => $q->whereHas('devolucion', fn($q2) => $q2->where('fecha', '>=', $fechaInicio)))
-        ->when($fechaFin, fn($q) => $q->whereHas('devolucion', fn($q2) => $q2->where('fecha', '<=', $fechaFin)))
-        ->get()
-        ->map(fn($d) => [
-            'fecha' => $d->devolucion->fecha,
-            'codigo' => $d->activo->codigo,
-            'activo' => $d->activo->nombre,
-            'tipo_movimiento' => 'devolución',
-            'origen' => '',
-            'destino' => $d->devolucion->servicio->nombre ?? '',
-            'usuario' => $d->devolucion->usuario->name ?? '',
-            'observaciones' => $d->observaciones,
-            'id' => $d->devolucion->id_devolucion
-        ]);
+    //         foreach ($entregas as $e) {
+    //             $servicio = DB::table('servicios')->where('id_servicio', $e->id_servicio)->value('nombre');
+    //             $responsable = DB::table('responsables')->where('id_responsable', $e->id_responsable)->value('nombre');
 
-    // Bajas
-    $bajas = DetalleBaja::with(['activo', 'baja.usuario'])
-        ->when($activoFiltro, fn($q) => $q->whereHas('activo', fn($q2) =>
-            $q2->where('nombre', 'like', "%$activoFiltro%")->orWhere('codigo', 'like', "%$activoFiltro%")
-        ))
-        ->when($fechaInicio, fn($q) => $q->whereHas('baja', fn($q2) => $q2->where('fecha', '>=', $fechaInicio)))
-        ->when($fechaFin, fn($q) => $q->whereHas('baja', fn($q2) => $q2->where('fecha', '<=', $fechaFin)))
-        ->get()
-        ->map(fn($d) => [
-            'fecha' => $d->baja->fecha,
-            'codigo' => $d->activo->codigo,
-            'activo' => $d->activo->nombre,
-            'tipo_movimiento' => 'baja',
-            'origen' => '',
-            'destino' => '',
-            'usuario' => $d->baja->usuario->name ?? '',
-            'observaciones' => $d->observaciones,
-            'id' => $d->baja->id_baja
-        ]);
+    //             $historial->push([
+    //                 'fecha' => $e->fecha,
+    //                 'codigo' => $activo->codigo,
+    //                 'nombre' => $activo->nombre,
+    //                 'tipo' => 'Entrega',
+    //                 'origen' => '',
+    //                 'destino' => $servicio,
+    //                 'responsable' => $responsable,
+    //                 'observaciones' => $e->observaciones,
+    //                 'estado_situacional' => $activo->estado_situacional,
+    //             ]);
+    //         }
 
-    // Mezclamos todo y ordenamos por fecha descendente
-    $historial = $entregas->merge($traslados)->merge($devoluciones)->merge($bajas)
-        ->sortByDesc('fecha');
+    //         // 🔹 TRASLADOS
+    //         $traslados = DB::table('detalle_traslados')
+    //             ->join('traslados', 'detalle_traslados.id_traslado', '=', 'traslados.id_traslado')
+    //             ->where('detalle_traslados.id_activo', $activo->id_activo)
+    //             ->where('traslados.estado', 'finalizado')
+    //             ->select('traslados.fecha', 'traslados.id_servicio_origen', 'traslados.id_servicio_destino', 'traslados.observaciones', 'traslados.id_usuario')
+    //             ->get();
 
-    // Retornamos la vista parcial con los datos filtrados
-    return view('user.activos.parcial_historial', compact('historial'));
-}
+    //         foreach ($traslados as $t) {
+    //             $origen = DB::table('servicios')->where('id_servicio', $t->id_servicio_origen)->value('nombre');
+    //             $destino = DB::table('servicios')->where('id_servicio', $t->id_servicio_destino)->value('nombre');
+    //             $responsable = DB::table('usuarios')->where('id_usuario', $t->id_usuario)->value('usuario');
+
+    //             $historial->push([
+    //                 'fecha' => $t->fecha,
+    //                 'codigo' => $activo->codigo,
+    //                 'nombre' => $activo->nombre,
+    //                 'tipo' => 'Traslado',
+    //                 'origen' => $origen,
+    //                 'destino' => $destino,
+    //                 'responsable' => $responsable,
+    //                 'observaciones' => $t->observaciones,
+    //                 'estado_situacional' => $activo->estado_situacional,
+    //             ]);
+    //         }
+
+    //         // 🔹 DEVOLUCIONES
+    //         $devoluciones = DB::table('detalle_devoluciones')
+    //             ->join('devoluciones', 'detalle_devoluciones.id_devolucion', '=', 'devoluciones.id_devolucion')
+    //             ->where('detalle_devoluciones.id_activo', $activo->id_activo)
+    //             ->where('devoluciones.estado', 'finalizado')
+    //             ->select('devoluciones.fecha', 'devoluciones.id_servicio', 'devoluciones.id_responsable', 'devoluciones.observaciones')
+    //             ->get();
+
+    //         foreach ($devoluciones as $d) {
+    //             $origen = DB::table('servicios')->where('id_servicio', $d->id_servicio)->value('nombre');
+    //             $responsable = DB::table('responsables')->where('id_responsable', $d->id_responsable)->value('nombre');
+
+    //             $historial->push([
+    //                 'fecha' => $d->fecha,
+    //                 'codigo' => $activo->codigo,
+    //                 'nombre' => $activo->nombre,
+    //                 'tipo' => 'Devolución',
+    //                 'origen' => $origen,
+    //                 'destino' => 'Área de Activos Fijos',
+    //                 'responsable' => $responsable,
+    //                 'observaciones' => $d->observaciones,
+    //                 'estado_situacional' => $activo->estado_situacional,
+    //             ]);
+    //         }
+
+    //         // 🔹 BAJAS
+    //         $bajas = DB::table('detalle_bajas')
+    //             ->join('bajas', 'detalle_bajas.id_baja', '=', 'bajas.id_baja')
+    //             ->where('detalle_bajas.id_activo', $activo->id_activo)
+    //             ->where('bajas.estado', 'finalizado')
+    //             ->select('bajas.fecha', 'bajas.id_servicio', 'bajas.observaciones')
+    //             ->get();
+
+    //         foreach ($bajas as $b) {
+    //             $origen = DB::table('servicios')->where('id_servicio', $b->id_servicio)->value('nombre');
+
+    //             $historial->push([
+    //                 'fecha' => $b->fecha,
+    //                 'codigo' => $activo->codigo,
+    //                 'nombre' => $activo->nombre,
+    //                 'tipo' => 'Baja',
+    //                 'origen' => $origen,
+    //                 'destino' => '-----',
+    //                 'responsable' => '',
+    //                 'observaciones' => $b->observaciones,
+    //                 'estado_situacional' => $activo->estado_situacional,
+    //             ]);
+    //         }
+
+    //         // 🔹 INVENTARIOS
+    //         $inventarios = DB::table('detalle_inventarios')
+    //             ->join('inventarios', 'detalle_inventarios.id_inventario', '=', 'inventarios.id_inventario')
+    //             ->where('detalle_inventarios.id_activo', $activo->id_activo)
+    //             ->where('inventarios.estado', 'finalizado')
+    //             ->select('inventarios.fecha', 'inventarios.id_servicio', 'inventarios.observaciones')
+    //             ->get();
+
+    //         foreach ($inventarios as $i) {
+    //             $servicio = DB::table('servicios')->where('id_servicio', $i->id_servicio)->value('nombre');
+
+    //             $historial->push([
+    //                 'fecha' => $i->fecha,
+    //                 'codigo' => $activo->codigo,
+    //                 'nombre' => $activo->nombre,
+    //                 'tipo' => 'Inventario',
+    //                 'origen' => $servicio,
+    //                 'destino' => 'Inventario',
+    //                 'responsable' => '',
+    //                 'observaciones' => $i->observaciones,
+    //                 'estado_situacional' => $activo->estado_situacional,
+    //             ]);
+    //         }
+    //     }
+
+    //     // Ordenar por fecha (más reciente al final)
+    //     $historial = $historial->sortBy('fecha')->values();
+
+    //     return view('user.activos.parcial_historial', compact('historial'));
+    // }
+
+    // public function filtrarHistorial(Request $request)
+    // {
+    //     $activoFiltro = $request->activo;
+    //     $tipoFiltro = $request->tipo;
+    //     $servicioOrigen = $request->servicio_origen;
+    //     $servicioDestino = $request->servicio_destino;
+    //     $fechaInicio = $request->fecha_inicio;
+    //     $fechaFin = $request->fecha_fin;
+
+    //     $historial = collect();
+
+    //     // 🔹 1. REGISTROS DE ACTIVOS
+    //     $activos = DB::table('activos')
+    //         ->when($activoFiltro, function ($q) use ($activoFiltro) {
+    //             $q->where(function ($sub) use ($activoFiltro) {
+    //                 $sub->where('nombre', 'like', "%$activoFiltro%")
+    //                     ->orWhere('codigo', 'like', "%$activoFiltro%");
+    //             });
+    //         })
+    //         ->select('codigo', 'nombre', 'estado_situacional', 'created_at')
+    //         ->get();
+
+    //     foreach ($activos as $a) {
+    //         // ➕ Se inserta al inicio
+    //         $historial->prepend([
+    //             'fecha' => $a->created_at,
+    //             'codigo' => $a->codigo,
+    //             'nombre' => $a->nombre,
+    //             'tipo' => 'Registro',
+    //             'origen' => '',
+    //             'destino' => '',
+    //             'responsable' => '',
+    //             'observaciones' => 'Activo registrado en el sistema.',
+    //             'estado_situacional' => $a->estado_situacional,
+    //         ]);
+    //     }
+
+    //     // 🔹 2. ENTREGAS
+    //     $entregas = DB::table('detalle_entregas')
+    //         ->join('entregas', 'detalle_entregas.id_entrega', '=', 'entregas.id_entrega')
+    //         ->join('activos', 'detalle_entregas.id_activo', '=', 'activos.id_activo')
+    //         ->leftJoin('servicios', 'entregas.id_servicio', '=', 'servicios.id_servicio')
+    //         ->leftJoin('usuarios', 'entregas.id_usuario', '=', 'usuarios.id_usuario')
+    //         ->where('entregas.estado', 'finalizado')
+    //         ->when($activoFiltro, function ($q) use ($activoFiltro) {
+    //             $q->where(function ($sub) use ($activoFiltro) {
+    //                 $sub->where('activos.nombre', 'like', "%$activoFiltro%")
+    //                     ->orWhere('activos.codigo', 'like', "%$activoFiltro%");
+    //             });
+    //         })
+    //         ->when($fechaInicio, fn($q) => $q->where('entregas.fecha', '>=', $fechaInicio))
+    //         ->when($fechaFin, fn($q) => $q->where('entregas.fecha', '<=', $fechaFin))
+    //         ->selectRaw("
+    //             entregas.fecha,
+    //             activos.codigo,
+    //             activos.nombre,
+    //             'Entrega' as tipo,
+    //             '' as origen,
+    //             servicios.nombre as destino,
+    //             COALESCE(usuarios.usuario, '') as responsable,
+    //             entregas.observaciones,
+    //             activos.estado_situacional
+    //         ")
+    //         ->get();
+
+    //     foreach ($entregas as $e) {
+    //         $historial->prepend($e); // se pone al inicio
+    //     }
+
+    //     // 🔹 3. TRASLADOS
+    //     $traslados = DB::table('detalle_traslados')
+    //         ->join('traslados', 'detalle_traslados.id_traslado', '=', 'traslados.id_traslado')
+    //         ->join('activos', 'detalle_traslados.id_activo', '=', 'activos.id_activo')
+    //         ->leftJoin('servicios as s_origen', 'traslados.id_servicio_origen', '=', 's_origen.id_servicio')
+    //         ->leftJoin('servicios as s_destino', 'traslados.id_servicio_destino', '=', 's_destino.id_servicio')
+    //         ->leftJoin('usuarios', 'traslados.id_usuario', '=', 'usuarios.id_usuario')
+    //         ->where('traslados.estado', 'finalizado')
+    //         ->when($activoFiltro, function ($q) use ($activoFiltro) {
+    //             $q->where(function ($sub) use ($activoFiltro) {
+    //                 $sub->where('activos.nombre', 'like', "%$activoFiltro%")
+    //                     ->orWhere('activos.codigo', 'like', "%$activoFiltro%");
+    //             });
+    //         })
+    //         ->when($fechaInicio, fn($q) => $q->where('traslados.fecha', '>=', $fechaInicio))
+    //         ->when($fechaFin, fn($q) => $q->where('traslados.fecha', '<=', $fechaFin))
+    //         ->selectRaw("
+    //             traslados.fecha,
+    //             activos.codigo,
+    //             activos.nombre,
+    //             'Traslado' as tipo,
+    //             s_origen.nombre as origen,
+    //             s_destino.nombre as destino,
+    //             COALESCE(usuarios.usuario, '') as responsable,
+    //             traslados.observaciones,
+    //             activos.estado_situacional
+    //         ")
+    //         ->get();
+
+    //     foreach ($traslados as $t) {
+    //         $historial->prepend($t);
+    //     }
+
+    //     // 🔹 4. DEVOLUCIONES
+    //     $devoluciones = DB::table('detalle_devoluciones')
+    //         ->join('devoluciones', 'detalle_devoluciones.id_devolucion', '=', 'devoluciones.id_devolucion')
+    //         ->join('activos', 'detalle_devoluciones.id_activo', '=', 'activos.id_activo')
+    //         ->leftJoin('servicios', 'devoluciones.id_servicio', '=', 'servicios.id_servicio')
+    //         ->leftJoin('usuarios', 'devoluciones.id_usuario', '=', 'usuarios.id_usuario')
+    //         ->where('devoluciones.estado', 'finalizado')
+    //         ->selectRaw("
+    //             devoluciones.fecha,
+    //             activos.codigo,
+    //             activos.nombre,
+    //             'Devolución' as tipo,
+    //             servicios.nombre as origen,
+    //             'Área de Activos Fijos' as destino,
+    //             COALESCE(usuarios.usuario, '') as responsable,
+    //             devoluciones.observaciones,
+    //             activos.estado_situacional
+    //         ")
+    //         ->get();
+
+    //     foreach ($devoluciones as $d) {
+    //         $historial->prepend($d);
+    //     }
+
+    //     // 🔹 5. BAJAS
+    //     $bajas = DB::table('detalle_bajas')
+    //         ->join('bajas', 'detalle_bajas.id_baja', '=', 'bajas.id_baja')
+    //         ->join('activos', 'detalle_bajas.id_activo', '=', 'activos.id_activo')
+    //         ->leftJoin('servicios', 'bajas.id_servicio', '=', 'servicios.id_servicio')
+    //         ->leftJoin('usuarios', 'bajas.id_usuario', '=', 'usuarios.id_usuario')
+    //         ->where('bajas.estado', 'finalizado')
+    //         ->selectRaw("
+    //             bajas.fecha,
+    //             activos.codigo,
+    //             activos.nombre,
+    //             'Baja' as tipo,
+    //             servicios.nombre as origen,
+    //             '' as destino,
+    //             COALESCE(usuarios.usuario, '') as responsable,
+    //             bajas.observaciones,
+    //             activos.estado_situacional
+    //         ")
+    //         ->get();
+
+    //     foreach ($bajas as $b) {
+    //         $historial->prepend($b);
+    //     }
+
+    //     // Retorno directo sin ordenar, ya está al revés (últimos arriba)
+    //     return view('user.activos.parcial_historial', compact('historial'));
+    // }
+    public function filtrarHistorial(Request $request)
+    {
+        $activoFiltro = $request->activo;
+        $tipoFiltro = $request->tipo;
+        $servicioOrigen = $request->servicio_origen;
+        $servicioDestino = $request->servicio_destino;
+        $fechaInicio = $request->fecha_inicio;
+        $fechaFin = $request->fecha_fin;
+
+        $historial = collect();
+
+        // 🔹 1. REGISTROS DE ACTIVOS
+        if (!$tipoFiltro || $tipoFiltro === 'Registro') {
+            $activos = DB::table('activos')
+                ->when($activoFiltro, function ($q) use ($activoFiltro) {
+                    $q->where(function ($sub) use ($activoFiltro) {
+                        $sub->where('nombre', 'like', "%$activoFiltro%")
+                            ->orWhere('codigo', 'like', "%$activoFiltro%");
+                    });
+                })
+                ->select('codigo', 'nombre', 'created_at')
+                ->get();
+
+            foreach ($activos as $a) {
+                $historial->prepend([
+                    'fecha' => $a->created_at,
+                    'codigo' => $a->codigo,
+                    'nombre' => $a->nombre,
+                    'tipo' => 'Registro',
+                    'origen' => '',
+                    'destino' => '',
+                    'responsable' => '',
+                    'observaciones' => 'Activo registrado en el sistema.',
+                    'estado_situacional' => 'inactivo',
+                ]);
+            }
+        }
+
+        // 🔹 2. ENTREGAS
+        if (!$tipoFiltro || $tipoFiltro === 'Entrega') {
+            $entregas = DB::table('detalle_entregas')
+                ->join('entregas', 'detalle_entregas.id_entrega', '=', 'entregas.id_entrega')
+                ->join('activos', 'detalle_entregas.id_activo', '=', 'activos.id_activo')
+                ->leftJoin('servicios', 'entregas.id_servicio', '=', 'servicios.id_servicio')
+                ->leftJoin('usuarios', 'entregas.id_usuario', '=', 'usuarios.id_usuario')
+                ->where('entregas.estado', 'finalizado')
+                ->when($activoFiltro, function ($q) use ($activoFiltro) {
+                    $q->where(function ($sub) use ($activoFiltro) {
+                        $sub->where('activos.nombre', 'like', "%$activoFiltro%")
+                            ->orWhere('activos.codigo', 'like', "%$activoFiltro%");
+                    });
+                })
+                ->when($servicioDestino, fn($q) => $q->where('servicios.id_servicio', $servicioDestino))
+                ->when($fechaInicio, fn($q) => $q->where('entregas.fecha', '>=', $fechaInicio))
+                ->when($fechaFin, fn($q) => $q->where('entregas.fecha', '<=', $fechaFin))
+                ->selectRaw("
+                    entregas.fecha,
+                    activos.codigo,
+                    activos.nombre,
+                    'Entrega' as tipo,
+                    '' as origen,
+                    servicios.nombre as destino,
+                    COALESCE(usuarios.usuario, '') as responsable,
+                    entregas.observaciones,
+                    'activo' as estado_situacional
+                ")
+                ->get();
+
+            foreach ($entregas as $e) {
+                $historial->prepend($e);
+            }
+        }
+
+        // 🔹 3. TRASLADOS
+        if (!$tipoFiltro || $tipoFiltro === 'Traslado') {
+            $traslados = DB::table('detalle_traslados')
+                ->join('traslados', 'detalle_traslados.id_traslado', '=', 'traslados.id_traslado')
+                ->join('activos', 'detalle_traslados.id_activo', '=', 'activos.id_activo')
+                ->leftJoin('servicios as s_origen', 'traslados.id_servicio_origen', '=', 's_origen.id_servicio')
+                ->leftJoin('servicios as s_destino', 'traslados.id_servicio_destino', '=', 's_destino.id_servicio')
+                ->leftJoin('usuarios', 'traslados.id_usuario', '=', 'usuarios.id_usuario')
+                ->where('traslados.estado', 'finalizado')
+                ->when($activoFiltro, function ($q) use ($activoFiltro) {
+                    $q->where(function ($sub) use ($activoFiltro) {
+                        $sub->where('activos.nombre', 'like', "%$activoFiltro%")
+                            ->orWhere('activos.codigo', 'like', "%$activoFiltro%");
+                    });
+                })
+                ->when($servicioOrigen, fn($q) => $q->where('s_origen.id_servicio', $servicioOrigen))
+                ->when($servicioDestino, fn($q) => $q->where('s_destino.id_servicio', $servicioDestino))
+                ->when($fechaInicio, fn($q) => $q->where('traslados.fecha', '>=', $fechaInicio))
+                ->when($fechaFin, fn($q) => $q->where('traslados.fecha', '<=', $fechaFin))
+                ->selectRaw("
+                    traslados.fecha,
+                    activos.codigo,
+                    activos.nombre,
+                    'Traslado' as tipo,
+                    s_origen.nombre as origen,
+                    s_destino.nombre as destino,
+                    COALESCE(usuarios.usuario, '') as responsable,
+                    traslados.observaciones,
+                    'activo' as estado_situacional
+                ")
+                ->get();
+
+            foreach ($traslados as $t) {
+                $historial->prepend($t);
+            }
+        }
+
+        // 🔹 4. DEVOLUCIONES
+        if (!$tipoFiltro || $tipoFiltro === 'Devolución') {
+            $devoluciones = DB::table('detalle_devoluciones')
+                ->join('devoluciones', 'detalle_devoluciones.id_devolucion', '=', 'devoluciones.id_devolucion')
+                ->join('activos', 'detalle_devoluciones.id_activo', '=', 'activos.id_activo')
+                ->leftJoin('servicios', 'devoluciones.id_servicio', '=', 'servicios.id_servicio')
+                ->leftJoin('usuarios', 'devoluciones.id_usuario', '=', 'usuarios.id_usuario')
+                ->where('devoluciones.estado', 'finalizado')
+                ->when($activoFiltro, function ($q) use ($activoFiltro) {
+                    $q->where(function ($sub) use ($activoFiltro) {
+                        $sub->where('activos.nombre', 'like', "%$activoFiltro%")
+                            ->orWhere('activos.codigo', 'like', "%$activoFiltro%");
+                    });
+                })
+                ->when($servicioOrigen, fn($q) => $q->where('servicios.id_servicio', $servicioOrigen))
+                ->when($fechaInicio, fn($q) => $q->where('devoluciones.fecha', '>=', $fechaInicio))
+                ->when($fechaFin, fn($q) => $q->where('devoluciones.fecha', '<=', $fechaFin))
+                ->selectRaw("
+                    devoluciones.fecha,
+                    activos.codigo,
+                    activos.nombre,
+                    'Devolución' as tipo,
+                    servicios.nombre as origen,
+                    'Área de Activos Fijos' as destino,
+                    COALESCE(usuarios.usuario, '') as responsable,
+                    devoluciones.observaciones,
+                    'inactivo' as estado_situacional
+                ")
+                ->get();
+
+            foreach ($devoluciones as $d) {
+                $historial->prepend($d);
+            }
+        }
+
+        // 🔹 5. BAJAS
+        if (!$tipoFiltro || $tipoFiltro === 'Baja') {
+            $bajas = DB::table('detalle_bajas')
+                ->join('bajas', 'detalle_bajas.id_baja', '=', 'bajas.id_baja')
+                ->join('activos', 'detalle_bajas.id_activo', '=', 'activos.id_activo')
+                ->leftJoin('servicios', 'bajas.id_servicio', '=', 'servicios.id_servicio')
+                ->leftJoin('usuarios', 'bajas.id_usuario', '=', 'usuarios.id_usuario')
+                ->where('bajas.estado', 'finalizado')
+                ->when($activoFiltro, function ($q) use ($activoFiltro) {
+                    $q->where(function ($sub) use ($activoFiltro) {
+                        $sub->where('activos.nombre', 'like', "%$activoFiltro%")
+                            ->orWhere('activos.codigo', 'like', "%$activoFiltro%");
+                    });
+                })
+                ->when($servicioOrigen, fn($q) => $q->where('servicios.id_servicio', $servicioOrigen))
+                ->when($fechaInicio, fn($q) => $q->where('bajas.fecha', '>=', $fechaInicio))
+                ->when($fechaFin, fn($q) => $q->where('bajas.fecha', '<=', $fechaFin))
+                ->selectRaw("
+                    bajas.fecha,
+                    activos.codigo,
+                    activos.nombre,
+                    'Baja' as tipo,
+                    servicios.nombre as origen,
+                    '' as destino,
+                    COALESCE(usuarios.usuario, '') as responsable,
+                    bajas.observaciones,
+                    'de baja' as estado_situacional
+                ")
+                ->get();
+
+            foreach ($bajas as $b) {
+                $historial->prepend($b);
+            }
+        }
+
+        return view('user.activos.parcial_historial', compact('historial'));
+    }
 
 
 
@@ -457,24 +846,17 @@ public function filtrar(Request $request)
 
 
     public function obtenerSiguienteCodigo(Request $request)
-    {
-        $codigoBase = $request->input('codigo_base');
+{
+    $codigoBase = $request->input('codigo_base');
 
-        // if (!$codigoBase) {
-        //     return response()->json([
-        //         'success' => false,
-        //         'message' => 'No se envió código base'
-        //     ]);
-        // }
-        if (!$codigoBase) {
-        // Si no se pasa código, buscamos el último código activo en la tabla
-        $ultimoCodigo = Activo::where('estado_situacional', 'activo')
-            ->orderBy('id_activo', 'desc')
-            ->pluck('codigo')
-            ->first();
+    // Si no se pasa código base, buscar el último código activo no eliminado
+    if (!$codigoBase) {
+        $ultimoCodigo = Activo::where('estado_situacional', '!=', 'eliminado')
+            ->orderByDesc('id_activo')
+            ->value('codigo');
 
         if (!$ultimoCodigo) {
-            // Si no hay ningún activo, empezamos con AMD-001 por ejemplo
+            // Si no hay ningún activo, iniciamos desde AMD-001
             $prefijo = 'AMD-';
             $longitudNumero = 3;
             $siguienteNumero = 1;
@@ -486,60 +868,53 @@ public function filtrar(Request $request)
             ]);
         }
 
+        // ✅ Aquí asignamos correctamente el último código encontrado
         $codigoBase = $ultimoCodigo;
     }
 
-        // Separar prefijo (letras + guiones) y número al final
-        if (!preg_match('/^(.*?)(\d+)$/', $codigoBase, $matches)) {
-            // No tiene número al final
-            $prefijo = $codigoBase;
-            $numero = 1;
-            $longitudNumero = 3; // Por defecto, o cambia según tu formato
-        } else {
-            $prefijo = $matches[1];
-            $numero = intval($matches[2]);
-            $longitudNumero = strlen($matches[2]); // Para mantener ceros a la izquierda
-        }
-
-        // Traer todos los códigos que empiezan con el prefijo
-       $codigos = Activo::where('codigo', 'like', $prefijo . '%')
-            ->where('estado_situacional', 'activo') // filtra solo activos vigentes
-            ->pluck('codigo')
-            ->toArray();
-
-
-        // Extraer solo los números de los códigos existentes
-        $numerosExistentes = [];
-
-        foreach ($codigos as $codigo) {
-            if (preg_match('/^' . preg_quote($prefijo, '/') . '(\d+)$/', $codigo, $m)) {
-                $numerosExistentes[] = intval($m[1]);
-            }
-        }
-
-        sort($numerosExistentes);
-
-        // Buscar el primer número faltante empezando desde 1
-        $siguienteNumero = 1;
-        foreach ($numerosExistentes as $num) {
-            if ($num == $siguienteNumero) {
-                $siguienteNumero++;
-            } elseif ($num > $siguienteNumero) {
-                // Encontramos un hueco
-                break;
-            }
-        }
-
-        // Formatear el número con ceros a la izquierda
-        $formatoNumero = str_pad($siguienteNumero, $longitudNumero, '0', STR_PAD_LEFT);
-
-        $siguienteCodigo = $prefijo . $formatoNumero;
-
-        return response()->json([
-            'success' => true,
-            'siguiente_codigo' => $siguienteCodigo
-        ]);
+    // Separar prefijo (letras y guiones) y número al final
+    if (!preg_match('/^(.*?)(\d+)$/', $codigoBase, $matches)) {
+        // No tiene número al final → comenzamos desde 1
+        $prefijo = $codigoBase;
+        $numero = 1;
+        $longitudNumero = 3;
+    } else {
+        $prefijo = $matches[1];
+        $numero = intval($matches[2]);
+        $longitudNumero = strlen($matches[2]);
     }
+
+    // Buscar todos los códigos con el mismo prefijo (activos y no eliminados)
+    $codigos = Activo::where('codigo', 'like', $prefijo . '%')
+        ->where('estado_situacional', '!=', 'eliminado')
+        ->pluck('codigo')
+        ->toArray();
+
+    // Extraer los números existentes de esos códigos
+    $numerosExistentes = [];
+    foreach ($codigos as $codigo) {
+        if (preg_match('/^' . preg_quote($prefijo, '/') . '(\d+)$/', $codigo, $m)) {
+            $numerosExistentes[] = intval($m[1]);
+        }
+    }
+
+    // Si hay números, buscar el siguiente al mayor
+    if (!empty($numerosExistentes)) {
+        $siguienteNumero = max($numerosExistentes) + 1;
+    } else {
+        $siguienteNumero = 1;
+    }
+
+    // Formatear con ceros a la izquierda
+    $formatoNumero = str_pad($siguienteNumero, $longitudNumero, '0', STR_PAD_LEFT);
+    $siguienteCodigo = $prefijo . $formatoNumero;
+
+    return response()->json([
+        'success' => true,
+        'siguiente_codigo' => $siguienteCodigo
+    ]);
+}
+
     public function buscar(Request $request)
     {
         $codigo = $request->input('codigo');
@@ -588,7 +963,7 @@ public function filtrar(Request $request)
             'id_unidad' => 'required|exists:unidades,id_unidad',
             'id_estado' => 'required|exists:estados,id_estado',
            'fecha' => [
-    'nullable',
+    'required',
     'date',
     'after_or_equal:2017-01-01', // no menor que 2017
     'before_or_equal:' . date('Y-m-d'), // no futura
@@ -627,6 +1002,7 @@ public function filtrar(Request $request)
             'id_unidad.exists' => 'La unidad de medida seleccionada no existe.',
             'id_estado.required' => 'Debe seleccionar un estado.',
             'id_estado.exists' => 'El estado seleccionado no existe.',
+            'fecha.required' => 'La fecha es obligatoria.',
            'fecha.date' => 'El valor ingresado no es una fecha válida.',
     'fecha.after_or_equal' => 'La fecha no puede ser anterior al 01/01/2017.',
     'fecha.before_or_equal' => 'La fecha no puede ser futura.',
@@ -656,7 +1032,7 @@ public function filtrar(Request $request)
             ], 422);
         }
        // ✅ Verifica duplicados solo en activos con estado "activo"
-if (Activo::soloActivos()->where('codigo', $request->codigo)->exists()) {
+if (Activo::Activos()->where('codigo', $request->codigo)->exists()) {
     return response()->json([
         'success' => false,
         'message' => 'El código ya está en uso por un activo con estado activo.'
@@ -686,6 +1062,8 @@ if (Activo::soloActivos()->where('codigo', $request->codigo)->exists()) {
             $activo->id_categoria = $validated['id_categoria'];
             $activo->id_unidad = $validated['id_unidad'];
             $activo->id_estado = $validated['id_estado'];
+            $activo->estado_situacional = 'inactivo'; // o 'libre', según corresponda
+
             $activo->id_adquisicion = $adquisicion->id_adquisicion; // importante, asignar el ID
             $activo->save();
 
@@ -709,11 +1087,22 @@ if (Activo::soloActivos()->where('codigo', $request->codigo)->exists()) {
 
 
             DB::commit();
+            $activo->load(['categoria', 'unidad', 'estado']);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Activo registrado correctamente.',
-                'activo_id' => $activo->id_activo,
+                'activo' => [
+                    'id' => $activo->id_activo,
+                    'codigo' => $activo->codigo,
+                    'nombre' => $activo->nombre,
+                    'detalle' => $activo->detalle,
+                    'categoria' => $activo->categoria->nombre ?? '',
+                    'unidad' => $activo->unidad->nombre ?? '',
+                    'estado_fisico' => $activo->estado->nombre ?? '',
+                    'situacion' => $activo->estado_situacional ?? 'LIbre',
+                    'fecha' => $activo->created_at->format('d/m/Y'),
+                ],
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
