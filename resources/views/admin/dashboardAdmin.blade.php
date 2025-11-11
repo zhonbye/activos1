@@ -70,10 +70,24 @@
 
     <div class="col-auto">
         <nav class="sidebar d-flex flex-column flex-shrink: 0;" aria-label="Menú de navegación principal">
-            <header>
-                <span class="text text-center mx-4 fs-5 fw-bold ">Administrador</span>
-                <i class="bi fs-2  bi-caret-left toggle" aria-label="Alternar menú"></i>
+            <header class="px-3 pt-3 d-flex align-items-center justify-content-between bg- text-white rounded-3 shadow-sm">
+                <!-- Icono o logo opcional -->
+                <div class="d-flex align-items-center p-2 text-truncate overflow-hidden text-dark">
+                    <i class="bi bi-building fs-3 me-2"></i> <!-- Ícono representativo, por ejemplo hospital/edificio -->
+                    <span class="   fs-5 fw-bold">Gestión de <br> Activos Fijos</span>
+                </div>
+
+                <!-- Toggle menú -->
+                <i class="bi fs-2 bi-caret-left toggle" aria-label="Alternar menú"></i>
             </header>
+            <hr>
+            <li class="nav-item bg-light rounded-4 my-0 p-0" style="max-width: 220px;">
+                <a href="{{ route('admin.panel') }}" role="menuitem"
+                    class="cargar nav-link d-flex align-items-center py-2 px-3">
+                    <i class="bi bi-speedometer2 me-2 fs-5"></i>
+                    <span class="fw-semibold text-truncate overflow-hidden ps-4">Dashboard</span>
+                </a>
+            </li>
 
             <ul class="menu " role="menubar">
                 <!-- Gestión de Usuarios -->
@@ -87,6 +101,9 @@
                     <ul class="submenu" id="submenuUsuarios" role="menu" aria-label="Submenú Usuarios">
                         <li role="none">
                             <a href="{{ route('usuarios.create') }}" role="menuitem" class="cargar">Crear Usuario</a>
+                        </li>
+                        <li role="none">
+                            <a href="{{ route('responsable.index') }}" role="menuitem" class="cargar">Listar personal</a>
                         </li>
                         <li role="none">
                             <a href="{{ route('usuarios.index') }}" role="menuitem" class="cargar">Listar Usuarios</a>
@@ -240,7 +257,8 @@
         </div>
         <div id="mensaje" class="w-100"></div>
         <div id="contenido" class="bg-fdanger flex-grow-1 p-4 m-0 ">
-            <div id="mensaje" class="w-100"></div>
+            @include('user.panelControl')
+            {{-- <div id="mensaje" class="w-100"></div> --}}
             <h2>Panel de Administración</h2>
             <p>Selecciona una opción del menú para comenzar hh.</p>
             <button onclick="mensaje('Esto es una alerta exitosa', 'success')" class="btn btn-success">Mostrar

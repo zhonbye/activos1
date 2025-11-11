@@ -229,26 +229,26 @@
 }
 
             // Botón imprimir historial general
-            $('#btnImprimirHistorial').click(function() {
-                window.print();
-            });
+            // $('#btnImprimirHistorial').click(function() {
+            //     window.print();
+            // });
 
             // Modal dinámico
-            $(document).on('click', '.btnVerDetalle', function() {
-                let item = $(this).data('item');
-                let html = `
-      <p><strong>Código:</strong> ${item.codigo}</p>
-      <p><strong>Tipo de movimiento:</strong> ${item.tipo}</p>
-      <p><strong>Origen:</strong> ${item.origen || '-'}</p>
-      <p><strong>Destino:</strong> ${item.destino || '-'}</p>
-      <p><strong>Responsable:</strong> ${item.responsable || '-'}</p>
-      <p><strong>Observaciones:</strong> ${item.observaciones || '-'}</p>
-    `;
-                $('#modalDetalleInfo').html(html);
-                $('#btnVerActa').off('click').on('click', function() {
-                    window.open(item.url_acta, '_blank');
-                });
-            });
+    //         $(document).on('click', '.btnVerDetalle', function() {
+    //             let item = $(this).data('item');
+    //             let html = `
+    //   <p><strong>Código:</strong> ${item.codigo}</p>
+    //   <p><strong>Tipo de movimiento:</strong> ${item.tipo}</p>
+    //   <p><strong>Origen:</strong> ${item.origen || '-'}</p>
+    //   <p><strong>Destino:</strong> ${item.destino || '-'}</p>
+    //   <p><strong>Responsable:</strong> ${item.responsable || '-'}</p>
+    //   <p><strong>Observaciones:</strong> ${item.observaciones || '-'}</p>
+    // `;
+    //             $('#modalDetalleInfo').html(html);
+    //             $('#btnVerActa').off('click').on('click', function() {
+    //                 window.open(item.url_acta, '_blank');
+    //             });
+    //         });
 
         });
     </script>

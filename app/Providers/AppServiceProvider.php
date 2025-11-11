@@ -12,6 +12,7 @@ use App\Models\Devolucion;
 use App\Models\Estado;
 use App\Models\Inventario;
 use App\Models\Unidad;
+use App\Models\Usuario;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -26,8 +27,8 @@ class AppServiceProvider extends ServiceProvider
         //
     }
 
-    
-    
+
+
 
     public function boot(): void
 {
@@ -48,6 +49,105 @@ class AppServiceProvider extends ServiceProvider
     'categorias' => $categorias,
 ]);
     });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    View::composer('admin.panelControl', function ($view) {
+
+        // -----------------------------
+        // 1️⃣ Totales para las cards
+        // -----------------------------
+        $countActivos = Activo::count();
+        $countUsuarios = Usuario::count();
+        $countUnidades = Unidad::count();
+        $countCategorias = Categoria::count();
+        // $countReportes = Reporte::count();
+
+        // Total de movimientos combinando tablas
+        $countMovimientos =
+            Entrega::count() +
+            Traslado::count() +
+            Devolucion::count() +
+            Baja::count();
+
+        // -----------------------------
+        // 2️⃣ Activos por estado
+        // -----------------------------
+        $activosPorEstado = Activo::join('estados', 'activos.id_estado', '=', 'estados.id_estado')
+            ->select('estados.nombre as estado', DB::raw('COUNT(activos.id_activo) as total'))
+            ->groupBy('estados.nombre')
+            ->pluck('total', 'estado');
+
+        // -----------------------------
+        // 3️⃣ Movimientos por usuario
+        // -----------------------------
+        $usuarios = Usuario::pluck('usuario', 'id_usuario'); // ['1'=>'juan', '2'=>'maria', ...]
+
+        $dataMovimientosUsuarios = [];
+        foreach ($usuarios as $id_usuario => $nombre) {
+            $movimientos = 0;
+            $movimientos += Entrega::where('id_usuario', $id_usuario)->count();
+            $movimientos += Traslado::where('id_usuario', $id_usuario)->count();
+            $movimientos += Devolucion::where('id_usuario',$id_usuario)->count();
+            $movimientos += Baja::where('id_usuario', $id_usuario)->count();
+            $dataMovimientosUsuarios[] = $movimientos;
+        }
+
+        // -----------------------------
+        // 4️⃣ Activos por unidad
+        // -----------------------------
+        $unidades = Unidad::pluck('nombre', 'id_unidad'); // ['1'=>'Recursos Humanos', '2'=>'Logística']
+        $dataActivosUnidades = [];
+
+        foreach ($unidades as $id_unidad => $nombre) {
+            $count = Activo::where('id_unidad', $id_unidad)->count();
+            $dataActivosUnidades[] = $count;
+        }
+
+        // -----------------------------
+        // 5️⃣ Pasar a la vista
+        // -----------------------------
+        $view->with([
+            'countActivos' => $countActivos,
+            'countUsuarios' => $countUsuarios,
+            'countUnidades' => $countUnidades,
+            'countCategorias' => $countCategorias,
+            'countMovimientos' => $countMovimientos,
+            // 'countReportes' => $countReportes,
+            'activosPorEstado' => $activosPorEstado,
+            'usuarios' => array_values($usuarios->toArray()),
+            'dataMovimientosUsuarios' => $dataMovimientosUsuarios,
+            'unidades' => array_values($unidades->toArray()),
+            'dataActivosUnidades' => $dataActivosUnidades,
+        ]);
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     View::composer('user.panelControl', function ($view) {

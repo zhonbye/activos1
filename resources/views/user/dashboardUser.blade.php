@@ -251,8 +251,8 @@
 
 
                 <br>
-                {{-- 
-                
+                {{--
+
                 <br>
 <br>
  --}}
@@ -274,8 +274,8 @@
                     <ul class="submenu" id="submenuActivos">
                         <li><a href="{{ route('activos.index') }}" role="menuitem" class="cargar" id="primario">Listar
                                 Activos</a></li>
-                        <li><a href="{{ route('activos.create') }}" role="menuitem" class="cargar">Registrar Activo</a></li>
-                        <li><a href="{{ route('bajas.create') }}" role="menuitem" class="cargar">Dar de Baja Activo</a></li>
+                        {{-- <li><a href="{{ route('activos.create') }}" role="menuitem" class="cargar">Registrar Activo</a></li> --}}
+                        <li><a href="{{ route('bajas.create') }}" role="menuitem" class=" desactivado cargar">Dar de Baja Activo</a></li>
                         <li><a href="{{ route('activos.historial') }}" role="menuitem" class="cargar">Historial de
                                 activo</a></li>
 
@@ -450,7 +450,7 @@
 
         $(document).ready(function() {
             activarRutaMenu(rutaGuardada);
-           
+
             // if (rutaGuardada) {
             //     const enlace = $(`.menu a[href='${rutaGuardada}']`);
             //     if (enlace.length) {

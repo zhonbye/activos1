@@ -46,7 +46,6 @@
         font-weight: bold;
         cursor: pointer;
     }
-  
 </style>
 
 
@@ -237,15 +236,18 @@
                         <div class="row g-3">
                             <div class="col-md-4">
                                 <label for="filtro_codigo" class="form-label">Código</label>
-                                <input type="text" id="filtro_codigo" name="codigo" class="form-control" placeholder="Ej: AMD-003">
+                                <input type="text" id="filtro_codigo" name="codigo" class="form-control"
+                                    placeholder="Ej: AMD-003">
                             </div>
                             <div class="col-md-4">
                                 <label for="filtro_nombre" class="form-label">Nombre</label>
-                                <input type="text" id="filtro_nombre" name="nombre" class="form-control" placeholder="Nombre del activo">
+                                <input type="text" id="filtro_nombre" name="nombre" class="form-control"
+                                    placeholder="Nombre del activo">
                             </div>
                             <div class="col-md-4">
                                 <label for="filtro_detalle" class="form-label">Detalle</label>
-                                <input type="text" id="filtro_detalle" name="detalle" class="form-control" placeholder="Palabras clave">
+                                <input type="text" id="filtro_detalle" name="detalle" class="form-control"
+                                    placeholder="Palabras clave">
                             </div>
                         </div>
                     </div>
@@ -338,15 +340,19 @@
                                 <!-- Fecha Inicio -->
                                 <div class="col-12 col-md-6">
                                     <label for="fecha_inicio" class="form-label small text-muted">Fecha Inicio</label>
-                                    <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control" value="2017-01-01">
-                                    <input type="range" id="slider_start" value="0" min="0" max="100" step="1" class="form-range mt-1">
+                                    <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control"
+                                        value="2017-01-01">
+                                    <input type="range" id="slider_start" value="0" min="0"
+                                        max="100" step="1" class="form-range mt-1">
                                 </div>
 
                                 <!-- Fecha Fin -->
                                 <div class="col-12 col-md-6">
                                     <label for="fecha_fin" class="form-label small text-muted">Fecha Fin</label>
-                                    <input type="date" id="fecha_fin" name="fecha_fin" class="form-control" value="{{ date('Y-m-d') }}">
-                                    <input type="range" id="slider_end" value="100" min="0" max="100" step="1" class="form-range mt-1">
+                                    <input type="date" id="fecha_fin" name="fecha_fin" class="form-control"
+                                        value="{{ date('Y-m-d') }}">
+                                    <input type="range" id="slider_end" value="100" min="0"
+                                        max="100" step="1" class="form-range mt-1">
                                 </div>
 
                             </div>
@@ -374,31 +380,31 @@
 
 <!-- Modal Registrar Activo -->
 <div class="modal fade" id="modalRegistrarActivo" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div class="modal-content" style="background-color: var(--color-fondo); color: var(--color-texto-principal);">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="background-color: var(--color-fondo); color: var(--color-texto-principal);">
 
-      <!-- Header -->
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="bi bi-box-seam me-1"></i> Registrar Activo</h5>
-        <button type="button" class="btn-close btn-close-success" data-bs-dismiss="modal"></button>
-      </div>
+            <!-- Header -->
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-box-seam me-1"></i> Registrar Activo</h5>
+                <button type="button" class="btn-close btn-close-success" data-bs-dismiss="modal"></button>
+            </div>
 
 
-      <!-- Body (incluye Blade de Laravel) -->
-      <div class="modal-body">
-        @include('user.activos.registrar')
-      </div>
+            <!-- Body (incluye Blade de Laravel) -->
+            <div class="modal-body">
+                @include('user.activos.registrar')
+            </div>
 
-      <!-- Footer -->
-      <div class="modal-footer">
-        {{-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button> --}}
-        <button type="submit" form="form_activo" class="btn btn-success">
-          <i class="bi bi-check2-circle me-1"></i> Guardar Activo
-        </button>
-      </div>
+            <!-- Footer -->
+            <div class="modal-footer">
+                {{-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button> --}}
+                <button type="submit" form="form_activo" class="btn btn-success">
+                    <i class="bi bi-check2-circle me-1"></i> Guardar Activo
+                </button>
+            </div>
 
+        </div>
     </div>
-  </div>
 </div>
 
 
@@ -411,14 +417,14 @@
 <div class="row  bg-info0 pb-4 justify-content-center" style="height: 90vh;min-height: 30vh;max-height:94vh">
     {{-- <div class="main-col col-md-12 col-lg-10 bg-danger order-lg-1 order-1 mb-4 p-1 transition"
          style="position: relative;height: 100%; min-height: 40vh; max-height:100vh display: flex; flex-direction: column; "> --}}
-        <div class="main-col col-md-12 col-lg-11 bg-danger0 order-lg-1 order-1 mb-4 p-1 transition"
-     style="position: relative; height: 80vh; min-height: 40vh; max-height: 80vh; display: flex; flex-direction: column; overflow: visible;">
+    <div class="main-col col-md-12 col-lg-11 bg-danger0 order-lg-1 order-1 mb-4 p-1 transition"
+        style="position: relative; height: 80vh; min-height: 40vh; max-height: 80vh; display: flex; flex-direction: column; overflow: visible;">
 
         {{-- <div class="card p-4 rounded shadow" style="background-color: var(--color-fondo); display: flex; flex-direction: column; height: 100%;"> --}}
-            {{-- <div class="card p-4 rounded shadow"
+        {{-- <div class="card p-4 rounded shadow"
      style="background-color: var(--color-fondo);  display: flex; flex-direction: column; min-height 100vh;height: 100vh;"> --}}
-     <div class="card p-4 rounded shadow"
-     style="position: relative;  background-color: var(--color-fondo); display: flex; flex-direction: column; flex: 1 1 auto;">
+        <div class="card p-4 rounded shadow"
+            style="position: relative;  background-color: var(--color-fondo); display: flex; flex-direction: column; flex: 1 1 auto;">
 
 
             <!-- Título -->
@@ -443,20 +449,21 @@
             </div>
 
             <!-- Card de acciones (buscar, importar, exportar, bajas) -->
-            <div class="card mb-4 shadow-sm " style=" background-color: #f8f9fa;
+            <div class="card mb-4 shadow-sm "
+                style=" background-color: #f8f9fa;
             border-left: 5px solid #0d6efd;
             padding: 1.5rem;">
                 <div class="row g-3 p-3">
 
-                <div class="col-md-3">
-    <label class="form-label fw-semibold">
-        <i class="bi bi-search me-1"></i>Buscar activo
-    </label>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-search me-1"></i>Buscar activo
+                        </label>
 
-    <input type="text" id="buscarActivo"
-        class="form-control form-control-sm rounded-pill shadow-sm px-3"
-        placeholder="Nombre, código o detalle">
-</div>
+                        <input type="text" id="buscarActivo"
+                            class="form-control form-control-sm rounded-pill shadow-sm px-3"
+                            placeholder="Nombre, código o detalle">
+                    </div>
 
                     <div class="col-md-1"></div>
 
@@ -464,16 +471,26 @@
 
                     </div>
 
-                    <div class="col-md-2 d-flex align-items-end">
+                    {{-- <div class="col-md-2 d-flex align-items-end">
                         <button class="desactivado btn btn-success btn-sm w-100" id="btnImportarExcel"><i class="bi bi-file-earmark-arrow-up me-1"></i> Importar Excel</button>
+                    </div> --}}
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button class="btn btn-success btn-sm w-100" id="btnImportarExcel">
+                            <i class="bi bi-file-earmark-arrow-up me-1"></i> Importar Excel
+                        </button>
+                        <input type="file" id="inputExcel" accept=".xls,.xlsx,.csv" style="display: none;">
+                    </div>
+
+
+
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button class="desactivado btn btn-light btn-sm w-100" id="btnExportarExcel"><i
+                                class="bi bi-file-earmark-arrow-down me-1"></i> Exportar Excel</button>
                     </div>
 
                     <div class="col-md-2 d-flex align-items-end">
-                        <button class="desactivado btn btn-light btn-sm w-100" id="btnExportarExcel"><i class="bi bi-file-earmark-arrow-down me-1"></i> Exportar Excel</button>
-                    </div>
-
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button class="desactivado btn btn-dark btn-sm w-100" id="btnVerBajas"><i class="bi bi-archive me-1"></i> Ver bajas</button>
+                        <button class="desactivado btn btn-dark btn-sm w-100" id="btnVerBajas"><i
+                                class="bi bi-archive me-1"></i> Ver bajas</button>
                     </div>
 
                 </div>
@@ -483,9 +500,8 @@
             {{-- <div id="contenedorResultados"
                  class="bg-secondary rounded bg-opacity-10 flex-grow-1"
                  style="overflow-y: auto; padding: 15px;"> --}}
-        <div id="contenedorResultados"
-     class="d-flex flex-column bg- rounded shadow p-3 bg-info0 p-3"
-     style="height: 60vh; max-height: 80vh; ">
+            <div id="contenedorResultados" class="d-flex flex-column bg- rounded shadow p-3 bg-info0 p-3"
+                style="height: 60vh; max-height: 80vh; ">
                 <!-- Aquí van los resultados -->
             </div>
 
@@ -505,10 +521,10 @@
             }
         });
         $(document).on('click', '.modal .btn-close[data-bs-dismiss="modal"]', function() {
-    console.log('Se hizo clic en el botón X del modal Registrar Activo');
-    $(this).blur(); // Quita el foco del botón X
-    // alert($('.modal fade show').html()) // Quita el foco del botón X
-});
+            console.log('Se hizo clic en el botón X del modal Registrar Activo');
+            $(this).blur(); // Quita el foco del botón X
+            // alert($('.modal fade show').html()) // Quita el foco del botón X
+        });
 
 
         // $('.modal fade show').on('hide.bs.modal', function() {
@@ -522,20 +538,19 @@
         // });
 
 
-    $('#buscarActivo').on('keyup', function() {
-        let valor = $(this).val().toLowerCase();
+        $('#buscarActivo').on('keyup', function() {
+            let valor = $(this).val().toLowerCase();
 
-        $('#contenedorResultados table tbody tr').filter(function() {
-            // Buscamos en Código, Nombre y Detalle
-            $(this).toggle(
-                $(this).find('td:eq(0)').text().toLowerCase().indexOf(valor) > -1 ||
-                $(this).find('td:eq(1)').text().toLowerCase().indexOf(valor) > -1 ||
-                $(this).find('td:eq(2)').text().toLowerCase().indexOf(valor) > -1
-            );
+            $('#contenedorResultados table tbody tr').filter(function() {
+                // Buscamos en Código, Nombre y Detalle
+                $(this).toggle(
+                    $(this).find('td:eq(0)').text().toLowerCase().indexOf(valor) > -1 ||
+                    $(this).find('td:eq(1)').text().toLowerCase().indexOf(valor) > -1 ||
+                    $(this).find('td:eq(2)').text().toLowerCase().indexOf(valor) > -1
+                );
+            });
         });
     });
-});
-
 </script>
 
 
@@ -553,145 +568,52 @@
 
 
 
+<div id="iframeContainer"
+    style="display:none; position:fixed; top:10%; left:10%; width:80%; height:70%; background:#fff; border:1px solid #ccc; z-index:9999;">
+    <button id="cerrarIframe" style="position:absolute; top:5px; right:10px;">Cerrar X</button>
+    <iframe id="iframeActivos" src="" style="width:100%; height:100%; border:none;"></iframe>
+</div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    {{-- <div class="main-col col-md-12 col-lg-10 text-white order-lg-1 order-1 transition"> --}}
-
-    {{-- <div class="main-col col-md-12 col-lg-12 order-lg-1 order-1 mb-4 p-1 transition" style="max-height: 95vh;"> --}}
-    {{-- <div class="card  p-4 rounded shadow" style="background-color: var(--color-fondo); min-height: 100vh;"> --}}
-
-    {{-- <div class="main-col col-md-12 order-lg-1 order-1 mb-4 p-1 transition" style="max-height: 95vh;"> --}}
-    {{-- <div class="row g-3" style="min-height: 95vh;"> --}}
-
-    <!-- Columna filtros (más ancha) -->
-    <!-- Botones principales fuera del modal -->
-    <!-- 🔘 Botones principales fuera del modal -->
-
-    {{-- <div class="d-flex justify-content-end align-items-center mb-3">
-        <!-- Botón cuadrado para abrir modal -->
-        <button type="button" class="btn btn-outline-primary me-1" data-bs-toggle="modal"
-            data-bs-target="#modalFiltros" title="Agregar filtros">
-            <i class="bi bi-plus-lg"></i>
-        </button>
-
-        <!-- Botón Filtrar -->
-        <button type="submit" form="formFiltrosActivos" class="btn btn-primary">
-            <i class="bi bi-funnel me-1"></i> Filtrar
-        </button>
-    </div> --}}
-
-
-
-
-
-
-
-    {{--
-
-    <!-- Columna principal vacía (más grande) -->
-    <div class="col-12 col-lg-9">
-        <div class="card p-3 rounded shadow" style="background-color: var(--color-fondo); min-height: 95vh;">
-
-            {{-- <div class="col-12 col-lg-9 h-100">
-                <div class="card p-4 rounded shadow d-flex flex-column" --}}
-    {{-- style="height: 90vh; background-color: var(--color-fondo); border: 2px dashed var(--color-texto-principal);"> --}}
-
-    {{-- <h3 class="text-center text-muted mb-3">Lista de activos </h3>
-
-            <div id="contenedorResultados" class="d-flex flex-column flex-grow-1 bg-secondary rounded bg-opacity-10">
-                {{-- Aquí se cargará el contenido dinámico por AJAX --}}
-    {{-- @include('user.inventario.parcial', ['inventarios' => $inventarios])
+<!-- Modal -->
+<!-- Modal -->
+<!-- Modal Visualizar Activo -->
+<!-- Modal Visualizar Activo -->
+<!-- Modal Visualizar Activo -->
+<div class="modal fade" id="modalVisualizar" tabindex="-1" aria-labelledby="modalVisualizarLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="modalVisualizarLabel">Detalle Completo del Activo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
-        </div>
-    </div> --}}
-
-    {{-- </div> --}}
-    {{-- </div> --}}
-
-    <!-- Scripts al final de tu body -->
-
-    <div id="iframeContainer"
-        style="display:none; position:fixed; top:10%; left:10%; width:80%; height:70%; background:#fff; border:1px solid #ccc; z-index:9999;">
-        <button id="cerrarIframe" style="position:absolute; top:5px; right:10px;">Cerrar X</button>
-        <iframe id="iframeActivos" src="" style="width:100%; height:100%; border:none;"></iframe>
-    </div>
-
-    <!-- Modal -->
-    <!-- Modal -->
-    <!-- Modal Visualizar Activo -->
-    <!-- Modal Visualizar Activo -->
-    <!-- Modal Visualizar Activo -->
-    <div class="modal fade" id="modalVisualizar" tabindex="-1" aria-labelledby="modalVisualizarLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header bg-light">
-                    <h5 class="modal-title" id="modalVisualizarLabel">Detalle Completo del Activo</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <!-- Contenido cargado por AJAX -->
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                </div>
+            <div class="modal-body p-4">
+                <!-- Contenido cargado por AJAX -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
-    <div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header bg-light">
-                    <h5 class="modal-title" id="modalEditarLabel">Detalle del Activo</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <!-- Contenido cargado por AJAX -->
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="guardarCambiosActivo">Guardar cambios</button>
-                    <button type="button" class="btn btn-warning" id="restablecerActivo">Restablecer</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                </div>
+</div>
+<div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="modalEditarLabel">Detalle del Activo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-4">
+                <!-- Contenido cargado por AJAX -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="guardarCambiosActivo">Guardar cambios</button>
+                <button type="button" class="btn btn-secondary" id="restablecerActivo">Restablecer</button>
+                {{-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button> --}}
             </div>
         </div>
     </div>
+</div>
 
 
 
@@ -711,6 +633,174 @@
 <script>
     $(document).ready(function() {
         // $('#formFiltrosActivos submit').trigger('click')
+
+
+
+
+
+
+
+
+
+        const urlGuardar = $('#form_activo').attr('action'); // misma ruta del form
+
+        // Click del botón
+        $('#btnImportarExcel').click(() => $('#inputExcel').click());
+
+        // Cuando selecciona el archivo
+        $('#inputExcel').on('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {
+                    type: 'array'
+                });
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                const filas = XLSX.utils.sheet_to_json(sheet, {
+                    defval: ''
+                });
+
+                if (!filas.length) {
+                    mensaje2('El archivo está vacío o mal formateado.', 'error');
+                    return;
+                }
+
+                importarActivos(filas);
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        function excelDateToJSDate(serial) {
+            // Convierte número de Excel a formato YYYY-MM-DD
+            if (typeof serial === 'number') {
+                const utc_days = Math.floor(serial - 25569);
+                const date_info = new Date(utc_days * 86400 * 1000);
+                const year = date_info.getUTCFullYear();
+                const month = String(date_info.getUTCMonth() + 1).padStart(2, '0');
+                const day = String(date_info.getUTCDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+            return serial; // Si ya es texto tipo "2025-01-15"
+        }
+
+        function importarActivos(filas) {
+            let procesados = 0;
+            let errores = 0;
+
+            filas.forEach((fila, index) => {
+                const formData = {
+                    _token: $('meta[name="csrf-token"]').attr('content'), // ✅ CSRF
+                    codigo: fila.codigo,
+                    nombre: fila.nombre,
+                    detalle: fila.detalle,
+                    id_categoria: fila.id_categoria,
+                    id_unidad: fila.id_unidad,
+                    id_estado: fila.id_estado,
+                    estado_situacional: fila.estado_situacional || 'activo',
+                    fecha: excelDateToJSDate(fila.fecha),
+                    comentarios: fila.comentarios || '',
+                    tipo_adquisicion: fila.tipo_adquisicion,
+                    id_proveedor: fila.id_proveedor || '',
+                    precio_compra: fila.precio_compra || '',
+                    id_donante: fila.id_donante || '',
+                    motivo: fila.motivo || '',
+                    precio_donacion: fila.precio_donacion || '',
+                    sin_datos: fila.sin_datos || 0,
+                };
+
+                $.ajax({
+                    url: urlGuardar,
+                    method: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        procesados++;
+                        if (response.success) {
+                            const a = response.activo;
+                            const badges = {
+                                activo: '<span class="badge bg-danger">En uso</span>',
+                                inactivo: '<span class="badge bg-success">Libre</span>',
+                                baja: '<span class="badge bg-dark">Baja</span>',
+                            };
+                            const badgeSituacion = badges[a.situacion] ||
+                                `<span class="badge bg-secondary">${a.situacion}</span>`;
+
+                            const filaHTML = `
+            <tr data-id="${a.id}">
+              <td>${a.codigo}</td>
+              <td>${a.nombre}</td>
+              <td>${a.detalle}</td>
+              <td>${a.categoria}</td>
+              <td>${a.unidad}</td>
+              <td>${a.estado_fisico}</td>
+              <td>${badgeSituacion}</td>
+              <td>${a.fecha}</td>
+              <td class="text-center">
+                <button class="btn btn-sm btn-outline-primary editar-btn" data-id="${a.id}" title="Editar">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-dark visualizar-btn" data-id="${a.id}" title="Visualizar">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </td>
+            </tr>
+          `;
+                            $('table tbody').prepend(filaHTML);
+                        } else {
+                            errores++;
+                            console.warn(`Error en fila ${index + 1}:`, response);
+                        }
+
+                        if (procesados === filas.length) {
+                            const tipoMsg = errores ? 'error' : 'success';
+                            mensaje2(`Importación completada: ${procesados - errores} exitosas, ${errores} con error.`,
+                                tipoMsg);
+                        }
+                    },
+                    error: function(xhr) {
+                        errores++;
+                        console.error(`Error al importar fila ${index + 1}`, xhr
+                            .responseText);
+                        if (procesados + errores === filas.length) {
+                            mensaje2(`Importación finalizada con ${errores} errores.`,
+                                'error');
+                        }
+                    }
+                });
+            });
+        }
+
+        function mensaje2(texto, tipo) {
+            Swal.fire({
+                text: texto,
+                icon: tipo,
+                confirmButtonText: 'OK'
+            });
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -760,14 +850,38 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        mensaje(response.message, 'success');
+                        mensaje2(response.message, 'success');
 
-                        // ===== ACTUALIZAR LA FILA =====
-                        var fila = $('tbody tr[data-id="' + response.data.id_activo + '"]');
-                        // $('#modalEditar').modal('hide');
+                        // ===== OCULTAR MODAL =====
                         bootstrap.Modal.getInstance(document.getElementById('modalEditar'))
                             .hide();
 
+                        // ===== BUSCAR FILA EXISTENTE =====
+                        var fila = $('tbody tr[data-id="' + response.data.id_activo + '"]');
+
+                        // ===== GENERAR BADGE SEGÚN ESTADO =====
+                        const situacion = response.data.situacion;
+                        let badgeSituacion = '';
+
+                        switch (situacion) {
+                            case 'activo':
+                                badgeSituacion =
+                                    '<span class="badge bg-danger">En uso</span>';
+                                break;
+                            case 'inactivo':
+                                badgeSituacion =
+                                    '<span class="badge bg-success">Libre</span>';
+                                break;
+                            case 'baja':
+                                badgeSituacion = '<span class="badge bg-dark">Baja</span>';
+                                break;
+                            default:
+                                badgeSituacion =
+                                    `<span class="badge bg-secondary">${situacion || 'N/A'}</span>`;
+                                break;
+                        }
+
+                        // ===== SI LA FILA EXISTE, ACTUALIZARLA =====
                         if (fila.length) {
                             fila.find('td:eq(0)').text(response.data.codigo);
                             fila.find('td:eq(1)').text(response.data.nombre);
@@ -775,17 +889,22 @@
                             fila.find('td:eq(3)').text(response.data.categoria);
                             fila.find('td:eq(4)').text(response.data.unidad);
                             fila.find('td:eq(5)').text(response.data.estado);
-                            fila.find('td:eq(6)').text(response.data.fecha);
-                            fila.addClass('table-primary bg-opacity-10'); // Bootstrap verde
-                            setTimeout(function() {
-                                fila.removeClass('table-primary bg-opacity-10');
-                            }, 2000); // dura 2 segundos
-                        }
+                            fila.find('td:eq(6)').html(
+                                badgeSituacion
+                                ); // <---- 🔹 usar .html() para insertar el badge
+                            fila.find('td:eq(7)').text(response.data.fecha);
 
+                            // Efecto visual de actualización
+                            fila.addClass('table-primary bg-opacity-10');
+                            setTimeout(() => {
+                                fila.removeClass('table-primary bg-opacity-10');
+                            }, 2000);
+                        }
                     } else {
-                        mensaje(response.message, 'danger');
+                        mensaje2(response.message, 'danger');
                     }
                 },
+
                 error: function(xhr) {
                     if (xhr.status === 422) {
                         var errors = xhr.responseJSON.errors;
@@ -797,9 +916,9 @@
                                     0] + '</div>');
                             }
                         });
-                        mensaje('Existen errores en el formulario.', 'danger');
+                        mensaje2('Existen errores en el formulario.', 'danger');
                     } else {
-                        mensaje('Ocurrió un error inesperado al actualizar.', 'danger');
+                        mensaje2('Ocurrió un error inesperado al actualizar.', 'danger');
                     }
                 }
             });
@@ -964,11 +1083,11 @@
                     // window.history.pushState(null, '', newUrl);
                 },
                 error: function(xhr) {
-                    let mensaje = 'Error al cargar activos.';
+                    let mensaje2 = 'Error al cargar activos.';
                     if (xhr.responseJSON && xhr.responseJSON.message) {
-                        mensaje = xhr.responseJSON.message;
+                        mensaje2 = xhr.responseJSON.message;
                     }
-                    alert(mensaje);
+                    alert(mensaje2);
                 }
             });
         });

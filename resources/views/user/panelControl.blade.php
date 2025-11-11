@@ -217,7 +217,7 @@
 
 
 
-{{-- 
+{{--
 <!DOCTYPE html>
 <html lang="es">
 
@@ -517,7 +517,7 @@ labels: {!! json_encode($semanas) !!},
                 data: {
                      labels: {!! json_encode($servicios) !!},
             datasets: [{ label: 'Activos', data: {!! json_encode($dataServicios) !!}, backgroundColor: 'rgba(0,123,255,0.8)' }]
-        
+
                 },
                 options: {
                     indexAxis: 'y',

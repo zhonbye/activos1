@@ -93,6 +93,23 @@ Route::post('/activo/{id}/update', [ActivoController::class, 'update'])->name('a
 
 
 
+
+
+
+
+
+
+
+
+Route::get('/responsables/lista', [ResponsableController::class, 'index'])->name('responsable.index');
+Route::get('/responsables/filtrar', [ResponsableController::class, 'filtrarResponsables'])->name('responsables.filtrar');
+Route::post('/responsables/store', [ResponsableController::class, 'store'])->name('responsables.store');
+
+
+
+
+
+
 // Route::post('/dashboard/actas', [DoctoController::class, 'store'])->name('actas.store');
 // Route::get('/dashboard/actas', [DoctoController::class, 'create'])->name('actas.create');
 // Route::get('/dashboard/actas/lista', [DoctoController::class, 'index'])->name('actas.index');
@@ -110,7 +127,7 @@ Route::post('/activo/{id}/update', [ActivoController::class, 'update'])->name('a
     // // Route::get('/entregas/activos', [EntregaController::class, 'obtenerActivosPorEntrega'])->name('entregas.activos');
     // Route::get('actas/buscar/{tipo}/{numero}/{gestion}', [EntregaController::class, 'buscarActaPorTipo']);
     // Route::post('/entregas/detalles/store', [EntregaController::class, 'storeDetalles']);
-    
+
     // Route::get('/getDocto', [EntregaController::class, 'getDocto']);
     // Route::get('/entregas/{entregaId}/activos', [EntregaController::class, 'activosDeEntrega'])->name('activos.deEntrega');
     // Route::post('/entregas/guardar-activos', [EntregaController::class, 'guardarActivos'])->name('activos.guardarPorEntrega');
@@ -249,6 +266,11 @@ Route::post('/entregas/{id}/finalizar', [EntregaController::class, 'finalizarEnt
 Route::get('/panel-usuario', function () {
     return view('user.panelControl');
 })->name('user.panel');
+
+Route::get('/panel-admin', function () {
+    return view('admin.panelControl');
+})->name('admin.panel');
+
 Route::get('/parametros', function () {
     return view('user.parametros.parametros');
 })->name('user.parametros');

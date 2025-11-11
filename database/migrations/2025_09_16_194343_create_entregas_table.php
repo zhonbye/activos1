@@ -15,7 +15,7 @@ return new class extends Migration
             $table->integer('gestion');
             $table->date('fecha');
             $table->unsignedBigInteger('id_usuario');
-            $table->unsignedBigInteger('id_responsable');
+            // $table->unsignedBigInteger('id_responsable');
             $table->unsignedBigInteger('id_servicio');
             $table->string('observaciones', 100)->nullable();
 
@@ -25,7 +25,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('id_usuario')->references('id_usuario')->on('usuarios')->onDelete('cascade');
-            $table->foreign('id_responsable')->references('id_responsable')->on('responsables')->onDelete('cascade');
+            // $table->foreign('id_responsable')->references('id_responsable')->on('responsables')->onDelete('cascade');
             $table->foreign('id_servicio')->references('id_servicio')->on('servicios')->onDelete('cascade');
         });
 
@@ -34,7 +34,6 @@ return new class extends Migration
             'gestion' => 2025,
             'fecha' => now(),
             'id_usuario' => 1,
-            'id_responsable' => 1,
             'id_servicio' => 1,
             'observaciones' => 'Entrega inicial de prueba',
             'estado' => 'pendiente',

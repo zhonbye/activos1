@@ -55,7 +55,7 @@
 </div>
 
 <script>
-   
+
 
 
 
@@ -78,7 +78,7 @@
             if ($btn.data('processing')) return;
 
             const idServicioOrigen = $('#id_servicio_origen').val();
-            let idTraslado = $('#traslado_id').val(); // obtiene el valor del hidden
+            let idTraslado = $('#traslado_id').val(); 
             let data = $('#form_buscar_inventario').serialize();
 
             if (idServicioOrigen) {

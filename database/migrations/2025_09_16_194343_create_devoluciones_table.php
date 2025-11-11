@@ -30,7 +30,7 @@ return new class extends Migration
         });
 
         DB::table('devoluciones')->insert([
-            'numero_documento' => 'DEV-0001',
+            'numero_documento' => '001',
             'gestion' => 2025,
             'fecha' => now(),
             'id_usuario' => 1,

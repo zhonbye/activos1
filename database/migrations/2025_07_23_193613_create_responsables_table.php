@@ -20,6 +20,8 @@ return new class extends Migration
 
             $table->unsignedBigInteger('id_cargo');
             $table->string('rol', 50)->default('personal operativo')->nullable();
+            $table->enum('estado', ['activo', 'inactivo'])->default('activo'); // estado del usuario
+
             $table->foreign('id_cargo')->references('id_cargo')->on('cargos')->onDelete('restrict')->onUpdate('cascade');
 
             $table->timestamps();
@@ -32,6 +34,7 @@ return new class extends Migration
         'ci' => '7435345678',
         'telefono' => '73718313',
         'rol' => 'personal operativo',
+        'estado' => 'activo',
         'id_cargo' => 1,  // Doctor por ejemplo
         'created_at' => now(),
         'updated_at' => now(),
@@ -41,6 +44,7 @@ return new class extends Migration
         'ci' => '87654321',
         'telefono' => '74392142',
         'rol' => 'personal operativo',
+        'estado' => 'activo',
         'id_cargo' => 2, // Licenciada por ejemplo
         'created_at' => now(),
         'updated_at' => now(),
@@ -52,6 +56,7 @@ return new class extends Migration
         'ci' => '00000001',
         'telefono' => '70000001',
         'rol' => 'Director',
+        'estado' => 'activo',
         'id_cargo' => 1, // Doctor
         'created_at' => now(),
         'updated_at' => now(),
@@ -63,6 +68,7 @@ return new class extends Migration
         'ci' => '00000002',
         'telefono' => '70000002',
         'rol' => 'Administrador',
+        'estado' => 'activo',
         'id_cargo' => 3, // Licenciado
         'created_at' => now(),
         'updated_at' => now(),

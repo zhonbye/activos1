@@ -19,7 +19,7 @@ class Activo extends Model
         'detalle',
         'estado_situacional',
         'id_categoria',
-        'id_unidadmed',
+        'id_unidad',
         'id_estado',
         'id_adquisicion',
         'created_at',

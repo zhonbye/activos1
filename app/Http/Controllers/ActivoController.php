@@ -410,9 +410,9 @@ public function historial() {
         }
 
 
-        
 
-        
+
+
         // 🔹 3. TRASLADOSkkkkkkkkkkkkkkkkkkk
         if (!$tipoFiltro || $tipoFiltro === 'Traslado') {
             $traslados = DB::table('detalle_traslados')
@@ -622,7 +622,7 @@ public function historial() {
             'message' => 'Errores de validación en los campos.'
         ], 422);
     }
-
+// dd($request->id_unidad);
     DB::beginTransaction();
     try {
         // Actualizar datos del activo
@@ -698,6 +698,7 @@ public function historial() {
             'categoria' => $activo->categoria->nombre ?? 'N/A',
             'unidad' => $activo->unidad->nombre ?? 'N/A',
             'estado' => $activo->estado->nombre ?? 'N/A',
+            'situacion' => $activo->estado_situacional ?? 'N/A',
             'fecha' => $activo->created_at->format('d/m/Y'),
         ],
     ]);

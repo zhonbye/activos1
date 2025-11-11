@@ -20,6 +20,10 @@ class Responsable extends Model
         'rol',
         'id_cargo',
     ];
+    public function usuario()
+{
+    return $this->hasOne(Usuario::class, 'id_responsable');
+}
 
     public function cargo()
     {
