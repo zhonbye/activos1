@@ -301,6 +301,7 @@
             // Ocultar loader al terminar
             $loader.hide();
 
+controlarBotones($('#estado_traslado').text().trim())
             if (status === "error") {
                 $contenedor.html('<p>Error al cargar los activos.</p>');
             }

@@ -350,13 +350,20 @@ $contenedor.append($loader);
 // alert($loader.html())
     $.get(`${baseUrl}/entregas/${entrega_id}/activos`, function(response) {
         $contenedor.html(response); // reemplaza solo tabla
+        
+controlarBotones($('#estado_entrega').text().trim())
     }).fail(function() {
         $contenedor.html('<p>Error al cargar los activos.</p>');
     }).always(function() {
         $loader.hide(); // ocultar loader
     });
 
-    $('#entrega_id').val(entrega_id);
+    // $('#entrega_id').val(entrega_id);
+    // if($('#estado_entrega').text()){
+    //     // alert($('#estado_entrega').text().trim())
+    //     controlarBotones($('#estado_entrega').text().trim())
+    //     console.log("entro en cargar tbla activos")
+    // }
 }
 
 
@@ -423,6 +430,7 @@ $('#resultado_Busqueda').html('');
     }
 
     function controlarBotones(estado) {
+        // console.log(estado)
     if (estado === 'finalizado') {
         // 🔒 Desactivar botones principales
         $('#btnBuscarActivos').prop('disabled', true);
@@ -433,6 +441,8 @@ $('#resultado_Busqueda').html('');
             .find('button, input, select, textarea')
             .prop('disabled', true)
             .addClass('disabled-element')
+            console.log("finalziado  desactivando botones de la tabla")
+            return;
     } else if (estado === 'pendiente') {
         // 🔓 Reactivar botones principales
         $('#btnBuscarActivos').prop('disabled', false);
@@ -441,6 +451,7 @@ $('#resultado_Busqueda').html('');
             .find('button,  select, textarea')
             .prop('disabled', false)
             .removeClass('disabled-element');
+            return;
     }
 }
 
@@ -534,10 +545,11 @@ $.ajax({
         if (response.success) {
             mensaje(response.message, 'success');
             cargarDetalleEntrega(idEntrega);
-            cargarTablaActivos(idEntrega);
+            // cargarTablaActivos(idEntrega);
 
             $btn.prop('disabled', false)
                 .html('<i class="bi bi-check-circle"></i> Entrega finalizada');
+                controlarBotones('finalizada')
         } else {
             mensaje(response.message || 'No se pudo finalizar la entrega.', 'danger');
             $btn.prop('disabled', false).html(textoOriginal);

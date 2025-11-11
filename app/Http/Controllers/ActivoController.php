@@ -409,7 +409,11 @@ public function historial() {
             }
         }
 
-        // 🔹 3. TRASLADOS
+
+        
+
+        
+        // 🔹 3. TRASLADOSkkkkkkkkkkkkkkkkkkk
         if (!$tipoFiltro || $tipoFiltro === 'Traslado') {
             $traslados = DB::table('detalle_traslados')
                 ->join('traslados', 'detalle_traslados.id_traslado', '=', 'traslados.id_traslado')

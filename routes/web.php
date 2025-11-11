@@ -129,13 +129,13 @@ Route::get('/responsables/{id}', [ResponsableController::class, 'show']);
 
 
 // Route::get('/inventarios/consultar', [InventarioController::class, 'consultar'])->name('inventario.consultar');
+Route::get('/inventario/show', [InventarioController::class, 'show'])->name('inventario.show');
 Route::get('/inventario/ultimo', [InventarioController::class, 'ultimoInventario']);
-Route::get('/inventarios/generar', [InventarioController::class, 'generarVacio'])->name('inventarios.generar');
+Route::get('/inventarios/generar', [InventarioController::class, 'generarVacio'])->name('inventario.generar');
 Route::get('/inventarios/filtro', [InventarioController::class, 'filtrar'])->name('inventario.filtrar');
 Route::get('/inventarios', [InventarioController::class, 'consultar'])->name('inventario.consultar');
 Route::get('/inventario/{id}/activos', [InventarioController::class, 'activosInventario'])->name('inventario.activos');
 
-// Route::get('/inventarios/filtro', [InventarioController::class, 'consultar'])->name('inventarios.filtrar');
 
 
 Route::get('/bajas', [BajaController::class, 'create'])->name('bajas.create');
@@ -249,6 +249,9 @@ Route::post('/entregas/{id}/finalizar', [EntregaController::class, 'finalizarEnt
 Route::get('/panel-usuario', function () {
     return view('user.panelControl');
 })->name('user.panel');
+Route::get('/parametros', function () {
+    return view('user.parametros.parametros');
+})->name('user.parametros');
 Route::get('/prueba', [TrasladoController::class, 'prueba'])->name('pruebas');
 // Route::get('/prueba', [ActivoController::class, 'historial'])->name('pruebas');
 

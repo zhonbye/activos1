@@ -205,7 +205,7 @@
             flex-grow: 1;
             overflow-y: auto;
             /* background-color: red; */
-            mask-image: linear-gradient(to bottom, rgb(243, 14, 14) 80%, rgba(255, 255, 255, 0) 100%);
+            mask-image: linear-gradient(to bottom, rgb(243, 14, 14) 90%, rgba(255, 255, 255, 0) 100%);
 
         }
 
@@ -406,34 +406,6 @@
         const body = document.body;
 
         let ajaxActual = null;
-// Detectar cuando cualquier modal se cierra
-// Listener global para todos los modales
-// $(document).on('hidden.bs.modal', '.modal', function() {
-//     var $modal = $(this);
-// if ($modal.hasClass('constante')) {
-//     // alert("constante")
-//     return;
-
-//     }
-//     // 🔹 Limpiar inputs con errores
-//     $modal.find('.is-invalid').removeClass('is-invalid');
-//     $modal.find('.invalid-feedback').remove();
-
-//     // 🔹 Resetear formularios si existen
-//     $modal.find('form').each(function() {
-//         this.reset();
-//     });
-
-//     // 🔹 Vaciar contenido dinámico (si lo cargaste via AJAX)
-//     $modal.find('.modal-body').html('');
-
-//     // 🔹 Opcional: mensaje de prueba
-//     // alert('Se cerró el modal: ' + $modal.attr('id'));
-
-//     // 🔹 Evitar overlay oscuro pegado
-//     $('body').removeClass('modal-open');
-//     $('.modal-backdrop').remove();
-// });
  function cargarContenido(url) {
                 if (!url) {
                     $('#contenido').html('<p style="color:red;">No se ha proporcionado una URL.</p>');
@@ -503,6 +475,8 @@
 
                     success: function(data) {
                         // $('#contenido').html(data);
+                        $('#contenido').empty();
+
                         $('#miBarra').css('width', '100%');
 
                         setTimeout(() => {

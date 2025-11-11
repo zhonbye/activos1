@@ -308,7 +308,8 @@
         $contenedor.load(`${baseUrl}/devolucion/${devolucion_id}/activos`, function(response, status, xhr) {
             // Ocultar loader al terminar
             $loader.hide();
-
+            
+controlarBotones($('#estado_devolucion').text().trim())
             if (status === "error") {
                 $contenedor.html('<p>Error al cargar los activos.</p>');
             }

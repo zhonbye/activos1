@@ -32,37 +32,53 @@
             </div>
 
             <div class="col-md-6 col-lg-3">
-                <label for="id_categoria" class="form-label">Categoría</label>
-                <select class="form-select input-form" name="id_categoria" id="id_categoria" required>
-                    <option value="" disabled selected>Seleccione una categoría</option>
-                    @foreach ($categorias as $categoria)
-                        <option value="{{ $categoria->id_categoria }}">{{ $categoria->nombre }}</option>
-                    @endforeach
-                </select>
-            </div>
+    <label for="id_categoria" class="form-label">Categoría</label>
+    <div class="input-group">
+        <select class="form-select input-form" name="id_categoria" id="id_categoria" required>
+            <option value="" disabled selected>Seleccione una categoría</option>
+            @foreach ($categorias as $categoria)
+                <option value="{{ $categoria->id_categoria }}">{{ $categoria->nombre }}</option>
+            @endforeach
+        </select>
+        <button type="button" class="btn btn-outline-primary" id="btnAgregarCategoria" title="Agregar nueva categoría">
+            <i class="bi bi-plus-lg"></i>
+        </button>
+    </div>
+</div>
 
-            <div class="col-md-6 col-lg-3">
-                <label for="id_unidad" class="form-label">Unidad de Medida</label>
-                <select class="form-select input-form" name="id_unidad" id="id_unidad" required>
-                    <option value="" disabled selected>Seleccione unidad</option>
-                    @foreach ($unidades as $unidad)
-                        <option value="{{ $unidad->id_unidad }}">{{ $unidad->nombre }}</option>
-                    @endforeach
-                </select>
-            </div>
+<div class="col-md-6 col-lg-3">
+    <label for="id_unidad" class="form-label">Unidad de Medida</label>
+    <div class="input-group">
+        <select class="form-select input-form" name="id_unidad" id="id_unidad" required>
+            <option value="" disabled selected>Seleccione unidad</option>
+            @foreach ($unidades as $unidad)
+                <option value="{{ $unidad->id_unidad }}">{{ $unidad->nombre }}</option>
+            @endforeach
+        </select>
+        <button type="button" class="btn btn-outline-success" id="btnAgregarUnidad" title="Agregar nueva unidad">
+            <i class="bi bi-plus-lg"></i>
+        </button>
+    </div>
+</div>
 
-            <div class="col-md-6 col-lg-3">
-                <label for="id_estado" class="form-label">Estado</label>
-                <select class="form-select input-form" name="id_estado" id="id_estado" required>
-                    <option value="" disabled selected>Seleccione estado</option>
-                    @foreach ($estados as $estado)
-                        <option value="{{ $estado->id_estado }}"
-                            {{ strtolower($estado->nombre) === 'nuevo' ? 'selected' : '' }}>
-                            {{ $estado->nombre }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
+<div class="col-md-6 col-lg-3">
+    <label for="id_estado" class="form-label">Estado</label>
+    <div class="input-group">
+        <select class="form-select input-form" name="id_estado" id="id_estado" required>
+            <option value="" disabled selected>Seleccione estado</option>
+            @foreach ($estados as $estado)
+                <option value="{{ $estado->id_estado }}"
+                    {{ strtolower($estado->nombre) === 'nuevo' ? 'selected' : '' }}>
+                    {{ $estado->nombre }}
+                </option>
+            @endforeach
+        </select>
+        <button type="button" class="btn btn-outline-secondary" id="btnAgregarEstado" title="Agregar nuevo estado">
+            <i class="bi bi-plus-lg"></i>
+        </button>
+    </div>
+</div>
+
         </div>
 
         <!-- Sección 2: Información de Adquisición -->

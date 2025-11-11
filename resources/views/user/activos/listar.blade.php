@@ -46,6 +46,7 @@
         font-weight: bold;
         cursor: pointer;
     }
+  
 </style>
 
 
@@ -427,7 +428,7 @@
 
             <!-- Botones principales -->
             <div class="d-flex justify-content-end mb-3 gap-2">
-                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalRegistrarActivo">
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalRegistrarActivo">
                     <i class="bi bi-plus-lg me-1"></i> Nuevo Activo
                 </button>
                 {{-- <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalRegistrarActivo">
@@ -442,13 +443,21 @@
             </div>
 
             <!-- Card de acciones (buscar, importar, exportar, bajas) -->
-            <div class="card mb-4 shadow-sm">
+            <div class="card mb-4 shadow-sm " style=" background-color: #f8f9fa;
+            border-left: 5px solid #0d6efd;
+            padding: 1.5rem;">
                 <div class="row g-3 p-3">
 
-                    <div class="col-md-3">
-                        <label class="form-label fw-semibold"><i class="bi bi-search me-1"></i>Buscar activo</label>
-                        <input type="text" id="buscarActivo" class="form-control form-control-sm" placeholder="Nombre, código o detalle ">
-                    </div>
+                <div class="col-md-3">
+    <label class="form-label fw-semibold">
+        <i class="bi bi-search me-1"></i>Buscar activo
+    </label>
+
+    <input type="text" id="buscarActivo"
+        class="form-control form-control-sm rounded-pill shadow-sm px-3"
+        placeholder="Nombre, código o detalle">
+</div>
+
                     <div class="col-md-1"></div>
 
                     <div class="col-md-2 d-flex align-items-end">

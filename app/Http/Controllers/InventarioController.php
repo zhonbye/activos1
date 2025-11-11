@@ -272,7 +272,7 @@ class InventarioController extends Controller
      */
     public function show(Inventario $inventario)
     {
-        //
+        return view('user.inventario.show');
     }
 
     /**

@@ -220,19 +220,27 @@
     <span class="fs-5 fw-bold">Gestión de Activos Fijos</span>
     <i class="bi fs-2 bi-caret-left toggle" aria-label="Alternar menú"></i>
 </header> --}}
-<header class="px-3 pt-3 d-flex align-items-center justify-content-between bg- text-white rounded-3 shadow-sm">
-    <!-- Icono o logo opcional -->
-    <div class="d-flex align-items-center p-2 text-truncate overflow-hidden text-dark">
-        <i class="bi bi-building fs-3 me-2"></i> <!-- Ícono representativo, por ejemplo hospital/edificio -->
-        <span class="   fs-5 fw-bold">Gestión de  <br> Activos Fijos</span>
-    </div >
+            <header class="px-3 pt-3 d-flex align-items-center justify-content-between bg- text-white rounded-3 shadow-sm">
+                <!-- Icono o logo opcional -->
+                <div class="d-flex align-items-center p-2 text-truncate overflow-hidden text-dark">
+                    <i class="bi bi-building fs-3 me-2"></i> <!-- Ícono representativo, por ejemplo hospital/edificio -->
+                    <span class="   fs-5 fw-bold">Gestión de <br> Activos Fijos</span>
+                </div>
 
-    <!-- Toggle menú -->
-    <i class="bi fs-2 bi-caret-left toggle" aria-label="Alternar menú"></i>
-</header>
-<hr>
+                <!-- Toggle menú -->
+                <i class="bi fs-2 bi-caret-left toggle" aria-label="Alternar menú"></i>
+            </header>
+            <hr>
+            <li class="nav-item bg-light rounded-4 my-0 p-0" style="max-width: 220px;">
+                <a href="{{ route('user.panel') }}" role="menuitem"
+                    class="cargar nav-link d-flex align-items-center py-2 px-3">
+                    <i class="bi bi-speedometer2 me-2 fs-5"></i>
+                    <span class="fw-semibold text-truncate overflow-hidden ps-4">Dashboard</span>
+                </a>
+            </li>
 
-            <ul class="menu" role="menubar">
+            <hr>
+            <ul class="menu pb-5 mb-5 bg-dadnger" role="menubar">
 
 
 
@@ -242,18 +250,12 @@
 
 
 
-
-<li class="nav-item" style="max-width: 180px;">
-    <a href="{{ route('user.panel') }}" role="menuitem" class="cargar nav-link d-flex align-items-center py-2 px-3">
-        <i class="bi bi-speedometer2 me-2 fs-5"></i>
-        <span class="fw-semibold text-truncate overflow-hidden">Dashboard</span>
-    </a>
-</li>
+                <br>
+                {{-- 
+                
+                <br>
 <br>
-<br>
-<br>
-<hr>
-
+ --}}
 
 
 
@@ -273,7 +275,7 @@
                         <li><a href="{{ route('activos.index') }}" role="menuitem" class="cargar" id="primario">Listar
                                 Activos</a></li>
                         <li><a href="{{ route('activos.create') }}" role="menuitem" class="cargar">Registrar Activo</a></li>
-                         <li><a href="{{ route('bajas.create') }}" role="menuitem" class="cargar">Dar de Baja Activo</a></li>
+                        <li><a href="{{ route('bajas.create') }}" role="menuitem" class="cargar">Dar de Baja Activo</a></li>
                         <li><a href="{{ route('activos.historial') }}" role="menuitem" class="cargar">Historial de
                                 activo</a></li>
 
@@ -322,7 +324,9 @@
                 <ul class="submenu" id="submenuInventario">
                     <li><a href="#" class="desactivado" role="menuitem">Realizar Inventario</a></li>
                     <li><a href="{{ route('inventario.consultar') }}" role="menuitem" class="cargar">Consultar
-                            Inventario</a></li>
+                    <li><a href="{{ route('inventario.show') }}" role="menuitem" class="cargar">inventario</a></li>
+                    <li><a href="{{ route('user.parametros') }}" role="menuitem" class="cargar">Gestión de
+                            parametros</a></li>
                     <li><a href="{{ route('pruebas') }}" role="menuitem" class="cargar">prueba interfaces</a></li>
                 </ul>
             </li>
@@ -403,12 +407,41 @@
 
 
         <div id="contenido" class="bg-dansger flex-grow-1 p-4 m-0 ">
-        @include('user.panelControl')
+            @include('user.panelControl')
         </div>
     </div>
 
 
     <script>
+        function activarRutaMenu(rutaGuardada) {
+    // alert(rutaGuardada)
+    if (!rutaGuardada) return;
+
+    const enlace = $(`.menu a[href='${rutaGuardada}']`);
+
+    if (enlace.length) {
+        // Subimos hasta el menu-item
+        const menuItem = enlace.closest('.menu-item');
+
+        if (menuItem.length) {
+            // Buscar el .main-item dentro del menu-item
+            const mainItem = menuItem.find('.main-item').first();
+
+            // Simular el "clic" para que se abra el submenu
+            if (mainItem.length) {
+                mainItem.trigger('click');
+            }
+        }
+
+        // Añadir clase selected al enlace encontrado
+        enlace.addClass('selected');
+
+        // Luego cargar el contenido normalmente
+        cargarContenido(rutaGuardada);
+    } else {
+        mensaje('La ruta guardada no se encontró en el menú.', 'danger');
+    }
+}
         const baseUrl = "{{ url('/') }}";
         const key = 'rutaDefecto';
         const guardar = ruta => localStorage.setItem(key, ruta);
@@ -416,31 +449,39 @@
         const rutaGuardada = leer();
 
         $(document).ready(function() {
-            if (rutaGuardada) {
-                const enlace = $(`.menu a[href='${rutaGuardada}']`);
-               if (enlace.length) {
-    // Subimos hasta el menu-item
-    const menuItem = enlace.closest('.menu-item');
+            activarRutaMenu(rutaGuardada);
+           
+            // if (rutaGuardada) {
+            //     const enlace = $(`.menu a[href='${rutaGuardada}']`);
+            //     if (enlace.length) {
+            //         // Subimos hasta el menu-item
+            //         const menuItem = enlace.closest('.menu-item');
 
-    if (menuItem.length) {
-        // Buscar el .main-item dentro del menu-item
-        const mainItem = menuItem.find('.main-item').first();
+            //         if (menuItem.length) {
+            //             // Buscar el .main-item dentro del menu-item
+            //             const mainItem = menuItem.find('.main-item').first();
 
-        // Simular el "clic" para que se abra el submenu
-        if (mainItem.length) {
-            mainItem.trigger('click');
-        }
-           // Añadir clase selected al enlace encontrado
-    enlace.addClass('selected');
-    }
+            //             // Simular el "clic" para que se abra el submenu
+            //             if (mainItem.length) {
+            //                 mainItem.trigger('click');
+            //             }
+            //             // Añadir clase selected al enlace encontrado
+            //             enlace.addClass('selected');
+            //         }
 
-    // Luego cargar el contenido normalmente
-    cargarContenido(rutaGuardada);
-} else {
-    mensaje('La ruta guardada no se encontró en el menú.', 'danger');
-}
+            //         // Luego cargar el contenido normalmente
+            //         cargarContenido(rutaGuardada);
+            //     } else {
+            //         mensaje('La ruta guardada no se encontró en el menú.', 'danger');
+            //     }
 
-            }
+            // }
+            /**
+ * Selecciona y activa un enlace del menú según la ruta guardada
+ * @param {string} rutaGuardada - URL o ruta a seleccionar
+ */
+
+
 
             function buscarEnlace(texto) {
                 const lower = texto.toLowerCase();
@@ -583,7 +624,7 @@
 
 
         });
-//todo esto cierra los modales correctamente
+        //todo esto cierra los modales correctamente
         $('.modal').on('click', function(e) {
             if ($(e.target).is('.modal')) {
                 $(this).find('input, select, textarea, button').blur();
@@ -593,10 +634,10 @@
             }
         });
         $(document).on('click', '.modal .btn-close[data-bs-dismiss="modal"]', function() {
-    console.log('Se hizo clic en el botón X del modal Registrar Activo');
-    $(this).blur(); // Quita el foco del botón X
-    // alert($('.modal fade show').html()) // Quita el foco del botón X
-});
+            console.log('Se hizo clic en el botón X del modal Registrar Activo');
+            $(this).blur(); // Quita el foco del botón X
+            // alert($('.modal fade show').html()) // Quita el foco del botón X
+        });
 
 
 

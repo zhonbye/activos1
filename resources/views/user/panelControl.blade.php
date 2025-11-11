@@ -217,7 +217,7 @@
 
 
 
-
+{{-- 
 <!DOCTYPE html>
 <html lang="es">
 
@@ -226,7 +226,7 @@
     <title>Panel de Control - Usuario</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"> --}}
 
     <style>
         body {
@@ -257,7 +257,7 @@
     </style>
 </head>
 
-<body>
+{{-- <body> --}}
     <div class="container-fluid py-4">
         <!-- 🔹 Sección de Bienvenida -->
         {{-- <div class="row mb-4">
@@ -313,66 +313,73 @@
 
 
         <!-- Tarjetas -->
-        <div class="row g-4 mb-4">
-            <div class="col-md-2">
-                <div class="card card-stats text-white bg-primary shadow-sm h-100">
-                    <div class="card-body text-center">
-                        <i class="bi bi-boxes fs-2"></i>
-                        <h5 class="card-title mt-2">Activos</h5>
-                        <p class="display-5">125</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="card card-stats text-white bg-success shadow-sm h-100">
-                    <div class="card-body text-center">
-                        <i class="bi bi-truck fs-2"></i>
-                        <h5 class="card-title mt-2">Entregas</h5>
-                        <p class="display-5">42</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="card card-stats text-white bg-danger shadow-sm h-100">
-                    <div class="card-body text-center">
-                        <i class="bi bi-arrow-left-right fs-2"></i>
-                        <h5 class="card-title mt-2">Traslados</h5>
-                        <p class="display-5">18</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="card card-stats text-white bg-dark shadow-sm h-100">
-                    <div class="card-body text-center">
-                        <i class="bi bi-x-circle fs-2"></i>
-                        <h5 class="card-title mt-2">Bajas</h5>
-                        <p class="display-5">7</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="card card-stats text-white bg-info shadow-sm h-100">
-                    <div class="card-body text-center">
-                        <i class="bi bi-arrow-counterclockwise fs-2"></i>
-                        <h5 class="card-title mt-2">Devoluciones</h5>
-                        <p class="display-5">12</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="card card-stats text-white bg-secondary shadow-sm h-100">
-                    <div class="card-body text-center">
-                        <i class="bi bi-card-checklist fs-2"></i>
-                        <h5 class="card-title mt-2">Inventarios</h5>
-                        <p class="display-5">30</p>
-                    </div>
-                </div>
+      <div class="row g-4 mb-4">
+   <div class="col-md-2">
+    <div class="card card-stats text-white bg-primary shadow-sm h-100 clickable-card" data-ruta="{{ route('activos.index') }}">
+    <div class="card-body text-center">
+        <i class="bi bi-boxes fs-2"></i>
+        <h5 class="card-title mt-2">Activos</h5>
+        <p class="display-5">{{ $countActivos }}</p>
+    </div>
+</div>
+
+</div>
+
+
+    <div class="col-md-2">
+        <div class="card card-stats text-white bg-success shadow-sm h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-truck fs-2"></i>
+                <h5 class="card-title mt-2">Entregas</h5>
+                <p class="display-5">{{ $countEntregas }}</p>
             </div>
         </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="card card-stats text-white bg-danger shadow-sm h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-arrow-left-right fs-2"></i>
+                <h5 class="card-title mt-2">Traslados</h5>
+                <p class="display-5">{{ $countTraslados }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="card card-stats text-white bg-dark shadow-sm h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-x-circle fs-2"></i>
+                <h5 class="card-title mt-2">Bajas</h5>
+                <p class="display-5">{{ $countBajas }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="card card-stats text-white bg-info shadow-sm h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-arrow-counterclockwise fs-2"></i>
+                <h5 class="card-title mt-2">Devoluciones</h5>
+                <p class="display-5">{{ $countDevoluciones }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="card card-stats text-white bg-secondary shadow-sm h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-card-checklist fs-2"></i>
+                <h5 class="card-title mt-2">Inventarios</h5>
+                <p class="display-5">{{ $countInventarios }}</p>
+            </div>
+        </div>
+    </div>
+</div>
 
         <!-- Gráficos -->
         <div class="row g-4 mb-4">
-            <div class="col-md-6">
+            <div class="col-md-5">
                 <div class="card chart-card shadow-sm">
                     <div class="card-body">
                         <h5 class="card-title mb-3">Activos por Estado</h5>
@@ -380,7 +387,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-7">
                 <div class="card chart-card shadow-sm">
                     <div class="card-body">
                         <h5 class="card-title mb-3">Movimientos Último Mes</h5>
@@ -388,10 +395,10 @@
                     </div>
                 </div>
             </div>
-        </div>
+        {{-- </div> --}}
 
         <!-- Distribución por servicio -->
-        <div class="row g-4">
+        {{-- <div class="row g-4"> --}}
             <div class="col-md-12">
                 <div class="card chart-card shadow-sm">
                     <div class="card-body">
@@ -405,6 +412,15 @@
     </div>
     <script>
         $(document).ready(function() {
+
+// Cuando se haga clic en cualquier card con data-ruta
+$('.clickable-card').on('click', function() {
+    const ruta = $(this).data('ruta'); // obtenemos la ruta
+    activarRutaMenu(ruta); // llamamos a tu función
+});
+
+
+
             // 🎯 Configuración general de animación para reutilizar
             const animacionGeneral = {
                 duration: 1500,
@@ -413,76 +429,67 @@
 
             // 🔹 Activos por Estado (doughnut)
             const ctxEstado = document.getElementById('estadoActivosChart').getContext('2d');
-            const estadoActivosChart = new Chart(ctxEstado, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Nuevo', 'Usado', 'Mal Estado'],
-                    datasets: [{
-                        data: [50, 60, 15],
-                        backgroundColor: [
-                            'rgba(0,123,255,0.8)',
-                            'rgba(220,53,69,0.8)',
-                            'rgba(33,37,41,0.8)'
-                        ],
-                        borderColor: [
-                            'rgba(0,123,255,1)',
-                            'rgba(220,53,69,1)',
-                            'rgba(33,37,41,1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: '#000',
-                                font: {
-                                    size: 14,
-                                    weight: 'bold'
-                                }
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(0,0,0,0.7)',
-                            titleColor: '#fff',
-                            bodyColor: '#fff'
+        const labelsEstado = {!! json_encode(array_keys($activosPorEstado->toArray())) !!};
+    const dataEstado = {!! json_encode(array_values($activosPorEstado->toArray())) !!};
+
+    const estadoActivosChart = new Chart(ctxEstado, {
+        type: 'doughnut',
+        data: {
+            labels: labelsEstado,
+            datasets: [{
+                data: dataEstado,
+                backgroundColor: [
+                    'rgba(0,123,255,0.8)',
+                    'rgba(220,53,69,0.8)',
+                    'rgba(33,37,41,0.8)',
+                    'rgba(40,167,69,0.8)',
+                    'rgba(255,193,7,0.8)' // puedes agregar más colores si hay más estados
+                ],
+                borderColor: [
+                    'rgba(0,123,255,1)',
+                    'rgba(220,53,69,1)',
+                    'rgba(33,37,41,1)',
+                    'rgba(40,167,69,1)',
+                    'rgba(255,193,7,1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#000',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
                         }
-                    },
-                    animation: animacionGeneral
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0,0,0,0.7)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff'
                 }
-            });
+            },
+            animation: animacionGeneral // tu animación personalizada
+        }
+    });
 
             // 🔹 Movimientos último mes (barras)
             const ctxMov = document.getElementById('movimientosChart').getContext('2d');
             new Chart(ctxMov, {
                 type: 'bar',
                 data: {
-                    labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
-                    datasets: [
-                        {
-                            label: 'Entregas',
-                            data: [10, 12, 8, 12],
-                            backgroundColor: 'rgba(0,123,255,0.8)'
-                        },
-                        {
-                            label: 'Traslados',
-                            data: [4, 3, 5, 6],
-                            backgroundColor: 'rgba(220,53,69,0.8)'
-                        },
-                        {
-                            label: 'Bajas',
-                            data: [1, 0, 2, 1],
-                            backgroundColor: 'rgba(33,37,41,0.8)'
-                        },
-                        {
-                            label: 'Devoluciones',
-                            data: [2, 3, 1, 6],
-                            backgroundColor: 'rgba(0,123,255,0.5)'
-                        }
-                    ]
+labels: {!! json_encode($semanas) !!},
+                     datasets: [
+                { label: 'Entregas', data: {!! json_encode($dataEntregas) !!}, backgroundColor: 'rgba(0,123,255,0.8)' },
+                { label: 'Traslados', data: {!! json_encode($dataTraslados) !!}, backgroundColor: 'rgba(220,53,69,0.8)' },
+                { label: 'Bajas', data: {!! json_encode($dataBajas) !!}, backgroundColor: 'rgba(33,37,41,0.8)' },
+                { label: 'Devoluciones', data: {!! json_encode($dataDevoluciones) !!}, backgroundColor: 'rgba(0,123,255,0.5)' }
+            ]
                 },
                 options: {
                     responsive: true,
@@ -508,12 +515,9 @@
             new Chart(ctxServ, {
                 type: 'bar',
                 data: {
-                    labels: ['Almacen', 'Servicio A', 'Servicio B', 'Servicio C', 'Servicio D'],
-                    datasets: [{
-                        label: 'Activos',
-                        data: [40, 25, 20, 15, 25],
-                        backgroundColor: 'rgba(0,123,255,0.8)'
-                    }]
+                     labels: {!! json_encode($servicios) !!},
+            datasets: [{ label: 'Activos', data: {!! json_encode($dataServicios) !!}, backgroundColor: 'rgba(0,123,255,0.8)' }]
+        
                 },
                 options: {
                     indexAxis: 'y',
@@ -537,6 +541,6 @@
         });
         </script>
 
-</body>
+{{-- </body> --}}
 
-</html>
+{{-- </html> --}}

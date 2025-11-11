@@ -88,6 +88,152 @@
 
 
 
+<!-- Botón para abrir modal -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalUnidad">
+  <i class="bi bi-plus-lg me-1"></i> Gestionar Unidades
+</button>
+
+<!-- Modal Compacto -->
+<div class="modal fade" id="modalUnidad" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-content" style="background-color: var(--color-fondo); color: var(--color-texto-principal);">
+
+      <!-- Header -->
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-list-ul me-1"></i> Unidades</h5>
+        <button type="button" class="btn-close btn-close-success" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body">
+
+        <!-- Formulario compacto para agregar/editar unidad -->
+        <form id="formUnidad" class="d-flex gap-2 mb-3">
+          <input type="text" class="form-control form-control-sm" id="nombreUnidad" placeholder="Nombre" required>
+          <input type="text" class="form-control form-control-sm" id="abreviaturaUnidad" placeholder="Abreviatura" required>
+          <button type="submit" class="btn btn-sm btn-success rounded-circle" title="Guardar cambios">
+            <i class="bi bi-check2"></i>
+          </button>
+        </form>
+
+        <!-- Botones de acción encima de la tabla -->
+        <div class="mb-2 d-flex gap-2">
+          <button class="btn btn-sm btn-primary rounded-circle" id="btnAgregar" title="Agregar nueva unidad">
+            <i class="bi bi-plus"></i>
+          </button>
+          <button class="btn btn-sm btn-danger rounded-circle" id="btnEliminar" title="Eliminar unidad seleccionada" disabled>
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+
+        <!-- Tabla de unidades -->
+        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+          <table class="table table-hover table-striped table-sm align-middle text-center">
+            <thead class="table-light sticky-top">
+              <tr>
+                <th>Nombre</th>
+                <th>Abreviatura</th>
+              </tr>
+            </thead>
+           <tbody id="listaUnidades">
+    @foreach($unidades as $unidad)
+    <tr>
+        <td>{{ $unidad->nombre }}</td>
+        <td>{{ $unidad->abreviatura }}</td>
+    </tr>
+    @endforeach
+</tbody>
+
+          </table>
+        </div>
+
+      </div>
+
+      <!-- Footer simple -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+          <i class="bi bi-x-lg me-1"></i> Cerrar
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- JS para selección de fila y acciones -->
+<script>
+  const tbody = document.getElementById('listaUnidades');
+  let selectedRow = null;
+
+  // Seleccionar fila y precargar formulario
+  tbody.addEventListener('click', (e) => {
+    const tr = e.target.closest('tr');
+    if (!tr) return;
+
+    // Quitar selección anterior
+    if (selectedRow) selectedRow.classList.remove('table-primary');
+    selectedRow = tr;
+    selectedRow.classList.add('table-primary');
+
+    // Activar botón de eliminar
+    document.getElementById('btnEliminar').disabled = false;
+
+    // Rellenar formulario
+    document.getElementById('nombreUnidad').value = tr.cells[0].textContent;
+    document.getElementById('abreviaturaUnidad').value = tr.cells[1].textContent;
+  });
+
+  // Limpiar selección al agregar nueva unidad
+  document.getElementById('btnAgregar').addEventListener('click', () => {
+    if (selectedRow) selectedRow.classList.remove('table-primary');
+    selectedRow = null;
+    document.getElementById('btnEliminar').disabled = true;
+    document.getElementById('formUnidad').reset();
+  });
+
+  // Guardar cambios desde formulario
+  document.getElementById('formUnidad').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const nombre = document.getElementById('nombreUnidad').value;
+    const abreviatura = document.getElementById('abreviaturaUnidad').value;
+
+    if (selectedRow) {
+      selectedRow.cells[0].textContent = nombre;
+      selectedRow.cells[1].textContent = abreviatura;
+    } else {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${nombre}</td><td>${abreviatura}</td>`;
+      tbody.appendChild(tr);
+    }
+
+    // Limpiar selección y formulario
+    if (selectedRow) selectedRow.classList.remove('table-primary');
+    selectedRow = null;
+    document.getElementById('btnEliminar').disabled = true;
+    e.target.reset();
+  });
+
+  // Eliminar fila seleccionada
+  document.getElementById('btnEliminar').addEventListener('click', () => {
+    if (!selectedRow) return;
+    if (confirm('¿Deseas eliminar esta unidad?')) {
+      selectedRow.remove();
+      selectedRow = null;
+      document.getElementById('btnEliminar').disabled = true;
+      document.getElementById('formUnidad').reset();
+    }
+  });
+</script>
+
+
+
+
+
+
+
+
+
+
 
 
 
