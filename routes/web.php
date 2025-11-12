@@ -109,6 +109,13 @@ Route::get('/responsables/{id}/edit', [ResponsableController::class, 'edit'])->n
 Route::put('/responsables/{id}', [ResponsableController::class, 'update'])->name('responsables.update');
 
 
+Route::get('/usuarios/lista', [UsuarioController::class, 'listarParcial'])->name('usuarios.lista');
+
+Route::get('/usuarios/{usuario}/edit', [UsuarioController::class, 'edit'])
+     ->name('usuarios.edit');
+
+Route::put('/usuarios/{usuario}', [UsuarioController::class, 'update'])
+     ->name('usuarios.update');
 
 
 

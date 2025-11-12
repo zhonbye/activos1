@@ -83,6 +83,7 @@
             @if ($personal->usuario)
               {{-- Editar usuario existente --}}
               <button class="btn btn-sm btn-outline-dark editar-usuario-btn"
+              data-bs-toggle="modal" data-bs-target="#modalEditarUsuario"
                       data-id="{{ $personal->usuario->id_usuario }}"
                       title="Editar usuario">
                 <i class="bi bi-person-gear"></i>

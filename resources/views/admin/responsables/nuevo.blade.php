@@ -39,7 +39,7 @@
                 </select>
             </div>
             <div class="col-md-6">
-                <label for="rolResponsable" class="form-label">Rol del sistema</label>
+                <label for="rolResponsable" class="form-label">Rol que cumple</label>
                 <select id="rolResponsable" name="rol" class="form-select" required>
                       <option value="">Seleccione un rol</option>
     <option value="administrador">Administrador</option>

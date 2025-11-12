@@ -13,7 +13,11 @@ class ResponsableController extends Controller
      */
     public function index()
     {
-        $personales = Responsable::with(['usuario', 'cargo'])->paginate(10);
+        // $personales = Responsable::with(['usuario', 'cargo'])->paginate(10);
+        $personales = Responsable::with(['usuario', 'cargo'])
+    ->orderBy('created_at', 'desc')
+    ->paginate(10);
+
 
         $servicios = \App\Models\Servicio::select('id_servicio', 'nombre')->orderBy('nombre')->get();
         $cargos = \App\Models\Cargo::select('id_cargo', 'nombre')->orderBy('nombre')->get();
@@ -52,7 +56,8 @@ if ($request->filled('search')) {
         }
 
         //  Ordenar y paginar
-        $personales = $query->orderBy('created_at')->paginate(10);
+        $personales = $query->orderBy('created_at', 'desc')->paginate(10);
+
 
         //  Si la petición viene por AJAX → retornar solo la tabla
         if ($request->ajax()) {

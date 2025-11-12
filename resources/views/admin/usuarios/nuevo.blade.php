@@ -100,7 +100,7 @@
                     const idUsuario = response.usuario.id_usuario;
                     const fila = $('#contenedorTablaResponsables tbody tr[data-id="' +
                         idResponsable + '"]');
-                    alert(fila.html())
+                    // alert(fila.html())
                     bootstrap.Modal.getInstance(document.getElementById('modalNuevoUsuario'))
                 .hide();
 

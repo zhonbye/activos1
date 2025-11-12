@@ -30,6 +30,25 @@ class UsuarioController extends Controller
         return view('admin.usuarios.registrar', compact('cargos', 'responsables'));
     }
 
+
+
+
+
+
+
+
+
+public function listarParcial()
+{
+    // Cargar usuarios con su responsable relacionado
+    $usuarios = Usuario::with('responsable')
+                        ->orderBy('created_at', 'desc')
+                        ->paginate(10);
+
+    return view('admin.usuarios.parcial', compact('usuarios'));
+}
+
+
     // public function roles() {
     //     return view('usuarios.roles');
     // }
@@ -200,18 +219,49 @@ class UsuarioController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Usuario $usuario)
+    public function edit($id_usuario)
     {
-        //
+         // Buscar usuario con su responsable relacionado
+        $usuario = Usuario::with('responsable')->findOrFail($id_usuario);
+
+        // Retorna la vista parcial que contiene el formulario de edición
+        return view('admin.usuarios.parcial_editar', compact('usuario'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Usuario $usuario)
-    {
-        //
+    public function update(Request $request, $id_usuario)
+{
+    $usuario = Usuario::findOrFail($id_usuario);
+
+    // Validar datos
+    $request->validate([
+        'usuario' => 'required|string|max:50',
+        'rol' => 'required|string',
+        'estado' => 'required|in:activo,inactivo',
+        'clave' => 'nullable|string|min:6|confirmed', // solo si cambia
+    ]);
+
+    // Actualizar campos
+    $usuario->usuario = $request->usuario;
+    $usuario->rol = $request->rol;
+    $usuario->estado = $request->estado;
+    $usuario->id_responsable = $request->id_responsable;
+
+    // Cambiar contraseña solo si se ingresó
+    if ($request->filled('clave')) {
+        $usuario->clave = bcrypt($request->clave);
     }
+
+    $usuario->save();
+
+    return response()->json([
+        'success' => true,
+        'mensaje' => 'Usuario actualizado correctamente'
+    ]);
+}
+
 
     /**
      * Remove the specified resource from storage.

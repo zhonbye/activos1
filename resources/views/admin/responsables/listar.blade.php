@@ -108,6 +108,99 @@
 
 
 
+
+
+<!-- Modal Editar Usuario -->
+<div class="modal fade" id="modalEditarUsuario" tabindex="-1" aria-labelledby="modalEditarUsuarioLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" style="background-color: #ffffff; color: #212529; border-radius: 12px;">
+
+            <!-- Header -->
+            <div class="modal-header border-0 bg-primary bg-opacity-10">
+                <h5 class="modal-title fw-bold" id="modalEditarUsuarioLabel">
+                    <i class="bi bi-person-gear me-2"></i> Editar usuario
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body pt-3">
+                {{-- @include('admin.usuarios.editar') --}}
+                
+            </div>
+
+            {{-- Opcional footer si quieres botones separados
+            <div class="modal-footer border-0">
+                <button type="reset" class="btn btn-secondary">
+                    <i class="bi bi-eraser-fill"></i> Limpiar
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check2-circle"></i> Guardar cambios
+                </button>
+            </div> --}}
+
+        </div>
+    </div>
+</div>
+
+
+
+<<!-- Modal Lista de Usuarios -->
+<div class="modal fade" id="modalListaUsuarios" tabindex="-1" aria-labelledby="modalListaUsuariosLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg"> <!-- modal-lg para tabla más ancha -->
+    <div class="modal-content">
+      
+      <!-- Header -->
+      <div class="modal-header bg-primary text-white">
+        <h6 class="modal-title" id="modalListaUsuariosLabel">
+          <i class="bi bi-people me-1"></i> Lista de usuarios
+        </h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      
+      <!-- Body -->
+      <div class="modal-body p-2">
+        <table class="table table-sm table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>ID</th>
+              <th>Usuario</th>
+              <th>Clave</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th>ID Responsable</th>
+              <th>Token</th>
+              <th>Creado</th>
+              <th>Actualizado</th>
+            </tr>
+          </thead>
+          <tbody id="tablaUsuarios">
+            <!-- Aquí se cargará la tabla parcial vía AJAX -->
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
 <div class="row bg-info0 pb-4 justify-content-center" style="height: 90vh; min-height: 30vh; max-height: 94vh;">
 
     <div class="main-col col-md-12 col-lg-11 order-lg-1 order-1 mb-4 p-1 transition"
@@ -128,19 +221,24 @@
                     data-bs-target="#modalNuevoResponsable">
                     <i class="bi bi-plus-lg me-1"></i> Nuevo Responsable
                 </button>
+              <button class="btn btn-dark btn-sm" data-bs-toggle="modal"
+        data-bs-target="#modalListaUsuarios">
+    <i class="bi bi-people me-1"></i> Ver lista de usuarios
+</button>
+
                 <button class="btn btn-secondary btn-sm">
                     <i class="bi bi-printer-fill me-1"></i> Imprimir
                 </button>
             </div>
 
-            <div class="card mb-4 shadow-sm"
+            <div class="card mb-4 shadow-sm filtroPersonal"
                 style="background-color: #f8f9fa; border-left: 5px solid #0d6efd; padding: 1.5rem;">
                 <div class="row g-3 p-3 align-items-end">
 
                     <!-- 🔍 Buscar (frontend) -->
                     <div class="col-md-3">
                         <label class="form-label fw-semibold">
-                            <i class="bi bi-search me-1"></i>Buscar activo
+                            <i class="bi bi-search me-1"></i>Buscar personal
                         </label>
                         <input type="text" id="buscarResponsable"
                             class="form-control form-control-sm rounded-pill shadow-sm px-3"
@@ -201,26 +299,145 @@
             </div>
 
 
+
+
+
+
+
+
+
+
+
+<div class="card mb-4 shadow-sm filtroUsuario d-none"
+     style="background-color: #f8f9fa; border-left: 5px solid #0d6efd; padding: 1.5rem;">
+    <div class="row g-3 p-3 align-items-end">
+
+        <!-- 🔍 Buscar (frontend) -->
+        <div class="col-md-4">
+            <label class="form-label fw-semibold">
+                <i class="bi bi-search me-1"></i>Buscar usuario
+            </label>
+            <input type="text" id="buscarResponsable"
+                   class="form-control form-control-sm rounded-pill shadow-sm px-3"
+                   placeholder="Nombre, C.I. o teléfono">
+        </div>
+                    <div class="col-md-3"> </div>
+
+        <!-- 👤 Filtro: Rol -->
+        <div class="col-md-2">
+            <label class="form-label fw-semibold">
+                <i class="bi bi-person-badge me-1"></i>Rol
+            </label>
+            <select id="filtroRol" class="form-select form-select-sm rounded-pill shadow-sm">
+                <option value="">Todos</option>
+                <option value="administrador">Administrador</option>
+                <option value="usuario">Usuario</option>
+            </select>
+        </div>
+
+        <!-- ⚙️ Filtro: Estado -->
+        <div class="col-md-2">
+            <label class="form-label fw-semibold">
+                <i class="bi bi-toggle-on me-1"></i>Estado
+            </label>
+            <select id="filtroEstado" class="form-select form-select-sm rounded-pill shadow-sm">
+                <option value="">Todos</option>
+                <option value="activo">Activo</option>
+                <option value="inactivo">Inactivo</option>
+            </select>
+        </div>
+
+        <!-- 🔎 Botón Filtrar -->
+        <div class="col-md-1 d-flex align-items-end">
+            <button class="btn btn-outline-primary btn-sm w-100" id="btnFiltrarActivos">
+                <i class="bi bi-funnel me-1"></i>Filtrar
+            </button>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+
             <!-- 🔹 Contenedor donde cargará la tabla -->
             {{-- <div id="contenedorResultados">
             <!-- Aquí van los resultados -->
         </div> --}}
 
-            <div id="contenedorTablaResponsables" class="d-flex flex-column bg- rounded shadow p-3 bg-info0 p-3"
+            {{-- <div id="contenedorTablaResponsables" class="d-flex flex-column bg- rounded shadow p-3 bg-info0 p-3"
                 style="height: 60vh; max-height: 80vh; ">
                 <!-- Aquí se cargará la tabla de responsables -->
                 @include('admin.responsables.parcial')
                 {{-- <div class="text-center text-muted mt-4">
                     <i class="bi bi-hourglass-split me-2"></i> Cargando listado de personal...
-                </div> --}}
-            </div>
+                </div> 
+            </div> --}}
 
+
+
+
+
+
+
+
+<div class="d-flex flex-column bg-white rounded shadow p-3" style="height: 60vh; max-height: 80vh;">
+    
+    <!-- Nav tabs compactas -->
+    <ul class="nav nav-pills mb-3 bg-light rounded p-1" id="tabList" role="tablist">
+        <li class="nav-item me-2" role="presentation">
+            <button class="nav-link active text-dark fw-semibold" id="tab-personal" data-bs-toggle="tab" data-bs-target="#contenido-personal" type="button" role="tab">
+                <i class="bi bi-people me-1"></i> Personal
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link text-dark fw-semibold" id="tab-usuarios" data-bs-toggle="tab" data-bs-target="#contenido-usuarios" type="button" role="tab">
+                <i class="bi bi-person-badge me-1"></i> Usuarios
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content flex-grow-1 overflow-auto" style="height: calc(100% - 50px);">
+        
+        <!-- Personal -->
+        <div class="tab-pane fade show active" id="contenido-personal" role="tabpanel">
+            <div id="contenedorTablaResponsables">
+                @include('admin.responsables.parcial')
+            </div>
+        </div>
+
+        <!-- Usuarios -->
+        <div class="tab-pane fade" id="contenido-usuarios" role="tabpanel">
+            <div id="contenedorTablaUsuarios">
+                <!-- Aquí se cargará la tabla vía AJAX -->
+                <div class="text-center text-muted mt-3">
+                    <i class="bi bi-hourglass-split me-2"></i> Cargando listado de usuarios...
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+            
         </div>
     </div>
 </div>
 <script>
     function cargarDatos(tablaId, datos) {
-        console.log(datos)
+        // console.log(datos)
         const contenedor = document.getElementById(tablaId);
         if (!contenedor) {
             console.error(`❌ No se encontró el contenedor con ID: ${tablaId}`);
@@ -269,11 +486,32 @@
         });
 
 
-        alert(`✅ ${datos.length} fila(s) agregadas a la tabla ${tablaId}`);
+        // alert(`✅ ${datos.length} fila(s) agregadas a la tabla ${tablaId}`);
     }
 
     $(document).ready(function() {
 
+
+
+let usuariosCargados = false; // bandera para que solo cargue una vez
+$('#tab-usuarios').on('shown.bs.tab', function (e) {
+    // Mostrar filtro de usuarios y ocultar filtro de personal
+    $('.filtroUsuario').removeClass('d-none');
+    $('.filtroPersonal').addClass('d-none');
+
+    if (!usuariosCargados) {
+        $.get("{{ route('usuarios.lista') }}", function(data){
+            $('#contenedorTablaUsuarios').html(data);
+            usuariosCargados = true; // marcamos que ya se cargó
+        });
+    }
+});
+
+$('#tab-personal').on('shown.bs.tab', function (e) {
+    // Mostrar filtro de personal y ocultar filtro de usuarios
+    $('.filtroPersonal').removeClass('d-none');
+    $('.filtroUsuario').addClass('d-none');
+});
 
 
 
@@ -331,17 +569,22 @@ $(document).on('submit', '#formEditarResponsable', function(e) {
                 // $('#modalEditarResponsable #modalEditarResponsable').find('button[data-bs-dismiss="modal"]').trigger('click');
                 $('#modalEditarResponsable ').find('button[data-bs-dismiss="modal"]').trigger('click');
                 // $('#modalEditarResponsable').find('button[data-bs-dismiss="modal"]').trigger('click');
+let telefono = response.responsable.telefono;
 
-                // Actualizar fila en la tabla si existe
+// si el valor es null, undefined o cadena vacía
+if (telefono === null || telefono === undefined || telefono.trim() === '') {
+    telefono = '—';
+}
+// alert(estado)    // Actualizar fila en la tabla si existe
                 var fila = $('#contenedorTablaResponsables tbody tr[data-id="' + idResponsable + '"]');
                 if (fila.length) {
                     fila.find('td:eq(0)').text(response.responsable.nombre);
                     fila.find('td:eq(1)').text(response.responsable.ci);
-                    fila.find('td:eq(2)').text(response.responsable.telefono);
+                    fila.find('td:eq(2)').text(telefono);
                     fila.find('td:eq(3)').text(response.responsable.cargo);
                     fila.find('td:eq(4)').text(response.responsable.rol);
                     // fila.find('td:eq(5)').text(response.responsable.estado);
-                    fila.find('td:eq(5)').text(" <span class='badge bg-success'>"+response.responsable.estado+"</span>");
+fila.find('td:eq(5)').html(`<span class='badge bg-success'>${response.responsable.estado}</span>`);
 
                     fila.addClass('table-primary bg-opacity-10');
                     setTimeout(() => fila.removeClass('table-primary bg-opacity-10'), 2000);
@@ -402,7 +645,59 @@ $.ajax({
     }
 });
 
+
+
+
+
 });
+
+
+
+
+// Cuando se hace click en el botón editar usuario
+$(document).on('click', '.editar-usuario-btn', function() {
+    const idUsuario = $(this).data('id'); // Obtenemos el ID del usuario
+
+    // Abrimos el modal
+    const modal = $('#modalEditarUsuario');
+    modal.modal('show');
+
+    // Mostramos mensaje de carga
+    modal.find('.modal-body').html(`
+        <div class="text-center text-muted p-3">
+            <i class="bi bi-hourglass-split me-2"></i> Cargando datos del usuario...
+        </div>
+    `);
+
+    // Petición AJAX para obtener los datos del usuario
+    $.ajax({
+        url: baseUrl + "/usuarios/" + idUsuario + "/edit", // Ruta del controlador que retorna la vista parcial con datos
+        method: "GET",
+        success: function(response) {
+            // Rellenamos el modal con la vista parcial
+            modal.find('.modal-body').html(response);
+
+            // Opcional: rellenar campos manualmente si devuelves JSON
+            /*
+            $('#idUsuarioEditar').val(response.id_usuario);
+            $('#usuarioEditar').val(response.usuario);
+            $('#rolEditar').val(response.rol);
+            $('#estadoEditar').val(response.estado);
+            $('#responsableEditarNombre').val(response.responsable.nombre);
+            $('#responsableEditarId').val(response.id_responsable);
+            */
+        },
+        error: function(xhr) {
+            console.error(xhr.responseText);
+            modal.find('.modal-body').html(`
+                <div class="alert alert-danger text-center">
+                    <i class="bi bi-exclamation-triangle me-2"></i> Error al cargar los datos del usuario.
+                </div>
+            `);
+        }
+    });
+});
+
 
 
 
