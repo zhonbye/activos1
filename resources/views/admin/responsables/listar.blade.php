@@ -54,7 +54,7 @@
 
             <!-- Body -->
             <div class="modal-body pt-3">
-             
+
             </div>
 
             <!-- Footer -->
@@ -126,7 +126,7 @@
             <!-- Body -->
             <div class="modal-body pt-3">
                 {{-- @include('admin.usuarios.editar') --}}
-                
+
             </div>
 
             {{-- Opcional footer si quieres botones separados
@@ -149,7 +149,7 @@
 <div class="modal fade" id="modalListaUsuarios" tabindex="-1" aria-labelledby="modalListaUsuariosLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg"> <!-- modal-lg para tabla más ancha -->
     <div class="modal-content">
-      
+
       <!-- Header -->
       <div class="modal-header bg-primary text-white">
         <h6 class="modal-title" id="modalListaUsuariosLabel">
@@ -157,7 +157,7 @@
         </h6>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
-      
+
       <!-- Body -->
       <div class="modal-body p-2">
         <table class="table table-sm table-hover align-middle mb-0">
@@ -179,7 +179,7 @@
           </tbody>
         </table>
       </div>
-      
+
       <!-- Footer -->
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
@@ -212,7 +212,7 @@
 
             <!-- 🔹 Título -->
             <h2 class="mb-4 text-center text-primary">
-                <i class="bi bi-people-fill me-2"></i>Listado del Personal / Responsables
+                <i class="bi bi-people-fill me-2"></i>Listado del Personal / Usuarios
             </h2>
 
             <!-- 🔹 Botones principales -->
@@ -373,7 +373,7 @@
                 @include('admin.responsables.parcial')
                 {{-- <div class="text-center text-muted mt-4">
                     <i class="bi bi-hourglass-split me-2"></i> Cargando listado de personal...
-                </div> 
+                </div>
             </div> --}}
 
 
@@ -384,7 +384,7 @@
 
 
 <div class="d-flex flex-column bg-white rounded shadow p-3" style="height: 60vh; max-height: 80vh;">
-    
+
     <!-- Nav tabs compactas -->
     <ul class="nav nav-pills mb-3 bg-light rounded p-1" id="tabList" role="tablist">
         <li class="nav-item me-2" role="presentation">
@@ -401,7 +401,7 @@
 
     <!-- Tab panes -->
     <div class="tab-content flex-grow-1 overflow-auto" style="height: calc(100% - 50px);">
-        
+
         <!-- Personal -->
         <div class="tab-pane fade show active" id="contenido-personal" role="tabpanel">
             <div id="contenedorTablaResponsables">
@@ -431,7 +431,7 @@
 
 
 
-            
+
         </div>
     </div>
 </div>
@@ -612,6 +612,75 @@ fila.find('td:eq(5)').html(`<span class='badge bg-success'>${response.responsabl
 });
 
 
+// Evento submit para el formulario de edición de usuario
+$(document).on('submit', '#formEditarUsuario', function(e) {
+    e.preventDefault(); // Evita recargar la página al enviar el formulario
+
+    let formDataArray = $(this).serializeArray();
+    let formData = $.param(formDataArray); // Convierte el array en query string
+
+    // Obtener el ID del usuario desde el formulario
+    let idUsuario = $(this).find('input[name="id_usuario"]').val();
+
+    $.ajax({
+        url: $(this).attr('action'), // La ruta configurada en el atributo action del form
+        method: 'PUT',
+        data: formData,
+        dataType: 'json',
+        beforeSend: function() {
+            // Limpiar errores previos
+            $('#formEditarUsuario').find('.is-invalid').removeClass('is-invalid');
+            $('#formEditarUsuario').find('.invalid-feedback').remove();
+        },
+        success: function(response) {
+            if (response.success) {
+                mensaje2(response.message, 'success');
+
+                // Cerrar el modal
+                $('#modalEditarUsuario').find('button[data-bs-dismiss="modal"]').trigger('click');
+
+                // Obtener campos del usuario
+                let telefono = response.usuario.telefono;
+                if (!telefono || telefono.trim() === '') telefono = '—';
+
+                // Buscar y actualizar la fila en la tabla
+                var fila = $('#contenedorTablaUsuarios tbody tr[data-id="' + idUsuario + '"]');
+                if (fila.length) {
+                    fila.find('td:eq(0)').text(response.usuario.nombre);
+                    fila.find('td:eq(1)').text(response.usuario.email);
+                    fila.find('td:eq(2)').text(telefono);
+                    fila.find('td:eq(3)').text(response.usuario.rol);
+                    fila.find('td:eq(4)').html(
+                        `<span class="badge ${response.usuario.estado === 'Activo' ? 'bg-success' : 'bg-danger'}">
+                            ${response.usuario.estado}
+                        </span>`
+                    );
+
+                    // Efecto visual de actualización
+                    fila.addClass('table-primary bg-opacity-10');
+                    setTimeout(() => fila.removeClass('table-primary bg-opacity-10'), 2000);
+                }
+            } else {
+                mensaje2(response.message, 'danger');
+            }
+        },
+        error: function(xhr) {
+            if (xhr.status === 422) {
+                var errors = xhr.responseJSON.errors;
+                $.each(errors, function(key, msgs) {
+                    var input = $('#formEditarUsuario').find('[name="' + key + '"]');
+                    input.addClass('is-invalid');
+                    if (input.next('.invalid-feedback').length === 0) {
+                        input.after('<div class="invalid-feedback">' + msgs[0] + '</div>');
+                    }
+                });
+                mensaje2('Existen errores en el formulario.', 'danger');
+            } else {
+                mensaje2('Ocurrió un error inesperado al actualizar el usuario.', 'danger');
+            }
+        }
+    });
+});
 
 
 // Cuando se hace click en el botón editar
@@ -632,7 +701,7 @@ $.ajax({
     },
     success: function(response) {
         $('#modalEditarResponsable .modal-body').html(response);
-        
+
         // $('#modalEditarResponsable').modal('show');
     },
     error: function(xhr) {

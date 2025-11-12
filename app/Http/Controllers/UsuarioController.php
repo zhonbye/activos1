@@ -247,7 +247,7 @@ public function listarParcial()
     $usuario->usuario = $request->usuario;
     $usuario->rol = $request->rol;
     $usuario->estado = $request->estado;
-    $usuario->id_responsable = $request->id_responsable;
+    // $usuario->id_responsable = $request->id_responsable;
 
     // Cambiar contraseña solo si se ingresó
     if ($request->filled('clave')) {
