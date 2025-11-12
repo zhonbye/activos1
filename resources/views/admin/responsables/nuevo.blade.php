@@ -3,7 +3,7 @@
         @csrf
 
     <!-- 🧾 Sección 1: Datos personales -->
-    <div class="mb-4 p-3 rounded" style="background-color: #e9f2ff;">
+    <div class="mb-4 p-3 rounded" style="background-color: #e7eef886;">
         <h6 class="fw-bold border-bottom pb-1 mb-3">
             <i class="bi bi-person-vcard me-1"></i> Información personal
         </h6>
@@ -24,7 +24,7 @@
     </div>
 
     <!-- 🏢 Sección 2: Cargo y rol -->
-    <div class="mb-4 p-3 rounded" style="background-color: #f0f7e8;">
+    <div class="mb-4 p-3 rounded" style="background-color: #f0f7e896;">
         <h6 class="fw-bold border-bottom pb-1 mb-3">
             <i class="bi bi-briefcase-fill me-1"></i> Cargo y rol
         </h6>
@@ -41,10 +41,15 @@
             <div class="col-md-6">
                 <label for="rolResponsable" class="form-label">Rol del sistema</label>
                 <select id="rolResponsable" name="rol" class="form-select" required>
-                    <option value="">Seleccione un rol</option>
-                    <option value="admin">Administrador</option>
-                    <option value="user">Usuario</option>
-                    <option value="tecnico">Técnico</option>
+                      <option value="">Seleccione un rol</option>
+    <option value="administrador">Administrador</option>
+    <option value="director">Director</option>
+    <option value="coordinador">Coordinador</option>
+    <option value="medico">Médico / Doctor</option>
+    <option value="enfermero">Enfermero / Técnico de enfermería</option>
+    <option value="administrativo">Personal administrativo / Secretaria</option>
+    <option value="personal_operativo">Personal operativo</option>
+    <option value="invitado">Visitante / Invitado</option>
                 </select>
             </div>
         </div>
@@ -66,7 +71,6 @@ $('#formNuevoResponsable').submit(function (e) {
     console.log("📋 Campos recibidos:", datos);
 
     // 🔹 Función para "recuperar" todo y mostrar en un alert
-
 
     $.ajax({
         url: $(this).attr('action'),

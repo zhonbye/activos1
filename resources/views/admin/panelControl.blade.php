@@ -3,27 +3,28 @@
         background-color: #f8f9fa;
     }
 
-    .card-stats {
-        border-radius: 12px;
-        transition: transform .2s;
-    }
 
-    .card-stats:hover {
-        transform: translateY(-5px);
-    }
+        .card-stats {
+            border-radius: 12px;
+            transition: transform .2s;
+        }
 
-    .card-title {
-        font-weight: 600;
-    }
+        .card-stats:hover {
+            transform: translateY(-5px);
+        }
 
-    .display-5 {
-        font-size: 2.2rem;
-        font-weight: bold;
-    }
+        .card-title {
+            font-weight: 600;
+        }
 
-    .chart-card {
-        border-radius: 12px;
-    }
+        .display-5 {
+            font-size: 2.2rem;
+            font-weight: bold;
+        }
+
+        .chart-card {
+            border-radius: 12px;
+        }
 </style>
 </head>
 
@@ -55,7 +56,7 @@
                 <div class="card-body text-center">
                     <i class="bi bi-boxes fs-2"></i>
                     <h6 class="card-title mt-2">Activos Totales</h6>
-                    <p class="display-6">{{ $countActivos }}</p>
+                    <p class="display-5">{{ $countActivos }}</p>
                 </div>
             </div>
         </div>
@@ -66,7 +67,7 @@
                 <div class="card-body text-center">
                     <i class="bi bi-people fs-2"></i>
                     <h6 class="card-title mt-2">Usuarios</h6>
-                    <p class="display-6">{{ $countUsuarios }}</p>
+                    <p class="display-5">{{ $countUsuarios }}</p>
                 </div>
             </div>
         </div>
@@ -76,7 +77,7 @@
                 <div class="card-body text-center">
                     <i class="bi bi-building fs-2"></i>
                     <h6 class="card-title mt-2">Unidades</h6>
-                    <p class="display-6">{{ $countUnidades }}</p>
+                    <p class="display-5">{{ $countUnidades }}</p>
                 </div>
             </div>
         </div>
@@ -86,7 +87,7 @@
                 <div class="card-body text-center">
                     <i class="bi bi-briefcase fs-2"></i>
                     <h6 class="card-title mt-2">Categorías</h6>
-                    <p class="display-6">{{ $countCategorias }}</p>
+                    <p class="display-5">{{ $countCategorias }}</p>
                 </div>
             </div>
         </div>
@@ -96,7 +97,7 @@
                 <div class="card-body text-center">
                     <i class="bi bi-arrow-repeat fs-2"></i>
                     <h6 class="card-title mt-2">Movimientos</h6>
-                    <p class="display-6">{{ $countMovimientos }}</p>
+                    <p class="display-5">{{ $countMovimientos }}</p>
                 </div>
             </div>
         </div>
@@ -107,7 +108,7 @@
                 <div class="card-body text-center">
                     <i class="bi bi-clipboard-data fs-2"></i>
                     <h6 class="card-title mt-2">Reportes</h6>
-                    <p class="display-6">6</p>
+                    <p class="display-5">6</p>
                 </div>
             </div>
         </div>

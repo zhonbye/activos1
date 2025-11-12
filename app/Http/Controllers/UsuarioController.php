@@ -41,60 +41,102 @@ class UsuarioController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-         $validator = Validator::make($request->all(), [
-        'usuario' => 'required|string|max:50|unique:usuarios,usuario',
-        'clave' => 'required|string|min:8',
-        'rol' => 'required|string|in:desarrollador,administrador,usuario',
-        'remember_token' => 'nullable|string|max:100',
-        'id_responsable' => 'required|exists:responsables,id_responsable',
-    ], [
-        'usuario.required' => 'El campo usuario es obligatorio.',
-        'usuario.unique' => 'El usuario ya está en uso.',
-        'usuario.max' => 'El usuario no puede exceder 50 caracteres.',
-        'clave.required' => 'El campo clave es obligatorio.',
-        'clave.min' => 'La clave debe tener al menos 8 caracteres.',
-        'rol.required' => 'El campo rol es obligatorio.',
-        'rol.in' => 'El rol seleccionado no es válido.',
-        // 'remember_token.max' => 'El token no puede exceder 100 caracteres.',
-        'id_responsable.required' => 'Debe seleccionar un responsable.',
-        'id_responsable.exists' => 'El responsable seleccionado no existe.',
-    ]);
 
-    if ($validator->fails()) {
-        return response()->json([
-            'success' => false,
-            'errors' => $validator->errors(),
-            'message' => 'Errores de validación en los campos.'
-        ], 422);
-    }
+
+
+
+
+
+
+
+
+
+    public function store(Request $request)
+{
+    // Validaciones
+    $validated = $request->validate([
+    'usuario' => 'required|string|max:50|unique:usuarios,usuario',
+    'clave' => 'required|string|min:6|confirmed', // ✅ usa "clave_confirmation"
+    'rol' => 'required|string|in:administrador,usuario',
+    'id_responsable' => 'required|exists:responsables,id_responsable',
+]);
 
     try {
-        $validated = $validator->validated();
-
-        $usuario = Usuario::create([
-            'usuario' => $validated['usuario'],
-            'clave' => bcrypt($validated['clave']),
-            'rol' => $validated['rol'],
-            'estado' => 'activo',
-            'id_responsable' => $validated['id_responsable'],
-            'remember_token' => $validated['remember_token'] ?? null,
-        ]);
+        $usuario = new Usuario();
+        $usuario->usuario = $validated['usuario'];
+        $usuario->clave = bcrypt($validated['clave']);
+        $usuario->rol = $validated['rol'];
+        $usuario->estado = 'activo';
+        $usuario->id_responsable = $validated['id_responsable'];
+        $usuario->save();
 
         return response()->json([
             'success' => true,
-            'message' => 'Usuario creado correctamente.',
-            'usuario_id' => $usuario->id_usuario
-        ], 201);
-
+            'message' => 'Usuario creado correctamente',
+            'usuario' => $usuario
+        ]);
     } catch (\Exception $e) {
         return response()->json([
             'success' => false,
-            'message' => 'Error al crear usuario: ' . $e->getMessage(),
+            'message' => 'Error al crear usuario: ' . $e->getMessage()
         ], 500);
     }
-    }
+}
+
+    // public function store(Request $request)
+    // {
+    //      $validator = Validator::make($request->all(), [
+    //     'usuario' => 'required|string|max:50|unique:usuarios,usuario',
+    //     'clave' => 'required|string|min:8',
+    //     'rol' => 'required|string|in:desarrollador,administrador,usuario',
+    //     'remember_token' => 'nullable|string|max:100',
+    //     'id_responsable' => 'required|exists:responsables,id_responsable',
+    // ], [
+    //     'usuario.required' => 'El campo usuario es obligatorio.',
+    //     'usuario.unique' => 'El usuario ya está en uso.',
+    //     'usuario.max' => 'El usuario no puede exceder 50 caracteres.',
+    //     'clave.required' => 'El campo clave es obligatorio.',
+    //     'clave.min' => 'La clave debe tener al menos 8 caracteres.',
+    //     'rol.required' => 'El campo rol es obligatorio.',
+    //     'rol.in' => 'El rol seleccionado no es válido.',
+    //     // 'remember_token.max' => 'El token no puede exceder 100 caracteres.',
+    //     'id_responsable.required' => 'Debe seleccionar un responsable.',
+    //     'id_responsable.exists' => 'El responsable seleccionado no existe.',
+    // ]);
+
+    // if ($validator->fails()) {
+    //     return response()->json([
+    //         'success' => false,
+    //         'errors' => $validator->errors(),
+    //         'message' => 'Errores de validación en los campos.'
+    //     ], 422);
+    // }
+
+    // try {
+    //     $validated = $validator->validated();
+
+    //     $usuario = Usuario::create([
+    //         'usuario' => $validated['usuario'],
+    //         'clave' => bcrypt($validated['clave']),
+    //         'rol' => $validated['rol'],
+    //         'estado' => 'activo',
+    //         'id_responsable' => $validated['id_responsable'],
+    //         'remember_token' => $validated['remember_token'] ?? null,
+    //     ]);
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'Usuario creado correctamente.',
+    //         'usuario_id' => $usuario->id_usuario
+    //     ], 201);
+
+    // } catch (\Exception $e) {
+    //     return response()->json([
+    //         'success' => false,
+    //         'message' => 'Error al crear usuario: ' . $e->getMessage(),
+    //     ], 500);
+    // }
+    // }
 
 
 

@@ -66,6 +66,48 @@
     color: var(--color-boton-texto);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        .barra-progreso-contenedor {
+            position: absolute;
+            width: 100%;
+            height: 7px;
+            background-color: #7ae7c628;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .barra-progreso {
+            height: 100%;
+            width: 0%;
+            /* Comienza en 0% */
+            background-color: #83e2ba;
+            border-radius: 10px;
+            transition: width 0.5s ease-out;
+            /* Añade una transición suave */
+        }
+
+
     </style>
 
     <div class="col-auto">
@@ -88,11 +130,18 @@
                     <span class="fw-semibold text-truncate overflow-hidden ps-4">Dashboard</span>
                 </a>
             </li>
+            <hr>
 
             <ul class="menu " role="menubar">
+
+
+
+
+                
+                <br>
                 <!-- Gestión de Usuarios -->
                 <li class="menu-item" data-submenu="submenuUsuarios" role="none">
-                    <div class="main-item" tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"
+                    <div class="main-item bg-success bg-opacity-10"  tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"
                         aria-controls="submenuUsuarios">
                         <i class="bi bi-people icon" aria-hidden="true"></i>
                         <span class="text">Usuarios</span>
@@ -214,6 +263,10 @@
                     </ul>
                 </li>
             </ul>
+                 <div class="mb-3 d-flex flex-column align-items-center gap-1" style="max-width:300px;">
+                <button id="btnRestablecerRutas" class="btn btn-danger">Restablecer todas las rutas</button>
+
+            </div>
             <li class="menu-item  list-unstyled">
                 <a href="#" class="main-item dropdown-toggle d-flex align-items-center gap-2 text-decoration-none"
                     id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -252,12 +305,13 @@
     <!-- admin.blade.php -->
 
     <div class="col ">
-        <div class="barra-progreso-contenedor">
+           <div class="barra-progreso-contenedor">
             <div id="miBarra" class="barra-progreso "></div>
         </div>
+
         <div id="mensaje" class="w-100"></div>
         <div id="contenido" class="bg-fdanger flex-grow-1 p-4 m-0 ">
-            @include('user.panelControl')
+            @include('admin.panelControl')
             {{-- <div id="mensaje" class="w-100"></div> --}}
             <h2>Panel de Administración</h2>
             <p>Selecciona una opción del menú para comenzar hh.</p>
@@ -282,30 +336,186 @@
     <script>
 
 
-// $(document).ready(function() {
-//     $('#contenido').on('click', '#gg', function(e) {
-
-// mensaje('Esto es una alerta exitosa', 'success');
-//     });
-//     $('#contenido').on('focus', '#contenido', function(e) {
-
-// mensaje('Esto es una alerta exitosa', 'success');
-//     });
-// });
 
 
-        // $('.cargar').click(function(e) {
-        //     e.preventDefault();
-        //     let url = $(this).data('url');
-        //     if (!url) return;
 
-        //     $.get(url, function(data) {
-        //         $('#contenido').html(data);
-        //     }).fail(function() {
-        //         $('#contenido').html('<p>Error al cargar contenido.</p>');
-        //     });
-        // });
-        // window.mensaje = function(mensaje, tipo) {
+// ---------------------------
+// PASO 1: Obtener ID del usuario desde Blade
+// ---------------------------
+const currentUserId = {{ auth()->user()->id_usuario }};
+
+// ---------------------------
+// PASO 2: Funciones para guardar y leer ruta por usuario
+// ---------------------------
+const key = 'rutaPredeterminadaUsuarios';
+
+// Guardar ruta predeterminada para el usuario actual
+const guardarRutaUsuario = (ruta) => {
+    const rutas = JSON.parse(localStorage.getItem(key)) || {};
+    rutas[currentUserId] = ruta;
+    localStorage.setItem(key, JSON.stringify(rutas));
+};
+
+// Leer ruta predeterminada para el usuario actual
+const leerRutaUsuario = () => {
+    const rutas = JSON.parse(localStorage.getItem(key)) || {};
+    return rutas[currentUserId] || null;
+};
+
+// ---------------------------
+// PASO 3: Activar la ruta en el menú
+// ---------------------------
+function activarRutaMenu(rutaGuardada) {
+    if (!rutaGuardada) return;
+
+    const enlace = $(`.menu a[href='${rutaGuardada}']`);
+    if (enlace.length) {
+        // Subimos hasta el menu-item
+        const menuItem = enlace.closest('.menu-item');
+        if (menuItem.length) {
+            const mainItem = menuItem.find('.main-item').first();
+            if (mainItem.length) mainItem.trigger('click'); // Abrir submenu
+        }
+
+        enlace.addClass('selected'); // marcar seleccionado
+        cargarContenido(rutaGuardada); // cargar contenido
+    } else {
+        mensaje('La ruta guardada no se encontró en el menú.', 'danger');
+    }
+}
+
+// ---------------------------
+// PASO 4: Buscar enlace por texto
+// ---------------------------
+function buscarEnlace(texto) {
+    const lower = texto.toLowerCase();
+    return $('.menu a').filter(function() {
+        return $(this).text().toLowerCase().includes(lower);
+    }).first();
+}
+
+// ---------------------------
+// PASO 5: Document Ready
+// ---------------------------
+$(document).ready(function() {
+
+    // Activar ruta guardada del usuario actual
+    activarRutaMenu(leerRutaUsuario());
+
+    // ---------------------------
+    // Menú contextual
+    // ---------------------------
+    $('.submenu > li').on('contextmenu', function(e) {
+        e.preventDefault();
+        const $contextMenu = $('#customContextMenu');
+        $contextMenu.data('targetElement', this).focus();
+
+        const $li = $(this);
+        const offset = $li.offset();
+        const liWidth = $li.outerWidth();
+
+        $contextMenu.css({
+            display: 'block',
+            top: offset.top,
+            left: offset.left + liWidth
+        }).attr('aria-hidden', 'false');
+
+        return false;
+    });
+
+    $(document).on('click', function(e) {
+        const $contextMenu = $('#customContextMenu');
+        if (!$(e.target).closest('#customContextMenu').length) {
+            $contextMenu.hide().attr('aria-hidden', 'true');
+        }
+    });
+
+    // ---------------------------
+    // Botón "Hacer predeterminada"
+    // ---------------------------
+    $('#makeDefaultBtn').on('click', function(e) {
+        e.preventDefault();
+        const $contextMenu = $('#customContextMenu');
+        const $target = $contextMenu.data('targetElement');
+        if (!$target) {
+            mensaje('No se pudo identificar el elemento seleccionado.', 'danger');
+            $contextMenu.hide();
+            return;
+        }
+
+        const texto = $target.textContent.trim();
+        const enlace = buscarEnlace(texto);
+
+        if (!enlace.length) {
+            mensaje('No se encontró el ítem en el menú para guardar.', 'danger');
+            $contextMenu.hide();
+            return;
+        }
+
+        const href = enlace.attr('href');
+        if (!href || href === '#' || href.trim() === '') {
+            mensaje('El ítem seleccionado no tiene una ruta válida.', 'danger');
+            $contextMenu.hide();
+            return;
+        }
+
+        // Guardar ruta para el usuario actual
+        guardarRutaUsuario(href);
+        mensaje('Ruta guardada como predeterminada.', 'success');
+        $contextMenu.hide();
+    });
+
+    // ---------------------------
+    // Botón "Restablecer rutas"
+    // ---------------------------
+    $('#btnRestablecerRutas').on('click', function() {
+        const rutas = JSON.parse(localStorage.getItem(key)) || {};
+        delete rutas[currentUserId]; // solo borrar la ruta de este usuario
+        localStorage.setItem(key, JSON.stringify(rutas));
+        mensaje('Se ha restablecido la ruta guardada para este usuario.', 'success');
+    });
+        $('#resetBtn').on('click', function() {
+        const rutas = JSON.parse(localStorage.getItem(key)) || {};
+        delete rutas[currentUserId]; // solo borrar la ruta de este usuario
+        localStorage.setItem(key, JSON.stringify(rutas));
+        const $contextMenu = $('#customContextMenu');
+
+        $contextMenu.hide();
+
+        mensaje('Se ha restablecido la ruta guardada para este usuario.', 'success');
+    });
+
+});
+
+
+
+
+
+function confirm(texto, tipo, callback) {
+    Swal.fire({
+        text: texto,
+        icon: tipo,
+        confirmButtonText: 'OK'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            if (typeof callback === "function") {
+                callback(); // Ejecuta la función que pases como callback
+            }
+        }
+    });
+}
+
+
+   function mensaje2(texto, tipo) {
+            Swal.fire({
+                text: texto,
+                icon: tipo,
+                confirmButtonText: 'OK'
+            });
+        }
+
+
+  const baseUrl = "{{ url('/') }}";
         function mensaje(mensaje, tipo) {
             var nuevaAlerta = $('<div class="alert alert-' + tipo +
             ' alert-dismissible fade show" role="alert" ><strong>' + mensaje +

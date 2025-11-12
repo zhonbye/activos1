@@ -634,16 +634,27 @@
                     }
                 });
 
+if (isOpen) {
+    item.classList.remove('open');
+    if (submenu) {
+        submenu.querySelectorAll('a').forEach(link => link.setAttribute('tabindex', '-1'));
+    }
+} else {
+    item.classList.add('open');
+    if (submenu) {
+        submenu.querySelectorAll('a').forEach(link => link.removeAttribute('tabindex'));
+    }
+}
 
-                if (isOpen) {
-                    // Cerrar este submenu y deshabilitar tab
-                    item.classList.remove('open');
-                    submenu.querySelectorAll('a').forEach(link => link.setAttribute('tabindex', '-1'));
-                } else {
-                    // Abrir submenu y habilitar tab
-                    item.classList.add('open');
-                    submenu.querySelectorAll('a').forEach(link => link.removeAttribute('tabindex'));
-                }
+                // if (isOpen) {
+                //     // Cerrar este submenu y deshabilitar tab
+                //     item.classList.remove('open');
+                //     submenu.querySelectorAll('a').forEach(link => link.setAttribute('tabindex', '-1'));
+                // } else {
+                //     // Abrir submenu y habilitar tab
+                //     item.classList.add('open');
+                //     submenu.querySelectorAll('a').forEach(link => link.removeAttribute('tabindex'));
+                // }
             });
         });
     </script>

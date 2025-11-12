@@ -104,7 +104,9 @@ Route::post('/activo/{id}/update', [ActivoController::class, 'update'])->name('a
 Route::get('/responsables/lista', [ResponsableController::class, 'index'])->name('responsable.index');
 Route::get('/responsables/filtrar', [ResponsableController::class, 'filtrarResponsables'])->name('responsables.filtrar');
 Route::post('/responsables/store', [ResponsableController::class, 'store'])->name('responsables.store');
-
+// Mostrar formulario de edición
+Route::get('/responsables/{id}/edit', [ResponsableController::class, 'edit'])->name('responsables.edit');
+Route::put('/responsables/{id}', [ResponsableController::class, 'update'])->name('responsables.update');
 
 
 

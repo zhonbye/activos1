@@ -229,9 +229,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"> --}}
 
     <style>
-        body {
+        /* body {
             background-color: #f8f9fa;
-        }
+        } */
 
         .card-stats {
             border-radius: 12px;
@@ -295,7 +295,7 @@
 
                     <!-- Bienvenida -->
                     <div>
-                        <h4 class="fw-bold mb-1 text-primary">¡Bienvenido, {{ Auth::user()->usuario }}!</h4>
+                        <h4 class="fw-bold mb-1 text-primary">👋 ¡Bienvenido, {{ Auth::user()->usuario }}!</h4>
                         <p class="text-muted mb-0">Panel de control de usuario</p>
                     </div>
 

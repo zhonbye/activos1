@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cargo;
 use App\Models\Responsable;
 use Illuminate\Http\Request;
 
@@ -17,37 +18,48 @@ class ResponsableController extends Controller
         $servicios = \App\Models\Servicio::select('id_servicio', 'nombre')->orderBy('nombre')->get();
         $cargos = \App\Models\Cargo::select('id_cargo', 'nombre')->orderBy('nombre')->get();
 
-// return view('admin.personales.index');
+        // return view('admin.personales.index');
         return view('admin.responsables.listar', compact('personales', 'servicios', 'cargos'));
     }
     public function filtrarResponsables(Request $request)
     {
         $query = Responsable::with(['usuario', 'cargo']);
 
-        // 🔹 Filtro por cargo
+
+        // 🔍 Filtro por texto (nombre, CI o teléfono)
+if ($request->filled('search')) {
+    $query->where(function ($q) use ($request) {
+        $search = $request->search;
+        $q->where('nombre', 'like', "%$search%")
+          ->orWhere('ci', 'like', "%$search%")
+          ->orWhere('telefono', 'like', "%$search%");
+    });
+}
+
+        //  Filtro por cargo
         if ($request->filled('id_cargo')) {
             $query->where('id_cargo', $request->id_cargo);
         }
 
-        // 🔹 Filtro por rol
+        //  Filtro por rol
         if ($request->filled('rol')) {
             $query->where('rol', $request->rol);
         }
 
-        // 🔹 Filtro por estado (activo/inactivo)
+        //  Filtro por estado (activo/inactivo)
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
         }
 
-        // 🔸 Ordenar y paginar
-        $personales = $query->orderBy('nombre')->paginate(10);
+        //  Ordenar y paginar
+        $personales = $query->orderBy('created_at')->paginate(10);
 
-        // 🔸 Si la petición viene por AJAX → retornar solo la tabla
+        //  Si la petición viene por AJAX → retornar solo la tabla
         if ($request->ajax()) {
             return view('admin.responsables.parcial', compact('personales'))->render();
         }
 
-        // 🔸 Si es acceso directo → vista completa
+        // Si es acceso directo → vista completa
         return view('admin.responsables.listar', compact('personales'));
     }
 
@@ -65,16 +77,17 @@ class ResponsableController extends Controller
     public function store(Request $request)
     {
         try {
-            // 🧩 Validar los datos del formulario
+            //  Validar los datos del formulario
             $validated = $request->validate([
                 'nombre'     => 'required|string|max:255',
                 'ci'         => 'required|string|max:100|unique:responsables,ci',
                 'telefono'   => 'nullable|string|max:30',
                 'id_cargo'   => 'required|integer|exists:cargos,id_cargo',
-                'rol'        => 'required|string|in:admin,user,tecnico',
+               'rol' => 'required|string|in:administrador,director,coordinador,medico,enfermero,administrativo,personal_operativo,invitado',
+
             ]);
 
-            // 🧩 Crear el nuevo responsable
+            //  Crear el nuevo responsable
             $responsable = Responsable::create([
                 'nombre'   => $validated['nombre'],
                 'ci'       => $validated['ci'],
@@ -83,29 +96,34 @@ class ResponsableController extends Controller
                 'rol'      => $validated['rol'],
             ]);
 
-            // 🧩 Cargar relaciones necesarias para mostrar en tabla
+            //  Cargar relaciones necesarias para mostrar en tabla
             $responsable->load('cargo');
 
-            // 🧩 Añadir campos de formato adicional (fecha, etc.)
-            $responsable->fecha_creacion = $responsable->created_at->format('d/m/Y');
+     $responsable = [
+    // 'id_responsable' => $responsable->id_responsable,
+    'nombre' => $responsable->nombre,
+    'ci' => $responsable->ci,
+    'telefono' => $responsable->telefono,
+    'cargo' => $responsable->cargo->nombre ?? 'Sin cargo',
+    'rol' => $responsable->rol ?? 'Sin rol', // solo si tiene relación con roles
+    'estado' => 'activo', // solo si tiene relación con roles
+    'fecha' => $responsable->created_at->format('d/m/Y'),
+];
 
-            // ✅ Retornar respuesta JSON con todo el modelo
             return response()->json([
                 'success' => true,
                 'message' => 'Responsable creado correctamente.',
                 'responsable' => $responsable
             ], 201);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
-            // ⚠️ Errores de validación
+            //  Errores de validación
             return response()->json([
                 'success' => false,
                 'message' => 'Error de validación en responsable.',
                 'errors' => $e->errors()
             ], 422);
-
         } catch (\Exception $e) {
-            // ❌ Error general del servidor
+            //  Error general del servidor
             return response()->json([
                 'success' => false,
                 'message' => 'No se pudo insertar responsable: ' . $e->getMessage(),
@@ -114,58 +132,101 @@ class ResponsableController extends Controller
     }
 
 
-    public function store2(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                'nombre' => 'required|string|max:255',
-                'ci' => 'required|string|max:100|unique:responsables,ci',
-                'telefono' => 'required|string|max:30',
-                'id_cargo' => 'required|integer|exists:cargos,id_cargo',
-            ]);
+    // public function store2(Request $request)
+    // {
+    //     try {
+    //         $validated = $request->validate([
+    //             'nombre' => 'required|string|max:255',
+    //             'ci' => 'required|string|max:100|unique:responsables,ci',
+    //             'telefono' => 'required|string|max:30',
+    //             'id_cargo' => 'required|integer|exists:cargos,id_cargo',
+    //         ]);
 
-            $responsable = new Responsable();
-            $responsable->nombre = $validated['nombre'];
-            $responsable->ci = $validated['ci'];
-            $responsable->telefono = $validated['telefono'];
-            $responsable->id_cargo = $validated['id_cargo'];
-            $responsable->save();
+    //         $responsable = new Responsable();
+    //         $responsable->nombre = $validated['nombre'];
+    //         $responsable->ci = $validated['ci'];
+    //         $responsable->telefono = $validated['telefono'];
+    //         $responsable->id_cargo = $validated['id_cargo'];
+    //         $responsable->save();
 
-            // return back()->route('responsables.index')->with('success', 'Responsable creado correctamente.');
-        echo "se inserto responsable";
-        } catch (\Exception $e) {
-            // Log::error('Error al guardar responsable: '.$e->getMessage());
-            // return back()->with('error', 'Ocurrió un error al guardar el responsable.');
-            echo "no se inserto responsable".$e->getMessage();
-        }
-    }
+    //         // return back()->route('responsables.index')->with('success', 'Responsable creado correctamente.');
+    //         // echo "se inserto responsable";
+    //     } catch (\Exception $e) {
+    //         // Log::error('Error al guardar responsable: '.$e->getMessage());
+    //         // return back()->with('error', 'Ocurrió un error al guardar el responsable.');
+    //         // echo "no se inserto responsable".$e->getMessage();
+    //     }
+    // }
 
     /**
      * Display the specified resource.
      */
-    public function show($id) {
+    public function show($id)
+    {
         $responsable = Responsable::find($id);
         if (!$responsable) {
             return response()->json(['error' => 'No encontrado'], 404);
         }
         return response()->json($responsable);
     }
+public function edit($id)
+{
+    // Traer responsable con su cargo y usuario del sistema
+    $responsable = Responsable::with('cargo')
+        ->findOrFail($id);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Responsable $responsable)
-    {
-        //
-    }
+    // Traer datos para selects (si necesitas en el modal)
+    $cargos = Cargo::all();
+
+    return view('admin.responsables.parcial_editar', compact('responsable', 'cargos'));
+}
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Responsable $responsable)
-    {
-        //
-    }
+   public function update(Request $request, $id)
+{
+    $request->validate([
+        'nombre'   => 'required|string|max:255',
+        'ci'       => 'required|string|max:20|unique:responsables,ci,' . $id . ',id_responsable',
+        'telefono' => 'nullable|string|max:20',
+        'id_cargo' => 'required|exists:cargos,id_cargo',
+               'rol' => 'required|string|in:administrador,director,coordinador,medico,enfermero,administrativo,personal_operativo,invitado',
+        // 'rol'      => 'required|in:administrador,usuario',
+        'estado'   => 'required|in:activo,inactivo',
+    ]);
+
+    $responsable = Responsable::findOrFail($id);
+
+    $responsable->update([
+        'nombre'    => $request->nombre,
+        'ci'        => $request->ci,
+        'telefono'  => $request->telefono,
+        'id_cargo'  => $request->id_cargo,
+        'rol'       => $request->rol,
+        'estado'    => $request->estado,
+    ]);
+
+    // Cargar relación cargo para devolver nombre
+    $responsable->load('cargo');
+
+    // Devolver JSON con todos los datos necesarios para la tabla
+    return response()->json([
+        'success'     => true,
+        'message'     => 'Responsable actualizado correctamente.',
+        'responsable' => [
+            'id_responsable' => $responsable->id_responsable,
+            'nombre'         => $responsable->nombre,
+            'ci'             => $responsable->ci,
+            'telefono'       => $responsable->telefono,
+            'cargo'          => $responsable->cargo->nombre ?? 'Sin cargo',
+            'rol'            => $responsable->rol,
+            'estado'         => $responsable->estado,
+            'usuario'        => $responsable->usuario->name ?? 'N/A',
+        ]
+    ]);
+}
+
 
     /**
      * Remove the specified resource from storage.

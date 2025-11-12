@@ -13,12 +13,13 @@ class Responsable extends Model
 
     protected $primaryKey = 'id_responsable';
 
-    protected $fillable = [
+  protected $fillable = [
         'nombre',
         'ci',
         'telefono',
-        'rol',
         'id_cargo',
+        'rol',
+        'estado',
     ];
     public function usuario()
 {

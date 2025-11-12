@@ -66,7 +66,7 @@
           <td class="text-center">
 
             {{-- Editar personal --}}
-            <button class="btn btn-sm btn-outline-primary editar-btn"
+            <button class="btn btn-sm btn-outline-primary editar-btn" data-bs-toggle="modal" data-bs-target="#modalEditarResponsable"
                     data-id="{{ $personal->id_responsable }}"
                     title="Editar personal">
               <i class="bi bi-pencil"></i>
@@ -90,10 +90,13 @@
             @else
               {{-- Agregar nuevo usuario --}}
               <button class="btn btn-sm btn-outline-secondary agregar-usuario-btn"
-                      data-id="{{ $personal->id_responsable }}"
+                      data-id="{{ $personal->id_responsable }}"  data-bs-toggle="modal" 
+        data-bs-target="#modalNuevoUsuario"
                       title="Crear usuario para este personal">
                 <i class="bi bi-person-plus"></i>
               </button>
+             
+
             @endif
 
           </td>

@@ -413,217 +413,384 @@
 
 
     <script>
-        function activarRutaMenu(rutaGuardada) {
-    // alert(rutaGuardada)
+
+
+  const baseUrl = "{{ url('/') }}";
+//         const key = 'rutaDefecto';
+//         const guardar = ruta => localStorage.setItem(key, ruta);
+//         const leer = () => localStorage.getItem(key);
+//         const rutaGuardada = leer();
+
+
+// ---------------------------
+// PASO 1: Obtener ID del usuario desde Blade
+// ---------------------------
+const currentUserId = {{ auth()->user()->id_usuario }};
+
+// ---------------------------
+// PASO 2: Funciones para guardar y leer ruta por usuario
+// ---------------------------
+const key = 'rutaPredeterminadaUsuarios';
+
+// Guardar ruta predeterminada para el usuario actual
+const guardarRutaUsuario = (ruta) => {
+    const rutas = JSON.parse(localStorage.getItem(key)) || {};
+    rutas[currentUserId] = ruta;
+    localStorage.setItem(key, JSON.stringify(rutas));
+};
+
+// Leer ruta predeterminada para el usuario actual
+const leerRutaUsuario = () => {
+    const rutas = JSON.parse(localStorage.getItem(key)) || {};
+    return rutas[currentUserId] || null;
+};
+
+// ---------------------------
+// PASO 3: Activar la ruta en el menú
+// ---------------------------
+function activarRutaMenu(rutaGuardada) {
     if (!rutaGuardada) return;
 
     const enlace = $(`.menu a[href='${rutaGuardada}']`);
-
     if (enlace.length) {
         // Subimos hasta el menu-item
         const menuItem = enlace.closest('.menu-item');
-
         if (menuItem.length) {
-            // Buscar el .main-item dentro del menu-item
             const mainItem = menuItem.find('.main-item').first();
-
-            // Simular el "clic" para que se abra el submenu
-            if (mainItem.length) {
-                mainItem.trigger('click');
-            }
+            if (mainItem.length) mainItem.trigger('click'); // Abrir submenu
         }
 
-        // Añadir clase selected al enlace encontrado
-        enlace.addClass('selected');
-
-        // Luego cargar el contenido normalmente
-        cargarContenido(rutaGuardada);
+        enlace.addClass('selected'); // marcar seleccionado
+        cargarContenido(rutaGuardada); // cargar contenido
     } else {
         mensaje('La ruta guardada no se encontró en el menú.', 'danger');
     }
 }
-        const baseUrl = "{{ url('/') }}";
-        const key = 'rutaDefecto';
-        const guardar = ruta => localStorage.setItem(key, ruta);
-        const leer = () => localStorage.getItem(key);
-        const rutaGuardada = leer();
 
-        $(document).ready(function() {
-            activarRutaMenu(rutaGuardada);
+// ---------------------------
+// PASO 4: Buscar enlace por texto
+// ---------------------------
+function buscarEnlace(texto) {
+    const lower = texto.toLowerCase();
+    return $('.menu a').filter(function() {
+        return $(this).text().toLowerCase().includes(lower);
+    }).first();
+}
 
-            // if (rutaGuardada) {
-            //     const enlace = $(`.menu a[href='${rutaGuardada}']`);
-            //     if (enlace.length) {
-            //         // Subimos hasta el menu-item
-            //         const menuItem = enlace.closest('.menu-item');
+// ---------------------------
+// PASO 5: Document Ready
+// ---------------------------
+$(document).ready(function() {
 
-            //         if (menuItem.length) {
-            //             // Buscar el .main-item dentro del menu-item
-            //             const mainItem = menuItem.find('.main-item').first();
+    // Activar ruta guardada del usuario actual
+    activarRutaMenu(leerRutaUsuario());
 
-            //             // Simular el "clic" para que se abra el submenu
-            //             if (mainItem.length) {
-            //                 mainItem.trigger('click');
-            //             }
-            //             // Añadir clase selected al enlace encontrado
-            //             enlace.addClass('selected');
-            //         }
+    // ---------------------------
+    // Menú contextual
+    // ---------------------------
+    $('.submenu > li').on('contextmenu', function(e) {
+        e.preventDefault();
+        const $contextMenu = $('#customContextMenu');
+        $contextMenu.data('targetElement', this).focus();
 
-            //         // Luego cargar el contenido normalmente
-            //         cargarContenido(rutaGuardada);
-            //     } else {
-            //         mensaje('La ruta guardada no se encontró en el menú.', 'danger');
-            //     }
+        const $li = $(this);
+        const offset = $li.offset();
+        const liWidth = $li.outerWidth();
 
-            // }
-            /**
- * Selecciona y activa un enlace del menú según la ruta guardada
- * @param {string} rutaGuardada - URL o ruta a seleccionar
- */
+        $contextMenu.css({
+            display: 'block',
+            top: offset.top,
+            left: offset.left + liWidth
+        }).attr('aria-hidden', 'false');
 
+        return false;
+    });
 
+    $(document).on('click', function(e) {
+        const $contextMenu = $('#customContextMenu');
+        if (!$(e.target).closest('#customContextMenu').length) {
+            $contextMenu.hide().attr('aria-hidden', 'true');
+        }
+    });
 
-            function buscarEnlace(texto) {
-                const lower = texto.toLowerCase();
-                return $('.menu a').filter(function() {
-                    return $(this).text().toLowerCase().includes(lower);
-                }).first();
-            }
+    // ---------------------------
+    // Botón "Hacer predeterminada"
+    // ---------------------------
+    $('#makeDefaultBtn').on('click', function(e) {
+        e.preventDefault();
+        const $contextMenu = $('#customContextMenu');
+        const $target = $contextMenu.data('targetElement');
+        if (!$target) {
+            mensaje('No se pudo identificar el elemento seleccionado.', 'danger');
+            $contextMenu.hide();
+            return;
+        }
 
-            // Mostrar menú contextual al hacer click derecho sobre li dentro de submenu
-            $('.submenu > li').on('contextmenu', function(e) {
-                e.preventDefault();
-                const $contextMenu = $('#customContextMenu');
-                $contextMenu.data('targetElement', this);
-                $contextMenu.focus()
-                const $li = $(this);
-                const offset = $li.offset();
-                const liWidth = $li.outerWidth();
+        const texto = $target.textContent.trim();
+        const enlace = buscarEnlace(texto);
 
-                $contextMenu.css({
-                    display: 'block',
-                    top: offset.top,
-                    left: offset.left + liWidth
-                }).attr('aria-hidden', 'false');
+        if (!enlace.length) {
+            mensaje('No se encontró el ítem en el menú para guardar.', 'danger');
+            $contextMenu.hide();
+            return;
+        }
 
-                return false;
-            });
+        const href = enlace.attr('href');
+        if (!href || href === '#' || href.trim() === '') {
+            mensaje('El ítem seleccionado no tiene una ruta válida.', 'danger');
+            $contextMenu.hide();
+            return;
+        }
 
-            // Ocultar menú contextual al hacer clic fuera
-            $(document).on('click', function(e) {
-                const $contextMenu = $('#customContextMenu');
-                if (!$(e.target).closest('#customContextMenu').length) {
-                    $contextMenu.hide().attr('aria-hidden', 'true');
-                }
-            });
+        // Guardar ruta para el usuario actual
+        guardarRutaUsuario(href);
+        mensaje('Ruta guardada como predeterminada.', 'success');
+        $contextMenu.hide();
+    });
 
-            // Botón "Hacer predeterminada"
-            // En el botón "Hacer predeterminada"
-            $('#makeDefaultBtn').on('click', function(e) {
-                e.preventDefault();
-                const $contextMenu = $('#customContextMenu');
-                const $target = $contextMenu.data('targetElement');
-                if (!$target) {
-                    mensaje('No se pudo identificar el elemento seleccionado.', 'danger');
-                    $contextMenu.hide();
-                    return;
-                }
+    // ---------------------------
+    // Botón "Restablecer rutas"
+    // ---------------------------
+    $('#btnRestablecerRutas').on('click', function() {
+        const rutas = JSON.parse(localStorage.getItem(key)) || {};
+        delete rutas[currentUserId]; // solo borrar la ruta de este usuario
+        localStorage.setItem(key, JSON.stringify(rutas));
+        mensaje('Se ha restablecido la ruta guardada para este usuario.', 'success');
+    });
+    $('#resetBtn').on('click', function() {
+        const rutas = JSON.parse(localStorage.getItem(key)) || {};
+        delete rutas[currentUserId]; // solo borrar la ruta de este usuario
+        localStorage.setItem(key, JSON.stringify(rutas));
+        mensaje('Se ha restablecido la ruta guardada para este usuario.', 'success');
+         const $contextMenu = $('#customContextMenu');
 
-                const texto = $target.textContent.trim();
-                const enlace = buscarEnlace(texto);
+        $contextMenu.hide();
+    });
 
-                if (!enlace.length) {
-                    mensaje('No se encontró el ítem en el menú para guardar.', 'danger');
-                    $contextMenu.hide();
-                    return;
-                }
-
-                const href = enlace.attr('href');
-                if (!href || href === '#' || href.trim() === '') {
-                    mensaje('El ítem seleccionado no tiene una ruta válida.', 'danger');
-                    $contextMenu.hide();
-                    return;
-                }
-
-                guardar(href);
-                mensaje('Ruta guardada como predeterminada.', 'success');
-                //   cargarContenido(href);
-                $contextMenu.hide();
-            });
-
-            $('#btnRestablecerRutas').on('click', function() {
-                localStorage.removeItem('rutaDefecto'); // borra solo esa ruta guardada
-                mensaje('Se han restablecido todas las rutas guardadas.', 'success');
-
-                // Opcional: recargar contenido predeterminado o página si quieres
-                // location.reload(); // si quieres refrescar la página para que el cambio se note
-            });
-
-
-            $('#contenido').on('keydown', '.con-ceros', function(e) {
-                if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    var numero2 = parseInt($(this).val(), 10) || 0;
-                    var numero = e.key === 'ArrowUp' ? numero2 + 1 : numero2 - 1;
-                    if (numero < 0) numero = 0;
-                    var numeroStr = numero.toString().padStart(3, '0');
-                    $(this).val(numeroStr);
-                }
-            });
-
-            // Detecta cambios que pueden venir por click en flechas nativas o edición manual
-            $('#contenido').on('input', '.con-ceros', function() {
-                var val = $(this).val();
-                var num = parseInt(val, 10) || 0;
-                if (num < 0) num = 0;
-                var newVal = num.toString().padStart(3, '0');
-                if (val !== newVal) {
-                    $(this).val(newVal);
-                }
-            });
-
-            $('#contenido').on('click', '.toggleSidebar', function() {
-                // $('.').click(function() {
-                // alert("fhoanfl")
-                const $button = $(this);
-                const $sidebarCol = $button.closest('.sidebar-col'); // card individual
-                const $sidebarWrapper = $sidebarCol.parent(); // contenedor de todos los sidebars
-                const $mainCol = $('.main-col');
-                const $text = $sidebarCol.find('h3').text();
-                // alert($text)
-
-                const isCollapsed = $sidebarCol.hasClass('card-minimized');
-
-                if (!isCollapsed) {
-                    // Minimizar solo este sidebar
-                    $sidebarCol.addClass('card-minimized');
-
-                    // Cambiar texto botón a texto completo (ejemplo)
-                    $button.text($text);
-
-                    // Si todos los sidebars están minimizados, ajustar ancho wrapper y main
-                    const allCollapsed = $sidebarWrapper.children('.sidebar-col').length === $sidebarWrapper
-                        .children(
-                            '.sidebar-col.card-minimized').length;
-                    if (allCollapsed) {
-                        $sidebarWrapper.addClass('sidebar-collapsed');
-                        $mainCol.addClass('main-expanded');
-                    }
-
-                } else {
-                    // Restaurar sidebar actual
-                    $sidebarCol.removeClass('card-minimized');
-                    $button.text('⮞');
-
-                    // Si alguno está abierto, quitar clases de wrapper y main
-                    $sidebarWrapper.removeClass('sidebar-collapsed');
-                    $mainCol.removeClass('main-expanded');
-                }
-            });
+});
 
 
 
-        });
+
+
+
+
+
+
+
+
+
+//         function activarRutaMenu(rutaGuardada) {
+//     // alert(rutaGuardada)
+//     if (!rutaGuardada) return;
+
+//     const enlace = $(`.menu a[href='${rutaGuardada}']`);
+
+//     if (enlace.length) {
+//         // Subimos hasta el menu-item
+//         const menuItem = enlace.closest('.menu-item');
+
+//         if (menuItem.length) {
+//             // Buscar el .main-item dentro del menu-item
+//             const mainItem = menuItem.find('.main-item').first();
+
+//             // Simular el "clic" para que se abra el submenu
+//             if (mainItem.length) {
+//                 mainItem.trigger('click');
+//             }
+//         }
+
+//         // Añadir clase selected al enlace encontrado
+//         enlace.addClass('selected');
+
+//         // Luego cargar el contenido normalmente
+//         cargarContenido(rutaGuardada);
+//     } else {
+//         mensaje('La ruta guardada no se encontró en el menú.', 'danger');
+//     }
+// }
+//         const baseUrl = "{{ url('/') }}";
+//         const key = 'rutaDefecto';
+//         const guardar = ruta => localStorage.setItem(key, ruta);
+//         const leer = () => localStorage.getItem(key);
+//         const rutaGuardada = leer();
+
+//         $(document).ready(function() {
+//             activarRutaMenu(rutaGuardada);
+
+//             // if (rutaGuardada) {
+//             //     const enlace = $(`.menu a[href='${rutaGuardada}']`);
+//             //     if (enlace.length) {
+//             //         // Subimos hasta el menu-item
+//             //         const menuItem = enlace.closest('.menu-item');
+
+//             //         if (menuItem.length) {
+//             //             // Buscar el .main-item dentro del menu-item
+//             //             const mainItem = menuItem.find('.main-item').first();
+
+//             //             // Simular el "clic" para que se abra el submenu
+//             //             if (mainItem.length) {
+//             //                 mainItem.trigger('click');
+//             //             }
+//             //             // Añadir clase selected al enlace encontrado
+//             //             enlace.addClass('selected');
+//             //         }
+
+//             //         // Luego cargar el contenido normalmente
+//             //         cargarContenido(rutaGuardada);
+//             //     } else {
+//             //         mensaje('La ruta guardada no se encontró en el menú.', 'danger');
+//             //     }
+
+//             // }
+//             /**
+//  * Selecciona y activa un enlace del menú según la ruta guardada
+//  * @param {string} rutaGuardada - URL o ruta a seleccionar
+//  */
+
+
+
+//             function buscarEnlace(texto) {
+//                 const lower = texto.toLowerCase();
+//                 return $('.menu a').filter(function() {
+//                     return $(this).text().toLowerCase().includes(lower);
+//                 }).first();
+//             }
+
+//             // Mostrar menú contextual al hacer click derecho sobre li dentro de submenu
+//             $('.submenu > li').on('contextmenu', function(e) {
+//                 e.preventDefault();
+//                 const $contextMenu = $('#customContextMenu');
+//                 $contextMenu.data('targetElement', this);
+//                 $contextMenu.focus()
+//                 const $li = $(this);
+//                 const offset = $li.offset();
+//                 const liWidth = $li.outerWidth();
+
+//                 $contextMenu.css({
+//                     display: 'block',
+//                     top: offset.top,
+//                     left: offset.left + liWidth
+//                 }).attr('aria-hidden', 'false');
+
+//                 return false;
+//             });
+
+//             // Ocultar menú contextual al hacer clic fuera
+//             $(document).on('click', function(e) {
+//                 const $contextMenu = $('#customContextMenu');
+//                 if (!$(e.target).closest('#customContextMenu').length) {
+//                     $contextMenu.hide().attr('aria-hidden', 'true');
+//                 }
+//             });
+
+//             // Botón "Hacer predeterminada"
+//             // En el botón "Hacer predeterminada"
+//             $('#makeDefaultBtn').on('click', function(e) {
+//                 e.preventDefault();
+//                 const $contextMenu = $('#customContextMenu');
+//                 const $target = $contextMenu.data('targetElement');
+//                 if (!$target) {
+//                     mensaje('No se pudo identificar el elemento seleccionado.', 'danger');
+//                     $contextMenu.hide();
+//                     return;
+//                 }
+
+//                 const texto = $target.textContent.trim();
+//                 const enlace = buscarEnlace(texto);
+
+//                 if (!enlace.length) {
+//                     mensaje('No se encontró el ítem en el menú para guardar.', 'danger');
+//                     $contextMenu.hide();
+//                     return;
+//                 }
+
+//                 const href = enlace.attr('href');
+//                 if (!href || href === '#' || href.trim() === '') {
+//                     mensaje('El ítem seleccionado no tiene una ruta válida.', 'danger');
+//                     $contextMenu.hide();
+//                     return;
+//                 }
+
+//                 guardar(href);
+//                 mensaje('Ruta guardada como predeterminada.', 'success');
+//                 //   cargarContenido(href);
+//                 $contextMenu.hide();
+//             });
+
+//             $('#btnRestablecerRutas').on('click', function() {
+//                 localStorage.removeItem('rutaDefecto'); // borra solo esa ruta guardada
+//                 mensaje('Se han restablecido todas las rutas guardadas.', 'success');
+
+//                 // Opcional: recargar contenido predeterminado o página si quieres
+//                 // location.reload(); // si quieres refrescar la página para que el cambio se note
+//             });
+
+
+//             $('#contenido').on('keydown', '.con-ceros', function(e) {
+//                 if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+//                     e.preventDefault();
+//                     var numero2 = parseInt($(this).val(), 10) || 0;
+//                     var numero = e.key === 'ArrowUp' ? numero2 + 1 : numero2 - 1;
+//                     if (numero < 0) numero = 0;
+//                     var numeroStr = numero.toString().padStart(3, '0');
+//                     $(this).val(numeroStr);
+//                 }
+//             });
+
+//             // Detecta cambios que pueden venir por click en flechas nativas o edición manual
+//             $('#contenido').on('input', '.con-ceros', function() {
+//                 var val = $(this).val();
+//                 var num = parseInt(val, 10) || 0;
+//                 if (num < 0) num = 0;
+//                 var newVal = num.toString().padStart(3, '0');
+//                 if (val !== newVal) {
+//                     $(this).val(newVal);
+//                 }
+//             });
+
+//             $('#contenido').on('click', '.toggleSidebar', function() {
+//                 // $('.').click(function() {
+//                 // alert("fhoanfl")
+//                 const $button = $(this);
+//                 const $sidebarCol = $button.closest('.sidebar-col'); // card individual
+//                 const $sidebarWrapper = $sidebarCol.parent(); // contenedor de todos los sidebars
+//                 const $mainCol = $('.main-col');
+//                 const $text = $sidebarCol.find('h3').text();
+//                 // alert($text)
+
+//                 const isCollapsed = $sidebarCol.hasClass('card-minimized');
+
+//                 if (!isCollapsed) {
+//                     // Minimizar solo este sidebar
+//                     $sidebarCol.addClass('card-minimized');
+
+//                     // Cambiar texto botón a texto completo (ejemplo)
+//                     $button.text($text);
+
+//                     // Si todos los sidebars están minimizados, ajustar ancho wrapper y main
+//                     const allCollapsed = $sidebarWrapper.children('.sidebar-col').length === $sidebarWrapper
+//                         .children(
+//                             '.sidebar-col.card-minimized').length;
+//                     if (allCollapsed) {
+//                         $sidebarWrapper.addClass('sidebar-collapsed');
+//                         $mainCol.addClass('main-expanded');
+//                     }
+
+//                 } else {
+//                     // Restaurar sidebar actual
+//                     $sidebarCol.removeClass('card-minimized');
+//                     $button.text('⮞');
+
+//                     // Si alguno está abierto, quitar clases de wrapper y main
+//                     $sidebarWrapper.removeClass('sidebar-collapsed');
+//                     $mainCol.removeClass('main-expanded');
+//                 }
+//             });
+
+
+
+//         });
         //todo esto cierra los modales correctamente
         $('.modal').on('click', function(e) {
             if ($(e.target).is('.modal')) {
