@@ -232,7 +232,7 @@
             </div>
             <div class="modal-footer">
 
-              
+
             </div>
         </div>
     </div>
@@ -282,7 +282,7 @@
             </div>
             <div class="modal-body"id="modal_body_activos">
                    @include('user.entregas2.parcial_buscarActivos')
-               
+
             </div>
             {{-- <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -350,7 +350,7 @@ $contenedor.append($loader);
 // alert($loader.html())
     $.get(`${baseUrl}/entregas/${entrega_id}/activos`, function(response) {
         $contenedor.html(response); // reemplaza solo tabla
-        
+
 controlarBotones($('#estado_entrega').text().trim())
     }).fail(function() {
         $contenedor.html('<p>Error al cargar los activos.</p>');
@@ -379,7 +379,7 @@ controlarBotones($('#estado_entrega').text().trim())
         }
         // alert($('#btn_editar_entrega').data('id'));
 function modaleditar(idEntrega){
-    // alert(idEntrega) 
+    // alert(idEntrega)
     $.ajax({
                 url: baseUrl + '/entregas/' + idEntrega + '/editar',
                 type: 'GET',

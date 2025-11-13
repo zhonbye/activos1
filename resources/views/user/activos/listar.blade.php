@@ -479,6 +479,16 @@
                             <i class="bi bi-file-earmark-arrow-up me-1"></i> Importar Excel
                         </button>
                         <input type="file" id="inputExcel" accept=".xls,.xlsx,.csv" style="display: none;">
+                        <div id="modalSubida" class="modal">
+                            <div class="modal-content">
+                              <h2>Subir archivo Excel</h2>
+                              <div id="dropZone">
+                                Arrastra tu archivo aquí o haz clic para seleccionarlo.
+                                <input type="file" id="inputExcel" accept=".xls,.xlsx" hidden>
+                              </div>
+                              <button id="btnCerrarModal">Cerrar</button>
+                            </div>
+                          </div>
                     </div>
 
 
@@ -673,18 +683,42 @@
             reader.readAsArrayBuffer(file);
         });
 
+        // function excelDateToJSDate(serial) {
+        //     // Convierte número de Excel a formato YYYY-MM-DD
+        //     if (typeof serial === 'number') {
+        //         const utc_days = Math.floor(serial - 25569);
+        //         const date_info = new Date(utc_days * 86400 * 1000);
+        //         const year = date_info.getUTCFullYear();
+        //         const month = String(date_info.getUTCMonth() + 1).padStart(2, '0');
+        //         const day = String(date_info.getUTCDate()).padStart(2, '0');
+        //         return `${year}-${month}-${day}`;
+        //     }
+        //     return serial; // Si ya es texto tipo "2025-01-15"
+        // }
         function excelDateToJSDate(serial) {
-            // Convierte número de Excel a formato YYYY-MM-DD
-            if (typeof serial === 'number') {
-                const utc_days = Math.floor(serial - 25569);
-                const date_info = new Date(utc_days * 86400 * 1000);
-                const year = date_info.getUTCFullYear();
-                const month = String(date_info.getUTCMonth() + 1).padStart(2, '0');
-                const day = String(date_info.getUTCDate()).padStart(2, '0');
-                return `${year}-${month}-${day}`;
-            }
-            return serial; // Si ya es texto tipo "2025-01-15"
+    if (typeof serial === 'number') {
+        // Caso: número serial de Excel
+        const utc_days = Math.floor(serial - 25569);
+        const date_info = new Date(utc_days * 86400 * 1000);
+        const year = date_info.getUTCFullYear();
+        const month = String(date_info.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(date_info.getUTCDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    if (typeof serial === 'string' && serial.includes('/')) {
+        // Caso: texto con formato dd/mm/yyyy o d/m/yyyy
+        const [d, m, y] = serial.split('/');
+        if (d && m && y) {
+            const day = String(d).padStart(2, '0');
+            const month = String(m).padStart(2, '0');
+            return `${y}-${month}-${day}`;
         }
+    }
+
+    return serial; // Devolver como está si no se reconoce el formato
+}
+
 
         function importarActivos(filas) {
             let procesados = 0;

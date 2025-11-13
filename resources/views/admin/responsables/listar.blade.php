@@ -504,13 +504,13 @@
               <i class="bi bi-trash"></i>
             </button>
              <button class="btn btn-sm btn-outline-secondary agregar-usuario-btn"
-                      data-id="${item.id_responsable}"  data-bs-toggle="modal" 
+                      data-id="${item.id_responsable}"  data-bs-toggle="modal"
         data-bs-target="#modalNuevoUsuario"
                       title="Crear usuario para este personal">
                 <i class="bi bi-person-plus"></i>
               </button>
-         
-         
+
+
          ` // acciones
             ];
 
@@ -733,7 +733,7 @@
                                 'table-primary bg-opacity-10'), 2000);
                         }
                     } else {
-                        mensaje2(response.message, 'danger');
+                        mensaje2(response.message, 'error');
                     }
                 },
                 error: function(xhr) {
@@ -748,10 +748,10 @@
                                     0] + '</div>');
                             }
                         });
-                        mensaje2('Existen errores en el formulario.', 'danger');
+                        mensaje2('Existen errores en el formulario.', 'error');
                     } else {
                         mensaje2('Ocurrió un error inesperado al actualizar el usuario.',
-                            'danger');
+                            'error');
                     }
                 }
             });

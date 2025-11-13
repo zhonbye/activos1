@@ -279,7 +279,6 @@
 
 
 <script>
-    // Ejecutar al cargar la página
     if (inventarioCargado) {
         var inventarioCargado = false;
     }
@@ -287,7 +286,11 @@
         var devolucionCargado = false;
     }
 
-
+//     $.ajaxSetup({
+//     haders: {
+//         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+//     }
+// });
     function cargarTablaActivos(devolucion_id = null) {
 
         if (!devolucion_id) devolucion_id = $('#devolucion_id').val();
@@ -308,7 +311,7 @@
         $contenedor.load(`${baseUrl}/devolucion/${devolucion_id}/activos`, function(response, status, xhr) {
             // Ocultar loader al terminar
             $loader.hide();
-            
+
 controlarBotones($('#estado_devolucion').text().trim())
             if (status === "error") {
                 $contenedor.html('<p>Error al cargar los activos.</p>');

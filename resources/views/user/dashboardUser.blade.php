@@ -334,7 +334,7 @@
             <!-- ====================== -->
             <!-- MÓDULO: REPORTES -->
             <!-- ====================== -->
-            <li class="menu-item" data-submenu="submenuReportes" role="none">
+            <li class="menu-item desactivado" data-submenu="submenuReportes" role="none">
                 <div class="main-item" tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"
                     aria-controls="submenuReportes">
                     <i class="bi bi-graph-up icon" aria-hidden="true"></i>
@@ -407,7 +407,7 @@
 
 
         <div id="contenido" class="bg-dansger flex-grow-1 p-4 m-0 ">
-            
+
             @include('user.panelControl')
         </div>
     </div>
@@ -415,16 +415,16 @@
 
     <script>
 // Limpiar el contenido de todos los modales antes de abrirlos
-$(document).on('show.bs.modal', '.modal', function () {
-    const modalBody = $(this).find('.modal-body');
-    console.log('Limpiando contenido del modal antes de abrirlo.');
-    modalBody.html(''); // Borra todo HTML previo, scripts también desaparecen
-});
-$(document).on('.modal', '.modal', function () {
-    const modalBody = $(this).find('.modal-body');
-    console.log('Limpiando contenido del modal antes de abrirlo.');
-    modalBody.html(''); // Borra todo HTML previo, scripts también desaparecen
-});
+// $(document).on('show.bs.modal', '.modal', function () {
+//     const modalBody = $(this).find('.modal-body');
+//     console.log('Limpiando contenido del modal antes de abrirlo.');
+//     modalBody.html(''); // Borra todo HTML previo, scripts también desaparecen
+// });
+// $(document).on('.modal', '.modal', function () {
+//     const modalBody = $(this).find('.modal-body');
+//     console.log('Limpiando contenido del modal antes de abrirlo.');
+//     modalBody.html(''); // Borra todo HTML previo, scripts también desaparecen
+// });
 
 
   const baseUrl = "{{ url('/') }}";

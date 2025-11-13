@@ -44,12 +44,12 @@
         left: 0;
         right: 0;
         background: var(--color-fondo-secundario);
-        
+
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         z-index: 1050;
         padding: 0.5rem 1rem;
         border-radius: 0 0 18px 18px;
-        
+
         }*/
 
     .flotante {
@@ -145,9 +145,9 @@
 
         {{-- <form action="" method="post"> --}}
         <div id="card2" class="card mt-4 p-4 rounded shadow "
-            style="background-color: var(--color-fondo);; 
-             min-height:88vh; max-height:88vh; position: relative; 
-            display: flex; 
+            style="background-color: var(--color-fondo);;
+             min-height:88vh; max-height:88vh; position: relative;
+            display: flex;
             flex-direction: column;
             flex-wrap: no-wrap;">
             {{-- style="background-color: var(--color-fondo);  min-height:90vh;" --}}
@@ -162,7 +162,7 @@
                 <div class="col-12 col-md-6"></div> <!-- espacio vacío a la izquierda -->
 
                 <div class="col-12 col-md-6 d-flex justify-content-end gap-2">
-                   
+
 
                     <input type="search" id="inputSearch" class="form-control form-control-sm"
                         placeholder="Buscar por CI, usuario..." style="max-width: 280px;">
@@ -305,7 +305,7 @@
                             <i class="bi bi-check-circle"></i> Aplicar
                         </button>
                     </div>
-                    
+
                 <div class="col-3 col-md-2 d-flex align-items-center gap-2 flex-wrap">
                     <div class="form-check form-switch mb-2">
                         <input class="form-check-input" type="checkbox" id="toggleFlotante">
@@ -434,23 +434,23 @@
             });
         }
     });
-    $("#formEditarUsuario").on("submit", function(e) {
-        e.preventDefault();
+    // $("#formEditarUsuario").on("submit", function(e) {
+    //     e.preventDefault();
 
-        $.ajax({
-            url: "/usuarios/editar", // Ruta en Laravel
-            method: "POST",
-            data: $(this).serialize(),
-            success: function(res) {
-                alert("Usuario actualizado correctamente ✅");
-                location.reload(); // Recarga la tabla
-            },
-            error: function(err) {
-                alert("Error al actualizar ❌");
-                console.error(err);
-            }
-        });
-    });
+    //     $.ajax({
+    //         url: "/usuarios/editar", // Ruta en Laravel
+    //         method: "POST",
+    //         data: $(this).serialize(),
+    //         success: function(res) {
+    //             mensaje2("Usuario actualizado correctamente", 'success');
+    //             // location.reload(); // Recarga la tabla
+    //         },
+    //         error: function(err) {
+    //             mensaje2("Error al actualizar el usuario", 'error');
+    //             console.error(err);
+    //         }
+    //     });
+    // });
 </script>
 
 

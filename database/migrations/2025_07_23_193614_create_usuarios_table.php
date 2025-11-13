@@ -40,7 +40,7 @@ DB::table('usuarios')->insert([
     'clave' => bcrypt('admin1234'), // recuerda usar bcrypt para la contraseña
     'rol' => 'administrador',
     'estado' => 'activo',
-    'id_responsable' => 1,  // Asegúrate que exista un responsable con id 1
+    'id_responsable' => 2,  // Asegúrate que exista un responsable con id 1
     'created_at' => now(),
     'updated_at' => now(),
 ]);

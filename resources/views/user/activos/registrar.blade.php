@@ -230,7 +230,7 @@
                         }else{
                         }
 
-                        mensaje('Activo registrado correctamente.', 'success');
+                        mensaje2('Activo registrado correctamente.', 'success');
                         $('#form_activo')[0].reset(); // Resetea formulario
                         $('#sin_datos_checkbox').prop('checked', sinDatos);
                         $('#tipo_adquisicion').val(tipoAdq);
@@ -273,7 +273,7 @@ const badgeSituacion = badges[a.situacion] || `<span class="badge bg-secondary">
                         // Insertar al inicio de la tabla
                         $('table tbody').prepend(nuevaFila);
                     } else {
-                        mensaje('Ocurrió un error inesperado.', 'danger');
+                        mensaje2('Ocurrió un error inesperado.', 'error');
                     }
                 },
                 error: function(xhr) {
@@ -292,7 +292,7 @@ const badgeSituacion = badges[a.situacion] || `<span class="badge bg-secondary">
                         msg = xhr.responseJSON.message;
                     }
 
-                    mensaje(msg, 'danger');
+                    mensaje2(msg, 'error');
 
                 }
             });
@@ -312,7 +312,7 @@ const badgeSituacion = badges[a.situacion] || `<span class="badge bg-secondary">
             //     alert('Por favor ingresa un código');
             //     return;
             // }
-
+console.log(codigo);
             $.ajax({
                 url: `${baseUrl}/activo/siguiente-codigo`, // Cambia la ruta según tu ruta en Laravel
                 method: 'POST',

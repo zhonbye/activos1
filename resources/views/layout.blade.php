@@ -14,8 +14,9 @@
     <style>
         .btn-editar {
             background-color: var(--color-boton-fondo);
-            color: var(--color-boton-texto);
+            color: var(--color-boton-texto);d
             transition: background-color 0.5s ease;
+            
         }
 
         .btn-editar:hover {
@@ -374,6 +375,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
@@ -485,17 +487,17 @@ $('#contenido').html('');
 
 
 // $(document).on('show.bs.modal', '.modal', function () {
-    const modalBody = $(this).find('.modal-body');
-    console.log('Limpiando contenido del modal antes de abrirlo.');
-    modalBody.html(''); // Borra todo HTML previo, scripts también desaparecen
+    // const modalBody = $(this).find('.modal-body');
+    // console.log('Limpiando contenido del modal antes de abrirlo.');
+    // modalBody.html(''); // Borra todo HTML previo, scripts también desaparecen
 // });
-    $('.modal-body').each(function () {
-        $(this).html(''); // limpia todos los contenidos
-    });
-    console.log('✅ Todos los modales limpiados al cargar la página.');
-                        
-    
-    
+    // $('.modal-body').each(function () {
+    //     $(this).html(''); // limpia todos los contenidos
+    // });
+    // console.log('✅ Todos los modales limpiados al cargar la página.');
+
+
+
     $('#miBarra').css('width', '100%');
 
                         setTimeout(() => {
