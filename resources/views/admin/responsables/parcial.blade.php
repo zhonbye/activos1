@@ -112,6 +112,6 @@
     </table>
   </div>
 
-  <div class="mt-3">
+  <div class="mt-3 flex-shrink: 0; bg-da3ng3er">
     {{ $personales->links('pagination::bootstrap-5') }}
   </div>

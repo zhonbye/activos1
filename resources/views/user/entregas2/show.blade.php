@@ -459,10 +459,6 @@ $('#resultado_Busqueda').html('');
 
 
 
-
-
-
-
     $(document).ready(function() {
         let idEntrega = {{ $entrega->id_entrega }};
         cargarDetalleEntrega();

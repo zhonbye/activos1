@@ -272,12 +272,12 @@
 
 <script>
     // Ejecutar al cargar la página
-    if (inventarioCargado) {
-        var inventarioCargado = false;
-    }
-    if (trasladoCargado) {
-        var trasladoCargado = false;
-    }
+    // if (inventarioCargado) {
+    //     var inventarioCargado = false;
+    // }
+    // if (trasladoCargado) {
+    //     var trasladoCargado = false;
+    // }
 
 
     function cargarTablaActivos(traslado_id = null) {
@@ -336,10 +336,10 @@ controlarBotones($('#estado_traslado').text().trim())
                 $('#servicio_nombre').text(($('#servicio_responsable_origen').data('nombre')))
 
 
-                inventarioCargado = false;
-                if (inventarioCargado) {
-                    $("#modalInventario").removeClass('constante')
-                }
+                // inventarioCargado = false;
+                // if (inventarioCargado) {
+                //     $("#modalInventario").removeClass('constante')
+                // }
                 
                 controlarBotones($('#estado_traslado').data('estado-traslado'));
 

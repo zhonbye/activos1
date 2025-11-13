@@ -3,6 +3,8 @@
     @method('PUT') <!-- Para actualizar -->
 
     <!-- 🧾 Sección 1: Datos de usuario -->
+    <input type="hidden" name="id_usuario" value="{{ $usuario->id_usuario ?? '' }}">
+
     <div class="mb-4 p-3 rounded" style="background-color: #e7eef886;">
         <h6 class="fw-bold border-bottom pb-1 mb-3">
             <i class="bi bi-person-vcard me-1"></i> Datos de usuario

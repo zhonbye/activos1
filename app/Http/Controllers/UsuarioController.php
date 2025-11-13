@@ -6,6 +6,7 @@ use App\Models\Usuario;
 use App\Models\Cargo;
 use App\Models\Responsable;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class UsuarioController extends Controller
 {
@@ -36,6 +37,43 @@ class UsuarioController extends Controller
 
 
 
+public function filtrarUsuarios(Request $request)
+{
+    $query = Usuario::with('responsable');
+
+    // 🔍 Filtro por texto (nombre de usuario o CI del responsable)
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function ($q) use ($search) {
+            $q->where('usuario', 'like', "%$search%")
+              ->orWhereHas('responsable', function($q2) use ($search) {
+                  $q2->where('nombre', 'like', "%$search%")
+                     ->orWhere('ci', 'like', "%$search%");
+              });
+        });
+    }
+
+    // 🔹 Filtro por rol
+    if ($request->filled('rol')) {
+        $query->where('rol', $request->rol);
+    }
+
+    // 🔹 Filtro por estado
+    if ($request->filled('estado')) {
+        $query->where('estado', $request->estado);
+    }
+
+    // Ordenar y paginar
+    $usuarios = $query->orderBy('created_at', 'desc')->paginate(20);
+
+    // Si la petición es AJAX → retornar solo la tabla
+    if ($request->ajax()) {
+        return view('admin.usuarios.parcial', compact('usuarios'))->render();
+    }
+
+    // Vista completa
+    return view('admin.usuarios.listar', compact('usuarios'));
+}
 
 
 public function listarParcial()
@@ -43,7 +81,7 @@ public function listarParcial()
     // Cargar usuarios con su responsable relacionado
     $usuarios = Usuario::with('responsable')
                         ->orderBy('created_at', 'desc')
-                        ->paginate(10);
+                        ->paginate(20);
 
     return view('admin.usuarios.parcial', compact('usuarios'));
 }
@@ -69,18 +107,38 @@ public function listarParcial()
 
 
 
-
-    public function store(Request $request)
+public function store(Request $request)
 {
-    // Validaciones
-    $validated = $request->validate([
-    'usuario' => 'required|string|max:50|unique:usuarios,usuario',
-    'clave' => 'required|string|min:6|confirmed', // ✅ usa "clave_confirmation"
-    'rol' => 'required|string|in:administrador,usuario',
-    'id_responsable' => 'required|exists:responsables,id_responsable',
-]);
-
     try {
+        // Validar datos con mensajes personalizados
+        $validated = $request->validate(
+            [
+                'usuario'        => 'required|string|max:50|unique:usuarios,usuario',
+                'clave'          => 'required|string|min:6|confirmed', // usa "clave_confirmation"
+                'rol'            => 'required|string|in:administrador,usuario',
+                'id_responsable' => 'required|exists:responsables,id_responsable',
+            ],
+            [
+                // Mensajes personalizados por tipo de regla
+                'required' => 'El campo :attribute es obligatorio.',
+                'string'   => 'El campo :attribute debe ser un texto.',
+                'max'      => 'El campo :attribute no debe exceder :max caracteres.',
+                'unique'   => 'El :attribute ya está registrado.',
+                'exists'   => 'El :attribute seleccionado no es válido.',
+                'in'       => 'El :attribute seleccionado no es válido.',
+                'min'      => 'El campo :attribute debe tener al menos :min caracteres.',
+                'confirmed' => 'La confirmación de :attribute no coincide.',
+            ],
+            [
+                // Nombres amigables para los campos
+                'usuario'        => 'nombre de usuario',
+                'clave'          => 'contraseña',
+                'rol'            => 'rol del usuario',
+                'id_responsable' => 'responsable',
+            ]
+        );
+
+        // Crear usuario
         $usuario = new Usuario();
         $usuario->usuario = $validated['usuario'];
         $usuario->clave = bcrypt($validated['clave']);
@@ -89,18 +147,43 @@ public function listarParcial()
         $usuario->id_responsable = $validated['id_responsable'];
         $usuario->save();
 
+        // Cargar relación responsable
+        $usuario->load('responsable');
+
+        // Preparar datos a enviar al front
+        $usuarioData = [
+            'id_usuario'  => $usuario->id_usuario,
+            'usuario'     => $usuario->usuario,
+            'rol'         => $usuario->rol,
+            'estado'      => $usuario->estado,
+            'responsable' => $usuario->responsable,
+            'created_at'  => $usuario->created_at->format('d/m/Y'),
+            'updated_at'  => $usuario->updated_at->format('d/m/Y'),
+        ];
+
         return response()->json([
             'success' => true,
             'message' => 'Usuario creado correctamente',
-            'usuario' => $usuario
-        ]);
-    } catch (\Exception $e) {
+            'usuario' => $usuarioData
+        ], 201);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        // Retornar errores de validación
         return response()->json([
             'success' => false,
-            'message' => 'Error al crear usuario: ' . $e->getMessage()
+            'message' => 'Existen errores en el formulario.',
+            'errors'  => $e->errors()
+        ], 422);
+
+    } catch (\Exception $e) {
+        // Error inesperado
+        return response()->json([
+            'success' => false,
+            'message' => 'No se pudo crear el usuario: ' . $e->getMessage()
         ], 500);
     }
 }
+
 
     // public function store(Request $request)
     // {
@@ -231,35 +314,85 @@ public function listarParcial()
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id_usuario)
+
+
+public function update(Request $request, $id_usuario)
 {
-    $usuario = Usuario::findOrFail($id_usuario);
+    try {
+        $usuario = Usuario::findOrFail($id_usuario);
 
-    // Validar datos
-    $request->validate([
-        'usuario' => 'required|string|max:50',
-        'rol' => 'required|string',
-        'estado' => 'required|in:activo,inactivo',
-        'clave' => 'nullable|string|min:6|confirmed', // solo si cambia
-    ]);
+        // 🔹 Validar datos con mensajes personalizados
+        $validated = $request->validate(
+            [
+                'usuario' => [
+                    'required',
+                    'string',
+                    'max:50',
+                    Rule::unique('usuarios', 'usuario')->ignore($id_usuario, 'id_usuario')
+                ],
+                'rol'    => 'required|string|in:administrador,usuario',
+                'estado' => 'required|in:activo,inactivo',
+                'clave'  => 'nullable|string|min:6|confirmed'
+            ],
+            [
+                'required' => 'El campo :attribute es obligatorio.',
+                'string'   => 'El campo :attribute debe ser un texto.',
+                'max'      => 'El campo :attribute no debe exceder :max caracteres.',
+                'unique'   => 'El :attribute ya está registrado.',
+                'in'       => 'El :attribute seleccionado no es válido.',
+                'min'      => 'El campo :attribute debe tener al menos :min caracteres.',
+                'confirmed'=> 'La confirmación de :attribute no coincide.'
+            ],
+            [
+                'usuario' => 'nombre de usuario',
+                'rol'     => 'rol del sistema',
+                'estado'  => 'estado del usuario',
+                'clave'   => 'contraseña'
+            ]
+        );
 
-    // Actualizar campos
-    $usuario->usuario = $request->usuario;
-    $usuario->rol = $request->rol;
-    $usuario->estado = $request->estado;
-    // $usuario->id_responsable = $request->id_responsable;
+        // 🔹 Actualizar campos
+        $usuario->usuario = $validated['usuario'];
+        $usuario->rol = $validated['rol'];
+        $usuario->estado = $validated['estado'];
 
-    // Cambiar contraseña solo si se ingresó
-    if ($request->filled('clave')) {
-        $usuario->clave = bcrypt($request->clave);
+        if (!empty($validated['clave'])) {
+            $usuario->clave = bcrypt($validated['clave']);
+        }
+
+        $usuario->save();
+
+        $usuario->load('responsable');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Usuario actualizado correctamente',
+            'usuario' => [
+                'id_usuario' => $usuario->id_usuario,
+                'usuario'    => $usuario->usuario,
+                'rol'        => $usuario->rol,
+                'estado'     => $usuario->estado,
+                'responsable'=> $usuario->responsable ? [
+                    'nombre' => $usuario->responsable->nombre,
+                    'ci'     => $usuario->responsable->ci
+                ] : null,
+                'updated_at' => $usuario->updated_at->format('d/m/Y')
+            ]
+        ]);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        // Devuelve errores por campo
+        return response()->json([
+            'success' => false,
+            'message' => 'Error de validación en el formulario.',
+            'errors'  => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No se pudo actualizar el usuario: ' . $e->getMessage()
+        ], 500);
     }
-
-    $usuario->save();
-
-    return response()->json([
-        'success' => true,
-        'mensaje' => 'Usuario actualizado correctamente'
-    ]);
 }
 
 

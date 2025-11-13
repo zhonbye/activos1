@@ -480,8 +480,23 @@
                     success: function(data) {
                         // $('#contenido').html(data);
                         $('#contenido').empty();
+$('#contenido').off().empty();
+$('#contenido').html('');
 
-                        $('#miBarra').css('width', '100%');
+
+// $(document).on('show.bs.modal', '.modal', function () {
+    const modalBody = $(this).find('.modal-body');
+    console.log('Limpiando contenido del modal antes de abrirlo.');
+    modalBody.html(''); // Borra todo HTML previo, scripts también desaparecen
+// });
+    $('.modal-body').each(function () {
+        $(this).html(''); // limpia todos los contenidos
+    });
+    console.log('✅ Todos los modales limpiados al cargar la página.');
+                        
+    
+    
+    $('#miBarra').css('width', '100%');
 
                         setTimeout(() => {
                             $('#contenido').html(data);

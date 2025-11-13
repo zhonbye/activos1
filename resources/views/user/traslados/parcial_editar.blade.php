@@ -201,7 +201,7 @@
             success: function(response) {
                 if (response.success) {
                     mensaje(response.message || 'Activos eliminados correctamente.', 'success');
-                    inventarioCargado = false;
+                    // inventarioCargado = false;
 
                     // ¡Solo ahora se guarda el traslado!
                     guardarTraslado();

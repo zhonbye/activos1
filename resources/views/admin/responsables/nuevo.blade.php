@@ -60,65 +60,64 @@
 $('#formNuevoResponsable').submit(function (e) {
     e.preventDefault();
 
-    let formDataArray = $(this).serializeArray();
+    let form = $(this);
+    let formDataArray = form.serializeArray();
     let formData = $.param(formDataArray);
 
-    // Detecta si se pasó una variable global "tabla" (por ejemplo desde Blade)
+    // Limpia errores previos
+    form.find('.is-invalid').removeClass('is-invalid');
+    form.find('.invalid-feedback').remove();
+
     const tabla = @json($tabla);
     const datos = @json($datos);
 
-    console.log("🧩 Nombre de tabla:", tabla);
-    console.log("📋 Campos recibidos:", datos);
-
-    // 🔹 Función para "recuperar" todo y mostrar en un alert
-
     $.ajax({
-        url: $(this).attr('action'),
+        url: form.attr('action'),
         method: 'POST',
         data: formData,
         success: function (response) {
             if (response.success) {
-                mensaje('Responsable registrado correctamente.', 'success');
+                mensaje2('Responsable registrado correctamente.', 'success');
                 $('#modalNuevoResponsable').modal('hide');
-                $('#formNuevoResponsable')[0].reset();
-
+                form[0].reset();
+// alert(response.responsable.id_responsable);
                 const responsable = response.responsable;
-
-                // 🔹 Crear un objeto nuevo solo con los campos que existen en "datos"
-                const datosFiltrados = datos.map(campo => {
-                    return { [campo]: responsable[campo] ?? '-' };
-                });
-
-                // 🔹 Convertirlo a formato que la función cargarDatos espera
-                // (una lista de objetos con solo los valores)
+                const datosFiltrados = datos.map(campo => ({ [campo]: responsable[campo] ?? '-' }));
                 const filas = datosFiltrados.reduce((acc, obj) => {
                     if (acc.length === 0) acc.push({});
                     Object.assign(acc[0], obj);
                     return acc;
                 }, []);
-
-                // 🔹 Llamar a la función para insertar en la tabla
                 cargarDatos(tabla, filas);
 
             } else {
-                mensaje('Ocurrió un error inesperado.', 'danger');
+                mensaje2('Ocurrió un error inesperado.', 'danger');
             }
         },
         error: function (xhr) {
             console.error(xhr.responseText);
             let msg = 'Error inesperado en el servidor.';
 
-            if (xhr.status === 422 && xhr.responseJSON) {
-                if (xhr.responseJSON.errors) {
-                    msg = Object.values(xhr.responseJSON.errors).flat().join('<br>');
-                } else if (xhr.responseJSON.message) {
-                    msg = xhr.responseJSON.message;
-                }
-            } else if (xhr.responseJSON?.message) {
+            // 🔹 Errores de validación (422)
+            if (xhr.status === 422 && xhr.responseJSON?.errors) {
+                const errores = xhr.responseJSON.errors;
+                msg = xhr.responseJSON.message || 'Errores de validación.';
+
+                // Recorre cada campo con error
+                $.each(errores, function (campo, mensajes) {
+                    const input = form.find(`[name="${campo}"]`);
+                    if (input.length) {
+                        input.addClass('is-invalid'); // Marca campo
+                        // Inserta mensaje2 debajo
+                        input.after(`<div class="invalid-feedback">${mensajes.join('<br>')}</div>`);
+                    }
+                });
+            }
+            else if (xhr.responseJSON?.message) {
                 msg = xhr.responseJSON.message;
             }
 
-            mensaje(msg, 'danger');
+            mensaje2(msg, 'danger');
         }
     });
 });

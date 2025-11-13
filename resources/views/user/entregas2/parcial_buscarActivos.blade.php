@@ -3,7 +3,7 @@
         <div class="d-flex justify-content-between align-items-start mb-4">
             <!-- Formulario de búsqueda -->
             <div class="flex-grow-1">
-                <form id="form_buscar_inventario" class="row g-3 text-start">
+                <form id="form_buscar_inventario_entrega" class="row g-3 text-start">
                     @csrf
 
                     <div class="col-md-4">
@@ -50,7 +50,7 @@
         </div>
 
         <!-- Resultados -->
-        <div id="resultado_Busqueda" class="mt-4"></div>
+        <div id="resultado_Busqueda2" class="mt-4"></div>
     </div>
 </div>
 
@@ -150,7 +150,7 @@
     $(document).off('click', '#btn_buscar_inventario')
         .on('click', '#btn_buscar_inventario', function(e) {
             e.preventDefault();
-
+console.log("fsdafdsa")
             const $btn = $(this);
 
             // Evitar clicks repetidos mientras procesa
@@ -158,8 +158,8 @@
 
             const idServicioOrigen = $('#id_servicio_origen').val();
             let idEntrega = $('#entrega_id').val(); // obtiene el valor del hidden
-            let data = $('#form_buscar_inventario').serialize();
-
+            let data = $('#form_buscar_inventario_entrega').serialize();
+console.log("id entrega es: "+idEntrega);
             if (idServicioOrigen) {
                 data += '&id_servicio_origen=' + encodeURIComponent(idServicioOrigen);
             }
@@ -183,7 +183,7 @@
                 type: 'POST',
                 data: data,
                 success: function(html) {
-                    $('#resultado_Busqueda').html(html);
+                    $('#resultado_Busqueda2').html(html);
                 },
                 error: function(xhr) {
                     let msg = 'Ocurrió un error inesperado.';

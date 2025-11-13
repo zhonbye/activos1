@@ -16,7 +16,7 @@ class ResponsableController extends Controller
         // $personales = Responsable::with(['usuario', 'cargo'])->paginate(10);
         $personales = Responsable::with(['usuario', 'cargo'])
     ->orderBy('created_at', 'desc')
-    ->paginate(10);
+    ->paginate(20);
 
 
         $servicios = \App\Models\Servicio::select('id_servicio', 'nombre')->orderBy('nombre')->get();
@@ -56,7 +56,7 @@ if ($request->filled('search')) {
         }
 
         //  Ordenar y paginar
-        $personales = $query->orderBy('created_at', 'desc')->paginate(10);
+        $personales = $query->orderBy('created_at', 'desc')->paginate(20);
 
 
         //  Si la petición viene por AJAX → retornar solo la tabla
@@ -79,62 +79,78 @@ if ($request->filled('search')) {
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        try {
-            //  Validar los datos del formulario
-            $validated = $request->validate([
+ public function store(Request $request)
+{
+    try {
+        // 🔹 Validar los datos con mensajes personalizados
+        $validated = $request->validate(
+            [
                 'nombre'     => 'required|string|max:255',
                 'ci'         => 'required|string|max:100|unique:responsables,ci',
                 'telefono'   => 'nullable|string|max:30',
                 'id_cargo'   => 'required|integer|exists:cargos,id_cargo',
-               'rol' => 'required|string|in:administrador,director,coordinador,medico,enfermero,administrativo,personal_operativo,invitado',
+                'rol'        => 'required|string|in:administrador,director,coordinador,medico,enfermero,administrativo,personal_operativo,invitado',
+            ],
+            [
+                // 🧩 Mensajes personalizados por tipo de regla
+                'required' => 'El campo :attribute es obligatorio.',
+                'string'   => 'El campo :attribute debe ser un texto.',
+                'max'      => 'El campo :attribute no debe exceder :max caracteres.',
+                'unique'   => 'El :attribute ya está registrado.',
+                'exists'   => 'El :attribute seleccionado no es válido.',
+                'in'       => 'El :attribute seleccionado no es válido.',
+            ],
+            [
+                // 🏷️ Nombres amigables de campos
+                'nombre'   => 'nombre del responsable',
+                'ci'       => 'CI',
+                'telefono' => 'teléfono',
+                'id_cargo' => 'cargo',
+                'rol'      => 'rol del usuario',
+            ]
+        );
 
-            ]);
+        // Crear el nuevo responsable
+        $responsable = Responsable::create([
+            'nombre'   => $validated['nombre'],
+            'ci'       => $validated['ci'],
+            'telefono' => $validated['telefono'] ?? null,
+            'id_cargo' => $validated['id_cargo'],
+            'rol'      => $validated['rol'],
+        ]);
 
-            //  Crear el nuevo responsable
-            $responsable = Responsable::create([
-                'nombre'   => $validated['nombre'],
-                'ci'       => $validated['ci'],
-                'telefono' => $validated['telefono'] ?? null,
-                'id_cargo' => $validated['id_cargo'],
-                'rol'      => $validated['rol'],
-            ]);
+        $responsable->load('cargo');
+// dd($responsable->id_responsable);
+        $responsable = [
+            'id_responsable'   => $responsable->id_responsable, 
+            'nombre'   => $responsable->nombre, 
+            'ci'       => $responsable->ci,
+            'telefono' => $responsable->telefono,
+            'cargo'    => $responsable->cargo->nombre ?? 'Sin cargo',
+            'rol'      => $responsable->rol ?? 'Sin rol',
+            'estado'   => 'activo',
+            'fecha'    => $responsable->created_at->format('d/m/Y'),
+        ];
 
-            //  Cargar relaciones necesarias para mostrar en tabla
-            $responsable->load('cargo');
-
-     $responsable = [
-    // 'id_responsable' => $responsable->id_responsable,
-    'nombre' => $responsable->nombre,
-    'ci' => $responsable->ci,
-    'telefono' => $responsable->telefono,
-    'cargo' => $responsable->cargo->nombre ?? 'Sin cargo',
-    'rol' => $responsable->rol ?? 'Sin rol', // solo si tiene relación con roles
-    'estado' => 'activo', // solo si tiene relación con roles
-    'fecha' => $responsable->created_at->format('d/m/Y'),
-];
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Responsable creado correctamente.',
-                'responsable' => $responsable
-            ], 201);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            //  Errores de validación
-            return response()->json([
-                'success' => false,
-                'message' => 'Error de validación en responsable.',
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            //  Error general del servidor
-            return response()->json([
-                'success' => false,
-                'message' => 'No se pudo insertar responsable: ' . $e->getMessage(),
-            ], 500);
-        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Responsable creado correctamente.',
+            'responsable' => $responsable
+        ], 201);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error de validación en responsable.',
+            'errors'  => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No se pudo insertar responsable: ' . $e->getMessage(),
+        ], 500);
     }
+}
+
 
 
     // public function store2(Request $request)

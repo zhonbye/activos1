@@ -345,23 +345,23 @@
 {{-- @extends('layout') --}}
 {{-- @push('scripts')> --}}
 <script>
-    $('#toggleFlotante').on('change', function() {
-        if ($(this).is(':checked')) {
-            // alert("hodsfdosa")
-            $('.card').css('max-height', 'none');
-            // Medir la altura del contenido que está arriba
-            let alturaFila1 = $('#fila1').outerHeight();
-            // Aplicar sticky con top ajustado
-            // $('#fila1, #fila2').appendTo('#principal');
-            $('#fila1').addClass('flotante');
+    // $('#toggleFlotante').on('change', function() {
+    //     if ($(this).is(':checked')) {
+    //         // alert("hodsfdosa")
+    //         $('.card').css('max-height', 'none');
+    //         // Medir la altura del contenido que está arriba
+    //         let alturaFila1 = $('#fila1').outerHeight();
+    //         // Aplicar sticky con top ajustado
+    //         // $('#fila1, #fila2').appendTo('#principal');
+    //         $('#fila1').addClass('flotante');
 
 
-        } else {
-            // $('#fila1, #fila2').appendTo('#card2');
-            $('.card').css('max-height', '88vh');
-            $('#fila1').removeClass('flotante');
-        }
-    });
+    //     } else {
+    //         // $('#fila1, #fila2').appendTo('#card2');
+    //         $('.card').css('max-height', '88vh');
+    //         $('#fila1').removeClass('flotante');
+    //     }
+    // });
 
 
 

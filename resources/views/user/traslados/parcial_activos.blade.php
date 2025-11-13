@@ -154,14 +154,14 @@ $(document).off('click', '.btn_agregar_activo')
 
         $(document).off('click', '.btn-eliminar-activo').on('click', '.btn-eliminar-activo', function(e) {
                 e.preventDefault();
-
                 const $btn = $(this);
-
+                
                 // Evitar clicks múltiples
                 if ($btn.data('processing')) return;
-
+                
                 const idActivo = $btn.data('id-activo');
                 const idTraslado = $btn.data('id-traslado');
+                alert("id activo es: "+idActivo+ " y  el tralado es: "+idTraslado);
 
                 if (!idActivo || !idTraslado) {
                     mensaje('Faltan datos: no se pudo identificar el traslado o el activo.', 'warning');

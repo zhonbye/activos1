@@ -110,6 +110,7 @@ Route::put('/responsables/{id}', [ResponsableController::class, 'update'])->name
 
 
 Route::get('/usuarios/lista', [UsuarioController::class, 'listarParcial'])->name('usuarios.lista');
+Route::get('/usuarios/filtrar', [UsuarioController::class, 'filtrarUsuarios'])->name('usuarios.filtrar');
 
 Route::get('/usuarios/{usuario}/edit', [UsuarioController::class, 'edit'])
      ->name('usuarios.edit');

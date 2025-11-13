@@ -75,6 +75,52 @@
 
 
 <script>
+    // 🔧 Función que agrega una nueva fila a la tabla de usuarios
+    function agregarFilaUsuario(usuario) {
+        // Verificar si la tabla ya está cargada en el DOM
+        const tbody = $('#contenedorTablaUsuarios tbody');
+        if (!tbody.length) return; // Si aún no existe, salir sin hacer nada
+        // alert(tbody.html())
+
+        // Crear la nueva fila HTML
+        const filaHTML = `
+        <tr data-id="${usuario.id_usuario}">
+            <td>${usuario.responsable ? usuario.responsable.nombre + ' (' + usuario.responsable.ci + ')' : 'd—'}</td>
+            <td>${usuario.usuario}</td>
+            <td>${usuario.rol ? capitalize(usuario.rol) : '—'}</td>
+            <td>
+                <span class="badge ${
+                    usuario.estado === 'activo' ? 'bg-success' :
+                    usuario.estado === 'inactivo' ? 'bg-secondary' : 'bg-dark'
+                }">${capitalize(usuario.estado)}</span>
+            </td>
+            <td>${usuario.created_at ?? '—'}</td>
+            <td>${usuario.updated_at ?? '—'}</td>
+            <td class="text-center">
+                <button class="btn btn-sm btn-outline-dark editar-usuario-btn"
+                        data-id="${usuario.id_usuario}"
+                        data-bs-toggle="modal" data-bs-target="#modalEditarUsuario"
+                        title="Editar usuario">
+                    <i class="bi bi-person-gear"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger eliminar-usuario-btn"
+                        data-id="${usuario.id_usuario}"
+                        title="Eliminar usuario">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </td>
+        </tr>
+    `;
+
+        // Insertar la fila al inicio del tbody
+        tbody.prepend(filaHTML);
+
+        // ✨ Efecto visual
+        const nuevaFila = tbody.find('tr').first();
+        nuevaFila.addClass('table-success bg-opacity-25');
+        setTimeout(() => nuevaFila.removeClass('table-success bg-opacity-25'), 2500);
+    }
+
     $('#formNuevoUsuario').submit(function(e) {
         e.preventDefault(); // Evita recargar la página al enviar el formulario
 
@@ -93,51 +139,45 @@
             },
             success: function(response) {
                 if (response.success) {
-                    mensaje('Usuario registrado correctamente.', 'success');
+                    mensaje2('Usuario registrado correctamente.', 'success');
+                    const usuario = response.usuario;
+                    const idResponsable = usuario.responsable.id_responsable;
+                    const idUsuario = usuario.id_usuario;
 
-                    // Cerrar modal
-                    const idResponsable = response.usuario.id_responsable;
-                    const idUsuario = response.usuario.id_usuario;
-                    const fila = $('#contenedorTablaResponsables tbody tr[data-id="' +
-                        idResponsable + '"]');
-                    // alert(fila.html())
+                    // Ocultar el modal
                     bootstrap.Modal.getInstance(document.getElementById('modalNuevoUsuario'))
                 .hide();
-
+// alert(idResponsable)
+                    // Actualalerizar tabla de responsables
+                    const fila = $('#contenedorTablaResponsables tbody tr[data-id="' +
+                        idResponsable + '"]');
                     if (fila.length) {
-                        // Cambiar el badge de “No tiene usuario” → “Tiene usuario”
                         fila.find('td').eq(6).html(
-                            '<span class="badge bg-primary">Tiene usuario</span>'
-                        );
-
-
-
-
-                         fila.find('td').eq(8).html(
-        `
-        
-        <button class="btn btn-sm btn-outline-primary editar-btn" data-bs-toggle="modal" data-bs-target="#modalEditarResponsable"
-                data-id="${idResponsable}" title="Editar personal">
-            <i class="bi bi-pencil"></i>
-        </button>
-        <button class="btn btn-sm btn-outline-danger eliminar-btn"
-                data-id="${idResponsable}" title="Eliminar personal">
-            <i class="bi bi-trash"></i>
-        </button>
-        
-        
-        <button class="btn btn-sm btn-outline-dark editar-usuario-btn"
-                 data-id="${idUsuario}" 
-                 title="Editar usuario">
-             <i class="bi bi-person-gear"></i>
-         </button>`
-    );
-
+                            '<span class="badge bg-primary">Tiene usuario</span>');
+                        fila.find('td').eq(8).html(`
+                <button class="btn btn-sm btn-outline-primary editar-btn" data-bs-toggle="modal"
+                        data-bs-target="#modalEditarResponsable" data-id="${idResponsable}"
+                        title="Editar personal">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger eliminar-btn" data-id="${idResponsable}"
+                        title="Eliminar personal">
+                    <i class="bi bi-trash"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-dark editar-usuario-btn"
+                        data-id="${idUsuario}" title="Editar usuario">
+                    <i class="bi bi-person-gear"></i>
+                </button>
+            `);
                     }
+
+                    // 🔹 Agregar nueva fila a la tabla de usuarios si ya está cargada
+                    agregarFilaUsuario(usuario);
+
                     // Limpiar formulario
                     $('#formNuevoUsuario')[0].reset();
                 } else {
-                    mensaje(response.message || 'Ocurrió un error inesperado.', 'danger');
+                    mensaje2(response.message || 'Ocurrió un error inesperado.', 'error');
                 }
             },
             error: function(xhr) {
@@ -152,9 +192,9 @@
                                 '</div>');
                         }
                     });
-                    mensaje('Existen errores en el formulario.', 'danger');
+                    mensaje2('Existen errores en el formulario.', 'error');
                 } else {
-                    mensaje('Ocurrió un error inesperado al enviar el formulario.', 'danger');
+                    mensaje2('Ocurrió un error inesperado al enviar el formulario.', 'danger');
                 }
             }
         });

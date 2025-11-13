@@ -148,18 +148,18 @@
                         <i class="bi bi-caret-down caret" aria-hidden="true"></i>
                     </div>
                     <ul class="submenu" id="submenuUsuarios" role="menu" aria-label="Submenú Usuarios">
-                        <li role="none">
+                        {{-- <li role="none">
                             <a href="{{ route('usuarios.create') }}" role="menuitem" class="cargar">Crear Usuario</a>
-                        </li>
+                        </li> --}}
                         <li role="none">
                             <a href="{{ route('responsable.index') }}" role="menuitem" class="cargar">Listar personal</a>
                         </li>
-                        <li role="none">
+                        {{-- <li role="none">
                             <a href="{{ route('usuarios.index') }}" role="menuitem" class="cargar">Listar Usuarios</a>
-                        </li>
-                        <li role="none">
+                        </li> --}}
+                        {{-- <li role="none">
                             <a href="#" data-url="/usuarios/roles" role="menuitem" class="cargar">Roles y Permisos</a>
-                        </li>
+                        </li> --}}
                     </ul>
                 </li>
 
