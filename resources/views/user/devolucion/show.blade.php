@@ -279,12 +279,12 @@
 
 
 <script>
-    if (inventarioCargado) {
-        var inventarioCargado = false;
-    }
-    if (devolucionCargado) {
-        var devolucionCargado = false;
-    }
+    // if (inventarioCargado) {
+    //     var inventarioCargado = false;
+    // }
+    // if (devolucionCargado) {
+    //     var devolucionCargado = false;
+    // }
 
 //     $.ajaxSetup({
 //     haders: {
@@ -345,10 +345,10 @@ controlarBotones($('#estado_devolucion').text().trim())
                 $('#servicio_nombre').text(($('#servicio_responsable').data('nombre')))
 
 
-                inventarioCargado = false;
-                if (inventarioCargado) {
-                    $("#modalInventario").removeClass('constante')
-                }
+                // inventarioCargado = false;
+                // if (inventarioCargado) {
+                //     $("#modalInventario").removeClass('constante')
+                // }
                 controlarBotones($('#estado_devolucion').data('estado-devolucion'));
 
             },
@@ -395,7 +395,7 @@ controlarBotones($('#estado_devolucion').text().trim())
 
     $(document).ready(function() {
         let iddevolucion = {{ $devolucion->id_devolucion }};
-        cargarDetalleDevolucion();
+        cargarDetalleDevolucion()
         cargarTablaActivos();
 
         $(document).on('click', '#seleccionar_devolucion', function() {

@@ -411,6 +411,15 @@
         const menuItems = sidebar?.querySelectorAll('li.menu-item') || []; // si null, devuelve array vacío
         const body = document.body;
 
+
+
+           function mensaje2(texto, tipo) {
+            Swal.fire({
+                text: texto,
+                icon: tipo,
+                confirmButtonText: 'OK'
+            });
+        }
         let ajaxActual = null;
  function cargarContenido(url) {
                 if (!url) {

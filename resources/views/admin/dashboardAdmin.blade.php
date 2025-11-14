@@ -506,13 +506,7 @@ function confirm(texto, tipo, callback) {
 }
 
 
-   function mensaje2(texto, tipo) {
-            Swal.fire({
-                text: texto,
-                icon: tipo,
-                confirmButtonText: 'OK'
-            });
-        }
+
 
 
   const baseUrl = "{{ url('/') }}";

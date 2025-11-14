@@ -34,7 +34,9 @@ class DevolucionController extends Controller
     public function create()
 {
     // Obtener todos los servicios con su responsable (para mostrar en el select)
-    $servicios = Servicio::with('responsable')->get();
+   $servicios = Servicio::with('responsable')
+    ->whereRaw('LOWER(nombre_servicio) NOT LIKE ?', ['%activos fijos%'])
+    ->get();
 
     // Determinar la gestión actual (sin Carbon)
     $gestionActual = date('Y');
@@ -670,6 +672,9 @@ public function agregarActivo(Request $request, $id)
         $servicio = Servicio::with('responsable')->find($request->id_servicio);
         $id_responsable = $servicio->responsable->id_responsable ?? null;
 
+
+
+        
         // ✅ Crear la devolución
         $devolucion = Devolucion::create([
             'numero_documento' => $numero,
@@ -681,11 +686,14 @@ public function agregarActivo(Request $request, $id)
             'observaciones' => $request->observaciones,
             'estado' => 'pendiente',
         ]);
+        $siguienteNumero = $this->generarNumeroDocumento($gestion);
+    $siguienteNumero = str_pad((int) $siguienteNumero, 3, '0', STR_PAD_LEFT);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Nueva Devolución registrada correctamente.',
-            'data' => $devolucion,
+return response()->json([
+    'success' => true,
+    'message' => 'Nueva Devolución registrada correctamente.',
+    'data' => $devolucion,
+    'siguiente_numero' => $siguienteNumero,
         ]);
     }
 
@@ -729,7 +737,8 @@ public function editarActivo(Request $request, $id)
 $categorias = Categoria::all();
             $unidades = Unidad::all();
             $estados = Estado::all();
-            $servicios = Servicio::all();
+            $servicios = Servicio::whereRaw('LOWER(nombre) NOT LIKE ?', ['%activos fijos%'])->get();
+
 
     // Determinar la gestión actual (sin Carbon)
     $gestionActual = date('Y');
@@ -828,7 +837,8 @@ $categorias = Categoria::all();
 
     // Datos para selects
     $usuarios = Usuario::all();       // Para responsables
-    $servicios = Servicio::all();     // Para servicios
+     $servicios = Servicio::whereRaw('LOWER(nombre) NOT LIKE ?', ['%activos fijos%'])->get();
+     // Para servicios
     $responsables = Responsable::all(); // Para selects de responsables si aplica
 
     return view('user.devolucion.parcial_editar', compact('devolucion', 'usuarios', 'servicios', 'responsables'));

@@ -177,7 +177,7 @@
                 success: function(response) {
                     if (response.success) {
                         mensaje(response.message || 'Activos eliminados correctamente.', 'success');
-                        inventarioCargado = false;
+                        // inventarioCargado = false;
                         guardarDevolucion();
                     } else {
                         mensaje(response.message || 'Error al eliminar los activos.', 'danger');

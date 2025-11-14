@@ -411,20 +411,6 @@ $('#modalDetalleActivos').on('click', 'button[data-bs-dismiss="modal"]', functio
     $(this).blur(); // quitar el foco del botón
 });
 
-//         $('#modalDetalleActivos').on('hidden.bs.modal', function() {
-//     // Buscamos cualquier botón dentro del modal que pueda tener foco
-//     // alert("fdf")
-//     $(this).find('button:focus').blur();
-//     $('#modalDetalleActivos')
-//     .css('display', 'none')       // oculta visualmente
-//     .attr('aria-hidden', 'true')   // indica a tecnologías asistivas que está oculto
-//     .removeClass('show');          // quita la clase Bootstrap
-
-//     $('#seleccionar_traslado').blur();
-//     var $btnCerrar = $(this).find('button[data-bs-dismiss="modal"]');
-//     $btnCerrar.blur();
-//     alert($btnCerrar.html())
-// });
    // Capturar ID al presionar "Seleccionar"
     $(document).on('click', '#seleccionar_traslado', function() {
         var idTraslado = $(this).data('id');

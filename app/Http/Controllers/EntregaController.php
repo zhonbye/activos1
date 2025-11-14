@@ -36,7 +36,10 @@ class EntregaController extends Controller
 
     public function show($id = null)
     {
-        $servicios = Servicio::all(); // trae todos los servicios con id_responsable
+        // $servicios = Servicio::all();
+          $servicios = Servicio::whereRaw('LOWER(nombre) NOT LIKE ?', ['%activos fijos%'])->get();
+
+         // trae todos los servicios con id_responsable
         $categorias = Categoria::all();
         $numeroSiguiente = $this->generarNumeroDocumento('2025');
         if ($id) {
@@ -71,7 +74,9 @@ class EntregaController extends Controller
 
         // Datos para selects
         $usuarios = Usuario::all();       // Para responsables
-        $servicios = Servicio::all();     // Para servicios
+        // $servicios = Servicio::all(); 
+          $servicios = Servicio::whereRaw('LOWER(nombre) NOT LIKE ?', ['%activos fijos%'])->get();
+    // Para servicios
         $responsables = Responsable::all(); // Para selects de responsables si aplica
 
         return view('user.entregas2.parcial_editar', compact('entrega', 'usuarios', 'servicios', 'responsables'));
@@ -487,71 +492,162 @@ class EntregaController extends Controller
     }
 
 
-    public function buscarActivos(Request $request)
-    {
-        try {
-            $idEntregaActual = $request->id_entrega ?? null;
+    // public function buscarActivos(Request $request)
+    // {
+    //     try {
+    //         $idEntregaActual = $request->id_entrega ?? null;
 
-            // 🔹 Traer todos los activos inactivos
-            $activos = Activo::soloInactivos() // scope: estado_situacional = 'inactivo'
-                ->with('detalleInventario', 'categoria', 'estado') // para estado_actual y categoría
-                ->get();
+    //         // 🔹 Traer todos los activos inactivos
+    //         // $activos = Activo::soloInactivos() // scope: estado_situacional = 'inactivo'
+    //         //     ->with('detalleInventario', 'categoria', 'estado') // para estado_actual y categoría
+    //         //     ->get();
 
-            $detalles = $activos->map(function ($activo) use ($idEntregaActual) {
+    //         // $detalles = $activos->map(function ($activo) use ($idEntregaActual) {
 
-                $idActivo = $activo->id_activo;
-                if (!$idActivo) return null;
+    //         //     $idActivo = $activo->id_activo;
+    //         //     if (!$idActivo) return null;
 
-                // 🔹 Si ya está en detalle_inventario, descartarlo
-                $existeEnInventario = \App\Models\DetalleInventario::where('id_activo', $idActivo)->exists();
-                if ($existeEnInventario) return null;
+    //         //     // 🔹 Si ya está en detalle_inventario, descartarlo
+    //         //     $existeEnInventario = \App\Models\DetalleInventario::where('id_activo', $idActivo)->exists();
+    //         //     if ($existeEnInventario) return null;
 
-                // 🔹 Actas/entregas donde aparece este activo
-                $actas = DetalleEntrega::where('id_activo', $idActivo)
-                    ->join('entregas as e', 'e.id_entrega', '=', 'detalle_entregas.id_entrega')
-                    ->select('detalle_entregas.id_entrega', 'e.numero_documento')
-                    ->distinct()
-                    ->get()
-                    ->map(function ($a) {
-                        return [
-                            'id' => $a->id_entrega,
-                            'numero_documento' => $a->numero_documento,
-                        ];
-                    })
-                    ->values()
-                    ->toArray();
+    //         //     // 🔹 Actas/entregas donde aparece este activo
+    //         //     $actas = DetalleEntrega::where('id_activo', $idActivo)
+    //         //         ->join('entregas as e', 'e.id_entrega', '=', 'detalle_entregas.id_entrega')
+    //         //         ->select('detalle_entregas.id_entrega', 'e.numero_documento')
+    //         //         ->distinct()
+    //         //         ->get()
+    //         //         ->map(function ($a) {
+    //         //             return [
+    //         //                 'id' => $a->id_entrega,
+    //         //                 'numero_documento' => $a->numero_documento,
+    //         //             ];
+    //         //         })
+    //         //         ->values()
+    //         //         ->toArray();
 
-                // 🔹 Determinar si el activo está en la entrega actual
-                $enEntregaActual = $idEntregaActual
-                    ? collect($actas)->contains('id', $idEntregaActual)
-                    : false;
+    //         //     // 🔹 Determinar si el activo está en la entrega actual
+    //         //     $enEntregaActual = $idEntregaActual
+    //         //         ? collect($actas)->contains('id', $idEntregaActual)
+    //         //         : false;
 
-                // 🔹 Determinar si el activo está en otras entregas distintas
-                $enOtrasEntregas = $idEntregaActual
-                    ? collect($actas)->where('id', '!=', $idEntregaActual)->isNotEmpty()
-                    : collect($actas)->isNotEmpty();
+    //         //     // 🔹 Determinar si el activo está en otras entregas distintas
+    //         //     $enOtrasEntregas = $idEntregaActual
+    //         //         ? collect($actas)->where('id', '!=', $idEntregaActual)->isNotEmpty()
+    //         //         : collect($actas)->isNotEmpty();
 
-                // 🔹 Guardar atributos para la vista
-                $activo->setAttribute('en_entrega_actual', $enEntregaActual);
-                $activo->setAttribute('en_otras_entregas', $enOtrasEntregas);
-                $activo->setAttribute('actas_info', $actas);
-                $activo->setAttribute('estado_actual', $activo->estado->nombre);
-                $activo->setAttribute('id_entrega_actual', $idEntregaActual);
+    //         //     // 🔹 Guardar atributos para la vista
+    //         //     $activo->setAttribute('en_entrega_actual', $enEntregaActual);
+    //         //     $activo->setAttribute('en_otras_entregas', $enOtrasEntregas);
+    //         //     $activo->setAttribute('actas_info', $actas);
+    //         //     $activo->setAttribute('estado_actual', $activo->estado->nombre);
+    //         //     $activo->setAttribute('id_entrega_actual', $idEntregaActual);
 
-                return $activo;
-            })->filter(); // eliminar nulos
+    //         //     return $activo;
+    //         // })->filter(); // eliminar nulos
 
-            return view('user.entregas2.parcial_resultados_activos', ['detalles' => $detalles]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Ocurrió un error al buscar activos inactivos: ' . $e->getMessage()
-            ], 500);
+    //         return view('user.entregas2.parcial_resultados_activos', ['detalles' => $detalles]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Ocurrió un error al buscar activos inactivos: ' . $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
+
+
+public function buscarActivos(Request $request)
+{
+    try {
+        $idEntregaActual = $request->id_entrega ?? null;
+
+        // 🔹 1️⃣ Traer todos los activos inactivos
+        $activosInactivos = Activo::soloInactivos()
+            ->with('detalleInventario', 'categoria', 'estado')
+            ->get();
+
+        // 🔹 2️⃣ Traer activos del servicio "Activos Fijos"
+        $servicioActivosFijos = Servicio::whereRaw('LOWER(nombre) LIKE ?', ['%activos fijos%'])->first();
+        $inventariosActivosFijos = [];
+
+        if ($servicioActivosFijos) {
+            $idServicioActivosFijos = $servicioActivosFijos->id_servicio;
+            $inventariosActivosFijos = Inventario::where('id_servicio', $idServicioActivosFijos)
+                ->pluck('id_inventario')
+                ->toArray();
         }
+
+        $activosFijos = Activo::with('detalleInventario', 'categoria', 'estado')
+            ->whereHas('detalleInventario', function ($q) use ($inventariosActivosFijos) {
+                $q->whereIn('id_inventario', $inventariosActivosFijos);
+            })
+            ->get();
+
+        // 🔹 3️⃣ Combinar ambos conjuntos
+        $activos = $activosInactivos->merge($activosFijos);
+
+        // 🔹 4️⃣ Mapear y agregar atributos
+        $detalles = $activos->map(function ($activo) use ($idEntregaActual, $inventariosActivosFijos) {
+
+            $idActivo = $activo->id_activo;
+            if (!$idActivo) return null;
+
+            // 🔹 Si ya está en detalle_inventario y NO es de "Activos Fijos", descartarlo
+            // $existeEnInventario = $activo->detalleInventario->isNotEmpty();
+           $existeEnInventario = ($activo->detalleInventario ?? collect());
+
+            // $enInventarioActivosFijos = $activo->detalleInventario
+            //     ->whereIn('id_inventario', $inventariosActivosFijos)
+            //     ->isNotEmpty();
+   $enInventarioActivosFijos = ($activo->detalleInventario ?? collect())
+    ->whereIn('id_inventario', $inventariosActivosFijos)
+    ;
+
+            if ($existeEnInventario && !$enInventarioActivosFijos && $activo->estado_situacional === 'inactivo') return null;
+
+            // 🔹 Actas/entregas donde aparece este activo
+            $actas = DetalleEntrega::where('id_activo', $idActivo)
+                ->join('entregas as e', 'e.id_entrega', '=', 'detalle_entregas.id_entrega')
+                ->select('detalle_entregas.id_entrega', 'e.numero_documento')
+                ->distinct()
+                ->get()
+                ->map(fn($a) => [
+                    'id' => $a->id_entrega,
+                    'numero_documento' => $a->numero_documento,
+                ])
+                ->values()
+                ->toArray();
+
+            // 🔹 Determinar si el activo está en la entrega actual
+            $enEntregaActual = $idEntregaActual
+                ? collect($actas)->contains('id', $idEntregaActual)
+                : false;
+
+            // 🔹 Determinar si el activo está en otras entregas distintas
+            $enOtrasEntregas = $idEntregaActual
+                ? collect($actas)->where('id', '!=', $idEntregaActual)->isNotEmpty()
+                : collect($actas)->isNotEmpty();
+
+            // 🔹 Guardar atributos para la vista
+            $activo->setAttribute('en_entrega_actual', $enEntregaActual);
+            $activo->setAttribute('en_otras_entregas', $enOtrasEntregas);
+            $activo->setAttribute('actas_info', $actas);
+            $activo->setAttribute('estado_actual', $activo->estado->nombre ?? null);
+            $activo->setAttribute('id_entrega_actual', $idEntregaActual);
+
+            return $activo;
+        })->filter(); // eliminar nulos
+
+        return view('user.entregas2.parcial_resultados_activos', ['detalles' => $detalles]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Ocurrió un error al buscar activos: ' . $e->getMessage()
+        ], 500);
     }
-
-
-
+}
 
 
     public function store(Request $request)
@@ -615,13 +711,24 @@ class EntregaController extends Controller
             'id_servicio' => $request->id_servicio,
             'observaciones' => $request->observaciones,
             'estado' => 'pendiente',
+        ]);    
+         $siguienteNumero = $this->generarNumeroDocumento($gestion);
+$siguienteNumero = str_pad((int) $siguienteNumero, 3, '0', STR_PAD_LEFT);
+
+
+return response()->json([
+    'success' => true,
+    'message' => 'Nueva Entrega registrada correctamente.',
+    'data' => $entrega,
+    'siguiente_numero' => $siguienteNumero,
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Nueva Entrega registrada correctamente.',
-            'data' => $entrega,
-        ]);
+
+
+        
+
+
+
     }
     public function detalleParcialEntrega($id)
     {

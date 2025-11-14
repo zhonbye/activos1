@@ -69,7 +69,9 @@
         //     hola();
         // });
 
-        $(document).on('change', 'input[name="gestion"]', function() {
+        // $(document).on('change', 'input[name="gestion"]', function() {
+$(document).on('input', '#form_devolucion input[name="gestion"]', function() {
+
             var gestion = $(this).val().trim();
 
             // Verificar que tenga 4 dígitos
@@ -129,13 +131,20 @@
                         cargarDetalleDevolucion(iddevolucion);
                         cargarTablaActivos(iddevolucion);
                         // $(this).blur();
-                        var $modal = $('.modal.show');
-            // var $botonAbrirModal = $('.btn-ver-detalle-principal[data-id-activo="' + 3 + '"]');
-            setTimeout(() => {
 
-            }, 10000);
-            $modal.find('button[data-bs-dismiss="modal"]').trigger('click');
-            $(this).blur();
+
+                          form[0].reset();
+
+                        $('#modalNuevaDevolucion #form_devolucion #numero_documento').val(response.siguiente_numero);
+                        $('#modalNuevaDevolucion .btn-close').trigger('click');
+                        $('.modal-backdrop').remove();
+            //             var $modal = $('.modal.show');
+            // // var $botonAbrirModal = $('.btn-ver-detalle-principal[data-id-activo="' + 3 + '"]');
+            // setTimeout(() => {
+
+            // }, 10000);
+            // $modal.find('button[data-bs-dismiss="modal"]').trigger('click');
+            // $(this).blur();
 
                         // Referencia directa al modal
                         // var $modal = $('#modaldevolucion');
@@ -161,7 +170,7 @@
                         // $('.modal-backdrop').remove();
 
 
-                        form[0].reset();
+                        // form[0].reset();
                     } else {
                         mensaje(response.message, 'danger');
                     }

@@ -145,7 +145,7 @@
         //     hola();
         // });
 
-        $(document).on('change', 'input[name="gestion"]', function() {
+$(document).on('input', '#form_entrega input[name="gestion"]', function() {
             var gestion = $(this).val().trim();
 
             // Verificar que tenga 4 dígitos
@@ -205,30 +205,37 @@
                         cargarDetalleEntrega(identrega);
                         cargarTablaActivos(identrega);
 
-                        // Referencia directa al modal
-                        var $modal = $('#modalEntrega');
+  form[0].reset();
 
-                        // Cerrar modal
-                        var modalInstance = bootstrap.Modal.getInstance($modal[0]);
-                        if (modalInstance) modalInstance.hide();
-
-                        //    var $modal = $('#modalEntrega');
-                        // var modalInstance = bootstrap.Modal.getInstance($modal[0]);
-
-                        if (modalInstance) {
-                            modalInstance.hide();
-
-                            // Limpiar contenido cuando realmente se haya cerrado
-                            $modal.one('hidden.bs.modal', function() {
-                                $(this).find('.modal-body').html('');
-                            });
-                        }
-
-                        // También asegurarse de que no queden backdrops colgados
+                        $('#modalEntrega #form_entrega #numero_documento').val(response.siguiente_numero);
+                        $('#modalEntrega .btn-close').trigger('click');
                         $('.modal-backdrop').remove();
 
 
-                        form[0].reset();
+                        // // Referencia directa al modal
+                        // var $modal = $('#modalEntrega');
+
+                        // // Cerrar modal
+                        // var modalInstance = bootstrap.Modal.getInstance($modal[0]);
+                        // if (modalInstance) modalInstance.hide();
+
+                        // //    var $modal = $('#modalEntrega');
+                        // // var modalInstance = bootstrap.Modal.getInstance($modal[0]);
+
+                        // if (modalInstance) {
+                        //     modalInstance.hide();
+
+                        //     // Limpiar contenido cuando realmente se haya cerrado
+                        //     $modal.one('hidden.bs.modal', function() {
+                        //         $(this).find('.modal-body').html('');
+                        //     });
+                        // }
+
+                        // // También asegurarse de que no queden backdrops colgados
+                        // $('.modal-backdrop').remove();
+
+
+                        // form[0].reset();
                     } else {
                         mensaje(response.message, 'danger');
                     }

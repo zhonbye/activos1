@@ -136,12 +136,12 @@
               </tr>
             </thead>
            <tbody id="listaUnidades">
-    @foreach($unidades as $unidad)
+    {{-- @foreach($unidades as $unidad)
     <tr>
         <td>{{ $unidad->nombre }}</td>
         <td>{{ $unidad->abreviatura }}</td>
     </tr>
-    @endforeach
+    @endforeach --}}
 </tbody>
 
           </table>
@@ -1393,3 +1393,166 @@
         </div>
     </div>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Inventarios Estéticos</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+  body { background-color: #f5f7fa; }
+  .card-inventario {
+    border-radius: 12px;
+    padding: 1rem;
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+    color: #333;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-inventario:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  }
+  .icono-inventario {
+    font-size: 3rem;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    opacity: 0.15;
+  }
+  .badge-estado { font-size: 0.85em; }
+  .filtro-inventario { max-width: 300px; margin-bottom: 1rem; }
+</style>
+</head>
+<body>
+
+<div class="container my-4">
+  <h1 class="mb-4">Inventarios Estéticos</h1>
+
+  <!-- 🔹 Filtro de búsqueda -->
+  <input type="text" id="filtroInventario" class="form-control filtro-inventario" placeholder="Buscar inventario por nombre o servicio">
+
+  <div class="row g-3" id="contenedorInventarios">
+    <!-- Inventarios se llenarán dinámicamente -->
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function(){
+
+  // Datos simulados
+  const inventarios = [
+    {id:1, nombre:'Inventario #001', servicio:'Sala A', estado:'Vigente', color:'#c8f7dc'},
+    {id:2, nombre:'Inventario #002', servicio:'Sala B', estado:'Finalizado', color:'#fce4ec'},
+    {id:3, nombre:'Inventario #003', servicio:'Sala C', estado:'Pendiente', color:'#fff3cd'},
+    {id:4, nombre:'Inventario #004', servicio:'Sala D', estado:'Vigente', color:'#d6eaf8'}
+  ];
+
+  // Función para mostrar inventarios
+  function mostrarInventarios(lista){
+    const contenedor = $('#contenedorInventarios');
+    contenedor.empty();
+    lista.forEach(inv => {
+      const tarjeta = $(`
+        <div class="col-md-3">
+          <div class="card card-inventario" style="background-color:${inv.color}">
+            <i class="bi bi-box icono-inventario"></i>
+            <h5>${inv.nombre}</h5>
+            <p>Servicio: ${inv.servicio}</p>
+            <span class="badge bg-secondary badge-estado">${inv.estado}</span>
+            <div class="mt-3 d-grid gap-2">
+              <button class="btn btn-primary btn-sm btn-ver">Ver Detalles</button>
+              <button class="btn btn-warning btn-sm btn-actualizar">Actualizar</button>
+              <button class="btn btn-info btn-sm btn-mover">Mover</button>
+              <button class="btn btn-secondary btn-sm btn-imprimir">Imprimir</button>
+            </div>
+          </div>
+        </div>
+      `);
+      contenedor.append(tarjeta);
+    });
+  }
+
+  mostrarInventarios(inventarios);
+
+  // Filtro de búsqueda
+  $('#filtroInventario').on('keyup', function(){
+    const val = $(this).val().toLowerCase();
+    const filtrados = inventarios.filter(inv => 
+      inv.nombre.toLowerCase().includes(val) || inv.servicio.toLowerCase().includes(val)
+    );
+    mostrarInventarios(filtrados);
+  });
+
+  // Botones simulados
+  $(document).on('click', '.btn-ver', function(){ alert('Ver detalles del inventario'); });
+  $(document).on('click', '.btn-actualizar', function(){ alert('Actualizar inventario'); });
+  $(document).on('click', '.btn-mover', function(){ alert('Mover inventario o activos'); });
+  $(document).on('click', '.btn-imprimir', function(){ alert('Imprimir reporte'); });
+
+});
+</script>
+
+</body>
+</html>
+

@@ -29,7 +29,8 @@ class TrasladoController extends Controller
     }
     public function create()
     {
-        $servicios = Servicio::all(); // para llenar selects
+        // $servicios = Servicio::all(); // para llenar selects
+ $servicios = Servicio::whereRaw('LOWER(nombre) NOT LIKE ?', ['%activos fijos%'])->get();
 
         // Determinar la gestión actual (sin Carbon, con PHP puro)
         $gestionActual = date('Y');
@@ -365,7 +366,9 @@ class TrasladoController extends Controller
     public function mostrarBuscar()
     {
         try {
-            $servicios = Servicio::all(); // Para llenar los selects
+             $servicios = Servicio::whereRaw('LOWER(nombre) NOT LIKE ?', ['%activos fijos%'])->get();
+
+            // $servicios = Servicio::all(); // Para llenar los selects
             return view('user.traslados.parcial_buscar', compact('servicios'));
         } catch (\Exception $e) {
             // Opcional: loguear el error
@@ -477,11 +480,20 @@ class TrasladoController extends Controller
             'estado' => 'pendiente',
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Nuevo Traslado agregado correctamente.',
-            'data' => $traslado,
-        ]);
+     $siguienteNumero = $this->generarNumeroDocumento($gestion);
+
+
+// 👉 Formatearlo
+$siguienteNumero = str_pad((int) $siguienteNumero, 3, '0', STR_PAD_LEFT);
+
+
+// ✅ 3. Devolver el número siguiente al frontend
+return response()->json([
+    'success' => true,
+    'message' => 'Nuevo Traslado agregado correctamente.',
+    'data' => $traslado,
+    'siguiente_numero' => $siguienteNumero,
+]);
     }
 
 
@@ -611,7 +623,8 @@ class TrasladoController extends Controller
     {
 
 
-        $servicios = Servicio::all(); // para llenar selects
+        // $servicios = Servicio::all(); // para llenar selects
+ $servicios = Servicio::whereRaw('LOWER(nombre) NOT LIKE ?', ['%activos fijos%'])->get();
 
         // Determinar la gestión actual (sin Carbon, con PHP puro)
         $gestionActual = date('Y');
@@ -892,7 +905,9 @@ class TrasladoController extends Controller
 
         // Datos para selects
         $usuarios = Usuario::all();       // Para responsables
-        $servicios = Servicio::all();     // Para servicios
+        // $servicios = Servicio::all();     // Para servicios
+         $servicios = Servicio::whereRaw('LOWER(nombre) NOT LIKE ?', ['%activos fijos%'])->get();
+
         $responsables = Responsable::all();     // Para servicios
 
         return view('user.traslados.parcial_editar', compact('traslado', 'usuarios', 'servicios', 'responsables'));
