@@ -27,6 +27,49 @@ class InventarioController extends Controller
     // }
 
 
+
+
+public function detalle($id)
+{
+    // Traer inventario con relaciones
+    $inventario = Inventario::with(['usuario', 'responsable', 'servicio', 'detalles.activo'])->findOrFail($id);
+
+    // Construir tabla de detalles
+    $tabla = '';
+    foreach($inventario->detalles as $i => $detalle) {
+        $tabla .= '<tr>';
+        $tabla .= '<td>'.($i+1).'</td>';
+        $tabla .= '<td>'.$detalle->activo->codigo.'</td>';
+        $tabla .= '<td>'.$detalle->activo->nombre.'</td>';
+        $tabla .= '<td>'.$detalle->estado_actual.'</td>';
+        $tabla .= '<td>'.$detalle->observaciones.'</td>';
+       $tabla .= '<td><button class="btn btn-sm btn-info ver-activo-btn" data-id="'.$detalle->activo->id_activo.'">Ver activo</button></td>';
+
+        $tabla .= '</tr>';
+    }
+
+    return response()->json([
+        'numero' => $inventario->numero_documento,
+        'gestion' => $inventario->gestion,
+        'fecha' => $inventario->fecha,
+        'estado' => $inventario->estado,
+        'usuario' => $inventario->usuario->nombre ?? '',
+        'responsable' => $inventario->responsable->nombre ?? '',
+        'servicio' => $inventario->servicio->nombre ?? '',
+        'tablaDetalle' => $tabla,
+    ]);
+}
+
+
+
+
+
+
+
+
+
+
+
     public function activosInventario($id_inventario)
     {
         // Busca el inventario con sus detalles y activos relacionados
@@ -50,29 +93,104 @@ class InventarioController extends Controller
     return view('user.inventario.consultar', compact('servicios', 'responsables'));
 }
 
-    public function filtrar(Request $request)
+//     public function filtrar(Request $request)
+// {
+//     $query = Inventario::orderBy('fecha', 'desc');
+
+//     if ($request->filled('servicio') && !in_array($request->servicio, ['0', 'all'])) {
+//         $query->where('id_servicio', $request->servicio);
+//     }
+
+//     if ($request->filled('responsable') && !in_array($request->responsable, ['0', 'all'])) {
+//         $query->where('id_responsable', $request->responsable);
+//     }
+
+//     // 🔁 Solo uno de los dos: gestión o rango de fechas
+//     if ($request->filled('fecha_inicio') && $request->filled('fecha_fin')) {
+//         $query->whereBetween('fecha', [$request->fecha_inicio, $request->fecha_fin]);
+//     } elseif ($request->filled('gestion') && !in_array($request->gestion, ['0', 'all'])) {
+//         $query->where('gestion', $request->gestion);
+//     }
+
+//     $inventarios = $query->paginate(20)->withQueryString();
+
+//     return view('user.inventario.parcial', compact('inventarios'))->render();
+// }
+
+
+
+public function filtrar(Request $request)
 {
-    $query = Inventario::orderBy('fecha', 'desc');
+    $query = Inventario::query()->with(['usuario', 'responsable', 'servicio']);
 
-    if ($request->filled('servicio') && !in_array($request->servicio, ['0', 'all'])) {
-        $query->where('id_servicio', $request->servicio);
+    // 📌 Numero de documento
+    if ($request->filled('numero_documento')) {
+        $query->where('numero_documento', 'like', "%{$request->numero_documento}%");
     }
 
-    if ($request->filled('responsable') && !in_array($request->responsable, ['0', 'all'])) {
-        $query->where('id_responsable', $request->responsable);
-    }
-
-    // 🔁 Solo uno de los dos: gestión o rango de fechas
-    if ($request->filled('fecha_inicio') && $request->filled('fecha_fin')) {
-        $query->whereBetween('fecha', [$request->fecha_inicio, $request->fecha_fin]);
-    } elseif ($request->filled('gestion') && !in_array($request->gestion, ['0', 'all'])) {
+    // 📌 Gestión
+    if ($request->filled('gestion')) {
         $query->where('gestion', $request->gestion);
     }
 
-    $inventarios = $query->paginate(20)->withQueryString();
+    // 📌 Usuario
+    if ($request->filled('id_usuario') && $request->id_usuario !== 'all') {
+        $query->where('id_usuario', $request->id_usuario);
+    }
 
+    // 📌 Responsable
+    if ($request->filled('id_responsable') && $request->id_responsable !== 'all') {
+        $query->where('id_responsable', $request->id_responsable);
+    }
+
+    // 📌 Servicio
+    if ($request->filled('id_servicio') && $request->id_servicio !== 'all') {
+        $query->where('id_servicio', $request->id_servicio);
+    }
+
+    // 📌 Estado (activo / cerrado / anulado)
+    if ($request->filled('estado') && $request->estado !== 'all') {
+        $query->where('estado', $request->estado);
+    }
+
+    // 📌 Observaciones
+    if ($request->filled('observaciones')) {
+        $query->where('observaciones', 'like', "%{$request->observaciones}%");
+    }
+
+    // 📅 Rango de fechas
+    if ($request->filled('fecha_inicio') && $request->filled('fecha_fin')) {
+        $inicio = $request->fecha_inicio . " 00:00:00";
+        $fin    = $request->fecha_fin . " 23:59:59";
+        $query->whereBetween('fecha', [$inicio, $fin]);
+    }
+if ($request->filled('busqueda')) {
+    $query->where(function($q) use ($request) {
+        $q->where('numero_documento', 'like', "%{$request->busqueda}%")
+          ->orWhere('gestion', 'like', "%{$request->busqueda}%")
+          ->orWhereHas('servicio', function($s) use ($request) {
+              $s->where('nombre', 'like', "%{$request->busqueda}%");
+          })
+          ->orWhereHas('responsable', function($r) use ($request) {
+              $r->where('nombre', 'like', "%{$request->busqueda}%");
+          });
+    });
+}
+
+    // 📌 Orden
+    $ordenarPor = $request->input('ordenar_por', 'fecha');
+    $direccion  = $request->input('direccion', 'desc');
+
+    $query->orderBy($ordenarPor, $direccion);
+
+    // 📌 PAGINACIÓN
+    // $inventarios = $query->paginate(10)->withQueryString();
+    $inventarios = $query->paginate(20);
+
+    // 📌 RETORNO A TU PARCIAL
     return view('user.inventario.parcial', compact('inventarios'))->render();
 }
+
 
 
     public function ultimoInventario(Request $request)

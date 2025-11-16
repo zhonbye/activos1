@@ -163,6 +163,8 @@ Route::get('/inventarios/filtro', [InventarioController::class, 'filtrar'])->nam
 Route::get('/inventarios', [InventarioController::class, 'consultar'])->name('inventario.consultar');
 Route::get('/inventario/{id}/activos', [InventarioController::class, 'activosInventario'])->name('inventario.activos');
 
+Route::get('/inventarios/filtrar', [InventarioController::class, 'filtrar'])->name('inventarios.filtrar');
+Route::get('inventarios/detalle/{id}', [InventarioController::class, 'detalle'])->name('inventarios.detalle');
 
 
 Route::get('/bajas', [BajaController::class, 'create'])->name('bajas.create');
