@@ -20,13 +20,13 @@ return new class extends Migration
             $table->foreign('id_activo')->references('id_activo')->on('activos')->onDelete('cascade');
         });
 
-        DB::table('detalle_entregas')->insert([
-            'id_entrega' => 1,
-            'id_activo' => 1,
-            'observaciones' => 'Detalle entrega inicial',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // DB::table('detalle_entregas')->insert([
+        //     'id_entrega' => 1,
+        //     'id_activo' => 1,
+        //     'observaciones' => 'Detalle entrega inicial',
+        //     'created_at' => now(),
+        //     'updated_at' => now(),
+        // ]);
     }
 
     public function down(): void

@@ -1,3 +1,44 @@
+{{-- /* #iframeOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+}
+
+.iframe-container {
+    position: relative;
+    width: 80vw;
+    height: 80vh;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px #000;
+}
+
+.iframe-container iframe {
+    width: 100%;
+    height: 100%;
+    border-radius: 0 0 8px 8px;
+    border: none;
+}
+
+#iframeOverlay #closeIframe {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: red;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-weight: bold;
+    cursor: pointer;
+} */ --}}
 <style>
     /* Destacar inputs inventario */
     .input-activo {
@@ -5,47 +46,13 @@
         background-color: #e7f1ff !important;
     }
 
-    #iframeOverlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1050;
+    .input-compact {
+        height: 28px;
+        padding: 2px 8px;
+        font-size: 0.85rem;
     }
 
-    .iframe-container {
-        position: relative;
-        width: 80vw;
-        height: 80vh;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 0 10px #000;
-    }
 
-    .iframe-container iframe {
-        width: 100%;
-        height: 100%;
-        border-radius: 0 0 8px 8px;
-        border: none;
-    }
-
-    #iframeOverlay #closeIframe {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        background: red;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        padding: 4px 8px;
-        font-weight: bold;
-        cursor: pointer;
-    }
 </style>
 
 
@@ -74,48 +81,6 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
-            <!-- Body -->
-            {{-- <div class="modal-body">
-
-                <!-- Info del inventario -->
-                <div class="mb-3 p-3 rounded" style="background-color:#e9f2ff;">
-                    <h6 class="fw-bold mb-2">Información General</h6>
-                    <div class="row g-2">
-                        <div class="col-md-3"><strong>Número:</strong> <span id="detalleNumero"></span></div>
-                        <div class="col-md-3"><strong>Gestión:</strong> <span id="detalleGestion"></span></div>
-                        <div class="col-md-3"><strong>Fecha:</strong> <span id="detalleFecha"></span></div>
-                        <div class="col-md-3"><strong>Estado:</strong> <span id="detalleEstado" class="badge"></span>
-                        </div>
-                    </div>
-                    <div class="row g-2 mt-2">
-                        <div class="col-md-4"><strong>Usuario:</strong> <span id="detalleUsuario"></span></div>
-                        <div class="col-md-4"><strong>Responsable:</strong> <span id="detalleResponsable"></span></div>
-                        <div class="col-md-4"><strong>Servicio:</strong> <span id="detalleServicio"></span></div>
-                    </div>
-                </div>
-
-                <!-- Tabla de detalles -->
-                <div class="table-responsive" style="max-height:60vh; overflow-y:auto;">
-                    <table class="table table-striped table-bordered mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>#</th>
-                                <th>Código</th>
-                                <th>Activo</th>
-                                <th>Estado</th>
-                                <th>Observaciones</th>
-                                <th>Acciones</th>
-                            </tr>
-
-                        </thead>
-                        <tbody id="tablaDetalleInventario">
-                            <!-- Aquí se llenará dinámicamente con AJAX -->
-                        </tbody>
-                    </table>
-                </div>
-
-            </div> --}}
-
             <!-- Footer -->
             <div class="modal-footer border-0">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
@@ -126,7 +91,6 @@
         </div>
     </div>
 </div>
-
 
 
 <!-- 🧩 Modal de Filtros de Inventarios -->
@@ -241,24 +205,6 @@
                                     placeholder="Buscar por observación">
                             </div>
                         </div>
-
-                        <!-- Opcional: filtrado por detalle_inventarios -->
-                        {{-- <div class="row g-3 mt-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Estado actual del activo</label>
-                                <select name="estado_actual" class="form-select">
-                                    <option value="all">Todos</option>
-                                    <option value="bueno">Bueno</option>
-                                    <option value="regular">Regular</option>
-                                    <option value="malo">Malo</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">Observación de detalle</label>
-                                <input type="text" name="observ_detalle" class="form-control" placeholder="Observación del activo">
-                            </div>
-                        </div> --}}
                     </div>
 
 
@@ -337,15 +283,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
 <!-- Modal Registrar Activo -->
 <div class="modal fade" id="modalRegistrarActivo" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
@@ -375,40 +312,10 @@
     </div>
 </div>
 
-
-
-
-
-
-
-
-{{-- <div class="row  bg-info0 pb-4 justify-content-center" style="height: 90vh;min-height: 30vh;max-height:94vh"> --}}
-{{-- <div class="main-col col-md-12 col-lg-10 bg-danger order-lg-1 order-1 mb-4 p-1 transition"
-         style="position: relative;height: 100%; min-height: 40vh; max-height:100vh display: flex; flex-direction: column; "> --}}
-{{-- <div class="main-col col-md-12 col-lg-11 bg-danger0 order-lg-1 order-1 mb-4 p-1 transition"
-        style="position: relative; height: 80vh; min-height: 40vh; max-height: 80vh; display: flex; flex-direction: column; overflow: visible;"> --}}
-
-{{-- <div class="card p-4 rounded shadow" style="background-color: var(--color-fondo); display: flex; flex-direction: column; height: 100%;"> --}}
-{{-- <div class="card p-4 rounded shadow"
-     style="background-color: var(--color-fondo);  display: flex; flex-direction: column; min-height 100vh;height: 100vh;"> --}}
-
-
-
-
-
-
-
-
-
-
-
 <div class="row bg-info4 p-4 justify-content-center" style="height: 110vh; min-height: 110vh; max-height: 110vh;">
 
     <div class="main-col col-md-12 col-lg-11 order-lg-1 bg-dange4r order-1 mb-1 p-1 transition"
         style="position: relative; height: 110vh;max-height: 110vh; display: flex; flex-direction: column; overflow: visible;">
-
-        {{-- <div class="card p-4 rounded shadow"
-            style="position: relative;  background-color: var(--color-fondo); display: flex; flex-direction: column; flex: 1 1 auto;"> --}}
         <div class="card p-4 rounded shadow "
             style="background-color: var(--color-fondo); display: flex; flex-direction: column; flex: 1 1 auto;">
 
@@ -420,29 +327,13 @@
 
             <!-- Botones principales -->
             <div class="d-flex justify-content-end mb-3 gap-2">
-                {{-- <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalRegistrarActivo">
-                    <i class="bi bi-plus-lg me-1"></i> Nuevo Activo
-                </button> --}}
-                {{-- <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalRegistrarActivo">
-    <i class="bi bi-plus-lg me-1"></i> Registrar Activo
-</button> --}}
 
             </div>
-
-
-
-            {{--             
-            <div class="card  p-3 mb-4 shadow-sm d-none h-40 position-relative" id="cardDetalleInventario"
-                style="background-color:#e9f2ff7e; border-left: 5px solid #0d6efd;">
-
-                <!-- Info del inventario -->
-                <div class=" rounded h-100 w-100 p-4 d-flex flex-column" style="background-color:#e9f2ff;"> --}}
-
             <!-- Card de acciones (buscar, importar, exportar, bajas) -->
             <div class="card shadow-sm position-relative p-3 d-flex justify-content-center align-items-center mb-4"
                 id="cardInventario"
                 style="
-        background-color: #e9f2ff7e; 
+        background-color: #e9f2ff7e;
         border-left: 5px solid #0d6efd;
         box-sizing: border-box;
         min-height: 240px;
@@ -516,13 +407,6 @@
                             </button>
                         </div>
 
-                        {{-- <div class="col-md-1 d-flex align-items-end">
-                        <button class="btn btn-secondary btn-sm w-100" id="btnFiltrosInventarios"
-                            data-bs-toggle="modal" data-bs-target="#modalFiltrosInventario">
-                            <i class="bi bi-funnel me-1"></i> Filtros
-                        </button>
-                    </div> --}}
-
                         <div class="col-md-2 d-flex align-items-end">
                             <button class="btn btn-success btn-sm w-100" id="btnGenerarPDF">
                                 <i class="bi bi-file-earmark-pdf me-1"></i> Generar PDF
@@ -540,7 +424,7 @@
             <div class="card shadow-sm d-none position-relative p-3 d-flex justify-content-center align-items-center mb-4"
                 id="cardDetalleInventario"
                 style="
-        background-color: #e9f2ff7e; 
+        background-color: #e9f2ff7e;
         border-left: 5px solid #0d6efd;
         box-sizing: border-box;
         min-height: 240px;
@@ -559,15 +443,6 @@
                         <div class="col-md-3">
                             <h4 class="fw-bold mb-0">Información General</h4>
                         </div>
-                        {{-- <div class="col-md-6 d-flex align-items-center justify-content-center px-2">
-                            <input type="text" id="buscarActivoInventario"
-                                class="form-control form-control-sm rounded-start-pill"
-                                placeholder="Buscar activo...">
-                            <button class="btn btn-primary btn-sm rounded-end-pill" id="btnBuscarActivo"
-                                type="button">
-                                Buscar
-                            </button>
-                        </div> --}}
                         <div class="col-md-6 d-flex align-items-center justify-content-center px-2">
                             <div class="input-group" style="max-width: 300px;"> <!-- Limita ancho total -->
                                 <input type="text" id="buscarActivoInventario"
@@ -589,10 +464,10 @@
 
                         <!-- Input de búsqueda o botones de acción -->
                         {{-- <div class="input-group" style="width: 250px;">
-                            
+
                         </div> --}}
                         {{-- <div class="col-md-1 d-flex align-items-end">
-                            
+
                         </div> --}}
                     </div>
                     <!-- Datos principales -->
@@ -606,7 +481,7 @@
                         </div>
                     </div>
 
-                    {{-- 
+                    {{--
                     <h4 class="fw-bold mb-2">Información General</h4>
                     <div class="row g-2">
                         <div class="col-md-3"><strong>Número:</strong> <span id="detalleNumero"></span></div>
@@ -647,7 +522,7 @@
             <div class="card shadow-sm d-none position-relative p-3 d-flex justify-content-center align-items-center mb-4"
                 id="cardActualizarInventario"
                 style="
-        background-color: #e9f2ff7e; 
+        background-color: #e9f2ff7e;
         border-left: 5px solid #0d6efd;
         box-sizing: border-box;
         min-height: 240px;
@@ -670,24 +545,12 @@
                     {{-- <div class="mb-3 p-3 rounded" style="background-color:#e9f2ff;"> --}}
                     <h6 class="fw-bold mb-3">Información General</h6>
 
-                    <style>
-                        /* Inputs más compactos */
-                        .input-compact {
-                            height: 28px;
-                            /* altura total */
-                            padding: 2px 8px;
-                            /* padding interno */
-                            font-size: 0.85rem;
-                            /* tamaño de letra más pequeño */
-                        }
-                    </style>
-
                     <div class="row g-2">
 
                         <!-- Número documento -->
                         <div class="col-md-2">
                             <input type="text" class="form-control input-compact" id="numero_documento"
-                                placeholder="Número" readonly>
+                            placeholder="Número" readonly>
                             <small class="text-muted fst-italic">Generado automáticamente</small>
                         </div>
 
@@ -707,9 +570,6 @@
                         <div class="col-md-4">
                             <input type="text" class="form-control input-compact" id="responsable"
                                 placeholder="responsable">
-                            {{-- <select class="form-select input-compact" id="id_responsable">
-            <option value="">Seleccione...</option>
-        </select> --}}
                         </div>
 
                         <!-- Observaciones -->
@@ -845,110 +705,6 @@
         let debounceTimer;
         let tieneActualizar = false;
 
-
-
-
-        // $(document).on('click', '.ver-detalles-btn', function() {
-        //     const $btn = $(this);
-        //     const idInventario = $btn.data('id_inventario');
-        //     $('#tab-detalle').removeClass('d-none');
-
-        //     // Quitar clase active de otros botones
-        //     $('.ver-detalles-btn').removeClass('active');
-        //     $btn.addClass('active');
-
-        //     // Habilitar la pestaña detalle si estaba deshabilitada
-        //     $('#tab-detalle').removeClass('disabled');
-        //     const detalleTab = new bootstrap.Tab(document.querySelector('#tab-detalle'));
-        //     detalleTab.show();
-
-        //     // AJAX al controlador para traer los datos del inventario
-        //     $.get(`${baseUrl}/inventarios/detalle/${idInventario}`, function(res) {
-
-        //         // Mostrar u ocultar pestaña de actualizar según estado
-        //         if (res.estado === 'vigente') {
-        //             $('#tab-actualizar').removeClass('disabled d-none');
-        //             const actualizarTab = new bootstrap.Tab(document.querySelector('#tab-actualizar'));
-        //             // actualizarTab.show(); // Opcional
-        //             $('#id_inventario_actualizar').val(res.id_inventario);
-        //         } else {
-        //             $('#tab-actualizar').addClass('disabled d-none');
-        //             $('#id_inventario_actualizar').val('');
-        //         }
-
-        //         // Colocar los datos en los labels
-        //         $('#detalleNumero').text(res.numero || '-');
-        //         $('#detalleGestion').text(res.gestion || '-');
-        //         $('#detalleFecha').text(res.fecha || '-');
-
-        //         // Estado con color
-        //         let estadoClass = 'bg-secondary';
-        //         if (res.estado === 'vigente') estadoClass = 'bg-success';
-        //         else if (res.estado === 'pendiente') estadoClass = 'bg-primary';
-        //         else if (res.estado === 'finalizado') estadoClass = 'bg-dark';
-        //         $('#detalleEstado').text(res.estado || '-').removeClass().addClass('badge ' + estadoClass);
-
-        //         $('#detalleUsuario').text(res.usuario || '-');
-        //         $('#detalleResponsable').text(res.responsable || '-');
-        //         $('#detalleServicio').text(res.servicio || '-');
-
-        //         // Llenar la tabla de detalles desde res.detalles
-        //         const detalles = res.detalles || [];
-        //         let tablaHtml = '';
-
-        //         if (detalles.length > 0) {
-        //             detalles.forEach((detalle, i) => {
-        //                 tablaHtml += '<tr>';
-        //                 tablaHtml += `<td>${i+1}</td>`;
-        //                 tablaHtml += `<td>${detalle.codigo}</td>`;
-        //                 tablaHtml += `<td>${detalle.nombre}</td>`;
-        //                 tablaHtml += `<td>${detalle.estado_actual}</td>`;
-        //                 tablaHtml += `<td>${detalle.observaciones}</td>`;
-        //                 tablaHtml += '<td>';
-
-        //                 // Botón ver (siempre)
-        //                 tablaHtml += `
-        //                     <button class="btn btn-sm btn-primary opacity-75 ver-activo-btn" 
-        //                             title="Ver detalles del activo"
-        //                             data-id="${detalle.id_activo}">
-        //                         <i class="bi bi-eye"></i>
-        //                     </button>
-        //                 `;
-
-        //                 // Botón mover (solo si inventario vigente)
-        //                 if (res.estado === 'vigente') {
-        //                     tablaHtml += `
-        //                         <button class="btn btn-sm btn-success mover-activo-btn ms-1"
-        //                                 title="Mover / actualizar activo"
-        //                                 data-id="${detalle.id_activo}">
-        //                             <i class="bi bi-arrow-right-circle"></i>
-        //                         </button>
-        //                     `;
-        //                 }
-
-        //                 // Botón dar de baja (siempre)
-        //                 tablaHtml += `
-        //                     <button class="btn btn-sm btn-dark baja-activo-btn ms-1"
-        //                             title="Dar de baja este activo"
-        //                             data-id="${detalle.id_activo}">
-        //                         <i class="bi bi-arrow-down-circle"></i>
-        //                     </button>
-        //                 `;
-
-        //                 tablaHtml += '</td>';
-        //                 tablaHtml += '</tr>';
-        //             });
-        //         } else {
-        //             tablaHtml = '<tr><td colspan="6" class="text-center">No hay detalles</td></tr>';
-        //         }
-
-        //         // Insertar en la tabla
-        //         $('#tablaDetalleInventario').html(tablaHtml);
-
-        //     }).fail(function(err) {
-        //         mensaje('No se pudo cargar el detalle del inventario.', 'danger');
-        //     });
-        // });
         $(document).on('click', '.regresar-activo-btn', function() {
 
             let idActivo = $(this).data('id');
@@ -1161,7 +917,6 @@
 
                     const actualizarTab = new bootstrap.Tab(document.querySelector(
                         '#tab-actualizar'));
-                    // actualizarTab.show(); // Si quieres mostrarlo inmediatamente
 
                     // Guardar id_inventario dentro del input oculto
                     $('#id_inventario_actualizar').val(res.id_inventario);
@@ -1299,13 +1054,6 @@
                         const actualizarTab = new bootstrap.Tab(document.querySelector(
                             '#tab-actualizar'));
                         actualizarTab.show();
-                        //                         const $tabEl = $('#panelActualizarInventario-tab');
-                        // if ($tabEl.length) {
-                        //     const actualizarTab = new bootstrap.Tab($tabEl[0]);
-                        //     actualizarTab.show();
-                        // }else {
-                        //     console.warn('#panelActualizarInventario-tab no encontrado');
-                        // }
                         $('input#id_inventario_a').val(res.id_inventario);
                         tieneActualizar = true;
                     } else {
@@ -1436,9 +1184,7 @@
         $('#btnBuscarActivo').on('click', function() {
             const busqueda = $('#buscarActivo').val().trim();
             // const idInventario = $('#id_inventario_actualizar').val(); // id del inventario actual
-
             $('#formFiltrosInventarios input[name="busquedaActivo"]').val(busqueda);
-
             // Enviar el formulario (puede ser AJAX o submit normal)
             $('#formFiltrosInventarios').submit();
         });
@@ -1448,18 +1194,7 @@
         // Botón buscar inventario
         $('#btnBuscarInventario').on('click', function() {
             const valor = $('#buscarInventario').val().trim();
-
-            // if (valor.length === 0) {
-            //     Swal.fire('Aviso', 'Ingresa un valor para buscar.', 'warning');
-            //     return;
-            // }
-
-            // Opcional: mostrar algún indicador de carga
-            // $('#loadingIndicator').show();
-
-            // Asignar valor al input oculto del formulario
             $('#formFiltrosInventarios input[name="busqueda"]').val(valor);
-
             // Enviar el formulario (puede ser AJAX o submit normal)
             $('#formFiltrosInventarios').submit();
         });
@@ -1474,24 +1209,20 @@
 
         $('#toggleFechas').on('click', function() {
             usandoFechas = !usandoFechas;
-
             if (usandoFechas) {
                 // Activar fechas, desactivar gestión
                 $('#rangoFechas').removeClass('d-none');
-
                 $('#fecha_inicio, #fecha_fin').prop('disabled', false);
                 $(this).addClass('active'); // opcional para estilo
             } else {
                 // Activar gestión, desactivar fechas
                 $('#rangoFechas').addClass('d-none');
-
                 $('#fecha_inicio, #fecha_fin').prop('disabled', true);
                 $(this).removeClass('active');
             }
         });
 
         $('#fecha_inicio, #fecha_fin').prop('disabled', true);
-
         function cargarInventarios(url = null) {
             var form = $('#formFiltrosInventarios');
             var action = url || form.attr('action');
@@ -1529,16 +1260,6 @@
                 cargarInventarios(url);
             }
         });
-
-
-
-
-
-
-
-
-
-
 
         $(function() {
             $('#formFiltrosInventarios').triggerHandler('submit');

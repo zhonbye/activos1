@@ -16,10 +16,13 @@ return new class extends Migration
             $table->date('fecha');
             $table->unsignedBigInteger('id_usuario');
             $table->unsignedBigInteger('id_servicio_origen');
+
+            $table->unsignedBigInteger('id_responsable_origen');
+            $table->unsignedBigInteger('id_responsable_destino');
             $table->unsignedBigInteger('id_servicio_destino');
             $table->string('observaciones', 100)->nullable();
 
-              $table->string('estado', 20)->default('pendiente');
+            $table->string('estado', 20)->default('pendiente');
             $table->string('url', 300)->nullable();
 
             $table->timestamps();
@@ -27,21 +30,23 @@ return new class extends Migration
             $table->foreign('id_usuario')->references('id_usuario')->on('usuarios')->onDelete('cascade');
             $table->foreign('id_servicio_origen')->references('id_servicio')->on('servicios')->onDelete('cascade');
             $table->foreign('id_servicio_destino')->references('id_servicio')->on('servicios')->onDelete('cascade');
+            $table->foreign('id_responsable_origen')->references('id_responsable')->on('responsables')->onDelete('cascade');
+            $table->foreign('id_responsable_destino')->references('id_responsable')->on('responsables')->onDelete('cascade');
         });
 
-        DB::table('traslados')->insert([
-            'numero_documento' => '001',
-            'gestion' => 2025,
-            'fecha' => now(),
-            'id_usuario' => 1,
-            'id_servicio_origen' => 1,
-            'id_servicio_destino' => 2,
-            'observaciones' => 'Traslado inicial de prueba',
-             'estado' => 'pendiente',
-            'url' => null,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // DB::table('traslados')->insert([
+        //     'numero_documento' => '001',
+        //     'gestion' => 2025,
+        //     'fecha' => now(),
+        //     'id_usuario' => 1,
+        //     'id_servicio_origen' => 1,
+        //     'id_servicio_destino' => 2,
+        //     'observaciones' => 'Traslado inicial de prueba',
+        //      'estado' => 'pendiente',
+        //     'url' => null,
+        //     'created_at' => now(),
+        //     'updated_at' => now(),
+        // ]);
     }
 
     public function down(): void

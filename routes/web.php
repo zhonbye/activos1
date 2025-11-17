@@ -147,6 +147,9 @@ Route::put('/usuarios/{usuario}', [UsuarioController::class, 'update'])
 Route::get('/ubicaciones/{id}/servicios', [UbicacionController::class, 'servicios']);
 
 Route::get('/servicios/{id}/responsable', [ServicioController::class, 'responsable']);
+Route::get('/servicios/show', [ServicioController::class, 'index'])->name('servicios.show');
+Route::get('/movimientos/show', [MovimientoController::class, 'index'])->name('movimientos.show');
+Route::get('/movimientos/filtrar', [MovimientoController::class, 'filtrar'])->name('movimientos.filtrar');
 
 
 

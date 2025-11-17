@@ -43,7 +43,7 @@ return new class extends Migration
                 'updated_at' => now(),
             ],
             [
-            'numero_documento' => '0021',
+            'numero_documento' => '002',
             'gestion' => 2025,
             'fecha' => now(),
             'id_usuario' => 1,
@@ -58,7 +58,8 @@ return new class extends Migration
         [
             'numero_documento' => '003',
             'gestion' => 2025,
-            'fecha' => now(),
+            'fecha' => '2025-11-17',
+            // 'fecha' => Carbon::create(2025, 11, 17), // año, mes, día
             'id_usuario' => 1,
             'id_responsable' => 3,
             'id_servicio' => 3,

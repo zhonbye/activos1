@@ -280,17 +280,7 @@
                         <li><a href="{{ route('activos.historial') }}" role="menuitem" class="cargar">Historial de
                                 activo</a></li>
 
-                        {{-- <li><a href="#" role="menuitem">Dar de Baja Activo</a></li> --}}
-                        <li><a href="#" role="menuitem"></a></li>
-                        <li><a href="{{ route('traslados.show') }}" role="menuitem" class="cargar">Realizar Traslado</a>
-                        </li>
                         <li><a href="{{ route('entregas.show') }}" role="menuitem" class="cargar">Realizar Entrega</a></li>
-                        {{-- <li><a href="{{ route('devolucion.show', ['id' => 1 ?? 1]) }}" role="menuitem"
-                                class="cargar">Registrar Devolución</a></li> --}}
-                        <li><a href="{{ route('devolucion.show') }}" role="menuitem" class="cargar">Registrar Devolución</a>
-                        </li>
-
-                        {{-- <li><a href="#" role="menuitem"></a></li> --}}
                     </ul>
                 </li>
 
@@ -301,14 +291,22 @@
                     <div class="main-item" tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"
                         aria-controls="submenuEntregas">
                         <i class="bi bi-rocket-takeoff icon" aria-hidden="true"></i>
-                        <span class="text">Entregas y Actas</span>
+                        <span class="text">Movimientos</span>
                         <i class="bi bi-caret-down caret" aria-hidden="true"></i>
                     </div>
                     <ul class="submenu" id="submenuEntregas">
+
                         {{-- <li><a href="{{ route('entregas.create') }}" role="menuitem" class="cargar">Crear Entrega</a></li>
                         <li><a href="{{ route('entregas.realizar') }}" role="menuitem" class="cargar">Realizar Entrega</a> --}}
-                </li>
-                <li><a href="#" class="desactivado" role="menuitem">Listar Actas Generadas</a></li>
+
+                {{-- <li><a href="#" class="desactivado" role="menuitem">Listar Actas Generadas</a></li> --}}
+                 {{-- <li><a href="#" role="menuitem">Dar de Baja Activo</a></li> --}}
+                 <li><a href="{{ route('traslados.show') }}" role="menuitem" class="cargar">Realizar Traslado</a></li>
+                 <li><a href="{{ route('entregas.show') }}" role="menuitem" class="cargar">Realizar Entrega</a></li>
+                 {{-- <li><a href="{{ route('devolucion.show', ['id' => 1 ?? 1]) }}" role="menuitem"
+                         class="cargar">Registrar Devolución</a></li> --}}
+                 <li><a href="{{ route('devolucion.show') }}" role="menuitem" class="cargar">Realizar Devolución</a></li>
+                 <li><a href="{{ route('movimientos.show') }}" role="menuitem" class="cargar">Listar Actas</a></li>
             </ul>
             </li>
 
@@ -323,9 +321,10 @@
                     <i class="bi bi-caret-down caret" aria-hidden="true"></i>
                 </div>
                 <ul class="submenu" id="submenuInventario">
-                    <li><a href="#" class="desactivado" role="menuitem">Realizar Inventario</a></li>
-                    <li><a href="{{ route('inventario.consultar') }}" role="menuitem" class="cargar">Consultar
-                    <li><a href="{{ route('inventario.show') }}" role="menuitem" class="cargar">inventarios</a></li>
+                    {{-- <li><a href="#" class="desactivado" role="menuitem">Realizar Inventario</a></li> --}}
+                    {{-- <li><a href="{{ route('inventario.consultar') }}" role="menuitem" class="cargar">Consultar --}}
+                    <li><a href="{{ route('inventario.show') }}" role="menuitem" class="cargar">Listar y actualizar</a></li>
+                    <li><a href="{{ route('servicios.show') }}" role="menuitem" class="cargar">Añadir servicio</a></li>
                     <li><a href="{{ route('user.parametros') }}" role="menuitem" class="cargar">Gestión de parametros</a></li>
                     <li><a href="{{ route('pruebas') }}" role="menuitem" class="cargar">prueba interfaces</a></li>
                 </ul>
@@ -554,6 +553,7 @@
                 }
 
                 const href = enlace.attr('href');
+                alert(enlace.html())
                 if (!href || href === '#' || href.trim() === '') {
                     mensaje('El ítem seleccionado no tiene una ruta válida.', 'danger');
                     $contextMenu.hide();
