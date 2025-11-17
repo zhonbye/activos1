@@ -334,7 +334,7 @@
             <!-- ====================== -->
             <!-- MÓDULO: REPORTES -->
             <!-- ====================== -->
-            <li class="menu-item desactivado" data-submenu="submenuReportes" role="none">
+            <li class="menu-item " data-submenu="submenuReportes" role="none">
                 <div class="main-item" tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"
                     aria-controls="submenuReportes">
                     <i class="bi bi-graph-up icon" aria-hidden="true"></i>
@@ -348,6 +348,12 @@
                 </ul>
             </li>
 
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
             </ul>
 
             <div class="mb-3 d-flex flex-column align-items-center gap-1" style="max-width:300px;">

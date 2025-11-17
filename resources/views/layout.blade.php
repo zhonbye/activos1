@@ -411,6 +411,9 @@
         const menuItems = sidebar?.querySelectorAll('li.menu-item') || []; // si null, devuelve array vacío
         const body = document.body;
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 
            function mensaje2(texto, tipo) {

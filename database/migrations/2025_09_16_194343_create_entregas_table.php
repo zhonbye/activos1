@@ -15,7 +15,7 @@ return new class extends Migration
             $table->integer('gestion');
             $table->date('fecha');
             $table->unsignedBigInteger('id_usuario');
-            // $table->unsignedBigInteger('id_responsable');
+            $table->unsignedBigInteger('id_responsable');
             $table->unsignedBigInteger('id_servicio');
             $table->string('observaciones', 100)->nullable();
 
@@ -29,18 +29,19 @@ return new class extends Migration
             $table->foreign('id_servicio')->references('id_servicio')->on('servicios')->onDelete('cascade');
         });
 
-        DB::table('entregas')->insert([
-            'numero_documento' => '001',
-            'gestion' => 2025,
-            'fecha' => now(),
-            'id_usuario' => 1,
-            'id_servicio' => 1,
-            'observaciones' => 'Entrega inicial de prueba',
-            'estado' => 'pendiente',
-            'url' => null,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // DB::table('entregas')->insert([
+        //     'numero_documento' => '001',
+        //     'gestion' => 2025,
+        //     'fecha' => now(),
+        //     'id_usuario' => 1,
+        //     'id_servicio' => 1,
+        //     'id_responsable' => 1,
+        //     'observaciones' => 'Entrega inicial de prueba',
+        //     'estado' => 'pendiente',
+        //     'url' => null,
+        //     'created_at' => now(),
+        //     'updated_at' => now(),
+        // ]);
     }
 
     public function down(): void

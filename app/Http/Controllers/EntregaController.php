@@ -21,7 +21,104 @@ use Illuminate\Support\Facades\Validator;
 
 class EntregaController extends Controller
 {
+function fechaLiteralFlexible($fecha) {
+    $meses = [
+        1 => 'enero', 2 => 'febrero', 3 => 'marzo', 4 => 'abril',
+        5 => 'mayo', 6 => 'junio', 7 => 'julio', 8 => 'agosto',
+        9 => 'septiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre'
+    ];
 
+    // Reemplazar guiones por barras para unificar formato
+    $fecha = str_replace('-', '/', $fecha);
+    $partes = explode('/', $fecha);
+
+    if (count($partes) != 3) return $fecha; // si no tiene 3 partes, devolvemos tal cual
+
+    // Detectamos qué es día, mes y año
+    if (strlen($partes[0]) == 4) {
+        // Formato yyyy/mm/dd
+        $ano = $partes[0];
+        $mes = (int)$partes[1];
+        $dia = $partes[2];
+    } elseif (strlen($partes[2]) == 4) {
+        // Formato dd/mm/yyyy
+        $dia = $partes[0];
+        $mes = (int)$partes[1];
+        $ano = $partes[2];
+    } else {
+        // Si año es 2 dígitos
+        $dia = $partes[0];
+        $mes = (int)$partes[1];
+        $ano = '20' . $partes[2];
+    }
+
+    return intval($dia) . ' de ' . $meses[$mes] . ' del ' . $ano;
+}
+
+public function fechaLiteral($fecha) {
+    if (!$fecha) return ''; // si está vacío
+
+    $meses = [
+        1 => 'enero', 2 => 'febrero', 3 => 'marzo', 4 => 'abril',
+        5 => 'mayo', 6 => 'junio', 7 => 'julio', 8 => 'agosto',
+        9 => 'septiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre'
+    ];
+
+    // Reemplazar guiones por barras
+    $fecha = str_replace('-', '/', $fecha);
+    $partes = explode('/', $fecha);
+
+    // Validar que haya al menos 3 partes
+    if (count($partes) != 3) return $fecha; // devuelve tal cual si no tiene 3 partes
+
+    // Detectar formato
+    if (strlen($partes[0]) == 4) {
+        // yyyy/mm/dd
+        $ano = $partes[0];
+        $mes = (int)$partes[1];
+        $dia = $partes[2];
+    } elseif (strlen($partes[2]) == 4) {
+        // dd/mm/yyyy
+        $dia = $partes[0];
+        $mes = (int)$partes[1];
+        $ano = $partes[2];
+    } else {
+        // año en 2 dígitos
+        $dia = $partes[0];
+        $mes = (int)$partes[1];
+        $ano = '20' . $partes[2];
+    }
+
+    // Validar que el mes exista
+    $mes = $mes >=1 && $mes <=12 ? $mes : 1;
+
+    return intval($dia) . ' de ' . $meses[$mes] . ' del ' . $ano;
+}
+
+public function obtenerResponsables() {
+    $roles = ['Director', 'Administrador'];
+    $personas = Responsable::with('cargo')->whereIn('rol', $roles)->get()->keyBy('rol');
+
+    $director = $personas->has('Director') 
+        ?  $personas['Director']->cargo->abreviatura.' '.$personas['Director']->nombre
+        : null;
+
+    $administrador = $personas->has('Administrador') 
+        ? $personas['Administrador']->cargo->abreviatura.' '. $personas['Administrador']->nombre 
+        : null;
+
+    // Responsable de activos fijos
+    $responsableActivos = null;
+    $servicio_activos = Servicio::where('nombre', 'LIKE', '%Activos Fijos%')->first();
+    if ($servicio_activos && $servicio_activos->id_responsable) {
+        $res = Responsable::with('cargo')->find($servicio_activos->id_responsable);
+        if ($res) {
+            $responsableActivos = $res->nombre . ' (' . $res->cargo->nombre . ')';
+        }
+    }
+
+    return compact('director', 'administrador', 'responsableActivos');
+}
 
 
 
@@ -33,6 +130,45 @@ class EntregaController extends Controller
 
     //     return view('user.entrega.show', compact('entrega'));
     // }
+    public function imprimir($id_entrega)
+{
+    // Traer la entrega
+    $entrega = Entrega::with('servicio')->findOrFail($id_entrega);
+
+    // Fecha literal
+    $fecha_entrega_literal = $this->fechaLiteral($entrega->fecha);
+
+    // Detalles con activos, unidad y estado
+    $detalles = DetalleEntrega::with([
+        'activo.unidad',
+        'activo.estado',
+    ])->where('id_entrega', $id_entrega)->get();
+
+    // Responsable de la entrega con cargo
+    $responsableEntrega = null;
+    if ($entrega->id_responsable) {
+        $res = Responsable::with('cargo')->find($entrega->id_responsable);
+        if ($res) {
+            $responsableEntrega =  $res->cargo->abreviatura . ' ' . $res->nombre;
+        }
+    }
+
+    // Director, administrador y responsable de activos
+    $responsables =$this-> obtenerResponsables();
+
+    // Servicio de la entrega
+    $servicio = $entrega->servicio ? $entrega->servicio->nombre : null;
+
+    return view('user.entregas2.imprimir', compact(
+        'entrega',
+        'detalles',
+        'fecha_entrega_literal',
+        'responsableEntrega',
+        'servicio',
+        'responsables'
+    ));
+}
+
 
     public function show($id = null)
     {
@@ -171,6 +307,7 @@ class EntregaController extends Controller
 
             // Finalizar entrega
             $entrega->estado = 'finalizado';
+            $entrega->id_responsable =$entrega->servicio->id_responsable ?? null;
             $entrega->updated_at = now();
             $entrega->save();
 
@@ -701,6 +838,7 @@ public function buscarActivos(Request $request)
                 'errors' => $validator->errors(),
             ], 422);
         }
+$servicio = Servicio::findOrFail($request->id_servicio);
 
         // ✅ Si pasó todas las validaciones, guardar
         $entrega = Entrega::create([
@@ -709,6 +847,7 @@ public function buscarActivos(Request $request)
             'fecha' => $request->fecha,
             'id_usuario' => auth()->id(),
             'id_servicio' => $request->id_servicio,
+                'id_responsable' => $servicio->id_responsable, // 👈 SE GUARDA AQUÍ
             'observaciones' => $request->observaciones,
             'estado' => 'pendiente',
         ]);    

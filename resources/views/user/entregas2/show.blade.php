@@ -186,18 +186,61 @@
                 </div>
             </div> --}}
 
-            <div class="row g-3 mb-3">
-                <div class="col-lg-12 d-flex justify-content-between">
-                    <button type="button" id="btnBuscarActivos" class="btn btn-primary" data-bs-toggle="modal"
-                        data-bs-target="#modalBuscarActivos">
-                        agregar activos
-                    </button>
-                    <button type="submit" id="btnRegistrarEntrega" class="btn btn-success">Registrar Entrega</button>
-                </div>
-            </div>
+           <div class="row g-3 mb-3">
+    <div class="col-lg-12 d-flex justify-content-between align-items-center">
+        <!-- Botón a la izquierda -->
+        <div>
+            <button type="button" id="btnBuscarActivos" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalBuscarActivos">
+                Agregar activos
+            </button>
+        </div>
+
+        <!-- Botones a la derecha -->
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary" onclick="abrirImpresion()">
+                <i class="bi bi-printer-fill"></i> Imprimir
+            </button>
+            <button type="submit" id="btnRegistrarEntrega" class="btn btn-success">
+                Registrar Entrega
+            </button>
+        </div>
+    </div>
+</div>
 
 
+<script>
+function abrirImpresion() {
+    // // Obtener el valor del input hidden
+    // var id = document.getElementById('id_entrega').value;
+var id = $('#id_entrega').val();
 
+    // // Abrir la nueva ventana con la URL dinámica
+    // window.open(baseUrl + '/imprimir-activo/' + id, '_blank');
+
+        // Crear iframe oculto
+        var $iframe = $('<iframe>', {
+            id: 'iframeImpresion',
+            style: 'position:absolute;width:0;height:0;border:0;'
+        }).appendTo('body');
+
+        // Cargar la URL de tu vista de impresión (Laravel route)
+        // var idEntrega = $('#id_entrega').val(); // tu input hidden con el ID
+        $iframe.attr('src', baseUrl+'/imprimir-activo/' + id);
+
+        // Cuando el iframe cargue la página
+        $iframe.on('load', function() {
+            var iframeWin = this.contentWindow || this;
+            iframeWin.focus(); // importante para algunos navegadores
+            iframeWin.print();
+
+            // Eliminar el iframe después de imprimir
+            setTimeout(function() {
+                $iframe.remove();
+            }, 1000);
+        });
+
+}
+</script>
 
             <div id="contenedor_tabla_activos">
                 {{-- @include('user.entregas2.parcial_activos', ['detalles' => []]) --}}

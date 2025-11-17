@@ -18,7 +18,7 @@ class Entrega extends Model
         'gestion',
         'fecha',
         'id_usuario',
-        // 'id_responsable',
+        'id_responsable',
         'id_servicio',
         'observaciones',
         'estado',

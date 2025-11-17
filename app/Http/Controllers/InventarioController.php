@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Activo;
 use App\Models\DetalleInventario;
+use App\Models\Estado;
 use App\Models\Inventario;
 use App\Models\Responsable;
 use App\Models\Servicio;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class InventarioController extends Controller
@@ -28,27 +30,82 @@ class InventarioController extends Controller
 
 
 
-
 public function detalle($id)
 {
     // Traer inventario con relaciones
     $inventario = Inventario::with(['usuario', 'responsable', 'servicio', 'detalles.activo'])->findOrFail($id);
 
+    $idServicio = $inventario->id_servicio;
+
+    // Buscar inventario pendiente de este servicio
+$inventarioPendiente = Inventario::where('id_servicio', $idServicio)
+                                 ->where('estado', 'pendiente')
+                                 ->orderBy('created_at', 'desc')
+                                 ->first();
+
+// Ver si encontró algo
+// dd($inventarioPendiente);
+
     // Construir tabla de detalles
     $tabla = '';
-    foreach($inventario->detalles as $i => $detalle) {
+    foreach ($inventario->detalles as $i => $detalle) {
+
         $tabla .= '<tr>';
         $tabla .= '<td>'.($i+1).'</td>';
         $tabla .= '<td>'.$detalle->activo->codigo.'</td>';
         $tabla .= '<td>'.$detalle->activo->nombre.'</td>';
+        $tabla .= '<td>'.$detalle->activo->detalle.'</td>';
         $tabla .= '<td>'.$detalle->estado_actual.'</td>';
         $tabla .= '<td>'.$detalle->observaciones.'</td>';
-       $tabla .= '<td><button class="btn btn-sm btn-info ver-activo-btn" data-id="'.$detalle->activo->id_activo.'">Ver activo</button></td>';
+        $tabla .= '<td>';
 
+        // Botón VER (siempre)
+        $tabla .= '
+            <button class="btn btn-sm btn-primary  ver-activo-btn" 
+                    title="Ver detalles del activo"
+                    data-id="'.$detalle->activo->id_activo.'">
+                <i class="bi bi-eye"></i>
+            </button>
+        ';
+
+        if ($inventario->estado == 'vigente') {
+            $yaEnPendiente = false;
+            if ($inventarioPendiente) {
+                $yaEnPendiente = DetalleInventario::where('id_inventario', $inventarioPendiente->id_inventario)
+                                    ->where('id_activo', $detalle->id_activo)
+                                    ->exists();
+            }
+ $tabla .= '
+                <button class="btn btn-sm btn-dark baja-activo-btn ms-1"
+                        title="Dar de baja este activo"
+                        data-id="'.$detalle->activo->id_activo.'">
+                    <i class="bi bi-arrow-down-circle"></i>
+                </button>
+            ';
+            // Mostrar ambos botones siempre pero desactivar según condición
+            $tabla .= '
+            <button class="btn btn-sm btn-danger regresar-activo-btn ms-1" 
+                    title="Regresar activo" '.(!$yaEnPendiente ? 'disabled' : '').'
+                    data-id="'.$detalle->activo->id_activo.'">
+                <i class="bi bi-arrow-left-circle"></i>
+            </button>
+                <button class="btn btn-sm btn-success mover-activo-btn ms-1" 
+                        title="Mover activo" '.($yaEnPendiente ? 'disabled' : '').'
+                        data-id="'.$detalle->activo->id_activo.'">
+                    <i class="bi bi-arrow-right-circle"></i>
+                </button>
+            ';
+
+            // Botón DAR DE BAJA (siempre en vigente)
+           
+        }
+
+        $tabla .= '</td>';
         $tabla .= '</tr>';
     }
 
     return response()->json([
+        'id_inventario' => $inventario->id_inventario,
         'numero' => $inventario->numero_documento,
         'gestion' => $inventario->gestion,
         'fecha' => $inventario->fecha,
@@ -57,10 +114,306 @@ public function detalle($id)
         'responsable' => $inventario->responsable->nombre ?? '',
         'servicio' => $inventario->servicio->nombre ?? '',
         'tablaDetalle' => $tabla,
+        'id_inventario_pendiente' => $inventarioPendiente->id_inventario ?? null,
     ]);
 }
 
 
+
+
+
+
+
+public function regresarActivo(Request $request)
+{
+    $request->validate([
+        'id_activo' => 'required|integer',
+        'id_inventario_origen' => 'required|integer',
+        'id_inventario_pendiente' => 'required|integer',
+    ]);
+
+    $idActivo = $request->id_activo;
+    $idOrigen = $request->id_inventario_origen;     // Inventario vigente
+    $idPendiente = $request->id_inventario_pendiente; // Inventario destino (pendiente)
+
+    // 1️⃣ Verificar que el activo existe en inventario pendiente
+    $detallePendiente = DetalleInventario::where('id_inventario', $idPendiente)
+        ->where('id_activo', $idActivo)
+        ->first();
+
+    if (!$detallePendiente) {
+        return response()->json([
+            'success' => false,
+            'mensaje' => 'El activo no está en el inventario pendiente.'
+        ]);
+    }
+
+    // 2️⃣ Eliminar el registro del inventario pendiente
+    $detallePendiente->delete();
+
+    // 3️⃣ Verificar si en el inventario original está desactivado el botón mover
+    $detalleOrigen = DetalleInventario::where('id_inventario', $idOrigen)
+        ->where('id_activo', $idActivo)
+        ->first();
+
+    return response()->json([
+        'success' => true,
+        'mensaje' => 'Activo regresado correctamente.',
+        'id_activo' => $idActivo
+    ]);
+}
+
+public function moverActivo(Request $request)
+{
+    $request->validate([
+        'id_activo' => 'required|integer',
+        'id_inventario_actual' => 'required|integer',
+        'id_inventario_destino' => 'required|integer',
+    ]);
+
+    $idActivo = $request->id_activo;
+    $idActual = $request->id_inventario_actual;
+    $idDestino = $request->id_inventario_destino;
+
+    // Verificar que el activo existe en inventario actual
+    $detalleActual = DetalleInventario::where('id_inventario', $idActual)
+        ->where('id_activo', $idActivo)
+        ->first();
+
+    if (!$detalleActual) {
+        return response()->json(['success' => false, 'mensaje' => 'El activo no pertenece al inventario actual.']);
+    }
+
+    // Verificar que el inventario actual esté vigente
+    $inventarioActual = Inventario::find($idActual);
+    if (!$inventarioActual || $inventarioActual->estado !== 'vigente') {
+        return response()->json(['success' => false, 'mensaje' => 'El inventario actual no está vigente.']);
+    }
+
+    // Verificar que el inventario destino esté pendiente
+    $inventarioDestino = Inventario::find($idDestino);
+    if (!$inventarioDestino || $inventarioDestino->estado !== 'pendiente') {
+        return response()->json(['success' => false, 'mensaje' => 'El inventario destino no está pendiente.']);
+    }
+
+    // Verificar si ya existe en el inventario destino
+    if (DetalleInventario::where('id_inventario', $idDestino)->where('id_activo', $idActivo)->exists()) {
+        return response()->json(['success' => false, 'mensaje' => 'El activo ya está en el inventario destino.']);
+    }
+
+    // Número correlativo en inventario destino
+    $numero = DetalleInventario::where('id_inventario', $idDestino)->count() + 1;
+
+    // Crear nuevo detalle copiando estado y observaciones
+    $detalleNuevo = DetalleInventario::create([
+        'id_inventario' => $idDestino,
+        'id_activo' => $idActivo,
+        'estado_actual' => $detalleActual->estado_actual,
+        'observaciones' => $detalleActual->observaciones,
+    ]);
+
+    // Traer estados para el select
+    $estados = Estado::all();
+    $estadoActual = strtolower(trim($detalleNuevo->estado_actual));
+    $options = "";
+    foreach ($estados as $estado) {
+        $selected = (strtolower($estado->nombre) === $estadoActual) ? 'selected' : '';
+        $options .= "<option value='{$estado->id_estado}' {$selected}>{$estado->nombre}</option>";
+    }
+
+    // Retornar todo listo para insertar en la tabla
+    return response()->json([
+        'success' => true,
+        'mensaje' => 'Activo movido correctamente.',
+        'detalle' => [
+            'id_detalle' => $detalleNuevo->id_detalle,
+            'id_activo' => $detalleNuevo->id_activo,
+            'numero' => $numero,
+            'codigo' => $detalleNuevo->activo->codigo ?? '--Codigo--',
+            'nombre' => $detalleNuevo->activo->nombre ?? '--Nombre--',
+            'detalle' => $detalleNuevo->activo->nombre ?? '--Detalle--',
+            'observaciones' => $detalleNuevo->observaciones,
+            'estados_html' => $options
+        ]
+    ]);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  public function generarInventarioPendiente(Request $request)
+    {
+        $idInventario = $request->id_inventario;
+
+        // 1️⃣ Obtener inventario original
+        $inventarioOriginal = Inventario::findOrFail($idInventario);
+
+        $idServicio = $inventarioOriginal->id_servicio;
+        $idResponsable = $inventarioOriginal->id_responsable;
+
+        // 2️⃣ Año actual para la gestión
+        $gestionActual = Carbon::now()->year;
+
+        // 3️⃣ Generar número de documento disponible
+        $numeroDocumento = $this->generarNumeroDocumento($gestionActual);
+
+        // 4️⃣ Crear nuevo inventario pendiente
+        $nuevoInventario = Inventario::create([
+            'numero_documento' => $numeroDocumento,
+            'gestion'          => $gestionActual,
+            'fecha'            => Carbon::now()->format('Y-m-d'),
+            'id_usuario'       => auth()->user()->id_usuario,
+            'id_responsable'   => $idResponsable,
+            'id_servicio'      => $idServicio,
+            'observaciones'    => 'Generado automáticamente',
+            'estado'           => 'pendiente',
+        ]);
+
+        return response()->json([
+            'mensaje' => 'Inventario pendiente generado correctamente',
+            'inventario' => $nuevoInventario
+        ]);
+    }
+
+
+
+
+
+
+   public function generarNumeroDocumento(string $gestion): string
+    {
+        $maxNumero = 999;
+
+        $numerosExistentes = Inventario::where('gestion', $gestion)
+            ->where('estado', '!=', 'eliminado')
+            ->pluck('numero_documento')
+            ->toArray();
+
+        $numerosExistentesSet = array_flip($numerosExistentes);
+
+        for ($i = 1; $i <= $maxNumero; $i++) {
+            $numeroFormateado = str_pad($i, 3, '0', STR_PAD_LEFT);
+            if (!isset($numerosExistentesSet[$numeroFormateado])) {
+                return $numeroFormateado;
+            }
+        }
+
+        throw new \Exception('No hay números disponibles para la gestión ' . $gestion);
+    }
+
+
+
+
+
+
+
+
+
+
+
+public function getPendiente($id)
+{
+    // Buscar el inventario que queremos actualizar
+    $inventarioActual = Inventario::findOrFail($id);
+    $idServicio = $inventarioActual->id_servicio;
+
+    // Buscar el inventario pendiente de ese servicio
+    $inventarioPendiente = Inventario::with(['usuario', 'responsable', 'servicio', 'detalles.activo'])
+        ->where('id_servicio', $idServicio)
+        ->where('estado', 'pendiente')
+        ->orderBy('created_at', 'desc') 
+        ->first(); // Devuelve null si no existe pendiente
+$estados = Estado::all(); // id_estado, nombre
+
+    if ($inventarioPendiente) {
+        // Ya existe un pendiente → retornamos sus datos
+       $tabla = '';
+
+foreach ($inventarioPendiente->detalles as $i => $detalle) {
+
+    // Estado actual del detalle
+    $estadoActual = strtolower(trim($detalle->estado_actual));
+
+    $tabla .= '<tr>';
+    $tabla .= '<td>'.($i+1).'</td>';
+    $tabla .= '<td>'.$detalle->activo->codigo.'</td>';
+    $tabla .= '<td>'.$detalle->activo->nombre.'</td>';
+    $tabla .= '<td>'.$detalle->activo->detalle.'</td>';
+
+    // --------------------------
+    // SELECT DE ESTADOS
+    // --------------------------
+    $tabla .= '<td>';
+    $tabla .= '<select class="form-select form-select-sm estado-select" data-id="'.$detalle->id_detalle.'">';
+    
+    foreach ($estados as $estado) {
+        $selected = (strtolower($estado->nombre) == $estadoActual) ? 'selected' : '';
+        $tabla .= '<option value="'.$estado->id_estado.'" '.$selected.'>'.$estado->nombre.'</option>';
+    }
+
+    $tabla .= '</select>';
+    $tabla .= '</td>';
+
+    // --------------------------
+    // INPUT OBSERVACIONES
+    // --------------------------
+    $tabla .= '<td>';
+    $tabla .= '<input type="text" class="form-control form-control-sm observacion-input" 
+                    value="'.$detalle->observaciones.'" 
+                    data-id="'.$detalle->id_detalle.'">';
+    $tabla .= '</td>';
+
+    // --------------------------
+    // BOTÓN REGRESAR
+    // --------------------------
+    $tabla .= '<td>
+        <button class="btn btn-sm btn-danger regresar-activo-btn ms-1"
+            title="Regresar activo"
+            data-id="'.$detalle->activo->id_activo.'">
+            <i class="bi bi-arrow-left-circle"></i>
+        </button>
+    </td>';
+
+    $tabla .= '</tr>';
+}
+
+
+        return response()->json([
+            'encontrado' => true,
+            'id_inventario' => $inventarioPendiente->id_inventario,
+            'numero'        => $inventarioPendiente->numero_documento,
+            'gestion'       => $inventarioPendiente->gestion,
+            'fecha'         => $inventarioPendiente->fecha,
+            'estado'        => $inventarioPendiente->estado,
+            'observaciones'        => $inventarioPendiente->observaciones,
+            'usuario'       => $inventarioPendiente->usuario->nombre ?? '',
+            // 'id_responsable'   => $inventarioPendiente->responsable->id_responsable ?? '',
+            'responsable'   => $inventarioPendiente->responsable->nombre ?? '',
+            'servicio'      => $inventarioPendiente->servicio->nombre ?? '',
+            'tablaDetalle'  => $tabla,
+        ]);
+    }
+
+    // Si no hay inventario pendiente → indicar que debe generarse
+    return response()->json([
+            'encontrado' => false,
+        'mensaje' => 'No se encontró inventario pendiente para este servicio.',
+        'tablaDetalle' => '<tr><td colspan="6" class="text-center">No hay detalles</td></tr>'
+    ]);
+}
 
 
 
@@ -121,7 +474,8 @@ public function detalle($id)
 
 public function filtrar(Request $request)
 {
-    $query = Inventario::query()->with(['usuario', 'responsable', 'servicio']);
+    // $query = Inventario::query()->with(['usuario', 'responsable', 'servicio']);
+  $query = Inventario::query()->with(['usuario', 'responsable', 'servicio', 'detalles.activo']);
 
     // 📌 Numero de documento
     if ($request->filled('numero_documento')) {
@@ -177,6 +531,24 @@ if ($request->filled('busqueda')) {
     });
 }
 
+
+
+
+ if ($request->filled('busquedaActivo')) {
+        $busquedaActivo = $request->busquedaActivo;
+
+        // Filtra inventarios que tengan al menos un activo que coincida
+        $query->whereHas('detalles.activo', function($q) use ($busquedaActivo) {
+            $q->where('codigo', 'like', "%{$busquedaActivo}%")
+              ->orWhere('nombre', 'like', "%{$busquedaActivo}%")
+              ->orWhere('detalle', 'like', "%{$busquedaActivo}%");
+        });
+    }
+
+
+
+
+
     // 📌 Orden
     $ordenarPor = $request->input('ordenar_por', 'fecha');
     $direccion  = $request->input('direccion', 'desc');
@@ -226,24 +598,24 @@ if ($request->filled('busqueda')) {
         $data['nombre_responsable'] = $nombreResponsable;
         return response()->json($data);
     }
-    public function generarNumeroDocumento()
-    {
-        $maxNumero = 999; // máximo permitido
-        // Trae todos los numeros_documento existentes (solo esa columna)
-        $numerosExistentes = Inventario::pluck('numero_documento')->toArray();
+    // public function generarNumeroDocumento()
+    // {
+    //     $maxNumero = 999; // máximo permitido
+    //     // Trae todos los numeros_documento existentes (solo esa columna)
+    //     $numerosExistentes = Inventario::pluck('numero_documento')->toArray();
 
-        // Convertimos a un set para búsqueda rápida
-        $numerosExistentesSet = array_flip($numerosExistentes);
+    //     // Convertimos a un set para búsqueda rápida
+    //     $numerosExistentesSet = array_flip($numerosExistentes);
 
-        for ($i = 1; $i <= $maxNumero; $i++) {
-            $numeroFormateado = str_pad($i, 3, '0', STR_PAD_LEFT);
-            if (!isset($numerosExistentesSet[$numeroFormateado])) {
-                return $numeroFormateado;
-            }
-        }
+    //     for ($i = 1; $i <= $maxNumero; $i++) {
+    //         $numeroFormateado = str_pad($i, 3, '0', STR_PAD_LEFT);
+    //         if (!isset($numerosExistentesSet[$numeroFormateado])) {
+    //             return $numeroFormateado;
+    //         }
+    //     }
 
-        throw new \Exception('No hay números disponibles');
-    }
+    //     throw new \Exception('No hay números disponibles');
+    // }
     // Generar un nuevo inventario
     // public function generarVacio(Request $request)
     // {

@@ -165,6 +165,37 @@ Route::get('/inventario/{id}/activos', [InventarioController::class, 'activosInv
 
 Route::get('/inventarios/filtrar', [InventarioController::class, 'filtrar'])->name('inventarios.filtrar');
 Route::get('inventarios/detalle/{id}', [InventarioController::class, 'detalle'])->name('inventarios.detalle');
+// routes/web.php o routes/api.php según corresponda
+Route::get('/inventarios/pendiente/{id}', [InventarioController::class, 'getPendiente'])->name('inventarios.pendiente');
+Route::post('/inventarios/generar', [InventarioController::class, 'generarInventarioPendiente'])->name('inventarios.generar');
+// routes/web.php
+Route::get('/inventarios/generar-numero/{gestion}', [InventarioController::class, 'generarNumeroDocumento'])
+     ->name('inventarios.generarNumero');
+// Mover un activo de un inventario vigente a un inventario pendiente
+Route::post('/inventarios/mover-activo', [InventarioController::class, 'moverActivo'])->name('inventarios.moverActivo');
+Route::post('/inventarios/regresar-activo', [InventarioController::class, 'regresarActivo'])
+    ->name('inventarios.regresarActivo');
+
+
+
+
+
+
+
+
+
+Route::get('/imprimir-activo/{id}', [App\Http\Controllers\EntregaController::class, 'imprimir'])->name('activos.imprimir');
+
+
+
+
+
+
+
+
+
+
+
 
 
 Route::get('/bajas', [BajaController::class, 'create'])->name('bajas.create');
