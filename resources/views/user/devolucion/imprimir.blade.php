@@ -15,7 +15,7 @@
     <title>Imprimir Activo</title>
     <link rel="stylesheet" href="{{ asset('fonts/Algerian/font.css') }}">
     <style>
-        @font-face {
+ @font-face {
     /* 1. Nombra la fuente para usarla en el resto del CSS */
     font-family: 'alger2';
 
@@ -26,7 +26,7 @@
     font-weight: normal; 
     font-style: normal; 
 }
-.alger {
+        .alger {
     font-family: 'alger2', sans-serif; /* Fuente personalizada */
     font-size: 26px;
     font-weight: normal;               /* Quita negrita */
@@ -38,12 +38,8 @@
     text-decoration-thickness: 1px;    
     text-underline-offset: 2px;              /* Para que text-align funcione en spans */
 }
-        h1 {
-            /* font-family: 'ALGER', serif; */
+      h1 {
             font-size: 16px !important;
-            /* font-style: italic;
-            font-weight: 300;
-            text-align: center; */
             margin-top: 0px;
         }
 
@@ -67,7 +63,7 @@
 
 
 
-        .entrega-info p {
+        .devolucion-info p {
             margin: 5px;
             line-height: 1.1;
         }
@@ -88,8 +84,7 @@
             }
             
       body {
-    margin: 0 30px;
-    font-size: 11px;   /* 0 arriba/abajo – 30px izquierda/derecha */
+    margin: 0 30px;   /* 0 arriba/abajo – 30px izquierda/derecha */
 }
 
             
@@ -124,24 +119,23 @@
  
     {{-- <div class="main"> --}}
 
-        <div class="alger">ACTA DE ENTREGA</div>
+        <div class="alger">ACTA DE DEVOLUCIÓN</div>
         {{-- <img src="{{ asset('plantillaPrint/headerTittle.png') }}" alt="header"
             style="height: auto; width: 40%; display: block; margin: 10px auto 0 auto;"> --}}
 
-        <main style="margin-top: 0px; background: red;">
+        <main style="margin-top: 0px;">
 
-        <h1 class="alger">DOCTO. Nº {{ $entrega->numero_documento }}</h1>
-
-
+        <h1 class="alger">DOCTO. Nº {{ $devolucion->numero_documento }}</h1>
 
 
 
-        <div class="entrega-info" style="font-size:10px; font-family: Arial, sans-serif; margin-top:10px; background: transparent; display:flex; flex-direction:column; gap:6px;">
+
+<div class="devolucion-info" style="font-size:13px; font-family: Arial, sans-serif; margin-top:10px; background: transparent; display:flex; flex-direction:column; gap:8px;">
 
     <!-- Fila 1: En fecha -->
     <div style="display:flex; justify-content:flex-start; gap:10px;">
         <div style="flex:1; text-align:right; font-weight:bold;">En fecha:</div>
-        <div style="flex:3; text-align:left;">{{ $fecha_entrega_literal }}</div>
+        <div style="flex:3; text-align:left;">{{ $fecha_devolucion_literal }}</div>
     </div>
 
     <!-- Fila 2: Por instrucción -->
@@ -155,10 +149,10 @@
         </div>
     </div>
 
-    <!-- Fila 3: Se hace entrega a -->
+    <!-- Fila 3: Se hace devolución a -->
     <div style="display:flex; justify-content:flex-start; gap:10px;">
-        <div style="flex:1; text-align:right; font-weight:bold;">Se hace entrega a:</div>
-        <div style="flex:3; text-align:left;">{{ $responsableEntrega ?? '-' }}</div>
+        <div style="flex:1; text-align:right; font-weight:bold;">Se hace devolución a:</div>
+        <div style="flex:3; text-align:left;">{{ $responsableDevolucion ?? '-' }}</div>
     </div>
 
     <!-- Fila 4: Del servicio -->
@@ -175,7 +169,7 @@
 
         <p>
             Por autorización de Dirección y Administración del Hospital de II Nivel Walter Khon dirigido por
-            {{ $responsables['director'] ?? '-' }} y {{ $responsables['administrador'] ?? '-' }} se procede a la entrega
+            {{ $responsables['director'] ?? '-' }} y {{ $responsables['administrador'] ?? '-' }} se procede a la devolucion
             de activos que a continuación se detalla:
         </p>
         <!-- Tabla de activos -->
@@ -191,25 +185,6 @@
                     <th style="border: 1px solid black; padding: 5px; text-align: center;">Estado</th>
                 </tr>
             </thead>
-            {{-- <tbody>
-                @for ($i = 0; $i < 60; $i++)
-                    <tr>
-                        <td style="border: 1px solid black; padding: 3px; text-align: center;">COD-{{ $i + 1 }}
-                        </td>
-                        <td style="border: 1px solid black; padding: 3px; text-align: center;">1</td>
-                        <td style="border: 1px solid black; padding: 3px; text-align: center;">Nombre
-                            {{ $i + 1 }}</td>
-                        <td style="border: 1px solid black; padding: 3px; text-align: left;">Detalle del activo
-                            {{ $i + 1 }}</td>
-                        <td style="border: 1px solid black; padding: 3px; text-align: center;">Unidad
-                            {{ $i + 1 }}</td>
-                        <td style="border: 1px solid black; padding: 3px; text-align: center;">Activos fijos</td>
-                        <td style="border: 1px solid black; padding: 3px; text-align: center;">Estado
-                            {{ $i + 1 }}</td>
-                    </tr>
-                @endfor
-            </tbody> --}}
-
           <tbody>
     @forelse ($detalles as $detalle)
         <tr>
@@ -247,12 +222,12 @@
 
 
             <div
-                style="width: 100%; font-family: Arial, sans-serif; text-align: justify; font-size: 10px; padding: 5px 0;">
-                <strong style="text-decoration: underline;"> NOTA:</strong> ESTE ACTIVO ES ENTREGADO
-                A <strong>{{ $responsableEntrega ?? '' }}
+                style="width: 100%; font-family: Arial, sans-serif; text-align: justify; font-size: 12px; padding: 5px 0;">
+                <strong style="text-decoration: underline;"> NOTA:</strong> ESTE ACTIVO ES devolucionDO
+                A <strong>{{ $responsabledevolucion ?? '' }}
                 </strong> del servicio de: <strong>{{ $servicio ?? '' }}</strong> para su USO Y CUSTODIA, DE ACUERDO AL
                 <strong>DECRETO SUPREMO Nº 0181</strong> ARTICULOS 146 (ASIGNACION DE ACTIVOS FIJOS) Inc. I,II, Art 147
-                (DOCUMENTO DE ENTREGA) Inc.1, Art 148 (LIBERACION DE LA RESPONSABILIDAD) Inc.I,II, Art. 154 (DEMANDA DE
+                (DOCUMENTO DE devolucion) Inc.1, Art 148 (LIBERACION DE LA RESPONSABILIDAD) Inc.I,II, Art. 154 (DEMANDA DE
                 SERVICIOS DE MANTENIMIENTO), Art 157 (PROHIBICION PARA LOS SERVIDORES PUBLICOS SOBRE EL USO DE ACTIVOS
                 FIJOS MUEBLES) Inc. I,II. LA NO OBSERVANCIA A ESTAS PROHIBICIONES GENERARA RESPONSABILIDADES EN LA
                 <strong>LEY No 1178</strong> y sus reglamentos, QUEDA ESTABLECIDO QUE EL RESPONSABLE DEL CUIDADO,
@@ -271,7 +246,7 @@
 
 
             <table class="entero"
-                style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 10px; text-align: center;">
+                style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 12px; text-align: center;">
                 <thead>
                     <tr>
                         <th style="border: 1px solid #000; text-align: center; vertical-align: top;"></th>

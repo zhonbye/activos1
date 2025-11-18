@@ -182,7 +182,13 @@
                         data-bs-target="#modalInventario">
                         Agregar desde Inventario
                     </button>
+                     </button>
+                     <div class="d-flex gap-2">
+                        <button class="btn btn-primary" onclick="abrirImpresion()">
+                            <i class="bi bi-printer-fill"></i> Imprimir
+                        </button>
                     <button type="submit" id="btnRegistrarTraslado" class="btn btn-success">Registrar Traslado</button>
+                </div>
                 </div>
             </div>
 
@@ -271,13 +277,40 @@
 
 
 <script>
-    // Ejecutar al cargar la página
-    // if (inventarioCargado) {
-    //     var inventarioCargado = false;
-    // }
-    // if (trasladoCargado) {
-    //     var trasladoCargado = false;
-    // }
+   
+   
+   function abrirImpresion() {
+        // // Obtener el valor del input hidden
+        // var id = document.getElementById('id_entrega').value;
+        var id = $('#id_traslado').val();
+
+        // // Abrir la nueva ventana con la URL dinámica
+        // window.open(baseUrl + '/imprimir-activo/' + id, '_blank');
+
+        // Crear iframe oculto
+        var $iframe = $('<iframe>', {
+            id: 'iframeImpresion',
+            style: 'position:absolute;width:0;height:0;border:0;'
+        }).appendTo('body');
+
+        // Cargar la URL de tu vista de impresión (Laravel route)
+        // var idEntrega = $('#id_entrega').val(); // tu input hidden con el ID
+        $iframe.attr('src', baseUrl + '/imprimir-traslado/' + id);
+
+        // Cuando el iframe cargue la página
+        $iframe.on('load', function() {
+            var iframeWin = this.contentWindow || this;
+            iframeWin.focus(); // importante para algunos navegadores
+            iframeWin.print();
+
+            // Eliminar el iframe después de imprimir
+            setTimeout(function() {
+                $iframe.remove();
+            }, 1000);
+        });
+
+    }
+
 
 
     function cargarTablaActivos(traslado_id = null) {

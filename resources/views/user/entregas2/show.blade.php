@@ -207,39 +207,7 @@
             </div>
 
 
-            <script>
-                function abrirImpresion() {
-                    // // Obtener el valor del input hidden
-                    // var id = document.getElementById('id_entrega').value;
-                    var id = $('#id_entrega').val();
-
-                    // // Abrir la nueva ventana con la URL dinámica
-                    // window.open(baseUrl + '/imprimir-activo/' + id, '_blank');
-
-                    // Crear iframe oculto
-                    var $iframe = $('<iframe>', {
-                        id: 'iframeImpresion',
-                        style: 'position:absolute;width:0;height:0;border:0;'
-                    }).appendTo('body');
-
-                    // Cargar la URL de tu vista de impresión (Laravel route)
-                    // var idEntrega = $('#id_entrega').val(); // tu input hidden con el ID
-                    $iframe.attr('src', baseUrl + '/imprimir-activo/' + id);
-
-                    // Cuando el iframe cargue la página
-                    $iframe.on('load', function() {
-                        var iframeWin = this.contentWindow || this;
-                        iframeWin.focus(); // importante para algunos navegadores
-                        iframeWin.print();
-
-                        // Eliminar el iframe después de imprimir
-                        setTimeout(function() {
-                            $iframe.remove();
-                        }, 1000);
-                    });
-
-                }
-            </script>
+           
 
             <div id="contenedor_tabla_activos">
                 {{-- @include('user.entregas2.parcial_activos', ['detalles' => []]) --}}
@@ -371,6 +339,40 @@
 
 
 <script>
+
+
+
+                function abrirImpresion() {
+                    // // Obtener el valor del input hidden
+                    // var id = document.getElementById('id_entrega').value;
+                    var id = $('#id_entrega').val();
+
+                    // // Abrir la nueva ventana con la URL dinámica
+                    // window.open(baseUrl + '/imprimir-activo/' + id, '_blank');
+
+                    // Crear iframe oculto
+                    var $iframe = $('<iframe>', {
+                        id: 'iframeImpresion',
+                        style: 'position:absolute;width:0;height:0;border:0;'
+                    }).appendTo('body');
+
+                    // Cargar la URL de tu vista de impresión (Laravel route)
+                    // var idEntrega = $('#id_entrega').val(); // tu input hidden con el ID
+                    $iframe.attr('src', baseUrl + '/imprimir-activo/' + id);
+
+                    // Cuando el iframe cargue la página
+                    $iframe.on('load', function() {
+                        var iframeWin = this.contentWindow || this;
+                        iframeWin.focus(); // importante para algunos navegadores
+                        iframeWin.print();
+
+                        // Eliminar el iframe después de imprimir
+                        setTimeout(function() {
+                            $iframe.remove();
+                        }, 1000);
+                    });
+
+                }
 
     function cargarTablaActivos(entrega_id = null) {
         if (!entrega_id) entrega_id = $('#entrega_id').val();

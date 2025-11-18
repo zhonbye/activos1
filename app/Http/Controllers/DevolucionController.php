@@ -28,6 +28,134 @@ class DevolucionController extends Controller
         //
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ public function imprimir($id_devolucion)
+{
+    // Traer la devolucion
+    $devolucion = Devolucion::with('servicio')->findOrFail($id_devolucion);
+
+    // Fecha literal
+    $fecha_devolucion_literal = $this->fechaLiteral($devolucion->fecha);
+
+    // Detalles con activos, unidad y estado
+    $detalles = DetalleDevolucion::with([
+        'activo.unidad',
+        'activo.estado',
+    ])->where('id_devolucion', $id_devolucion)->get();
+
+    // Responsable de la devolucion con cargo
+    $responsableDevolucion = null;
+    if ($devolucion->id_responsable) {
+        $res = Responsable::with('cargo')->find($devolucion->id_responsable);
+        if ($res) {
+            $responsableDevolucion =  $res->cargo->abreviatura . ' ' . $res->nombre;
+        }
+    }
+
+    // Director, administrador y responsable de activos
+    $responsables =$this-> obtenerResponsables();
+
+    // Servicio de la devolucion
+    $servicio = $devolucion->servicio ? $devolucion->servicio->nombre : null;
+
+    return view('user.devolucion.imprimir', compact(
+        'devolucion',
+        'detalles',
+        'fecha_devolucion_literal',
+        'responsableDevolucion',
+        'servicio',
+        'responsables'
+    ));
+}
+
+
+
+
+
+
+
+
+public function fechaLiteral($fecha) {
+    if (!$fecha) return ''; // si está vacío
+
+    $meses = [
+        1 => 'enero', 2 => 'febrero', 3 => 'marzo', 4 => 'abril',
+        5 => 'mayo', 6 => 'junio', 7 => 'julio', 8 => 'agosto',
+        9 => 'septiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre'
+    ];
+
+    // Reemplazar guiones por barras
+    $fecha = str_replace('-', '/', $fecha);
+    $partes = explode('/', $fecha);
+
+    // Validar que haya al menos 3 partes
+    if (count($partes) != 3) return $fecha; // devuelve tal cual si no tiene 3 partes
+
+    // Detectar formato
+    if (strlen($partes[0]) == 4) {
+        // yyyy/mm/dd
+        $ano = $partes[0];
+        $mes = (int)$partes[1];
+        $dia = $partes[2];
+    } elseif (strlen($partes[2]) == 4) {
+        // dd/mm/yyyy
+        $dia = $partes[0];
+        $mes = (int)$partes[1];
+        $ano = $partes[2];
+    } else {
+        // año en 2 dígitos
+        $dia = $partes[0];
+        $mes = (int)$partes[1];
+        $ano = '20' . $partes[2];
+    }
+
+    // Validar que el mes exista
+    $mes = $mes >=1 && $mes <=12 ? $mes : 1;
+
+    return intval($dia) . ' de ' . $meses[$mes] . ' del ' . $ano;
+}
+
+public function obtenerResponsables() {
+    $roles = ['Director', 'Administrador'];
+    $personas = Responsable::with('cargo')->whereIn('rol', $roles)->get()->keyBy('rol');
+
+    $director = $personas->has('Director') 
+        ?  $personas['Director']->cargo->abreviatura.' '.$personas['Director']->nombre
+        : null;
+
+    $administrador = $personas->has('Administrador') 
+        ? $personas['Administrador']->cargo->abreviatura.' '. $personas['Administrador']->nombre 
+        : null;
+
+    // Responsable de activos fijos
+    $responsableActivos = null;
+    $servicio_activos = Servicio::where('nombre', 'LIKE', '%Activos Fijos%')->first();
+    if ($servicio_activos && $servicio_activos->id_responsable) {
+        $res = Responsable::with('cargo')->find($servicio_activos->id_responsable);
+        if ($res) {
+            $responsableActivos = $res->nombre . ' (' . $res->cargo->nombre . ')';
+        }
+    }
+
+    return compact('director', 'administrador', 'responsableActivos');
+}
+
+
+
+
     /**
      * Show the form for creating a new resource.
      */
@@ -47,6 +175,29 @@ class DevolucionController extends Controller
     // Retornar vista con variables
     return view('user.devolucion.parcial_nuevo', compact('servicios', 'gestionActual', 'numeroDisponible'));
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 public function guardarDevolucion(Request $request, $id)
 {
     $devolucion = Devolucion::find($id);

@@ -163,9 +163,9 @@
     <div class="main-col col-md-12 col-lg-10 order-lg-1 order-1 mb-4 p-1 transition" style="max-height: 95vh;">
         <div class="card p-4 rounded shadow" style="background-color: var(--color-fondo); min-height: 100vh;">
 
-<h2 class="mb-4 text-center text-primary">
-  <i class="bi bi-arrow-counterclockwise me-2"></i>Devolución de Activos
-</h2>
+            <h2 class="mb-4 text-center text-primary">
+                <i class="bi bi-arrow-counterclockwise me-2"></i>Devolución de Activos
+            </h2>
 
 
 
@@ -191,10 +191,15 @@
                 <div class="col-lg-12 d-flex justify-content-between">
                     <button type="button" id="btn_consultar_inventario" class="btn btn-primary" data-bs-toggle="modal"
                         data-bs-target="#modalInventario">
-                        Agregar desde Inventario
+                        Agregar desde inventario
                     </button>
-                    <button type="submit" id="btnRegistrardevolucion" class="btn btn-success">Finalizar
-                        devolucion</button>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary" onclick="abrirImpresion()">
+                            <i class="bi bi-printer-fill"></i> Imprimir
+                        </button>
+                        <button type="submit" id="btnRegistrardevolucion" class="btn btn-success">Finalizar
+                            devolucion</button>
+                    </div>
                 </div>
             </div>
 
@@ -279,6 +284,42 @@
 
 
 <script>
+    function abrirImpresion() {
+        // // Obtener el valor del input hidden
+        // var id = document.getElementById('id_entrega').value;
+        var id = $('#id_devolucion').val();
+
+        // // Abrir la nueva ventana con la URL dinámica
+        // window.open(baseUrl + '/imprimir-activo/' + id, '_blank');
+
+        // Crear iframe oculto
+        var $iframe = $('<iframe>', {
+            id: 'iframeImpresion',
+            style: 'position:absolute;width:0;height:0;border:0;'
+        }).appendTo('body');
+
+        // Cargar la URL de tu vista de impresión (Laravel route)
+        // var idEntrega = $('#id_entrega').val(); // tu input hidden con el ID
+        $iframe.attr('src', baseUrl + '/imprimir-devolucion/' + id);
+
+        // Cuando el iframe cargue la página
+        $iframe.on('load', function() {
+            var iframeWin = this.contentWindow || this;
+            iframeWin.focus(); // importante para algunos navegadores
+            iframeWin.print();
+
+            // Eliminar el iframe después de imprimir
+            setTimeout(function() {
+                $iframe.remove();
+            }, 1000);
+        });
+
+    }
+
+
+
+
+
     // if (inventarioCargado) {
     //     var inventarioCargado = false;
     // }
@@ -286,11 +327,11 @@
     //     var devolucionCargado = false;
     // }
 
-//     $.ajaxSetup({
-//     haders: {
-//         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-//     }
-// });
+    //     $.ajaxSetup({
+    //     haders: {
+    //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    //     }
+    // });
     function cargarTablaActivos(devolucion_id = null) {
 
         if (!devolucion_id) devolucion_id = $('#devolucion_id').val();
@@ -312,7 +353,7 @@
             // Ocultar loader al terminar
             $loader.hide();
 
-controlarBotones($('#estado_devolucion').text().trim())
+            controlarBotones($('#estado_devolucion').text().trim())
             if (status === "error") {
                 $contenedor.html('<p>Error al cargar los activos.</p>');
             }
@@ -343,7 +384,7 @@ controlarBotones($('#estado_devolucion').text().trim())
                 // alert(data.id_devolucion)
                 $('#devolucion_id').val(devolucion_id);
                 $('#servicio_nombre').text(($('#servicio_responsable').data('nombre')))
-                 $('#btn_buscar_inventario').trigger('click');
+                $('#btn_buscar_inventario').trigger('click');
 
 
                 // inventarioCargado = false;
@@ -392,7 +433,7 @@ controlarBotones($('#estado_devolucion').text().trim())
 
 
 
-  function sinId() {
+    function sinId() {
         let btn = document.querySelector('#nuevo_devolucion button');
         if (btn) {
             btn.click(); // simula click
@@ -401,12 +442,12 @@ controlarBotones($('#estado_devolucion').text().trim())
 
     $(document).ready(function() {
         // let iddevolucion = {{ $devolucion->id_devolucion }};
-        let iddevolucion = {{ $devolucion->id_devolucion?? 'null'  }};
+        let iddevolucion = {{ $devolucion->id_devolucion ?? 'null' }};
         // alert(iddevolucion)
         if (!iddevolucion) {
             sinId();
         }
-        
+
         cargarDetalleDevolucion()
         cargarTablaActivos();
 
@@ -456,42 +497,44 @@ controlarBotones($('#estado_devolucion').text().trim())
 
             if (!confirm('¿Está seguro que desea finalizar y registrar este devolucion?')) return;
 
-           let textoOriginal = $btn.html();
+            let textoOriginal = $btn.html();
 
-$.ajax({
-    url: `${baseUrl}/devolucion/${iddevolucion}/finalizar`,
-    method: 'POST',
-    data: {
-        _token: $('meta[name="csrf-token"]').attr('content'),
-    },
-    dataType: 'json',
+            $.ajax({
+                url: `${baseUrl}/devolucion/${iddevolucion}/finalizar`,
+                method: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                },
+                dataType: 'json',
 
-    beforeSend: function() {
-        $btn.prop('disabled', true)
-            .html('<i class="bi bi-arrow-repeat spin"></i> Guardando...');
-    },
+                beforeSend: function() {
+                    $btn.prop('disabled', true)
+                        .html('<i class="bi bi-arrow-repeat spin"></i> Guardando...');
+                },
 
-    success: function(response) {
-        if (response.success) {
-            mensaje(response.message, 'success');
-            cargarDetalleDevolucion(iddevolucion);
-            cargarTablaActivos(iddevolucion);
-// alert("fdsafdsafd")
-            $btn
-                .prop('disabled', false)
-                .html('<i class="bi bi-check-circle"></i> Devolución finalizada');
-        } else {
-            mensaje(response.message, 'danger');
-            $btn.prop('disabled', false).html(textoOriginal);
-        }
-    },
+                success: function(response) {
+                    if (response.success) {
+                        mensaje(response.message, 'success');
+                        cargarDetalleDevolucion(iddevolucion);
+                        cargarTablaActivos(iddevolucion);
+                        // alert("fdsafdsafd")
+                        $btn
+                            .prop('disabled', false)
+                            .html(
+                                '<i class="bi bi-check-circle"></i> Devolución finalizada');
+                    } else {
+                        mensaje(response.message, 'danger');
+                        $btn.prop('disabled', false).html(textoOriginal);
+                    }
+                },
 
-    error: function(xhr) {
-        let msg = xhr.responseJSON?.message || 'Error al finalizar la devolución.';
-        mensaje(msg, 'danger');
-        $btn.prop('disabled', false).html(textoOriginal);
-    }
-});
+                error: function(xhr) {
+                    let msg = xhr.responseJSON?.message ||
+                        'Error al finalizar la devolución.';
+                    mensaje(msg, 'danger');
+                    $btn.prop('disabled', false).html(textoOriginal);
+                }
+            });
         });
 
 
