@@ -70,7 +70,7 @@
 
 
     <div class="row  bg-info0 pb-4 justify-content-center" style="height: 90vh;min-height: 30vh;max-height:94vh">
-        <div class="main-col col-md-12 col-lg-11 bg-danger0 order-lg-1 order-1 mb-4 p-1 transition"
+        <div class="main-col col-md-12 col-lg-12 bg-danger0 order-lg-1 order-1 mb-4 p-1 transition"
             style="position: relative; height: 80vh; min-height: 40vh; max-height: 80vh; display: flex; flex-direction: column; overflow: visible;">
 
             <div class="card p-4 rounded shadow"
@@ -94,55 +94,80 @@
                 </div>
 
                 <!-- Filtros -->
-                <div class="card card-filtro mb-4 shadow-sm">
-                    <div class="row g-3">
-                        <div class="col-md-3">
-                            <label class="form-label fw-semibold"><i class="bi bi-search me-1"></i>Buscar activo</label>
-                            <input type="text" id="filtroActivo" class="form-control form-control-sm"
-                                placeholder="Nombre o código">
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label fw-semibold">Tipo de movimiento</label>
-                            <select id="filtroTipo" class="form-select form-select-sm">
-                                <option value="">Todos</option>
-                                <option value="Entrega">Entrega</option>
-                                <option value="Traslado">Traslado</option>
-                                <option value="Devolucion">Devolución</option>
-                                <option value="Baja">Baja</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label fw-semibold">Servicio origen</label>
-                            <select id="filtroServicioOrigen" class="form-select form-select-sm">
-                                <option value="">Todos</option>
-                                <option value="ti">TI</option>
-                                <option value="auditorio">Auditorio</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label fw-semibold">Servicio destino</label>
-                            <select id="filtroServicioDestino" class="form-select form-select-sm">
-                                <option value="">Todos</option>
-                                <option value="ti">TI</option>
-                                <option value="auditorio">Auditorio</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3 d-flex gap-2">
-                            <div class="flex-fill">
-                                <label class="form-label fw-semibold">Desde</label>
-                                <input type="date" id="fechaInicio" class="form-control form-control-sm">
-                            </div>
-                            <div class="flex-fill">
-                                <label class="form-label fw-semibold">Hasta</label>
-                                <input type="date" id="fechaFin" class="form-control form-control-sm">
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <button class="btn btn-azul btn-sm btn-filtro" id="btnFiltrar"><i
-                                    class="bi bi-funnel-fill me-1"></i> Aplicar filtros</button>
-                        </div>
-                    </div>
-                </div>
+                <div class="card card-filtro mb-4 shadow-sm p-3">
+    <div class="row g-3">
+        <!-- Filtro por activo -->
+        <div class="col-md-3">
+            <label class="form-label fw-semibold"><i class="bi bi-search me-1"></i>Buscar activo</label>
+            <input type="text" id="filtroActivo" class="form-control form-control-sm"
+                   placeholder="Nombre o código">
+        </div>
+
+        <!-- Filtro por tipo de movimiento -->
+        <div class="col-md-2">
+            <label class="form-label fw-semibold">Tipo de movimiento</label>
+            <select id="filtroTipo" class="form-select form-select-sm">
+                <option value="">Todos</option>
+                <option value="Entrega">Entrega</option>
+                <option value="Traslado">Traslado</option>
+                <option value="Devolucion">Devolución</option>
+                <option value="Baja">Baja</option>
+            </select>
+        </div>
+
+        <!-- Filtro por usuario -->
+        <div class="col-md-2">
+            <label class="form-label fw-semibold">Usuario</label>
+            <select id="filtroUsuario" class="form-select form-select-sm">
+                <option value="">Todos</option>
+                @foreach($usuarios as $usuario)
+                    <option value="{{ $usuario->id_usuario }}">{{ $usuario->usuario }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <!-- Filtro por servicio origen -->
+        <div class="col-md-2">
+            <label class="form-label fw-semibold">Servicio origen</label>
+            <select id="filtroServicioOrigen" class="form-select form-select-sm">
+                <option value="">Todos</option>
+                @foreach($servicios as $servicio)
+                    <option value="{{ $servicio->id_servicio }}">{{ $servicio->nombre }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <!-- Filtro por servicio destino -->
+        <div class="col-md-2">
+            <label class="form-label fw-semibold">Servicio destino</label>
+            <select id="filtroServicioDestino" class="form-select form-select-sm">
+                <option value="">Todos</option>
+                @foreach($servicios as $servicio)
+                    <option value="{{ $servicio->id_servicio }}">{{ $servicio->nombre }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <!-- Filtro por rango de fechas -->
+        <div class="col-md-3 d-flex gap-2">
+            <div class="flex-fill">
+                <label class="form-label fw-semibold">Desde</label>
+                <input type="date" id="fechaInicio" class="form-control form-control-sm">
+            </div>
+            <div class="flex-fill">
+                <label class="form-label fw-semibold">Hasta</label>
+                <input type="date" id="fechaFin" class="form-control form-control-sm">
+            </div>
+        </div>
+
+        <!-- Botón aplicar filtros -->
+        <div class="col-12">
+            <button class="btn btn-azul btn-sm btn-filtro" id="btnFiltrar">
+                <i class="bi bi-funnel-fill me-1"></i> Aplicar filtros
+            </button>
+        </div>
+    </div>
+</div>
 
 
 

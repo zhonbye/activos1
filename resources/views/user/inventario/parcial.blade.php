@@ -5,7 +5,7 @@
                     <th>N° Documento</th>
                     <th>Gestión</th>
                     <th>Fecha</th>
-                    <th>Usuario</th>
+                    <th>Registrado por</th>
                     <th>Responsable</th>
                     <th>Servicio</th>
                     <th>
@@ -23,7 +23,7 @@
                             </div>
                         </div>
                     </th>
-                    <th>Creado</th>
+                    <th>Total Activos</th>
                     <th class="text-center">Acciones</th>
                 </tr>
             </thead>
@@ -50,7 +50,8 @@
                                 {{ ucfirst($inv->estado) }}
                             </span>
                         </td>
-                        <td>{{ $inv->created_at->format('d/m/Y') }}</td>
+                       <td>{{ $inv->total_activos }}</td>
+
                         <td class="text-center">
                             <button class="btn btn-sm btn-outline-dark ver-detalles-btn"
                                     data-id_inventario="{{ $inv->id_inventario }}"

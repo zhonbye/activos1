@@ -346,7 +346,7 @@
         </div>
     </div>
 
-    <div class="col-md-2">
+    {{-- <div class="col-md-2">
         <div class="card card-stats text-white bg-dark shadow-sm h-100">
             <div class="card-body text-center">
                 <i class="bi bi-x-circle fs-2"></i>
@@ -354,7 +354,7 @@
                 <p class="display-5">{{ $countBajas }}</p>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     <div class="col-md-2">
         <div class="card card-stats text-white bg-info shadow-sm h-100">
@@ -487,7 +487,7 @@ labels: {!! json_encode($semanas) !!},
                      datasets: [
                 { label: 'Entregas', data: {!! json_encode($dataEntregas) !!}, backgroundColor: 'rgba(0,123,255,0.8)' },
                 { label: 'Traslados', data: {!! json_encode($dataTraslados) !!}, backgroundColor: 'rgba(220,53,69,0.8)' },
-                { label: 'Bajas', data: {!! json_encode($dataBajas) !!}, backgroundColor: 'rgba(33,37,41,0.8)' },
+                //{ label: 'Bajas', data: {!! json_encode($dataBajas) !!}, backgroundColor: 'rgba(33,37,41,0.8)' },
                 { label: 'Devoluciones', data: {!! json_encode($dataDevoluciones) !!}, backgroundColor: 'rgba(0,123,255,0.5)' }
             ]
                 },

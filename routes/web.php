@@ -187,9 +187,15 @@ Route::post('/inventarios/regresar-activo', [InventarioController::class, 'regre
 
 
 
-Route::get('/imprimir-activo/{id}', [App\Http\Controllers\EntregaController::class, 'imprimir'])->name('activos.imprimir');
+Route::get('/imprimir-activo/{id}', [EntregaController::class, 'imprimir'])->name('activos.imprimir');
 
+// ACTA DE TRASLADO
+Route::get('/imprimir-traslado/{id}', [TrasladoController::class, 'imprimir'])
+    ->name('traslados.imprimir');
 
+// ACTA DE DEVOLUCIÓN
+Route::get('/imprimir-devolucion/{id}', [DevolucionController::class, 'imprimir'])
+    ->name('devoluciones.imprimir');
 
 
 

@@ -382,12 +382,20 @@ controlarBotones($('#estado_traslado').text().trim())
 
 
 
-
-
-
-    $(document).ready(function() {
-        let idTraslado = {{ $traslado->id_traslado }};
-        cargarDetalleTraslado();
+  function sinId() {
+        let btn = document.querySelector('#nuevo_traslado button');
+        if (btn) {
+            btn.click(); // simula click
+        }
+    }
+        
+        $(document).ready(function() {
+            // let idTraslado = {{ $traslado->id_traslado }};
+            let idTraslado = {{ $traslado->id_traslado?? 'null'  }};
+            if (!idTraslado) {
+                sinId();
+            }
+            cargarDetalleTraslado();
         cargarTablaActivos();
 
         $(document).on('click', '#seleccionar_traslado', function() {

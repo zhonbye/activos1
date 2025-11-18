@@ -9,25 +9,25 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('detalle_bajas', function (Blueprint $table) {
-            $table->id('id_detalle_baja');
-            $table->unsignedBigInteger('id_baja');
-            $table->unsignedBigInteger('id_activo');
-            $table->string('observaciones', 100)->nullable();
+        // Schema::create('detalle_bajas', function (Blueprint $table) {
+        //     $table->id('id_detalle_baja');
+        //     $table->unsignedBigInteger('id_baja');
+        //     $table->unsignedBigInteger('id_activo');
+        //     $table->string('observaciones', 100)->nullable();
 
-            $table->timestamps();
+        //     $table->timestamps();
 
-            $table->foreign('id_baja')->references('id_baja')->on('bajas')->onDelete('cascade');
-            $table->foreign('id_activo')->references('id_activo')->on('activos')->onDelete('cascade');
-        });
+        //     $table->foreign('id_baja')->references('id_baja')->on('bajas')->onDelete('cascade');
+        //     $table->foreign('id_activo')->references('id_activo')->on('activos')->onDelete('cascade');
+        // });
 
-        DB::table('detalle_bajas')->insert([
-            'id_baja' => 1,
-            'id_activo' => 1,
-            'observaciones' => 'Detalle baja inicial',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // DB::table('detalle_bajas')->insert([
+        //     'id_baja' => 1,
+        //     'id_activo' => 1,
+        //     'observaciones' => 'Detalle baja inicial',
+        //     'created_at' => now(),
+        //     'updated_at' => now(),
+        // ]);
     }
 
     public function down(): void

@@ -343,6 +343,7 @@ controlarBotones($('#estado_devolucion').text().trim())
                 // alert(data.id_devolucion)
                 $('#devolucion_id').val(devolucion_id);
                 $('#servicio_nombre').text(($('#servicio_responsable').data('nombre')))
+                 $('#btn_buscar_inventario').trigger('click');
 
 
                 // inventarioCargado = false;
@@ -391,10 +392,21 @@ controlarBotones($('#estado_devolucion').text().trim())
 
 
 
-
+  function sinId() {
+        let btn = document.querySelector('#nuevo_devolucion button');
+        if (btn) {
+            btn.click(); // simula click
+        }
+    }
 
     $(document).ready(function() {
-        let iddevolucion = {{ $devolucion->id_devolucion }};
+        // let iddevolucion = {{ $devolucion->id_devolucion }};
+        let iddevolucion = {{ $devolucion->id_devolucion?? 'null'  }};
+        // alert(iddevolucion)
+        if (!iddevolucion) {
+            sinId();
+        }
+        
         cargarDetalleDevolucion()
         cargarTablaActivos();
 

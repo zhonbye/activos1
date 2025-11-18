@@ -184,12 +184,23 @@ public function obtenerResponsables() {
             // $entrega = Entrega::findOrFail($id);
         } else {
             // Si no se envía id, obtenemos la última entrega agregada
-            $entrega = Entrega::latest('id_entrega')->first();
+            // $entrega = Entrega::latest('id_entrega')->first();
 
-            // Opcional: si no hay entregas, puedes lanzar un error o redirigir
-            if (!$entrega) {
-                abort(404, 'No hay entregas registradas.');
-            }
+$entrega = Entrega::latest('id_entrega')->first();
+
+if (!$entrega) {
+    $entrega = new Entrega([
+        'id_entrega' => '',
+        'estado' => '',
+        'fecha' => '',
+        'observaciones' => '',
+    ]);
+
+    // crear relaciones vacías
+    $entrega->setRelation('usuario', new Usuario(['usuario' => '']));
+    $entrega->setRelation('servicio', new Servicio(['nombre' => '']));
+    $entrega->setRelation('responsable', new Responsable(['nombre' => '']));
+}
         }
 
         return view('user.Entregas2.show', compact('entrega', 'numeroSiguiente', 'servicios', 'categorias'));
@@ -697,12 +708,18 @@ public function obtenerResponsables() {
 public function buscarActivos(Request $request)
 {
     try {
+        // dd($request->all());
         $idEntregaActual = $request->id_entrega ?? null;
 
         // 🔹 1️⃣ Traer todos los activos inactivos
-        $activosInactivos = Activo::soloInactivos()
-            ->with('detalleInventario', 'categoria', 'estado')
-            ->get();
+    $activosInactivos = Activo::soloInactivos()
+    ->with('detalleInventario', 'categoria', 'estado')
+    ->when($request->codigo_activo, fn($q) => $q->where('codigo', 'like', "%{$request->codigo_activo}%"))
+    ->when($request->nombre_activo, fn($q) => $q->where('nombre', 'like', "%{$request->nombre_activo}%"))
+    ->when($request->categoria_activo, fn($q) => $q->where('id_categoria', $request->categoria_activo))
+    ->get();
+
+
 
         // 🔹 2️⃣ Traer activos del servicio "Activos Fijos"
         $servicioActivosFijos = Servicio::whereRaw('LOWER(nombre) LIKE ?', ['%activos fijos%'])->first();
@@ -746,12 +763,14 @@ public function buscarActivos(Request $request)
             // 🔹 Actas/entregas donde aparece este activo
             $actas = DetalleEntrega::where('id_activo', $idActivo)
                 ->join('entregas as e', 'e.id_entrega', '=', 'detalle_entregas.id_entrega')
+                 ->whereIn('e.estado', ['pendiente', 'vigente']) // SOLO contar entregas activas
                 ->select('detalle_entregas.id_entrega', 'e.numero_documento')
                 ->distinct()
                 ->get()
                 ->map(fn($a) => [
                     'id' => $a->id_entrega,
                     'numero_documento' => $a->numero_documento,
+                        'estado' => $a->estado,
                 ])
                 ->values()
                 ->toArray();

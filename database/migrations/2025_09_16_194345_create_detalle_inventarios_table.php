@@ -22,14 +22,14 @@ return new class extends Migration
             $table->foreign('id_activo')->references('id_activo')->on('activos')->onDelete('cascade');
         });
 
-        DB::table('detalle_inventarios')->insert([
-            'id_inventario' => 1,
-            'id_activo' => 1,
-            'estado_actual' => 'nuevo',
-            'observaciones' => 'Detalle inventario inicial',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // DB::table('detalle_inventarios')->insert([
+        //     'id_inventario' => 1,
+        //     'id_activo' => 1,
+        //     'estado_actual' => 'nuevo',
+        //     'observaciones' => 'Detalle inventario inicial',
+        //     'created_at' => now(),
+        //     'updated_at' => now(),
+        // ]);
     }
 
     public function down(): void

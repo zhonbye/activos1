@@ -32,18 +32,20 @@ DB::table('usuarios')->insert([
     'rol' => 'usuario',
     'estado' => 'activo',
     'id_responsable' => 1,  // Asegúrate que exista un responsable con id 1
-    'created_at' => now(),
-    'updated_at' => now(),
+    'created_at' => '2025-01-02 00:00:00',
+    'updated_at' => '2025-01-02 00:00:00',
 ]);
+
 DB::table('usuarios')->insert([
     'usuario' => 'admin',
     'clave' => bcrypt('admin1234'), // recuerda usar bcrypt para la contraseña
     'rol' => 'administrador',
     'estado' => 'activo',
-    'id_responsable' => 2,  // Asegúrate que exista un responsable con id 1
-    'created_at' => now(),
-    'updated_at' => now(),
+    'id_responsable' => 2,  // Asegúrate que exista un responsable con id 2
+    'created_at' => '2025-01-02 00:00:00',
+    'updated_at' => '2025-01-02 00:00:00',
 ]);
+
     }
 
 

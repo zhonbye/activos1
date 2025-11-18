@@ -29,19 +29,19 @@ return new class extends Migration
             $table->foreign('id_servicio')->references('id_servicio')->on('servicios')->onDelete('cascade');
         });
 
-        DB::table('devoluciones')->insert([
-            'numero_documento' => '001',
-            'gestion' => 2025,
-            'fecha' => now(),
-            'id_usuario' => 1,
-            'id_responsable' => 1,
-            'id_servicio' => 1,
-            'observaciones' => 'Devolución inicial de prueba',
-             'estado' => 'pendiente',
-            'url' => null,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // DB::table('devoluciones')->insert([
+        //     'numero_documento' => '001',
+        //     'gestion' => 2025,
+        //     'fecha' => now(),
+        //     'id_usuario' => 1,
+        //     'id_responsable' => 1,
+        //     'id_servicio' => 1,
+        //     'observaciones' => 'Devolución inicial de prueba',
+        //      'estado' => 'pendiente',
+        //     'url' => null,
+        //     'created_at' => now(),
+        //     'updated_at' => now(),
+        // ]);
     }
 
     public function down(): void

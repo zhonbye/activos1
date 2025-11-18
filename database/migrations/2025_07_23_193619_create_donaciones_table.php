@@ -27,16 +27,33 @@ return new class extends Migration
                 ->onUpdate('cascade');
         });
 
-        DB::table('donaciones')->insert([
-            [
-                'id_adquisicion' => 2,
-                'id_donante' => 1,
-                'motivo' => 'Donación benéfica',
-                'precio' => 0,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ]);
+       DB::table('donaciones')->insert([
+    [
+        'id_adquisicion' => 4,
+        'id_donante' => 2,
+        'motivo' => 'Donación benéfica',
+        'precio' => 300.00,
+        'created_at' => '2025-01-03 00:00:00',
+        'updated_at' => '2025-01-03 00:00:00',
+    ],
+    [
+        'id_adquisicion' => 5,
+        'id_donante' => 1,
+        'motivo' => 'Donación benéfica',
+        'precio' => 200.00,
+        'created_at' => '2025-01-03 00:00:00',
+        'updated_at' => '2025-01-03 00:00:00',
+    ],
+    [
+        'id_adquisicion' => 6,
+        'id_donante' => 1,
+        'motivo' => 'Donación benéfica',
+        'precio' => 900.00,
+        'created_at' => '2025-01-03 00:00:00',
+        'updated_at' => '2025-01-03 00:00:00',
+    ],
+]);
+
     }
 
     /**

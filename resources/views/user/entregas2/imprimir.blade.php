@@ -64,14 +64,16 @@
                 display: table-row-group;
             }
             
-            body {
-                margin: 24px;
-            }
+      body {
+    margin: 0 30px;   /* 0 arriba/abajo – 30px izquierda/derecha */
+}
 
-            .page {
-                page-break-after: always;
-                /* fuerza salto de página */
-            }
+            
+           .page {
+    page-break-after: always;
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
             .partible {
         page-break-inside: auto !important;
         break-inside: auto !important;

@@ -1,5 +1,4 @@
-<div class="modal fade" id="modalFiltrosActas" tabindex="-1" aria-labelledby="modalFiltrosActasLabel"
-    aria-hidden="true">
+<div class="modal fade" id="modalFiltrosActas" tabindex="-1" aria-labelledby="modalFiltrosActasLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content" style="background-color:#fdfdfd; border-radius:12px;">
 
@@ -54,8 +53,8 @@
                                 <label class="form-label">Estado</label>
                                 <select name="estado" class="form-select">
                                     <option value="all">Todos</option>
-                                    <option value="vigente" selected>Vigente</option>
-                                    {{-- <option value="pendiente">Pendiente</option> --}}
+                                    {{-- <option value="vigente" selected>Vigente</option> --}}
+                                    <option value="pendiente">Pendiente</option>
                                     <option value="finalizado">Finalizado</option>
                                 </select>
                             </div>
@@ -125,8 +124,8 @@
                             </div>
                         </div>
                     </div>
-                     <!-- Rango de fechas -->
-                     <div class="mb-4 p-3 rounded" style="background-color:#f5f5f5;">
+                    <!-- Rango de fechas -->
+                    <div class="mb-4 p-3 rounded" style="background-color:#f5f5f5;">
                         <button type="button" id="toggleFechasActas" class="btn btn-outline-primary w-100 mb-3">
                             <i class="bi bi-calendar3"></i> Rango de fechas
                         </button>
@@ -163,86 +162,6 @@
         </div>
     </div>
 </div>
-<script>
-
-
-
-
-
-
-
-
-function cargarActas(url = null) {
-    var form = $('#formFiltrosActas'); // tu formulario de filtros de actas
-    var action = url || form.attr('action');
-
-    // Si tienes alguna función para resetear detalles, la puedes usar aquí
-    // resetCardDetalleActa(); // opcional, si manejas un panel de detalles
-
-    $.ajax({
-        url: action,
-        type: 'GET',
-        data: form.serialize(),
-        success: function(data) {
-            // Actualiza el contenedor de resultados de actas
-            $('#contenedorResultadosActas').html(data);
-        },
-        error: function(xhr) {
-            let mensaje2 = 'Error al cargar actas.';
-            if (xhr.responseJSON && xhr.responseJSON.message) {
-                mensaje2 = xhr.responseJSON.message;
-            }
-            mensaje(mensaje2, 'danger'); // función global para mostrar alertas
-        }
-    });
-}
-
-// Cuando se envía el formulario de filtros de actas
-$('#formFiltrosActas').on('submit', function(e) {
-    e.preventDefault();
-    cargarActas();
-});
-
-
-
-
-
-
-
-
-
-    // Toggle rango de fechas
-    document.getElementById('toggleFechasActas').addEventListener('click', function() {
-        const rango = document.getElementById('rangoFechasActas');
-        rango.classList.toggle('d-none');
-    });
-
-    // Mostrar/ocultar servicios según tipo de acta
-    const tipoActaSelect = document.getElementById('tipoActaFiltro');
-    const divOrigen = document.getElementById('divServicioOrigen');
-    const divDestino = document.getElementById('divServicioDestino');
-
-    function actualizarServicios() {
-        const tipo = tipoActaSelect.value;
-        if (tipo === 'entrega') {
-            divOrigen.style.display = 'none';
-            divDestino.style.display = 'block';
-        } else if (tipo === 'devolucion') {
-            divOrigen.style.display = 'block';
-            divDestino.style.display = 'none';
-        } else if (tipo === 'traslado') {
-            divOrigen.style.display = 'block';
-            divDestino.style.display = 'block';
-        } else {
-            // Todos
-            divOrigen.style.display = 'block';
-            divDestino.style.display = 'block';
-        }
-    }
-
-    tipoActaSelect.addEventListener('change', actualizarServicios);
-    window.addEventListener('load', actualizarServicios);
-</script>
 
 
 
@@ -408,7 +327,8 @@ $('#formFiltrosActas').on('submit', function(e) {
                     <div id="contenidoDetalleActa" class="d-flex flex-column bg-dange3r rounded p-2"
                         style="height: 100%; max-height: 100%; overflow-y: auto;">
                         <!-- Aquí se cargará la tabla de detalles dinámicamente -->
-                        <div style="height: 70vh; max-height: 70vh; overflow-y: auto; overflow-x: hidden; position: relative;">
+                        <div
+                            style="height: 70vh; max-height: 70vh; overflow-y: auto; overflow-x: hidden; position: relative;">
                             <table class="table table-striped mb-0 rounded">
                                 <thead class="table-light">
                                     <tr>
@@ -434,3 +354,88 @@ $('#formFiltrosActas').on('submit', function(e) {
         </div>
     </div>
 </div>
+<script>
+    
+    function cargarActas(url = null) {
+        var form = $('#formFiltrosActas'); // tu formulario de filtros de actas
+        var action = url || form.attr('action');
+
+        // Si tienes alguna función para resetear detalles, la puedes usar aquí
+        // resetCardDetalleActa(); // opcional, si manejas un panel de detalles
+
+        $.ajax({
+            url: action,
+            type: 'GET',
+            data: form.serialize(),
+            success: function(data) {
+                // Actualiza el contenedor de resultados de actas
+                $('#contenedorResultadosActas').html(data);
+            },
+            error: function(xhr) {
+                let mensaje2 = 'Error al cargar actas.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    mensaje2 = xhr.responseJSON.message;
+                }
+                mensaje(mensaje2, 'danger'); // función global para mostrar alertas
+            }
+        });
+    }
+    
+    $(document).ready(function() {
+        $('#modalFiltrosActas').on('submit', function(e) {
+            e.preventDefault();
+            cargarActas();
+        });
+        $(function() {
+            $('#modalFiltrosActas').triggerHandler('submit');
+        });
+    // Cuando se envía el formulario de filtros de actas
+    $('#formFiltrosActas').on('submit', function(e) {
+        e.preventDefault();
+        cargarActas();
+    });
+
+
+
+
+
+
+$('#formFiltrosActas').on('reset', function(e) {
+    $divOrigen.show();
+            $divDestino.show();
+});
+
+
+    // Toggle rango de fechas
+    $('#toggleFechasActas').on('click', function() {
+        $('#rangoFechasActas').toggleClass('d-none');
+    });
+
+    // Mostrar/ocultar servicios según tipo de acta
+    const $tipoActaSelect = $('#tipoActaFiltro');
+    const $divOrigen = $('#divServicioOrigen');
+    const $divDestino = $('#divServicioDestino');
+
+    function actualizarServicios() {
+        const tipo = $tipoActaSelect.val();
+        if (tipo === 'entrega') {
+            $divOrigen.hide();
+            $divDestino.show();
+        } else if (tipo === 'devolucion') {
+            $divOrigen.show();
+            $divDestino.hide();
+        } else if (tipo === 'traslado') {
+            $divOrigen.show();
+            $divDestino.show();
+        } else {
+            // Todos
+            $divOrigen.show();
+            $divDestino.show();
+        }
+    }
+
+    $tipoActaSelect.on('change', actualizarServicios);
+    actualizarServicios(); // Ejecutar al cargar la página
+});
+
+</script>

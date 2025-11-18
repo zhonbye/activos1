@@ -499,7 +499,8 @@
                     </div> --}}
                     <!-- Datos secundarios -->
                     <div class="row g-2">
-                        <div class="col-md-4"><strong>Usuario:</strong> <span id="detalleUsuario">-</span></div>
+                        <div class="col-md-4"><strong>Registrado por:</strong> <span id="detalleUsuario">-</span></div>
+                        <div class="col-md-4"><strong>Registrado por:</strong> <span id="detalleCreado">-</span></div>
                         <div class="col-md-4"><strong>Responsable:</strong> <span id="detalleResponsable">-</span>
                         </div>
                         <div class="col-md-4"><strong>Servicio:</strong> <span id="detalleServicio">-</span></div>
@@ -913,6 +914,7 @@
             // AJAX al controlador para traer los datos del inventario
             $.get(`${baseUrl}/inventarios/detalle/${idInventario}`, function(res) {
                 if (res.estado === 'vigente') {
+                    console.log(res)
                     $('#tab-actualizar').removeClass('disabled d-none');
 
                     const actualizarTab = new bootstrap.Tab(document.querySelector(
@@ -947,6 +949,7 @@
                     estadoClass);
 
                 $('#detalleUsuario').text(res.usuario || '-');
+                $('#detalleCreado').text(res.creado || '-');
                 $('#detalleResponsable').text(res.responsable || '-');
                 $('#detalleServicio').text(res.servicio || '-');
 
@@ -1138,6 +1141,7 @@
             $('#detalleFecha').text('-');
             $('#detalleEstado').text('-').removeClass().addClass('badge bg-secondary');
             $('#detalleUsuario').text('-');
+            $('#detalleCreado').text('-');
             $('#detalleResponsable').text('-');
             $('#detalleServicio').text('-');
             $('#tab-detalle').addClass('d-none');

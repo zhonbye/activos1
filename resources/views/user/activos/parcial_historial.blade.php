@@ -1,6 +1,6 @@
 <div class="table-responsive shadow-sm">
     <table class="table table-bordered align-middle">
-        <thead class="table-light">
+        <thead class="table-light table-responsive">
             <tr>
                 <th>Fecha</th>
                 <th>Código</th>
@@ -8,8 +8,20 @@
                 <th>Tipo</th>
                 <th>Origen</th>
                 <th>Destino</th>
-                <th>Responsable</th>
-                <th>Observaciones</th>
+                <th>Registrado por</th>
+
+                
+
+<th class="position-relative text-center">
+    Observaciones
+</th>
+
+
+
+    
+
+
+
                 <th>Estado situacional</th>
                 <th>Acciones</th>
             </tr>
@@ -29,12 +41,46 @@
                     <td>{{ $h->codigo ?? '———' }}</td>
                     <td>{{ $h->nombre ?? '———' }}</td>
                     <td>{{ $h->tipo ?? '———' }}</td>
-                    <td class=" text-center">{{ !empty($h->origen) ? $h->origen : '———' }}</td>
-                    <td class=" text-center">{{ !empty($h->destino) ? $h->destino : '———' }}</td>
+               <td class="text-center">
+    @if(empty($h->origen))
+        <em class="text-muted">———</em>
+    @elseif(in_array($h->origen, ['Sistema', 'Activos Fijos']))
+        <em class="text-muted">{{ $h->origen }}</em>
+    @else
+        {{ $h->origen }}
+    @endif
+</td>
+
+<td class="text-center">
+    @if(empty($h->destino))
+        <em class="text-muted">———</em>
+    @elseif(in_array($h->destino, ['Sistema', 'Activos Fijos']))
+        <em class="text-muted">{{ $h->destino }}</em>
+    @else
+        {{ $h->destino }}
+    @endif
+</td>
 
                     <td>{{ $h->responsable ?? '———' }}</td>
-                    <td>{{ $h->observaciones ?? '———' }}</td>
-                    <td>{{ ucfirst($h->estado_situacional ?? '-') }}</td>
+<td class="d-none d-md-table-cell  collapse col-observaciones show" 
+    style="max-width: 200px; max-height: 50px; overflow: auto; word-break: break-word;">
+    @if($h->observaciones)
+        {{ $h->observaciones }}
+    @else
+        <em class="text-muted">Sin observaciones</em>
+    @endif
+</td>
+
+             <td class="text-center">
+    @if(($h->estado_situacional ?? '') === 'activo')
+        <span class="badge bg-danger">En uso</span>
+    @elseif(($h->estado_situacional ?? '') === 'inactivo')
+        <span class="badge bg-success">Libre</span>
+    @else
+        <span class="badge bg-secondary">—</span>
+    @endif
+</td>
+
 
                     <td class="text-center">
                         <button class="btn btn-sm btn-outline-primary btnVerDetalle" data-h='@json($h)'
@@ -59,3 +105,44 @@
         </tbody>
     </table>
 </div>
+
+<script>
+
+
+
+function toggleColumna(colIndex) {
+    // Recorremos todas las filas
+    $('table tr').each(function() {
+        let celda = $(this).children().eq(colIndex);
+
+        // No ocultar el TH, solo los TD
+        if (!celda.is('th')) {
+            celda.toggleClass('d-none');
+        }
+    });
+
+    // Mover el botón al centro entre las dos columnas afectadas
+    let btn = $('#btn-toggle-observaciones');
+    let th = btn.closest('th');
+
+    // Obtenemos el ancho visible de la columna actual y la siguiente
+    let colActual = th;
+    let colSiguiente = th.next();
+
+    let anchoActual = colActual.outerWidth();
+    let anchoSiguiente = colSiguiente.length ? colSiguiente.outerWidth() : 0;
+
+    // Calcular nuevo left para centrar sobre la mitad de ambas columnas
+    let nuevoLeft = (anchoActual + anchoSiguiente) / 2;
+
+    // Aplicar inline style
+    btn.css({
+        left: nuevoLeft + 'px',
+        transform: 'translateX(-50%) translateY(-50%)' // mantener vertical centrado
+    });
+}
+
+
+
+
+</script>

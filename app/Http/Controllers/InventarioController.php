@@ -110,7 +110,8 @@ $inventarioPendiente = Inventario::where('id_servicio', $idServicio)
         'gestion' => $inventario->gestion,
         'fecha' => $inventario->fecha,
         'estado' => $inventario->estado,
-        'usuario' => $inventario->usuario->nombre ?? '',
+        'creado' => $inventario->created_at->format('d/m/Y'),
+        'usuario' => $inventario->usuario->usuario ?? '',
         'responsable' => $inventario->responsable->nombre ?? '',
         'servicio' => $inventario->servicio->nombre ?? '',
         'tablaDetalle' => $tabla,
@@ -558,7 +559,9 @@ if ($request->filled('busqueda')) {
     // 📌 PAGINACIÓN
     // $inventarios = $query->paginate(10)->withQueryString();
     $inventarios = $query->paginate(20);
-
+foreach ($inventarios->items() as $inv) {
+    $inv->total_activos = $inv->detalles->count();
+}
     // 📌 RETORNO A TU PARCIAL
     return view('user.inventario.parcial', compact('inventarios'))->render();
 }

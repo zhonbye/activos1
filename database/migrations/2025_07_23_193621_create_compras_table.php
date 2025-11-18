@@ -23,14 +23,29 @@ return new class extends Migration
         });
 
         DB::table('compras')->insert([
-            [
-                'id_adquisicion' => 1,
-                'id_proveedor' => 1,
-                'precio' => 1500.00,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ]);
+    [
+        'id_adquisicion' => 1,
+        'id_proveedor' => 1,
+        'precio' => 1200.00,
+        'created_at' => '2025-01-03 00:00:00',
+        'updated_at' => '2025-01-03 00:00:00',
+    ],
+    [
+        'id_adquisicion' => 2,
+        'id_proveedor' => 2,
+        'precio' => 1800.00,
+        'created_at' => '2025-01-03 00:00:00',
+        'updated_at' => '2025-01-03 00:00:00',
+    ],
+    [
+        'id_adquisicion' => 3,
+        'id_proveedor' => 1,
+        'precio' => 1000.00,
+        'created_at' => '2025-01-03 00:00:00',
+        'updated_at' => '2025-01-03 00:00:00',
+    ],
+]);
+
     }
 
     public function down(): void

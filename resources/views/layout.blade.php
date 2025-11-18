@@ -550,16 +550,41 @@ $('#contenido').html('');
             }
 
 
+
+    
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+
         $(document).ready(function() {
 
 
 
-
-             // para guardar la petición activa
-
+            
 
 
 
+
+
+
+
+
+            
 
 
             $('.cargar').on('click', function(e) {

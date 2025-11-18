@@ -733,35 +733,54 @@ public function editarActivo(Request $request, $id)
      */
     public function show($id = null)
 {
-        $categorias = Categoria::all();
-$categorias = Categoria::all();
-            $unidades = Unidad::all();
-            $estados = Estado::all();
-            $servicios = Servicio::whereRaw('LOWER(nombre) NOT LIKE ?', ['%activos fijos%'])->get();
+    $categorias = Categoria::all();
+    $unidades = Unidad::all();
+    $estados = Estado::all();
+    $servicios = Servicio::whereRaw('LOWER(nombre) NOT LIKE ?', ['%activos fijos%'])->get();
 
-
-    // Determinar la gestión actual (sin Carbon)
+    // Determinar la gestión actual
     $gestionActual = date('Y');
 
     // Generar número de documento disponible
     $numeroDisponible = $this->generarNumeroDocumento($gestionActual);
 
-
     if ($id) {
-        // Si se envía el id, buscamos esa devolución
-        $devolucion = Devolucion::findOrFail($id);
+        $devolucion = Devolucion::find($id); // find en vez de findOrFail
     } else {
-        // Si no se envía id, obtenemos la última devolución agregada
         $devolucion = Devolucion::latest('id_devolucion')->first();
-
-        // Opcional: si no hay devoluciones, puedes lanzar un error o redirigir
-        if (!$devolucion) {
-            abort(404, 'No hay devoluciones registradas.');
-        }
     }
 
-    return view('user.devolucion.show', compact('devolucion', 'gestionActual', 'numeroDisponible', 'categorias','categorias', 'unidades', 'estados','servicios'));
+    // Si no hay devoluciones, crear un objeto vacío con relaciones vacías
+    if (!$devolucion) {
+        $devolucion = new Devolucion([
+            'id_devolucion' => '',
+            'fecha' => '',
+            'observaciones' => '',
+            'id_servicio' => '',
+            'id_usuario' => '',
+            'id_responsable' => '',
+        ]);
+
+        // Relaciones vacías
+        $devolucion->setRelation('sUsuario', new Usuario(['usuario' => '']));
+        $devolucion->setRelation('servicio', new Servicio(['nombre' => '']));
+        $devolucion->setRelation('responsable', new Responsable(['nombre' => '']));
+    }
+
+    return view(
+        'user.devolucion.show',
+        compact(
+            'devolucion', 
+            'gestionActual', 
+            'numeroDisponible', 
+            'categorias', 
+            'unidades', 
+            'estados', 
+            'servicios'
+        )
+    );
 }
+
 
     public function tablaActivos($id)
     {

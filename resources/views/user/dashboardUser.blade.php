@@ -275,12 +275,12 @@
                         <li><a href="{{ route('activos.index') }}" role="menuitem" class="cargar" id="primario">Listar
                                 Activos</a></li>
                         {{-- <li><a href="{{ route('activos.create') }}" role="menuitem" class="cargar">Registrar Activo</a></li> --}}
-                        <li><a href="{{ route('bajas.create') }}" role="menuitem" class=" desactivado cargar">Dar de Baja
-                                Activo</a></li>
+                        {{-- <li><a href="{{ route('bajas.create') }}" role="menuitem" class=" desactivado cargar">Dar de Baja
+                                Activo</a></li> --}}
                         <li><a href="{{ route('activos.historial') }}" role="menuitem" class="cargar">Historial de
                                 activo</a></li>
 
-                        <li><a href="{{ route('entregas.show') }}" role="menuitem" class="cargar">Realizar Entrega</a></li>
+                        {{-- <li><a href="{{ route('entregas.show') }}" role="menuitem" class="cargar">Realizar Entrega</a></li> --}}
                     </ul>
                 </li>
 
@@ -419,6 +419,8 @@
 
 
     <script>
+      
+
         // Limpiar el contenido de todos los modales antes de abrirlos
         // $(document).on('show.bs.modal', '.modal', function () {
         //     const modalBody = $(this).find('.modal-body');
@@ -502,6 +504,31 @@
             // Activar ruta guardada del usuario actual
             activarRutaMenu(leerRutaUsuario());
 
+
+
+
+
+            
+//  $(document).on("click", "[data-bs-toggle], [data-bs-Toggle], [data-BS-toggle]", function (e) {
+
+//     let btn = $(this);
+
+//     // Si ya está deshabilitado, NO hacer nada
+//     if (btn.prop("disabled")) {
+//         e.preventDefault();
+//         return;
+//     }
+// console.log('Botón modal clickeado:', btn);
+//     // Deshabilitar botón temporalmente
+//     btn.prop("disabled", true);
+
+//     // Cuando el modal termine de mostrarse, reactivar el botón
+//     let target = btn.attr("data-bs-target");
+
+//     $(target).one("shown.bs.modal", function () {
+//         btn.prop("disabled", false);
+//     });
+// });
             // ---------------------------
             // Menú contextual
             // ---------------------------
@@ -553,7 +580,7 @@
                 }
 
                 const href = enlace.attr('href');
-                alert(enlace.html())
+                // alert(enlace.html())
                 if (!href || href === '#' || href.trim() === '') {
                     mensaje('El ítem seleccionado no tiene una ruta válida.', 'danger');
                     $contextMenu.hide();
@@ -809,8 +836,22 @@
 
 
         //         });
+
+
+
+
+
+
+// Detectar qué botón abre cada modal
+
+
+
+
+
+
         //todo esto cierra los modales correctamente
         $('.modal').on('click', function(e) {
+            
             if ($(e.target).is('.modal')) {
                 $(this).find('input, select, textarea, button').blur();
                 console.log('Click fuera del modal, cerrándolo...');
@@ -819,7 +860,7 @@
             }
         });
         $(document).on('click', '.modal .btn-close[data-bs-dismiss="modal"]', function() {
-            console.log('Se hizo clic en el botón X del modal Registrar Activo');
+            console.log('Se hizo clic en el botón X del modal');
             $(this).blur(); // Quita el foco del botón X
             // alert($('.modal fade show').html()) // Quita el foco del botón X
         });

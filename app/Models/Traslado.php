@@ -20,6 +20,8 @@ class Traslado extends Model
         'id_usuario',
         'id_servicio_origen',
         'id_servicio_destino',
+        'id_responsable_origen',
+        'id_responsable_destino',
         'observaciones',
         'estado',
         'url',

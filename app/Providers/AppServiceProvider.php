@@ -160,9 +160,9 @@ View::composer('user.panelControl', function ($view) {
     $countTraslados = Traslado::where('estado', 'finalizado')
         ->where('id_usuario', $usuarioId)
         ->count();
-    $countBajas = Baja::where('estado', 'finalizado')
-        ->where('id_usuario', $usuarioId)
-        ->count();
+    // $countBajas = Baja::where('estado', 'finalizado')
+    //     ->where('id_usuario', $usuarioId)
+    //     ->count();
     $countDevoluciones = Devolucion::where('estado', 'finalizado')
         ->where('id_usuario', $usuarioId)
         ->count();
@@ -206,10 +206,10 @@ View::composer('user.panelControl', function ($view) {
             ->where('id_usuario', $usuarioId)
             ->count();
 
-        $dataBajas[] = Baja::whereBetween('created_at', [$fechaInicio, $fechaFin])
-            ->where('estado', 'finalizado')
-            ->where('id_usuario', $usuarioId)
-            ->count();
+        // $dataBajas[] = Baja::whereBetween('created_at', [$fechaInicio, $fechaFin])
+        //     ->where('estado', 'finalizado')
+        //     ->where('id_usuario', $usuarioId)
+        //     ->count();
 
         $dataDevoluciones[] = Devolucion::whereBetween('created_at', [$fechaInicio, $fechaFin])
             ->where('estado', 'finalizado')
@@ -249,7 +249,7 @@ View::composer('user.panelControl', function ($view) {
         'countActivos' => $countActivos,
         'countEntregas' => $countEntregas,
         'countTraslados' => $countTraslados,
-        'countBajas' => $countBajas,
+        // 'countBajas' => $countBajas,
         'countDevoluciones' => $countDevoluciones,
         'countInventarios' => $countInventarios,
         'activosPorEstado' => $activosPorEstado,

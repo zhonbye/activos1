@@ -89,8 +89,6 @@
         color: white;
         font-weight: bold;
     }
-
-
 </style>
 
 <div class="row p-0 mb-4 pb-4" style="height: 90vh;">
@@ -165,9 +163,9 @@
     <div class="main-col col-md-12 col-lg-10 order-lg-1 order-1 mb-4 p-1 transition" style="max-height: 95vh;">
         <div class="card p-4 rounded shadow" style="background-color: var(--color-fondo); min-height: 100vh;">
 
-          <h2 class="mb-4 text-center text-primary">
-  <i class="bi bi-box-arrow-in-down me-2"></i>Entrega de Activos
-</h2>
+            <h2 class="mb-4 text-center text-primary">
+                <i class="bi bi-box-arrow-in-down me-2"></i>Entrega de Activos
+            </h2>
 
             <input type="hidden" id="entrega_id" value="{{ $entrega->id_entrega ?? '' }}">
 
@@ -186,61 +184,62 @@
                 </div>
             </div> --}}
 
-           <div class="row g-3 mb-3">
-    <div class="col-lg-12 d-flex justify-content-between align-items-center">
-        <!-- Botón a la izquierda -->
-        <div>
-            <button type="button" id="btnBuscarActivos" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalBuscarActivos">
-                Agregar activos
-            </button>
-        </div>
+            <div class="row g-3 mb-3">
+                <div class="col-lg-12 d-flex justify-content-between align-items-center">
+                    <!-- Botón a la izquierda -->
+                    <div>
+                        <button type="button" id="btnBuscarActivos" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#modalBuscarActivos">
+                            Agregar activos
+                        </button>
+                    </div>
 
-        <!-- Botones a la derecha -->
-        <div class="d-flex gap-2">
-            <button class="btn btn-primary" onclick="abrirImpresion()">
-                <i class="bi bi-printer-fill"></i> Imprimir
-            </button>
-            <button type="submit" id="btnRegistrarEntrega" class="btn btn-success">
-                Registrar Entrega
-            </button>
-        </div>
-    </div>
-</div>
+                    <!-- Botones a la derecha -->
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary" onclick="abrirImpresion()">
+                            <i class="bi bi-printer-fill"></i> Imprimir
+                        </button>
+                        <button type="submit" id="btnRegistrarEntrega" class="btn btn-success">
+                            Registrar Entrega
+                        </button>
+                    </div>
+                </div>
+            </div>
 
 
-<script>
-function abrirImpresion() {
-    // // Obtener el valor del input hidden
-    // var id = document.getElementById('id_entrega').value;
-var id = $('#id_entrega').val();
+            <script>
+                function abrirImpresion() {
+                    // // Obtener el valor del input hidden
+                    // var id = document.getElementById('id_entrega').value;
+                    var id = $('#id_entrega').val();
 
-    // // Abrir la nueva ventana con la URL dinámica
-    // window.open(baseUrl + '/imprimir-activo/' + id, '_blank');
+                    // // Abrir la nueva ventana con la URL dinámica
+                    // window.open(baseUrl + '/imprimir-activo/' + id, '_blank');
 
-        // Crear iframe oculto
-        var $iframe = $('<iframe>', {
-            id: 'iframeImpresion',
-            style: 'position:absolute;width:0;height:0;border:0;'
-        }).appendTo('body');
+                    // Crear iframe oculto
+                    var $iframe = $('<iframe>', {
+                        id: 'iframeImpresion',
+                        style: 'position:absolute;width:0;height:0;border:0;'
+                    }).appendTo('body');
 
-        // Cargar la URL de tu vista de impresión (Laravel route)
-        // var idEntrega = $('#id_entrega').val(); // tu input hidden con el ID
-        $iframe.attr('src', baseUrl+'/imprimir-activo/' + id);
+                    // Cargar la URL de tu vista de impresión (Laravel route)
+                    // var idEntrega = $('#id_entrega').val(); // tu input hidden con el ID
+                    $iframe.attr('src', baseUrl + '/imprimir-activo/' + id);
 
-        // Cuando el iframe cargue la página
-        $iframe.on('load', function() {
-            var iframeWin = this.contentWindow || this;
-            iframeWin.focus(); // importante para algunos navegadores
-            iframeWin.print();
+                    // Cuando el iframe cargue la página
+                    $iframe.on('load', function() {
+                        var iframeWin = this.contentWindow || this;
+                        iframeWin.focus(); // importante para algunos navegadores
+                        iframeWin.print();
 
-            // Eliminar el iframe después de imprimir
-            setTimeout(function() {
-                $iframe.remove();
-            }, 1000);
-        });
+                        // Eliminar el iframe después de imprimir
+                        setTimeout(function() {
+                            $iframe.remove();
+                        }, 1000);
+                    });
 
-}
-</script>
+                }
+            </script>
 
             <div id="contenedor_tabla_activos">
                 {{-- @include('user.entregas2.parcial_activos', ['detalles' => []]) --}}
@@ -264,7 +263,8 @@ var id = $('#id_entrega').val();
 </div>
 
 <!-- Modal para editar acta de entrega -->
-<div class="modal fade" id="modalEditarEntrega" tabindex="-1" aria-labelledby="modalEditarEntregaLabel" aria-hidden="true">
+<div class="modal fade" id="modalEditarEntrega" tabindex="-1" aria-labelledby="modalEditarEntregaLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header bg-light">
@@ -315,16 +315,17 @@ var id = $('#id_entrega').val();
 
 
 <!-- Modal -->
-<div class="modal fade" id="modalBuscarActivos" tabindex="-1" aria-labelledby="modalBuscarActivosLabel" aria-hidden="true">
+<div class="modal fade" id="modalBuscarActivos" tabindex="-1" aria-labelledby="modalBuscarActivosLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title text-muted fst-italic" id="modalBuscarActivosLabel">Buscar activos no asignados <span
-                        id="servicio_nombre" class="fw-bold"></span> </h5>
+                <h5 class="modal-title text-muted fst-italic" id="modalBuscarActivosLabel">Buscar activos no asignados
+                    <span id="servicio_nombre" class="fw-bold"></span> </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body"id="modal_body_activos">
-                   @include('user.entregas2.parcial_buscarActivos')
+                @include('user.entregas2.parcial_buscarActivos')
 
             </div>
             {{-- <div class="modal-footer">
@@ -342,7 +343,7 @@ var id = $('#id_entrega').val();
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body" id="modal_body_entrega">
-                   @include('user.entregas2.parcial_nuevo')
+                @include('user.entregas2.parcial_nuevo')
 
 
             </div>
@@ -370,44 +371,37 @@ var id = $('#id_entrega').val();
 
 
 <script>
-    // Ejecutar al cargar la página
-    // if (inventarioCargado) {
-    //     var inventarioCargado = false;
-    // }
-    // if (entregaCargado) {
-    //     var entregaCargado = false;
-    // }
 
-function cargarTablaActivos(entrega_id = null) {
-    if (!entrega_id) entrega_id = $('#entrega_id').val();
-    if (!entrega_id) {
-        mensaje('No se encontró el ID del entrega', 'danger');
-        return;
+    function cargarTablaActivos(entrega_id = null) {
+        if (!entrega_id) entrega_id = $('#entrega_id').val();
+        if (!entrega_id) {
+            mensaje('No se encontró el ID del entrega', 'danger');
+            return;
+        }
+
+        var $contenedor = $('#contenedor_tabla_activos');
+        var $loader = $('#loader').clone(); // clonamos para no mover el original
+        $loader.show();
+        $contenedor.append($loader);
+        $contenedor.find('table, .tabla-resultados').remove(); // eliminar tabla vieja
+        // alert($loader.html())
+        $.get(`${baseUrl}/entregas/${entrega_id}/activos`, function(response) {
+            $contenedor.html(response); // reemplaza solo tabla
+
+            controlarBotones($('#estado_entrega').text().trim())
+        }).fail(function() {
+            $contenedor.html('<p>Error al cargar los activos.</p>');
+        }).always(function() {
+            $loader.hide(); // ocultar loader
+        });
+
+        // $('#entrega_id').val(entrega_id);
+        // if($('#estado_entrega').text()){
+        //     // alert($('#estado_entrega').text().trim())
+        //     controlarBotones($('#estado_entrega').text().trim())
+        //     console.log("entro en cargar tbla activos")
+        // }
     }
-
-    var $contenedor = $('#contenedor_tabla_activos');
-   var $loader = $('#loader').clone(); // clonamos para no mover el original
-$loader.show();
-$contenedor.append($loader);
-    $contenedor.find('table, .tabla-resultados').remove(); // eliminar tabla vieja
-// alert($loader.html())
-    $.get(`${baseUrl}/entregas/${entrega_id}/activos`, function(response) {
-        $contenedor.html(response); // reemplaza solo tabla
-
-controlarBotones($('#estado_entrega').text().trim())
-    }).fail(function() {
-        $contenedor.html('<p>Error al cargar los activos.</p>');
-    }).always(function() {
-        $loader.hide(); // ocultar loader
-    });
-
-    // $('#entrega_id').val(entrega_id);
-    // if($('#estado_entrega').text()){
-    //     // alert($('#estado_entrega').text().trim())
-    //     controlarBotones($('#estado_entrega').text().trim())
-    //     console.log("entro en cargar tbla activos")
-    // }
-}
 
 
 
@@ -421,9 +415,9 @@ controlarBotones($('#estado_entrega').text().trim())
             return;
         }
         // alert($('#btn_editar_entrega').data('id'));
-function modaleditar(idEntrega){
-    // alert(idEntrega)
-    $.ajax({
+        function modaleditar(idEntrega) {
+            // alert(idEntrega)
+            $.ajax({
                 url: baseUrl + '/entregas/' + idEntrega + '/editar',
                 type: 'GET',
                 success: function(data) {
@@ -437,10 +431,10 @@ function modaleditar(idEntrega){
                     // $('#modalEditarEntrega').data('bs.modal', modal);
                 },
                 error: function() {
-                    mensaje('No se pudo cargar la información del entrega.','danger');
+                    mensaje('No se pudo cargar la información del entrega.', 'danger');
                 }
             });
-}
+        }
         // AJAX GET para traer la vista parcial
         $.ajax({
             url: `${baseUrl}/entregas/${entrega_id}/detalleEntrega`,
@@ -452,8 +446,9 @@ function modaleditar(idEntrega){
                 $('#entrega_id').val(entrega_id);
                 $('#servicio_nombre').text(($('#servicio_responsable_destino').data('nombre')))
 
-modaleditar(entrega_id)
-$('#resultado_Busqueda').html('');
+                modaleditar(entrega_id)
+                // $('#resultado_Busqueda2').html('');
+                 $('#btn_buscar_inventario').trigger('click');
                 // inventarioCargado = false;
                 // if (inventarioCargado) {
                 //     $("#modalBuscarActivos").removeClass('constante')
@@ -474,36 +469,44 @@ $('#resultado_Busqueda').html('');
 
     function controlarBotones(estado) {
         // console.log(estado)
-    if (estado === 'finalizado') {
-        // 🔒 Desactivar botones principales
-        $('#btnBuscarActivos').prop('disabled', true);
-        $('.col-lg-12.d-flex.justify-content-between button[type="submit"]').prop('disabled', true);
+        if (estado === 'finalizado') {
+            // 🔒 Desactivar botones principales
+            $('#btnBuscarActivos').prop('disabled', true);
+            $('.col-lg-12.d-flex.justify-content-between button[type="submit"]').prop('disabled', true);
 
-        // 🔒 Desactivar todo dentro de la tabla de activos
-        $('#contenedor_tabla_activos #tabla_activos')
-            .find('button, input, select, textarea')
-            .prop('disabled', true)
-            .addClass('disabled-element')
+            // 🔒 Desactivar todo dentro de la tabla de activos
+            $('#contenedor_tabla_activos #tabla_activos')
+                .find('button, input, select, textarea')
+                .prop('disabled', true)
+                .addClass('disabled-element')
             console.log("finalziado  desactivando botones de la tabla")
             return;
-    } else if (estado === 'pendiente') {
-        // 🔓 Reactivar botones principales
-        $('#btnBuscarActivos').prop('disabled', false);
-        $('.col-lg-12.d-flex.justify-content-between button[type="submit"]').prop('disabled', false);
-        $('#contenedor_tabla_activos #tabla_activos')
-            .find('button,  select, textarea')
-            .prop('disabled', false)
-            .removeClass('disabled-element');
+        } else if (estado === 'pendiente') {
+            // 🔓 Reactivar botones principales
+            $('#btnBuscarActivos').prop('disabled', false);
+            $('.col-lg-12.d-flex.justify-content-between button[type="submit"]').prop('disabled', false);
+            $('#contenedor_tabla_activos #tabla_activos')
+                .find('button,  select, textarea')
+                .prop('disabled', false)
+                .removeClass('disabled-element');
             return;
+        }
     }
-}
 
 
 
-
+   function sinId() {
+        let btn = document.querySelector('#nueva_entrega button');
+        if (btn) {
+            btn.click(); // simula click
+        }
+    }
 
     $(document).ready(function() {
-        let idEntrega = {{ $entrega->id_entrega }};
+        let idEntrega = {{ $entrega->id_entrega?? 'null'  }};
+          if (!idEntrega) {
+        sinId();
+    }
         cargarDetalleEntrega();
         cargarTablaActivos();
 
@@ -523,86 +526,88 @@ $('#resultado_Busqueda').html('');
             $(this).blur();
 
             // Cuando el modal termine de cerrarse, devolvemos el foco al botón que lo abrió
-        //     $modal.on('hidden.bs.modal', function() {
+            //     $modal.on('hidden.bs.modal', function() {
 
-        //             $(this).blur();
-        // $modal.off('hidden.bs.modal');
-    // });
+            //             $(this).blur();
+            // $modal.off('hidden.bs.modal');
+            // });
         });
 
         // Cuando se hace clic en el botón de cierre del modal
-$('#modalDetalleActivos').on('click', 'button[data-bs-dismiss="modal"]', function() {
-    $(this).blur(); // quitar el foco del botón
-});
+        $('#modalDetalleActivos').on('click', 'button[data-bs-dismiss="modal"]', function() {
+            $(this).blur(); // quitar el foco del botón
+        });
 
-//         $('#modalDetalleActivos').on('hidden.bs.modal', function() {
-//     // Buscamos cualquier botón dentro del modal que pueda tener foco
-//     // alert("fdf")
-//     $(this).find('button:focus').blur();
-//     $('#modalDetalleActivos')
-//     .css('display', 'none')       // oculta visualmente
-//     .attr('aria-hidden', 'true')   // indica a tecnologías asistivas que está oculto
-//     .removeClass('show');          // quita la clase Bootstrap
+        //         $('#modalDetalleActivos').on('hidden.bs.modal', function() {
+        //     // Buscamos cualquier botón dentro del modal que pueda tener foco
+        //     // alert("fdf")
+        //     $(this).find('button:focus').blur();
+        //     $('#modalDetalleActivos')
+        //     .css('display', 'none')       // oculta visualmente
+        //     .attr('aria-hidden', 'true')   // indica a tecnologías asistivas que está oculto
+        //     .removeClass('show');          // quita la clase Bootstrap
 
-//     $('#seleccionar_entrega').blur();
-//     var $btnCerrar = $(this).find('button[data-bs-dismiss="modal"]');
-//     $btnCerrar.blur();
-//     alert($btnCerrar.html())
-// });
+        //     $('#seleccionar_entrega').blur();
+        //     var $btnCerrar = $(this).find('button[data-bs-dismiss="modal"]');
+        //     $btnCerrar.blur();
+        //     alert($btnCerrar.html())
+        // });
 
 
 
-$('#btnRegistrarEntrega').on('click', function(e) {
-    e.preventDefault();
+        $('#btnRegistrarEntrega').on('click', function(e) {
+            e.preventDefault();
 
-    const $btn = $(this);
-    const idEntrega = $('#div_entrega').find('input[name="id_entrega"]').val();
+            const $btn = $(this);
+            const idEntrega = $('#div_entrega').find('input[name="id_entrega"]').val();
 
-    if (!idEntrega) {
-        mensaje('No se pudo identificar el entrega.', 'warning');
-        return;
-    }
+            if (!idEntrega) {
+                mensaje('No se pudo identificar el entrega.', 'warning');
+                return;
+            }
 
-    if (!confirm('¿Está seguro que desea finalizar y registrar esta entrega?')) return;
+            if (!confirm('¿Está seguro que desea finalizar y registrar esta entrega?')) return;
 
-   let textoOriginal = $btn.html();
+            let textoOriginal = $btn.html();
 
-$.ajax({
-    url: `${baseUrl}/entregas/${idEntrega}/finalizar`,
-    method: 'POST',
-    data: {
-        _token: $('meta[name="csrf-token"]').attr('content'),
-    },
-    dataType: 'json',
+            $.ajax({
+                url: `${baseUrl}/entregas/${idEntrega}/finalizar`,
+                method: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                },
+                dataType: 'json',
 
-    beforeSend: function() {
-        $btn.prop('disabled', true)
-            .html('<i class="bi bi-arrow-repeat spin"></i> Guardando...');
-    },
+                beforeSend: function() {
+                    $btn.prop('disabled', true)
+                        .html('<i class="bi bi-arrow-repeat spin"></i> Guardando...');
+                },
 
-    success: function(response) {
-        if (response.success) {
-            mensaje(response.message, 'success');
-            cargarDetalleEntrega(idEntrega);
-            // cargarTablaActivos(idEntrega);
+                success: function(response) {
+                    if (response.success) {
+                        mensaje(response.message, 'success');
+                        cargarDetalleEntrega(idEntrega);
+                        // cargarTablaActivos(idEntrega);
 
-            $btn.prop('disabled', false)
-                .html('<i class="bi bi-check-circle"></i> Entrega finalizada');
-                controlarBotones('finalizada')
-        } else {
-            mensaje(response.message || 'No se pudo finalizar la entrega.', 'danger');
-            $btn.prop('disabled', false).html(textoOriginal);
-        }
-    },
+                        $btn.prop('disabled', false)
+                            .html('<i class="bi bi-check-circle"></i> Entrega finalizada');
+                        controlarBotones('finalizada')
+                    } else {
+                        mensaje(response.message || 'No se pudo finalizar la entrega.',
+                            'danger');
+                        $btn.prop('disabled', false).html(textoOriginal);
+                    }
+                },
 
-    error: function(xhr) {
-        let msg = xhr.responseJSON?.message || 'Ocurrió un error inesperado al finalizar la entrega.';
-        mensaje(msg, 'danger');
-        $btn.prop('disabled', false).html(textoOriginal);
-    }
-});
+                error: function(xhr) {
+                    let msg = xhr.responseJSON?.message ||
+                        'Ocurrió un error inesperado al finalizar la entrega.';
+                    mensaje(msg, 'danger');
+                    $btn.prop('disabled', false).html(textoOriginal);
+                }
+            });
 
-});
+        });
 
 
 
@@ -618,22 +623,22 @@ $.ajax({
             // alert("fsdaf")
             // alert(inventarioCargado)
             // if (inventarioCargado) return;
-                // $.ajax({
-                //     url: "", // ruta que devuelve la vista parcial
-                //     method: "GET",
-                //     success: function(view) {
-                //         $('#modal_body_activos').html(view);
-                //         inventarioCargado = true;
-                //         if (inventarioCargado) {
-                //             $("#modalBuscarActivos").addClass('constante')
-                //         }
-                //         // $('#buscarEntrega').modal('show'); // abre el modal
-                //     },
-                //     error: function(xhr) {
-                //         console.error(xhr.responseText);
-                //         mensaje('Error al cargar el formulario', 'danger');
-                //     }
-                // });
+            // $.ajax({
+            //     url: "", // ruta que devuelve la vista parcial
+            //     method: "GET",
+            //     success: function(view) {
+            //         $('#modal_body_activos').html(view);
+            //         inventarioCargado = true;
+            //         if (inventarioCargado) {
+            //             $("#modalBuscarActivos").addClass('constante')
+            //         }
+            //         // $('#buscarEntrega').modal('show'); // abre el modal
+            //     },
+            //     error: function(xhr) {
+            //         console.error(xhr.responseText);
+            //         mensaje('Error al cargar el formulario', 'danger');
+            //     }
+            // });
         });
         $('#buscar_entrega').click(function() {
             //    alert(entregaCargado)

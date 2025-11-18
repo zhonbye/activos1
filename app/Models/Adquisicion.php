@@ -17,6 +17,7 @@ class Adquisicion extends Model
         'fecha',
         'tipo',
         'comentarios',
+        'id_usuario',
         'created_at',
         'updated_at',
     ];
@@ -45,6 +46,9 @@ class Adquisicion extends Model
 public function donacion() {
     return $this->hasOne(Donacion::class, 'id_adquisicion', 'id_adquisicion');
 }
-
+ public function usuario()
+    {
+        return $this->belongsTo(Usuario::class, 'id_usuario', 'id_usuario');
+    }
 
 }

@@ -29,21 +29,129 @@ return new class extends Migration
 
             $table->timestamps();
         });
+DB::table('activos')->insert([
+    [
+        'codigo' => 'AMD-EMG-001',
+        'nombre' => 'Camilla plegable',
+        'detalle' => 'Camilla color blanco, plegable',
+        'estado_situacional' => 'inactivo',
+        'id_categoria' => 1, // Mobiliario
+        'id_unidad' => 1,    // Unidad
+        'id_estado' => 2,    // BUENO
+        'id_adquisicion' => 1,
+        'created_at' => '2025-01-03 00:00:00',
+        'updated_at' => '2025-01-03 00:00:00',
+    ],
+    [
+        'codigo' => 'AMD-EMG-002',
+        'nombre' => 'Desfibrilador portátil',
+        'detalle' => 'Equipo portátil para reanimación',
+        'estado_situacional' => 'inactivo',
+        'id_categoria' => 17, // Equipamiento de Emergencias
+        'id_unidad' => 6,     // Equipo
+        'id_estado' => 2,
+        'id_adquisicion' => 2,
+        'created_at' => '2025-01-03 00:00:00',
+        'updated_at' => '2025-01-03 00:00:00',
+    ],
+    [
+        'codigo' => 'AMD-EMG-004',
+        'nombre' => 'Silla de ruedas',
+        'detalle' => 'Silla color azul para traslado',
+        'estado_situacional' => 'inactivo',
+        'id_categoria' => 1,
+        'id_unidad' => 1,
+        'id_estado' => 2,
+        'id_adquisicion' => 3,
+        'created_at' => '2025-01-03 00:00:00',
+        'updated_at' => '2025-01-03 00:00:00',
+    ],
+    [
+        'codigo' => 'AMD-EMG-005',
+        'nombre' => 'Monitor de signos vitales',
+        'detalle' => 'Monitor portátil para pacientes críticos',
+        'estado_situacional' => 'inactivo',
+        'id_categoria' => 6, // Electromedicina
+        'id_unidad' => 6,
+        'id_estado' => 2,
+        'id_adquisicion' => 4,
+        'created_at' => '2025-01-03 00:00:00',
+        'updated_at' => '2025-01-03 00:00:00',
+    ],
+    [
+        'codigo' => 'AMD-EMG-006',
+        'nombre' => 'Oxímetro portátil',
+        'detalle' => 'Medidor de oxígeno en sangre, compacto',
+        'estado_situacional' => 'inactivo',
+        'id_categoria' => 6,
+        'id_unidad' => 2,
+        'id_estado' => 2,
+        'id_adquisicion' => 5,
+        'created_at' => '2025-01-03 00:00:00',
+        'updated_at' => '2025-01-03 00:00:00',
+    ],
+    [
+        'codigo' => 'AMD-EMG-007',
+        'nombre' => 'Ambu manual',
+        'detalle' => 'Bolsa de resucitación manual pequeña',
+        'estado_situacional' => 'inactivo',
+        'id_categoria' => 17,
+        'id_unidad' => 6,
+        'id_estado' => 2,
+        'id_adquisicion' => 6,
+        'created_at' => '2025-01-03 00:00:00',
+        'updated_at' => '2025-01-03 00:00:00',
+    ],
+    [
+        'codigo' => 'AMD-EMG-008',
+        'nombre' => 'Maletín de trauma',
+        'detalle' => 'Equipo portátil con vendajes y férulas',
+        'estado_situacional' => 'inactivo',
+        'id_categoria' => 17,
+        'id_unidad' => 6,
+        'id_estado' => 2,
+        'id_adquisicion' => 7,
+        'created_at' => '2025-01-03 00:00:00',
+        'updated_at' => '2025-01-03 00:00:00',
+    ],
+    [
+        'codigo' => 'AMD-EMG-009',
+        'nombre' => 'Mascarilla de oxígeno',
+        'detalle' => 'Mascarilla transparente con tubo',
+        'estado_situacional' => 'inactivo',
+        'id_categoria' => 8,
+        'id_unidad' => 2,
+        'id_estado' => 2,
+        'id_adquisicion' => 8,
+        'created_at' => '2025-01-03 00:00:00',
+        'updated_at' => '2025-01-03 00:00:00',
+    ],
+    [
+        'codigo' => 'AMD-EMG-010',
+        'nombre' => 'Respirador manual',
+        'detalle' => 'Dispositivo portátil para asistencia respiratoria',
+        'estado_situacional' => 'inactivo',
+        'id_categoria' => 17,
+        'id_unidad' => 6,
+        'id_estado' => 2,
+        'id_adquisicion' => 9,
+        'created_at' => '2025-01-03 00:00:00',
+        'updated_at' => '2025-01-03 00:00:00',
+    ],
+    [
+        'codigo' => 'AMD-EMG-003',
+        'nombre' => 'Botiquín de primeros auxilios',
+        'detalle' => 'Botiquín con material básico',
+        'estado_situacional' => 'inactivo',
+        'id_categoria' => 8, // Insumos Permanentes
+        'id_unidad' => 2,    // Pieza
+        'id_estado' => 2,
+        'id_adquisicion' => 10,
+        'created_at' => '2025-01-03 00:00:00',
+        'updated_at' => '2025-01-03 00:00:00',
+    ],
+]);
 
-        DB::table('activos')->insert([
-            [
-                'codigo' => 'AMd-EMG-001',
-                'nombre' => 'Laptop Dell',
-                'detalle' => 'Laptop para oficina',
-                'estado_situacional' => 'activo',
-                'id_categoria' => 1,
-                'id_unidad' => 1,
-                'id_estado' => 1,
-                'id_adquisicion' => 1,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ]);
     }
 
     public function down(): void

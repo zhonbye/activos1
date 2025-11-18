@@ -11,21 +11,11 @@
             <div>
                 <span class="badge bg-light text-dark me-2"
                     id="gestion_entrega">{{ $entrega->gestion ?? date('Y') }}</span>
-                <span class="badge {{ $entrega->estado == 'finalizado' ? 'bg-danger' : 'bg-success' }} me-2"
+                <span class="badge {{ $entrega?->estado == 'finalizado' ? 'bg-danger' : 'bg-success' }} me-2"
                     data-estado-entrega="{{ $entrega->estado }}" id="estado_entrega">
                     {{ $entrega->estado ?? 'pendiente' }}
                 </span>
-                <!-- Botón de colapsar -->
-                {{-- <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#cardBodyEntrega" aria-expanded="false" aria-controls="cardBodyEntrega">
-                    ⮟
-                </button> --}}
-                <!-- Card body colapsable -->
-                {{--
-    <div class="card-body">
-        Contenido del card body aquí.
-    </div>
-</div> --}}
+             
 
                 <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="collapse"
                     data-bs-target="#cardBodyEntrega" aria-expanded="true" aria-controls="cardBodyEntrega">

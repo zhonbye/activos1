@@ -203,6 +203,7 @@ $(document).on('input', '#form_entrega input[name="gestion"]', function() {
                         var identrega = entrega.id_entrega;
 
                         cargarDetalleEntrega(identrega);
+                       
                         cargarTablaActivos(identrega);
 
   form[0].reset();

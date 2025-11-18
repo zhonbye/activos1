@@ -467,6 +467,8 @@ class TrasladoController extends Controller
                 'errors' => $validator->errors(),
             ], 422);
         }
+$responsableOrigen = Servicio::find($request->id_servicio_origen)?->id_responsable ?? null;
+$responsableDestino = Servicio::find($request->id_servicio_destino)?->id_responsable ?? null;
 
         // ✅ Si pasó todas las validaciones, guardar
         $traslado = Traslado::create([
@@ -474,8 +476,10 @@ class TrasladoController extends Controller
             'gestion' => $gestion,
             'fecha' => $request->fecha,
             'id_usuario' => auth()->id(),
-            'id_servicio_origen' => $request->id_servicio_origen,
-            'id_servicio_destino' => $request->id_servicio_destino,
+           'id_servicio_origen' => $request->id_servicio_origen,
+    'id_responsable_origen' => $responsableOrigen,    // nuevo campo en tabla
+    'id_servicio_destino' => $request->id_servicio_destino,
+    'id_responsable_destino' => $responsableDestino,  // nuevo campo en tabla
             'observaciones' => $request->observaciones,
             'estado' => 'pendiente',
         ]);
@@ -619,34 +623,49 @@ return response()->json([
 
         throw new \Exception('No hay números disponibles para la gestión ' . $gestion);
     }
-    public function show($id = null)
-    {
+  public function show($id = null)
+{
+    // Servicios para selects (excluyendo "activos fijos")
+    $servicios = Servicio::whereRaw('LOWER(nombre) NOT LIKE ?', ['%activos fijos%'])->get();
 
+    // Determinar la gestión actual
+    $gestionActual = date('Y');
 
-        // $servicios = Servicio::all(); // para llenar selects
- $servicios = Servicio::whereRaw('LOWER(nombre) NOT LIKE ?', ['%activos fijos%'])->get();
+    // Generar número de documento disponible
+    $numeroDisponible = $this->generarNumeroDocumento($gestionActual);
 
-        // Determinar la gestión actual (sin Carbon, con PHP puro)
-        $gestionActual = date('Y');
+    $categorias = Categoria::all();
 
-        // Generar número de documento disponible
-        $numeroDisponible = $this->generarNumeroDocumento($gestionActual);
-        $categorias = Categoria::all();
-
-        if ($id) {
-            $traslado = Traslado::findOrFail($id);
-        } else {
-            // Si no se envía id, obtenemos la última devolución agregada
-            $traslado = Traslado::latest('id_traslado')->first();
-
-            // Opcional: si no hay devoluciones, puedes lanzar un error o redirigir
-            if (!$traslado) {
-                abort(404, 'No hay traslado registrados.');
-            }
-        }
-
-        return view('user.traslados.show', compact('traslado', 'categorias', 'servicios', 'gestionActual', 'numeroDisponible'));
+    if ($id) {
+        $traslado = Traslado::find($id); // find en vez de findOrFail
+    } else {
+        $traslado = Traslado::latest('id_traslado')->first();
     }
+
+    // Si no hay traslados, crear un objeto vacío con relaciones vacías
+    if (!$traslado) {
+        $traslado = new Traslado([
+            'id_traslado' => '',
+            'fecha' => '',
+            'observaciones' => '',
+            'id_servicio_origen' => '',
+            'id_servicio_destino' => '',
+            'id_usuario' => '',
+        ]);
+
+        // Relaciones vacías
+        $traslado->setRelation('usuario', new Usuario   (['usuario' => '']));
+        $traslado->setRelation('servicioOrigen', new Servicio(['nombre' => '']));
+        $traslado->setRelation('servicioDestino', new Servicio(['nombre' => '']));
+        $traslado->setRelation('responsable', new Responsable(['nombre' => '']));
+    }
+
+    return view(
+        'user.traslados.show',
+        compact('traslado', 'categorias', 'servicios', 'gestionActual', 'numeroDisponible')
+    );
+}
+
 
 
 

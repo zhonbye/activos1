@@ -16,6 +16,7 @@ use App\Models\Donante;
 use App\Models\Estado;
 use App\Models\Proveedor;
 use App\Models\Responsable;
+use App\Models\Servicio;
 use App\Models\Ubicacion;
 use App\Models\Unidad;
 use App\Models\Usuario;
@@ -29,10 +30,12 @@ class ActivoController extends Controller
      * Display a listing of the resource.
      */
 public function historial() {
-        return view('user.activos.historial'); // solo carga la vista y filtros
+    $usuarios = Usuario::orderBy('usuario')->get();
+$servicios = Servicio::orderBy('nombre')->get();
+        return view('user.activos.historial', compact('usuarios', 'servicios')); // solo carga la vista y filtros
     }
 
-    // public function filtrarHistorial(Request $request)
+    // public function filtrarHistorial2(Request $request)
     // {
     //     $activos = Activo::with(['categoria', 'unidad', 'estado', 'adquisicion'])->get();
 
@@ -336,192 +339,188 @@ public function historial() {
     //     // Retorno directo sin ordenar, ya está al revés (últimos arriba)
     //     return view('user.activos.parcial_historial', compact('historial'));
     // }
-    public function filtrarHistorial(Request $request)
-    {
-        $activoFiltro = $request->activo;
-        $tipoFiltro = $request->tipo;
-        $servicioOrigen = $request->servicio_origen;
-        $servicioDestino = $request->servicio_destino;
-        $fechaInicio = $request->fecha_inicio;
-        $fechaFin = $request->fecha_fin;
+public function filtrarHistorial(Request $request)
+{
+    $activoFiltro = $request->activo;
+    $tipoFiltro = $request->tipo;
+    $servicioOrigen = $request->servicio_origen;
+    $servicioDestino = $request->servicio_destino;
+    $fechaInicio = $request->fecha_inicio;
+    $fechaFin = $request->fecha_fin;
 
-        $historial = collect();
+    $historial = collect();
 
-        // 🔹 1. REGISTROS DE ACTIVOS
-        if (!$tipoFiltro || $tipoFiltro === 'Registro') {
-            $activos = DB::table('activos')
-                ->when($activoFiltro, function ($q) use ($activoFiltro) {
-                    $q->where(function ($sub) use ($activoFiltro) {
-                        $sub->where('nombre', 'like', "%$activoFiltro%")
-                            ->orWhere('codigo', 'like', "%$activoFiltro%");
-                    });
-                })
-                ->select('codigo', 'nombre', 'created_at')
-                ->get();
+    // 🔹 1. REGISTROS DE ACTIVOS (con responsable de adquisición)
+    if (!$tipoFiltro || $tipoFiltro === 'Registro') {
+       $activos = DB::table('activos')
+    ->leftJoin('adquisiciones', 'activos.id_adquisicion', '=', 'adquisiciones.id_adquisicion')
+    ->leftJoin('usuarios', 'adquisiciones.id_usuario', '=', 'usuarios.id_usuario') // <- join nuevo
+    ->when($activoFiltro, fn($q) => $q->where('activos.nombre', 'like', "%$activoFiltro%")
+                                      ->orWhere('activos.codigo', 'like', "%$activoFiltro%"))
+    ->select(
+        'activos.id_activo',
+        'activos.codigo',
+        'activos.nombre',
+        'activos.created_at',
+        DB::raw("COALESCE(usuarios.usuario,'') as responsable") // <- ahora devuelve el nombre
+    )
+    ->get();
 
-            foreach ($activos as $a) {
-                $historial->prepend([
-                    'fecha' => $a->created_at,
-                    'codigo' => $a->codigo,
-                    'nombre' => $a->nombre,
-                    'tipo' => 'Registro',
-                    'origen' => '',
-                    'destino' => '',
-                    'responsable' => '',
-                    'observaciones' => 'Activo registrado en el sistema.',
-                    'estado_situacional' => 'inactivo',
-                ]);
-            }
+
+        foreach ($activos as $a) {
+            $historial->push([
+                'id_activo' => $a->id_activo,
+                'fecha' => $a->created_at,
+                'codigo' => $a->codigo,
+                'nombre' => $a->nombre,
+                'tipo' => 'Registro',
+                'origen' => 'Sistema',
+                'destino' => 'Sistema',
+                'responsable' => $a->responsable,
+                'observaciones' => 'Activo registrado en el sistema.',
+                'estado_situacional' => 'inactivo',
+            ]);
         }
-
-        // 🔹 2. ENTREGAS
-        if (!$tipoFiltro || $tipoFiltro === 'Entrega') {
-            $entregas = DB::table('detalle_entregas')
-                ->join('entregas', 'detalle_entregas.id_entrega', '=', 'entregas.id_entrega')
-                ->join('activos', 'detalle_entregas.id_activo', '=', 'activos.id_activo')
-                ->leftJoin('servicios', 'entregas.id_servicio', '=', 'servicios.id_servicio')
-                ->leftJoin('usuarios', 'entregas.id_usuario', '=', 'usuarios.id_usuario')
-                ->where('entregas.estado', 'finalizado')
-                ->when($activoFiltro, function ($q) use ($activoFiltro) {
-                    $q->where(function ($sub) use ($activoFiltro) {
-                        $sub->where('activos.nombre', 'like', "%$activoFiltro%")
-                            ->orWhere('activos.codigo', 'like', "%$activoFiltro%");
-                    });
-                })
-                ->when($servicioDestino, fn($q) => $q->where('servicios.id_servicio', $servicioDestino))
-                ->when($fechaInicio, fn($q) => $q->where('entregas.fecha', '>=', $fechaInicio))
-                ->when($fechaFin, fn($q) => $q->where('entregas.fecha', '<=', $fechaFin))
-                ->selectRaw("
-                    entregas.fecha,
-                    activos.codigo,
-                    activos.nombre,
-                    'Entrega' as tipo,
-                    '' as origen,
-                    servicios.nombre as destino,
-                    COALESCE(usuarios.usuario, '') as responsable,
-                    entregas.observaciones,
-                    'activo' as estado_situacional
-                ")
-                ->get();
-
-            foreach ($entregas as $e) {
-                $historial->prepend($e);
-            }
-        }
-
-
-
-
-
-        // 🔹 3. TRASLADOSkkkkkkkkkkkkkkkkkkk
-        if (!$tipoFiltro || $tipoFiltro === 'Traslado') {
-            $traslados = DB::table('detalle_traslados')
-                ->join('traslados', 'detalle_traslados.id_traslado', '=', 'traslados.id_traslado')
-                ->join('activos', 'detalle_traslados.id_activo', '=', 'activos.id_activo')
-                ->leftJoin('servicios as s_origen', 'traslados.id_servicio_origen', '=', 's_origen.id_servicio')
-                ->leftJoin('servicios as s_destino', 'traslados.id_servicio_destino', '=', 's_destino.id_servicio')
-                ->leftJoin('usuarios', 'traslados.id_usuario', '=', 'usuarios.id_usuario')
-                ->where('traslados.estado', 'finalizado')
-                ->when($activoFiltro, function ($q) use ($activoFiltro) {
-                    $q->where(function ($sub) use ($activoFiltro) {
-                        $sub->where('activos.nombre', 'like', "%$activoFiltro%")
-                            ->orWhere('activos.codigo', 'like', "%$activoFiltro%");
-                    });
-                })
-                ->when($servicioOrigen, fn($q) => $q->where('s_origen.id_servicio', $servicioOrigen))
-                ->when($servicioDestino, fn($q) => $q->where('s_destino.id_servicio', $servicioDestino))
-                ->when($fechaInicio, fn($q) => $q->where('traslados.fecha', '>=', $fechaInicio))
-                ->when($fechaFin, fn($q) => $q->where('traslados.fecha', '<=', $fechaFin))
-                ->selectRaw("
-                    traslados.fecha,
-                    activos.codigo,
-                    activos.nombre,
-                    'Traslado' as tipo,
-                    s_origen.nombre as origen,
-                    s_destino.nombre as destino,
-                    COALESCE(usuarios.usuario, '') as responsable,
-                    traslados.observaciones,
-                    'activo' as estado_situacional
-                ")
-                ->get();
-
-            foreach ($traslados as $t) {
-                $historial->prepend($t);
-            }
-        }
-
-        // 🔹 4. DEVOLUCIONES
-        if (!$tipoFiltro || $tipoFiltro === 'Devolución') {
-            $devoluciones = DB::table('detalle_devoluciones')
-                ->join('devoluciones', 'detalle_devoluciones.id_devolucion', '=', 'devoluciones.id_devolucion')
-                ->join('activos', 'detalle_devoluciones.id_activo', '=', 'activos.id_activo')
-                ->leftJoin('servicios', 'devoluciones.id_servicio', '=', 'servicios.id_servicio')
-                ->leftJoin('usuarios', 'devoluciones.id_usuario', '=', 'usuarios.id_usuario')
-                ->where('devoluciones.estado', 'finalizado')
-                ->when($activoFiltro, function ($q) use ($activoFiltro) {
-                    $q->where(function ($sub) use ($activoFiltro) {
-                        $sub->where('activos.nombre', 'like', "%$activoFiltro%")
-                            ->orWhere('activos.codigo', 'like', "%$activoFiltro%");
-                    });
-                })
-                ->when($servicioOrigen, fn($q) => $q->where('servicios.id_servicio', $servicioOrigen))
-                ->when($fechaInicio, fn($q) => $q->where('devoluciones.fecha', '>=', $fechaInicio))
-                ->when($fechaFin, fn($q) => $q->where('devoluciones.fecha', '<=', $fechaFin))
-                ->selectRaw("
-                    devoluciones.fecha,
-                    activos.codigo,
-                    activos.nombre,
-                    'Devolución' as tipo,
-                    servicios.nombre as origen,
-                    'Área de Activos Fijos' as destino,
-                    COALESCE(usuarios.usuario, '') as responsable,
-                    devoluciones.observaciones,
-                    'inactivo' as estado_situacional
-                ")
-                ->get();
-
-            foreach ($devoluciones as $d) {
-                $historial->prepend($d);
-            }
-        }
-
-        // 🔹 5. BAJAS
-        if (!$tipoFiltro || $tipoFiltro === 'Baja') {
-            $bajas = DB::table('detalle_bajas')
-                ->join('bajas', 'detalle_bajas.id_baja', '=', 'bajas.id_baja')
-                ->join('activos', 'detalle_bajas.id_activo', '=', 'activos.id_activo')
-                ->leftJoin('servicios', 'bajas.id_servicio', '=', 'servicios.id_servicio')
-                ->leftJoin('usuarios', 'bajas.id_usuario', '=', 'usuarios.id_usuario')
-                ->where('bajas.estado', 'finalizado')
-                ->when($activoFiltro, function ($q) use ($activoFiltro) {
-                    $q->where(function ($sub) use ($activoFiltro) {
-                        $sub->where('activos.nombre', 'like', "%$activoFiltro%")
-                            ->orWhere('activos.codigo', 'like', "%$activoFiltro%");
-                    });
-                })
-                ->when($servicioOrigen, fn($q) => $q->where('servicios.id_servicio', $servicioOrigen))
-                ->when($fechaInicio, fn($q) => $q->where('bajas.fecha', '>=', $fechaInicio))
-                ->when($fechaFin, fn($q) => $q->where('bajas.fecha', '<=', $fechaFin))
-                ->selectRaw("
-                    bajas.fecha,
-                    activos.codigo,
-                    activos.nombre,
-                    'Baja' as tipo,
-                    servicios.nombre as origen,
-                    '' as destino,
-                    COALESCE(usuarios.usuario, '') as responsable,
-                    bajas.observaciones,
-                    'de baja' as estado_situacional
-                ")
-                ->get();
-
-            foreach ($bajas as $b) {
-                $historial->prepend($b);
-            }
-        }
-
-        return view('user.activos.parcial_historial', compact('historial'));
     }
+
+    // 🔹 2. ENTREGAS
+    if (!$tipoFiltro || $tipoFiltro === 'Entrega') {
+        $entregas = DB::table('detalle_entregas')
+            ->join('entregas', 'detalle_entregas.id_entrega', '=', 'entregas.id_entrega')
+            ->join('activos', 'detalle_entregas.id_activo', '=', 'activos.id_activo')
+            ->leftJoin('servicios', 'entregas.id_servicio', '=', 'servicios.id_servicio')
+            ->leftJoin('usuarios', 'entregas.id_usuario', '=', 'usuarios.id_usuario')
+            ->where('entregas.estado', 'finalizado')
+            ->when($activoFiltro, fn($q) => $q->where('activos.nombre', 'like', "%$activoFiltro%")
+                                              ->orWhere('activos.codigo', 'like', "%$activoFiltro%"))
+            ->when($servicioDestino, fn($q) => $q->where('servicios.id_servicio', $servicioDestino))
+            ->when($fechaInicio, fn($q) => $q->where('entregas.fecha', '>=', $fechaInicio))
+            ->when($fechaFin, fn($q) => $q->where('entregas.fecha', '<=', $fechaFin))
+            ->select(
+                'detalle_entregas.id_activo',
+                'activos.codigo',
+                'activos.nombre',
+                'entregas.fecha',
+                DB::raw("'Entrega' as tipo"),
+                DB::raw("'Sistema' as origen"),
+                'servicios.nombre as destino',
+                DB::raw("COALESCE(usuarios.usuario,'') as responsable"),
+                'entregas.observaciones',
+                DB::raw("'activo' as estado_situacional")
+            )
+            ->get();
+
+        foreach ($entregas as $e) {
+            $historial->push((array)$e);
+        }
+    }
+
+    // 🔹 3. TRASLADOS
+    if (!$tipoFiltro || $tipoFiltro === 'Traslado') {
+        $traslados = DB::table('detalle_traslados')
+            ->join('traslados', 'detalle_traslados.id_traslado', '=', 'traslados.id_traslado')
+            ->join('activos', 'detalle_traslados.id_activo', '=', 'activos.id_activo')
+            ->leftJoin('servicios as s_origen', 'traslados.id_servicio_origen', '=', 's_origen.id_servicio')
+            ->leftJoin('servicios as s_destino', 'traslados.id_servicio_destino', '=', 's_destino.id_servicio')
+            ->leftJoin('usuarios', 'traslados.id_usuario', '=', 'usuarios.id_usuario')
+            ->where('traslados.estado', 'finalizado')
+            ->when($activoFiltro, fn($q) => $q->where('activos.nombre', 'like', "%$activoFiltro%")
+                                              ->orWhere('activos.codigo', 'like', "%$activoFiltro%"))
+            ->when($servicioOrigen, fn($q) => $q->where('s_origen.id_servicio', $servicioOrigen))
+            ->when($servicioDestino, fn($q) => $q->where('s_destino.id_servicio', $servicioDestino))
+            ->when($fechaInicio, fn($q) => $q->where('traslados.fecha', '>=', $fechaInicio))
+            ->when($fechaFin, fn($q) => $q->where('traslados.fecha', '<=', $fechaFin))
+            ->select(
+                'detalle_traslados.id_activo',
+                'activos.codigo',
+                'activos.nombre',
+                'traslados.fecha',
+                DB::raw("'Traslado' as tipo"),
+                's_origen.nombre as origen',
+                's_destino.nombre as destino',
+                DB::raw("COALESCE(usuarios.usuario,'') as responsable"),
+                'traslados.observaciones',
+                DB::raw("'activo' as estado_situacional")
+            )
+            ->get();
+
+        foreach ($traslados as $t) {
+            $historial->push((array)$t);
+        }
+    }
+
+    // 🔹 4. DEVOLUCIONES
+    if (!$tipoFiltro || $tipoFiltro === 'Devolución') {
+        $devoluciones = DB::table('detalle_devoluciones')
+            ->join('devoluciones', 'detalle_devoluciones.id_devolucion', '=', 'devoluciones.id_devolucion')
+            ->join('activos', 'detalle_devoluciones.id_activo', '=', 'activos.id_activo')
+            ->leftJoin('servicios', 'devoluciones.id_servicio', '=', 'servicios.id_servicio')
+            ->leftJoin('usuarios', 'devoluciones.id_usuario', '=', 'usuarios.id_usuario')
+            ->where('devoluciones.estado', 'finalizado')
+            ->when($activoFiltro, fn($q) => $q->where('activos.nombre', 'like', "%$activoFiltro%")
+                                              ->orWhere('activos.codigo', 'like', "%$activoFiltro%"))
+            ->when($servicioOrigen, fn($q) => $q->where('servicios.id_servicio', $servicioOrigen))
+            ->when($fechaInicio, fn($q) => $q->where('devoluciones.fecha', '>=', $fechaInicio))
+            ->when($fechaFin, fn($q) => $q->where('devoluciones.fecha', '<=', $fechaFin))
+            ->select(
+                'detalle_devoluciones.id_activo',
+                'activos.codigo',
+                'activos.nombre',
+                'devoluciones.fecha',
+                DB::raw("'Devolución' as tipo"),
+                'servicios.nombre as origen',
+                DB::raw("'Área de Activos Fijos' as destino"),
+                DB::raw("COALESCE(usuarios.usuario,'') as responsable"),
+                'devoluciones.observaciones',
+                DB::raw("'inactivo' as estado_situacional")
+            )
+            ->get();
+
+        foreach ($devoluciones as $d) {
+            $historial->push((array)$d);
+        }
+    }
+
+    // 🔹 5. BAJAS (usar updated_at, sin estado)
+    if (!$tipoFiltro || $tipoFiltro === 'Baja') {
+        $bajas = DB::table('bajas')
+            ->join('activos', 'bajas.id_activo', '=', 'activos.id_activo')
+            ->leftJoin('servicios', 'bajas.id_servicio', '=', 'servicios.id_servicio')
+            ->leftJoin('usuarios', 'bajas.id_usuario', '=', 'usuarios.id_usuario')
+            ->when($activoFiltro, fn($q) => $q->where('activos.nombre', 'like', "%$activoFiltro%")
+                                              ->orWhere('activos.codigo', 'like', "%$activoFiltro%"))
+            ->when($servicioOrigen, fn($q) => $q->where('servicios.id_servicio', $servicioOrigen))
+            ->when($fechaInicio, fn($q) => $q->where('bajas.updated_at', '>=', $fechaInicio))
+            ->when($fechaFin, fn($q) => $q->where('bajas.updated_at', '<=', $fechaFin))
+            ->select(
+                'bajas.id_activo',
+                'activos.codigo',
+                'activos.nombre',
+                'bajas.updated_at as fecha',
+                DB::raw("'Baja' as tipo"),
+                'servicios.nombre as origen',
+                DB::raw("'' as destino"),
+                DB::raw("COALESCE(usuarios.usuario,'') as responsable"),
+                'bajas.observaciones',
+                DB::raw("'de baja' as estado_situacional")
+            )
+            ->get();
+
+        foreach ($bajas as $b) {
+            $historial->push((array)$b);
+        }
+    }
+
+    // 🔹 Ordenar por id_activo asc y fecha desc
+    $historial = $historial->sortBy([
+        ['id_activo', 'asc'],
+        ['fecha', 'desc'],
+    ])->values();
+
+    return view('user.activos.parcial_historial', compact('historial'));
+}
+
+
 
 
 
@@ -1056,6 +1055,7 @@ if (Activo::Activos()->where('codigo', $request->codigo)->exists()) {
             $adquisicion = new Adquisicion();
             $adquisicion->fecha = $validated['fecha'] ?? null;
             $adquisicion->comentarios = $validated['comentarios'] ?? null;
+            $adquisicion->id_usuario = auth()->id(); // Usuario autenticado
             $adquisicion->tipo = $tipoAdquisicion;
             $adquisicion->save();
 

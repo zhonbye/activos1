@@ -19,12 +19,16 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        DB::table('unidades')->insert([
-            ['nombre' => 'Unidad', 'abreviatura' => 'u.'],
-            ['nombre' => 'Pieza', 'abreviatura' => 'pza.'],
-            ['nombre' => 'Caja', 'abreviatura' => 'cj.'],
-            ['nombre' => 'Par', 'abreviatura' => 'par'],
-        ]);
+     DB::table('unidades')->insert([
+    ['nombre' => 'Unidad', 'abreviatura' => 'u.', 'created_at' => '2025-01-01 00:00:00', 'updated_at' => '2025-01-01 00:00:00'],
+    ['nombre' => 'Pieza', 'abreviatura' => 'pza.', 'created_at' => '2025-01-01 00:00:00', 'updated_at' => '2025-01-01 00:00:00'],
+    ['nombre' => 'Caja', 'abreviatura' => 'cj.', 'created_at' => '2025-01-01 00:00:00', 'updated_at' => '2025-01-01 00:00:00'],
+    ['nombre' => 'Par', 'abreviatura' => 'par', 'created_at' => '2025-01-01 00:00:00', 'updated_at' => '2025-01-01 00:00:00'],
+    ['nombre' => 'Set', 'abreviatura' => 'set', 'created_at' => '2025-01-01 00:00:00', 'updated_at' => '2025-01-01 00:00:00'],
+    ['nombre' => 'Equipo', 'abreviatura' => 'eq.', 'created_at' => '2025-01-01 00:00:00', 'updated_at' => '2025-01-01 00:00:00'],
+    ['nombre' => 'Juego', 'abreviatura' => 'jgo.', 'created_at' => '2025-01-01 00:00:00', 'updated_at' => '2025-01-01 00:00:00'],
+]);
+
     }
 
     /**

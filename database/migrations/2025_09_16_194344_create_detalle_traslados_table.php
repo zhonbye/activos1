@@ -20,13 +20,13 @@ $table->string('observaciones', 100)->nullable();
             $table->foreign('id_activo')->references('id_activo')->on('activos')->onDelete('cascade');
         });
 
-        DB::table('detalle_traslados')->insert([
-            'id_traslado' => 1,
-            'id_activo' => 1,
-            'observaciones' => 'Detalle traslado inicial',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // DB::table('detalle_traslados')->insert([
+        //     'id_traslado' => 1,
+        //     'id_activo' => 1,
+        //     'observaciones' => 'Detalle traslado inicial',
+        //     'created_at' => now(),
+        //     'updated_at' => now(),
+        // ]);
     }
 
     public function down(): void

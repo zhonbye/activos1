@@ -254,10 +254,10 @@
 
 
 
-<div class="row  bg-info0 pb-4 justify-content-center" style="height: 90vh;min-height: 30vh;max-height:94vh">
+<div class="row  bg-info3 pb-4 justify-content-center" style="height: 90vh;min-height: 30vh;max-height:94vh">
     {{-- <div class="main-col col-md-12 col-lg-10 bg-danger order-lg-1 order-1 mb-4 p-1 transition"
          style="position: relative;height: 100%; min-height: 40vh; max-height:100vh display: flex; flex-direction: column; "> --}}
-    <div class="main-col col-md-12 col-lg-11 bg-danger0 order-lg-1 order-1 mb-4 p-1 transition"
+    <div class="main-col-12 col-md-12 col-lg-12 bg-danger0 order-lg-1 order-1 mb-4 p-1 transition"
         style="position: relative; height: 80vh; min-height: 40vh; max-height: 80vh; display: flex; flex-direction: column; overflow: visible;">
 
         {{-- <div class="card p-4 rounded shadow" style="background-color: var(--color-fondo); display: flex; flex-direction: column; height: 100%;"> --}}
@@ -371,9 +371,8 @@
             }
         });
         $(document).on('click', '.modal .btn-close[data-bs-dismiss="modal"]', function() {
-            console.log('Se hizo clic en el botón X del modal Registrar Activo');
-            $(this).blur(); // Quita el foco del botón X
-            // alert($('.modal fade show').html()) // Quita el foco del botón X
+            console.log('Se hizo clic en el botón X ');
+            $(this).blur();
         });
 
 
