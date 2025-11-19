@@ -11,7 +11,7 @@ return new class extends Migration
     {
         Schema::create('traslados', function (Blueprint $table) {
             $table->id('id_traslado');
-            $table->string('numero_documento')->unique();
+            $table->string('numero_documento');
             $table->integer('gestion');
             $table->date('fecha');
             $table->unsignedBigInteger('id_usuario');

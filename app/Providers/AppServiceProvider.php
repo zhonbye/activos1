@@ -154,16 +154,16 @@ View::composer('user.panelControl', function ($view) {
     // 1️⃣ Totales para cards (solo del usuario)
     // -----------------------------
     $countActivos = Activo::count(); // Activos no dependen del usuario, si quieres solo los suyos habría que tener id_usuario
-    $countEntregas = Entrega::where('estado', 'finalizado')
+    $countEntregas = Entrega::where('estado', 'pendiente')
         ->where('id_usuario', $usuarioId)
         ->count();
-    $countTraslados = Traslado::where('estado', 'finalizado')
+    $countTraslados = Traslado::where('estado', 'pendiente')
         ->where('id_usuario', $usuarioId)
         ->count();
     // $countBajas = Baja::where('estado', 'finalizado')
     //     ->where('id_usuario', $usuarioId)
     //     ->count();
-    $countDevoluciones = Devolucion::where('estado', 'finalizado')
+    $countDevoluciones = Devolucion::where('estado', 'pendiente')
         ->where('id_usuario', $usuarioId)
         ->count();
     $countInventarios = Inventario::where('estado', 'vigente')

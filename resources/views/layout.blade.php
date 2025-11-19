@@ -584,7 +584,15 @@ $('#contenido').html('');
 
 
 
-            
+            // Al hacer clic en el link del Dashboard
+$('a.cargar[href="{{ route('user.panel') }}"]').on('click', function() {
+    // Buscar todos los <li> que tienen la clase 'open' y removerla
+    $('li.menu-item.open').removeClass('open');
+
+    // Opcional: si tus submenus usan 'aria-expanded', también restablecerlos
+    $('li.menu-item .main-item[aria-expanded="true"]').attr('aria-expanded', 'false');
+});
+
 
 
             $('.cargar').on('click', function(e) {
@@ -608,6 +616,7 @@ $('#contenido').html('');
 
             $('.ajustes').on('click', function(e) {
                 e.preventDefault();
+                $('#perfilModal .btn-close').trigger('click');
                 let url = $(this).attr('href') || $(this).data('url');
                 if (!url) {
                     $('#contenido').html('<p style="color:red;">No se ha proporcionado una URL.</p>');

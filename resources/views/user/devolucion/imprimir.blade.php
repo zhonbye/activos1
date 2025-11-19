@@ -84,6 +84,7 @@
             }
             
       body {
+        font-size: 11px; 
     margin: 0 30px;   /* 0 arriba/abajo – 30px izquierda/derecha */
 }
 
@@ -125,7 +126,7 @@
 
         <main style="margin-top: 0px;">
 
-        <h1 class="alger">DOCTO. Nº {{ $devolucion->numero_documento }}</h1>
+        <h1 class="alger" style="margin-bottom:30px;">DOCTO. Nº {{ $devolucion->numero_documento }}</h1>
 
 
 
@@ -152,13 +153,13 @@
     <!-- Fila 3: Se hace devolución a -->
     <div style="display:flex; justify-content:flex-start; gap:10px;">
         <div style="flex:1; text-align:right; font-weight:bold;">Se hace devolución a:</div>
-        <div style="flex:3; text-align:left;">{{ $responsableDevolucion ?? '-' }}</div>
+        <div style="flex:3; text-align:left;">{{ strtoupper($responsableDevolucion ?? '-') }}</div>
     </div>
 
     <!-- Fila 4: Del servicio -->
     <div style="display:flex; justify-content:flex-start; gap:10px;">
         <div style="flex:1; text-align:right; font-weight:bold;">Del servicio:</div>
-        <div style="flex:3; text-align:left;">{{ $servicio ?? '-' }}</div>
+        <div style="flex:3; text-align:left;">{{ strtoupper($servicio ?? '-') }}</div>
     </div>
 
 </div>
@@ -223,9 +224,9 @@
 
             <div
                 style="width: 100%; font-family: Arial, sans-serif; text-align: justify; font-size: 12px; padding: 5px 0;">
-                <strong style="text-decoration: underline;"> NOTA:</strong> ESTE ACTIVO ES devolucionDO
-                A <strong>{{ $responsabledevolucion ?? '' }}
-                </strong> del servicio de: <strong>{{ $servicio ?? '' }}</strong> para su USO Y CUSTODIA, DE ACUERDO AL
+                <strong style="text-decoration: underline;"> NOTA:</strong> ESTE ACTIVO ES DEVUELTO
+                A <strong>{{ strtoupper($responsabledevolucion ?? '') }}
+                </strong> del servicio de: <strong>{{ strtoupper($servicio ?? '') }}</strong> para su USO Y CUSTODIA, DE ACUERDO AL
                 <strong>DECRETO SUPREMO Nº 0181</strong> ARTICULOS 146 (ASIGNACION DE ACTIVOS FIJOS) Inc. I,II, Art 147
                 (DOCUMENTO DE devolucion) Inc.1, Art 148 (LIBERACION DE LA RESPONSABILIDAD) Inc.I,II, Art. 154 (DEMANDA DE
                 SERVICIOS DE MANTENIMIENTO), Art 157 (PROHIBICION PARA LOS SERVIDORES PUBLICOS SOBRE EL USO DE ACTIVOS
@@ -246,7 +247,7 @@
 
 
             <table class="entero"
-                style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 12px; text-align: center;">
+                style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 10px; text-align: center;">
                 <thead>
                     <tr>
                         <th style="border: 1px solid #000; text-align: center; vertical-align: top;"></th>
@@ -274,10 +275,10 @@
                             <u>SERVICIO</u>
                         </td>
                         <td style="border: 1px solid #000; vertical-align: top; text-align: center;">
-                            <u>ACTIVOS FIJOS</u>
+                            <u>{{ strtoupper($servicio ?? '') }}</u>
                         </td>
                         <td style="border: 1px solid #000; vertical-align: top; text-align: center;">
-                            <u>ANESTESIOLOGIA</u>
+                            <u>ACTIVOS FIJOS</u>
                         </td>
                         <td style="border: 1px solid #000; vertical-align: top; text-align: center;">
                             <u>ADMINISTRACION</u>

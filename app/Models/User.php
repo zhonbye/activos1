@@ -42,4 +42,9 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+    public function usuario()
+{
+    return $this->hasOne(Usuario::class, 'id', 'id_usuario'); // ajusta según tus columnas
+}
+
 }

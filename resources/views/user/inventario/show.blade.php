@@ -1,44 +1,3 @@
-{{-- /* #iframeOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1050;
-}
-
-.iframe-container {
-    position: relative;
-    width: 80vw;
-    height: 80vh;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 0 10px #000;
-}
-
-.iframe-container iframe {
-    width: 100%;
-    height: 100%;
-    border-radius: 0 0 8px 8px;
-    border: none;
-}
-
-#iframeOverlay #closeIframe {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: red;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 4px 8px;
-    font-weight: bold;
-    cursor: pointer;
-} */ --}}
 <style>
     /* Destacar inputs inventario */
     .input-activo {
@@ -51,8 +10,6 @@
         padding: 2px 8px;
         font-size: 0.85rem;
     }
-
-
 </style>
 
 
@@ -65,6 +22,29 @@
         <!-- Contenido dinámico -->
     </div>
 </div>
+
+
+
+
+
+
+<div class="modal fade" id="modalVisualizar2" tabindex="-1" aria-labelledby="modalVisualizarLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="modalVisualizarLabel">Detalle Completo del Activo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-4">
+                <!-- Contenido cargado por AJAX -->
+            </div>
+            {{-- <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div> --}}
+        </div>
+    </div>
+</div>
+
 
 
 <!-- Modal Detalle Inventario -->
@@ -113,6 +93,17 @@
                 <form id="formFiltrosInventarios" action="{{ route('inventarios.filtrar') }}" method="GET">
                     <input type="hidden" name="busqueda" value="">
                     <input type="hidden" name="busquedaActivo" value="">
+                    @if ($id)
+                        <input type="hidden" id="id_inventario" name="id_inventario" value="{{ $id }}">
+                        {{-- <p>ID recibido: {{ $id }}</p> --}}
+                        <p class="con_inventario">Mandaste un inventario, Filtros desactivados. par aelimnar resetee los
+                            filtros</p>
+                    @else
+                        <input type="hidden" id="id_inventario" name="id_inventario" value="">
+
+                        {{-- <p>No se envió ningún ID</p> --}}
+                    @endif
+
 
                     <!-- 🧾 Identificación -->
                     <div class="mb-4 p-3 rounded" style="background-color:#e9f2ff;">
@@ -145,9 +136,9 @@
                                 <label class="form-label">Usuario</label>
                                 <select name="id_usuario" class="form-select">
                                     <option value="all">Todos</option>
-                                    {{-- @foreach ($usuarios as $u)
+                                    @foreach ($usuarios as $u)
                                         <option value="{{ $u->id }}">{{ $u->nombre }}</option>
-                                    @endforeach --}}
+                                    @endforeach
                                 </select>
                             </div>
 
@@ -155,9 +146,9 @@
                                 <label class="form-label">Responsable</label>
                                 <select name="id_responsable" class="form-select">
                                     <option value="all">Todos</option>
-                                    {{-- @foreach ($responsables as $r)
+                                    @foreach ($responsables as $r)
                                         <option value="{{ $r->id_responsable }}">{{ $r->nombre }}</option>
-                                    @endforeach --}}
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
@@ -174,9 +165,9 @@
                                 <label class="form-label">Servicio</label>
                                 <select name="id_servicio" class="form-select">
                                     <option value="all">Todos</option>
-                                    {{-- @foreach ($servicios as $s)
+                                    @foreach ($servicios as $s)
                                         <option value="{{ $s->id_servicio }}">{{ $s->nombre }}</option>
-                                    @endforeach --}}
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
@@ -268,7 +259,7 @@
 
             <!-- Footer -->
             <div class="modal-footer border-0">
-                <button type="reset" form="formFiltrosInventarios" class="btn btn-secondary">
+                <button type="reset" form="formFiltrosInventarios" class="btn btn-secondary btn-reset-filtros">
                     <i class="bi bi-x-circle"></i> Limpiar
                 </button>
 
@@ -311,6 +302,74 @@
         </div>
     </div>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{{-- <!-- Botón que activa el modal Dar de Baja -->
+<button type="button" class="btn btn-danger" 
+        data-bs-toggle="modal" 
+        data-bs-target="#modalDarBaja"
+        data-id-activo="2">
+    <i class="bi bi-x-circle me-1"></i> Dar de Baja
+</button>
+<!-- Modal Dar de Baja --> --}}
+
+
+
+
+<!-- Modal Dar de Baja -->
+<div class="modal fade" id="modalDarBaja" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content rounded-4 shadow-lg" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(8px);">
+
+            <!-- Header -->
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold text-danger"><i class="bi bi-x-circle me-2"></i> Dar de Baja Activo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body">
+               {{-- @include('user.activos.registrarBaja') --}}
+            </div>
+
+            <!-- Footer -->
+            
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
 
 <div class="row bg-info4 p-4 justify-content-center" style="height: 110vh; min-height: 110vh; max-height: 110vh;">
 
@@ -499,8 +558,9 @@
                     </div> --}}
                     <!-- Datos secundarios -->
                     <div class="row g-2">
-                        <div class="col-md-4"><strong>Registrado por:</strong> <span id="detalleUsuario">-</span></div>
-                        <div class="col-md-4"><strong>Registrado por:</strong> <span id="detalleCreado">-</span></div>
+                        <div class="col-md-4"><strong>Registrado por:</strong> <span id="detalleUsuario">-</span>
+                        </div>
+                        <div class="col-md-4"><strong>Registrado en:</strong> <span id="detalleCreado">-</span></div>
                         <div class="col-md-4"><strong>Responsable:</strong> <span id="detalleResponsable">-</span>
                         </div>
                         <div class="col-md-4"><strong>Servicio:</strong> <span id="detalleServicio">-</span></div>
@@ -551,7 +611,7 @@
                         <!-- Número documento -->
                         <div class="col-md-2">
                             <input type="text" class="form-control input-compact" id="numero_documento"
-                            placeholder="Número" readonly>
+                                placeholder="Número" readonly>
                             <small class="text-muted fst-italic">Generado automáticamente</small>
                         </div>
 
@@ -706,7 +766,80 @@
         let debounceTimer;
         let tieneActualizar = false;
 
-        $(document).on('click', '.regresar-activo-btn', function() {
+        $('.btn-reset-filtros').on('click', function() {
+            $('#id_inventario').val('');
+            $('.con_inventario').html('');
+        });
+
+
+$(document).off('click', '.baja-activo-btn').on('click', '.baja-activo-btn', function() {
+    var idActivo = $(this).data('id');
+
+    $.ajax({
+        url: "{{ route('bajas.buscarActivo') }}",
+        type: "POST",
+        data: {
+            id_activo: idActivo,
+            _token: "{{ csrf_token() }}"
+        },
+        success: function(html) {
+            $('#modalDarBaja .modal-body').html(html);
+            $('#modalDarBaja').modal('show'); // abrir modal
+        },
+        error: function(xhr) {
+            let mensaje = 'No se pudo cargar el activo para dar de baja.';
+            if(xhr.responseJSON && xhr.responseJSON.error) {
+                mensaje = xhr.responseJSON.error;
+            }
+
+            // SweetAlert
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: mensaje,
+                confirmButtonColor: '#d33'
+            });
+        }
+    });
+});
+
+
+
+
+
+
+
+
+
+
+
+        $(document).off('click', '.ver-activo-btn').on('click', '.ver-activo-btn', function() {
+            // alert("fdsafdsfdsa")
+            var idActivo = $(this).data('id');
+            var url = baseUrl + '/activo/' + idActivo + '/detalle';
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function(data) {
+                    $('#modalVisualizar2 .modal-body').html(data);
+                    // $('#modalVisualizar2').modal('show');
+                    const modal = new bootstrap.Modal(document.getElementById(
+                        'modalVisualizar2'));
+                    modal.show();
+
+
+                },
+                error: function() {
+                    alert('No se pudo cargar el detalle del activo.');
+                }
+            });
+        });
+
+
+
+
+
+        $(document).off('click', '.regresar-activo-btn').on('click', '.regresar-activo-btn', function() {
 
             let idActivo = $(this).data('id');
             let idInventarioVigente = $('#id_inventario_original').val();
@@ -798,7 +931,7 @@
         });
 
 
-        $(document).on('click', '.mover-activo-btn', function() {
+        $(document).off('click', '.mover-activo-btn').on('click', '.mover-activo-btn', function() {
             const btnMover = $(this);
             const fila = btnMover.closest('tr');
 
@@ -927,13 +1060,20 @@
 
                 } else {
                     $('#tab-actualizar').addClass('disabled d-none');
+                    // tieneActualizar = true;
 
                     // Limpiar el input oculto si no es vigente
 
                     $('#id_inventario_original').val('');
                     $('#id_inventario_actualizar').val('');
                 }
-
+                $('#numero_documento').val('-');
+                $('#gestion').val('-');
+                $('#fecha').val('-');
+                $('#responsable').val('');
+                $('#observaciones').val('');
+                $('#id_usuario').val('');
+                // $('#id_inventario_actualizar').val('');
                 // Colocar los datos en los labels
                 $('#detalleNumero').text(res.numero || '-');
                 $('#detalleGestion').text(res.gestion || '-');
@@ -980,6 +1120,7 @@
 
 
 
+
         // Control de cards según pestaña activa
         $('#tabsInventario button[data-bs-toggle="tab"]').on('shown.bs.tab', function(e) {
             const target = $(e.target).data('bs-target'); // ID de la pestaña que se activó
@@ -998,6 +1139,7 @@
                 $('#cardDetalleInventario').addClass('d-none');
                 $('#cardInventario').addClass('d-none');
                 $('#cardActualizarInventario').removeClass('d-none');
+
                 if (!tieneActualizar) {
 
                     actualizarInventario()
@@ -1093,11 +1235,23 @@
 
                                     const nuevo = resGenerado.inventario;
 
+
+
                                     // Poner valores del nuevo inventario
-                                    $('#detalleNumero').text(nuevo
+                                    $('#numero_documento').text(nuevo
                                         .numero_documento || '-');
-                                    $('#detalleGestion').text(nuevo.gestion || '-');
-                                    $('#detalleFecha').text(nuevo.fecha || '-');
+                                    $('#gestion').text(nuevo.gestion || '-');
+                                    $('#fecha').text(nuevo.fecha || '-');
+
+
+                                    $('#responsable').val(nuevo.responsable || '');
+                                    $('#observaciones').val(nuevo.observaciones ||
+                                        '');
+                                    $('#id_usuario').val(nuevo.usuario || '');
+
+
+
+
                                     $('#id_inventario_actualizar').val(nuevo
                                         .id_inventario);
                                     tieneActualizar = true;
@@ -1227,6 +1381,7 @@
         });
 
         $('#fecha_inicio, #fecha_fin').prop('disabled', true);
+
         function cargarInventarios(url = null) {
             var form = $('#formFiltrosInventarios');
             var action = url || form.attr('action');

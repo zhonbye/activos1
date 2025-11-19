@@ -228,39 +228,39 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"> --}}
 
-    <style>
-        /* body {
+<style>
+    /* body {
             background-color: #f8f9fa;
         } */
 
-        .card-stats {
-            border-radius: 12px;
-            transition: transform .2s;
-        }
+    .card-stats {
+        border-radius: 12px;
+        transition: transform .2s;
+    }
 
-        .card-stats:hover {
-            transform: translateY(-5px);
-        }
+    .card-stats:hover {
+        transform: translateY(-5px);
+    }
 
-        .card-title {
-            font-weight: 600;
-        }
+    .card-title {
+        font-weight: 600;
+    }
 
-        .display-5 {
-            font-size: 2.2rem;
-            font-weight: bold;
-        }
+    .display-5 {
+        font-size: 2.2rem;
+        font-weight: bold;
+    }
 
-        .chart-card {
-            border-radius: 12px;
-        }
-    </style>
+    .chart-card {
+        border-radius: 12px;
+    }
+</style>
 </head>
 
 {{-- <body> --}}
-    <div class="container-fluid py-4">
-        <!-- 🔹 Sección de Bienvenida -->
-        {{-- <div class="row mb-4">
+<div class="container-fluid py-4">
+    <!-- 🔹 Sección de Bienvenida -->
+    {{-- <div class="row mb-4">
     <div class="col-12">
         <div class="card shadow-sm p-3 d-flex flex-row align-items-center"
              style="border-radius:12px; background-color:#e9f2fb;">
@@ -287,46 +287,96 @@
     </div>
 </div> --}}
 
-        <!-- 🔹 Sección de Bienvenida Usuario -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="p-4 rounded-4 shadow-sm d-flex align-items-center justify-content-between"
-                    style="background: linear-gradient(90deg, #e3f2fd, #ffffff);">
 
-                    <!-- Bienvenida -->
-                    <div>
-                        <h4 class="fw-bold mb-1 text-primary">👋 ¡Bienvenido, {{ Auth::user()->usuario }}!</h4>
-                        <p class="text-muted mb-0">Panel de control de usuario</p>
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Modal único -->
+    <div class="modal fade" id="detalleModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalle del Acta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="modalContenido">
+                    <!-- Contenido cargado por AJAX -->
+                    <div class="text-center py-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
                     </div>
-
-                    <!-- Avatar o icono -->
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-person-circle fs-2 text-secondary me-3"></i>
-                        <!-- Opcional: fecha o estado -->
-                        <span class="text-muted small">{{ date('d/m/Y') }}</span>
-                    </div>
-
                 </div>
             </div>
         </div>
-
-
-
-        <!-- Tarjetas -->
-      <div class="row g-4 mb-4">
-   <div class="col-md-2">
-    <div class="card card-stats text-white bg-primary shadow-sm h-100 clickable-card" data-ruta="{{ route('activos.index') }}">
-    <div class="card-body text-center">
-        <i class="bi bi-boxes fs-2"></i>
-        <h5 class="card-title mt-2">Activos</h5>
-        <p class="display-5">{{ $countActivos }}</p>
     </div>
-</div>
+
+
+
+
+    <!-- 🔹 Sección de Bienvenida Usuario -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="p-4 rounded-4 shadow-sm d-flex align-items-center justify-content-between"
+                style="background: linear-gradient(90deg, #e3f2fd, #ffffff);">
+
+                <!-- Bienvenida -->
+                <div>
+                    <h4 class="fw-bold mb-1 text-primary">👋 ¡Bienvenido, {{ Auth::user()->responsable->cargo->abreviatura }}
+ {{ Auth::user()->responsable->nombre }}!</h4>
+                    {{-- <h4 class="fw-bold mb-1 text-primary">👋 ¡Bienvenido, {{ Auth::user()->usuario }}!</h4> --}}
+                    <p class="text-muted mb-0">Panel de control de usuario</p>
+                </div>
+
+                <!-- Avatar o icono -->
+             <div class="d-flex align-items-center p-3 px-5 rounded-pill" 
+     style="cursor:pointer; background: linear-gradient(90deg, #e3f2fd, #b29dff52);"
+     data-bs-toggle="modal" 
+     data-bs-target="#perfilModal">
+    
+    <i class="bi bi-person-circle fs-2 text-secondary me-3"></i>
+
+    <!-- Columna con usuario y fecha -->
+    <div class="d-flex flex-column">
+        <span class="fw-bold text-primary fs-5">{{ Auth::user()->usuario }}</span>
+        <span class="text-muted small">{{ date('d/m/Y') }}</span>
+    </div>
 
 </div>
 
 
-    <div class="col-md-2">
+
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Tarjetas -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card card-stats text-white bg-primary shadow-sm h-100 clickable-card"
+                data-ruta="{{ route('activos.index') }}">
+                <div class="card-body text-center">
+                    <i class="bi bi-boxes fs-2"></i>
+                    <h5 class="card-title mt-2">Activos</h5>
+                    <small class="card-title mt-0"> Total</small>
+                    <p class="display-5">{{ $countActivos }}</p>
+                </div>
+            </div>
+
+        </div>
+
+
+        {{-- <div class="col-md-3">
         <div class="card card-stats text-white bg-success shadow-sm h-100">
             <div class="card-body text-center">
                 <i class="bi bi-truck fs-2"></i>
@@ -334,19 +384,62 @@
                 <p class="display-5">{{ $countEntregas }}</p>
             </div>
         </div>
-    </div>
+    </div> --}}
+        <div class="col-md-2">
+            <div class="card card-stats text-white bg-success shadow-sm h-100 acta-card" data-tipo="entrega"
+                data-bs-toggle="tooltip" title="Muestra todas tus actas de entrega pendientes">
+                <div class="card-body text-center">
+                    <i class="bi bi-truck fs-2"></i>
+                    <h5 class="card-title mt-2">Entregas</h5>
+                    <small class="card-title mt-0"> Pendientes</small>
+                    <p class="display-5">{{ $countEntregas }}</p>
+                </div>
+            </div>
+        </div>
 
-    <div class="col-md-2">
-        <div class="card card-stats text-white bg-danger shadow-sm h-100">
-            <div class="card-body text-center">
-                <i class="bi bi-arrow-left-right fs-2"></i>
-                <h5 class="card-title mt-2">Traslados</h5>
+        <div class="col-md-3">
+            <div class="card card-stats text-white bg-primary shadow-sm h-100 acta-card" data-tipo="traslado"
+                data-bs-toggle="tooltip" title="Muestra todas tus actas de traslado pendientes">
+                <div class="card-body text-center">
+                    <i class="bi bi-arrow-left-right fs-2"></i>
+                    <h5 class="card-title mt-2">Traslados</h5>
+                    <small class="card-title mt-0"> Pendientes</small>
+                    <p class="display-5">{{ $countTraslados }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card card-stats text-white bg-info shadow-sm h-100 acta-card" data-tipo="devolucion"
+                data-bs-toggle="tooltip" title="Muestra todas tus actas de devolución pendientes">
+                <div class="card-body text-center">
+                    <i class="bi bi-arrow-counterclockwise fs-2"></i>
+                    <h5 class="card-title mt-2">Devoluciones</h5>
+                    <small class="card-title mt-0"> Pendientes</small>
+                    <p class="display-5">{{ $countDevoluciones }}</p>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+
+        {{-- <div class="col-md-2">
+            <div class="card card-stats text-white bg-danger shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-arrow-left-right fs-2"></i>
+                    <h5 class="card-title mt-2">Traslados</h5>
                 <p class="display-5">{{ $countTraslados }}</p>
             </div>
         </div>
-    </div>
+    </div> --}}
 
-    {{-- <div class="col-md-2">
+        {{-- <div class="col-md-2">
         <div class="card card-stats text-white bg-dark shadow-sm h-100">
             <div class="card-body text-center">
                 <i class="bi bi-x-circle fs-2"></i>
@@ -356,7 +449,7 @@
         </div>
     </div> --}}
 
-    <div class="col-md-2">
+        {{-- <div class="col-md-2">
         <div class="card card-stats text-white bg-info shadow-sm h-100">
             <div class="card-body text-center">
                 <i class="bi bi-arrow-counterclockwise fs-2"></i>
@@ -364,182 +457,364 @@
                 <p class="display-5">{{ $countDevoluciones }}</p>
             </div>
         </div>
-    </div>
+    </div> --}}
 
-    <div class="col-md-2">
-        <div class="card card-stats text-white bg-secondary shadow-sm h-100">
-            <div class="card-body text-center">
-                <i class="bi bi-card-checklist fs-2"></i>
-                <h5 class="card-title mt-2">Inventarios</h5>
-                <p class="display-5">{{ $countInventarios }}</p>
+        <div class="col-md-2">
+            <div class="card card-stats text-white bg-secondary shadow-sm h-100 acta-card" data-tipo="inventario"
+                data-bs-toggle="tooltip" title="Muestra todos tus inventarios vigentes">
+                <div class="card-body text-center">
+                    <i class="bi bi-card-checklist fs-2"></i>
+                    <h5 class="card-title mt-2">Inventarios</h5>
+                    <small class="card-title mt-0">Vigentes</small>
+                    <p class="display-5">{{ $countInventarios }}</p>
+                </div>
             </div>
         </div>
-    </div>
-</div>
 
-        <!-- Gráficos -->
-        <div class="row g-4 mb-4">
-            <div class="col-md-5">
-                <div class="card chart-card shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">Activos por Estado</h5>
-                        <canvas id="estadoActivosChart" height="150"></canvas>
-                    </div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-5">
+            <div class="card chart-card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Activos por Estado</h5>
+                    <canvas id="estadoActivosChart" height="150"></canvas>
                 </div>
             </div>
-            <div class="col-md-7">
-                <div class="card chart-card shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">Movimientos Último Mes</h5>
-                        <canvas id="movimientosChart" height="150"></canvas>
-                    </div>
+        </div>
+        <div class="col-md-7">
+            <div class="card chart-card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Movimientos Último Mes</h5>
+                    <canvas id="movimientosChart" height="150"></canvas>
                 </div>
             </div>
+        </div>
         {{-- </div> --}}
 
         <!-- Distribución por servicio -->
         {{-- <div class="row g-4"> --}}
-            <div class="col-md-12">
-                <div class="card chart-card shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">Activos por Servicio</h5>
-                        <canvas id="serviciosChart" height="80"></canvas>
-                    </div>
+        <div class="col-md-12">
+            <div class="card chart-card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Activos por Servicio</h5>
+                    <canvas id="serviciosChart" height="80"></canvas>
                 </div>
             </div>
         </div>
-
     </div>
-    <script>
-        $(document).ready(function() {
 
-// Cuando se haga clic en cualquier card con data-ruta
-$('.clickable-card').on('click', function() {
-    const ruta = $(this).data('ruta'); // obtenemos la ruta
-    activarRutaMenu(ruta); // llamamos a tu función
-});
+</div>
+<script>
+    $(document).ready(function() {
 
 
 
-            // 🎯 Configuración general de animación para reutilizar
-            const animacionGeneral = {
-                duration: 1500,
-                easing: 'easeOutBounce' // puedes probar: 'easeOutQuart', 'easeInOutCubic', etc.
-            };
 
-            // 🔹 Activos por Estado (doughnut)
-            const ctxEstado = document.getElementById('estadoActivosChart').getContext('2d');
-        const labelsEstado = {!! json_encode(array_keys($activosPorEstado->toArray())) !!};
-    const dataEstado = {!! json_encode(array_values($activosPorEstado->toArray())) !!};
 
-    const estadoActivosChart = new Chart(ctxEstado, {
-        type: 'doughnut',
-        data: {
-            labels: labelsEstado,
-            datasets: [{
-                data: dataEstado,
-                backgroundColor: [
-                    'rgba(0,123,255,0.8)',
-                    'rgba(220,53,69,0.8)',
-                    'rgba(33,37,41,0.8)',
-                    'rgba(40,167,69,0.8)',
-                    'rgba(255,193,7,0.8)' // puedes agregar más colores si hay más estados
-                ],
-                borderColor: [
-                    'rgba(0,123,255,1)',
-                    'rgba(220,53,69,1)',
-                    'rgba(33,37,41,1)',
-                    'rgba(40,167,69,1)',
-                    'rgba(255,193,7,1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        color: '#000',
-                        font: {
-                            size: 14,
-                            weight: 'bold'
-                        }
-                    }
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(0,0,0,0.7)',
-                    titleColor: '#fff',
-                    bodyColor: '#fff'
-                }
-            },
-            animation: animacionGeneral // tu animación personalizada
-        }
-    });
 
-            // 🔹 Movimientos último mes (barras)
-            const ctxMov = document.getElementById('movimientosChart').getContext('2d');
-            new Chart(ctxMov, {
-                type: 'bar',
+        $('.acta-card').on('click', function() {
+            let tipo = $(this).data('tipo');
+            let url = '';
+            var estado = 'pendiente';
+            // Definir URL según tipo
+            if (tipo === 'entrega') {
+                url = "{{ route('entregas.buscarActa') }}";
+            } else if (tipo === 'traslado') {
+                url = "{{ route('traslados.buscar') }}";
+            } else if (tipo === 'devolucion') {
+                url = "{{ route('devolucion.buscar') }}";
+            } else if (tipo === 'inventario') {
+                url = "{{ route('inventario.filtrar') }}";
+                estado = 'vigente';
+            }
+
+            // Abrir modal
+            $('#detalleModal').modal('show');
+
+            // Header dinámico
+            $('#detalleModal .modal-title').text(
+                `Lista de ${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`
+            );
+
+            // Mostrar spinner mientras carga
+            $('#modalContenido').html(`
+            <div class="text-center py-3">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+            </div>
+        `);
+
+            // AJAX para traer los datos
+            $.ajax({
+                url: url,
+                type: 'POST',
                 data: {
-labels: {!! json_encode($semanas) !!},
-                     datasets: [
-                { label: 'Entregas', data: {!! json_encode($dataEntregas) !!}, backgroundColor: 'rgba(0,123,255,0.8)' },
-                { label: 'Traslados', data: {!! json_encode($dataTraslados) !!}, backgroundColor: 'rgba(220,53,69,0.8)' },
-                //{ label: 'Bajas', data: {!! json_encode($dataBajas) !!}, backgroundColor: 'rgba(33,37,41,0.8)' },
-                { label: 'Devoluciones', data: {!! json_encode($dataDevoluciones) !!}, backgroundColor: 'rgba(0,123,255,0.5)' }
-            ]
+                    _token: '{{ csrf_token() }}',
+                    estado: estado // ✅ Siempre traer pendientes
                 },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    },
-                    animation: {
-                        ...animacionGeneral,
-                        delay: (context) => context.dataIndex * 150, // retrasa cada barra
-                    }
-                }
-            });
-
-            // 🔹 Activos por Servicio (barras horizontales)
-            const ctxServ = document.getElementById('serviciosChart').getContext('2d');
-            new Chart(ctxServ, {
-                type: 'bar',
-                data: {
-                     labels: {!! json_encode($servicios) !!},
-            datasets: [{ label: 'Activos', data: {!! json_encode($dataServicios) !!}, backgroundColor: 'rgba(0,123,255,0.8)' }]
-
+                success: function(data) {
+                    $('#modalContenido').html(data);
                 },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        x: {
-                            beginAtZero: true
-                        }
-                    },
-                    animation: {
-                        ...animacionGeneral,
-                        delay: (context) => context.dataIndex * 150
-                    }
+                error: function() {
+                    $('#modalContenido').html(
+                        '<div class="alert alert-danger">Error al cargar los datos.</div>'
+                    );
                 }
             });
         });
-        </script>
+
+
+
+
+
+
+
+        // Cuando se haga clic en cualquier card con data-ruta
+        $('.clickable-card').on('click', function() {
+            const ruta = $(this).data('ruta'); // obtenemos la ruta
+            activarRutaMenu(ruta); // llamamos a tu función
+        });
+        $(document).ready(function() {
+
+
+
+
+
+
+
+
+
+
+
+            $('#detalleModal').on('click',
+                '.btn-seleccionar-traslado, .btn-seleccionar-entrega, .btn-seleccionar-devolucion, .ver-detalles-btn',
+                function() {
+                    var tipo = '';
+                    var id = $(this).data('id');
+
+                    if ($(this).hasClass('btn-seleccionar-traslado')) tipo = 'traslados';
+                    else if ($(this).hasClass('btn-seleccionar-entrega')) tipo = 'entregas';
+                    else if ($(this).hasClass('btn-seleccionar-devolucion')) tipo = 'devoluciones';
+                    else if ($(this).hasClass('ver-detalles-btn')){ tipo = 'inventario';
+                        id = $(this).data('id_inventario');
+                    }
+                    if (!tipo || !id) return; // seguridad
+
+                    // Cierra el modal
+                    $('#detalleModal').modal('hide');
+
+                    var tipoMap = {
+                        'traslados': 'Realizar Traslado',
+                        'entregas': 'Realizar Entrega',
+                        'devoluciones': 'Realizar Devolución',
+                        'inventario': 'Listar y actualizar'
+                    };
+                    // Buscar el enlace del menú correspondiente
+                    var menuLink = $('li a.cargar').filter(function() {
+                        return $(this).text().trim() === tipoMap[tipo];
+                    });
+
+                    if (menuLink.length > 0) {
+                        // Guardar href original
+                        var originalHref = menuLink.attr('href');
+
+                        // Modificar temporalmente con el ID
+                        menuLink.attr('href', originalHref.replace(/\/\d*$/, '') + '/' + id);
+
+                        // Click en el elemento padre del submenu solo si no está abierto
+                        var parentMenu = menuLink.closest('ul.submenu').closest('li.menu-item');
+                        if (parentMenu.length > 0 && !parentMenu.hasClass('open')) {
+                            parentMenu.find('.main-item')[0].click();
+                        }
+
+                        // Click en el enlace
+                        menuLink[0].click();
+id=null;
+                        // Restaurar href original
+                        menuLink.attr('href', originalHref);
+                    }
+                });
+
+
+
+
+
+
+
+
+            // Captura el click en el botón "Seleccionar" dentro del modal
+            //  $('#detalleModal').on('click', '.btn-seleccionar-traslado', function() {
+            //     var trasladoId = $(this).data('id'); // ID del traslado
+
+            //     // Cierra el modal
+            //     $('#detalleModal').modal('hide');
+
+            //     // Busca el enlace del menú que dice "Realizar Traslado"
+            //     var menuLink = $('li a.cargar').filter(function() {
+            //         return $(this).text().trim() === 'Realizar Traslado';
+            //     });
+
+            //     if(menuLink.length > 0) {
+            //         // Guarda href original
+            //         var originalHref = menuLink.attr('href');
+
+            //         // Modifica temporalmente con el ID
+            //         menuLink.attr('href', originalHref.replace(/\/\d*$/, '') + '/' + trasladoId);
+
+            //         // Click en el enlace
+            //         menuLink[0].click();
+
+            //         // Click en el elemento padre del submenu
+            //         var parentMenu = menuLink.closest('ul.submenu').prev('.main-item');
+            //         if(parentMenu.length > 0) {
+            //             parentMenu[0].click();
+            //         }
+
+            //         // Restaurar href original
+            //         menuLink.attr('href', originalHref);
+            //     }
+            // });
+        });
+
+
+
+        // 🎯 Configuración general de animación para reutilizar
+        const animacionGeneral = {
+            duration: 1500,
+            easing: 'easeOutBounce' // puedes probar: 'easeOutQuart', 'easeInOutCubic', etc.
+        };
+
+        // 🔹 Activos por Estado (doughnut)
+        const ctxEstado = document.getElementById('estadoActivosChart').getContext('2d');
+        const labelsEstado = {!! json_encode(array_keys($activosPorEstado->toArray())) !!};
+        const dataEstado = {!! json_encode(array_values($activosPorEstado->toArray())) !!};
+
+        const estadoActivosChart = new Chart(ctxEstado, {
+            type: 'doughnut',
+            data: {
+                labels: labelsEstado,
+                datasets: [{
+                    data: dataEstado,
+                    backgroundColor: [
+                        'rgba(0,123,255,0.8)',
+                        'rgba(220,53,69,0.8)',
+                        'rgba(33,37,41,0.8)',
+                        'rgba(40,167,69,0.8)',
+                        'rgba(255,193,7,0.8)' // puedes agregar más colores si hay más estados
+                    ],
+                    borderColor: [
+                        'rgba(0,123,255,1)',
+                        'rgba(220,53,69,1)',
+                        'rgba(33,37,41,1)',
+                        'rgba(40,167,69,1)',
+                        'rgba(255,193,7,1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#000',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.7)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff'
+                    }
+                },
+                animation: animacionGeneral // tu animación personalizada
+            }
+        });
+
+        // 🔹 Movimientos último mes (barras)
+        const ctxMov = document.getElementById('movimientosChart').getContext('2d');
+        new Chart(ctxMov, {
+            type: 'bar',
+            data: {
+                labels: {!! json_encode($semanas) !!},
+                datasets: [{
+                        label: 'Entregas',
+                        data: {!! json_encode($dataEntregas) !!},
+                        backgroundColor: 'rgba(0,123,255,0.8)'
+                    },
+                    {
+                        label: 'Traslados',
+                        data: {!! json_encode($dataTraslados) !!},
+                        backgroundColor: 'rgba(220,53,69,0.8)'
+                    },
+                    //{ label: 'Bajas', data: {!! json_encode($dataBajas) !!}, backgroundColor: 'rgba(33,37,41,0.8)' },
+                    {
+                        label: 'Devoluciones',
+                        data: {!! json_encode($dataDevoluciones) !!},
+                        backgroundColor: 'rgba(0,123,255,0.5)'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                animation: {
+                    ...animacionGeneral,
+                    delay: (context) => context.dataIndex * 150, // retrasa cada barra
+                }
+            }
+        });
+
+        // 🔹 Activos por Servicio (barras horizontales)
+        const ctxServ = document.getElementById('serviciosChart').getContext('2d');
+        new Chart(ctxServ, {
+            type: 'bar',
+            data: {
+                labels: {!! json_encode($servicios) !!},
+                datasets: [{
+                    label: 'Activos',
+                    data: {!! json_encode($dataServicios) !!},
+                    backgroundColor: 'rgba(0,123,255,0.8)'
+                }]
+
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                },
+                animation: {
+                    ...animacionGeneral,
+                    delay: (context) => context.dataIndex * 150
+                }
+            }
+        });
+    });
+</script>
 
 {{-- </body> --}}
 

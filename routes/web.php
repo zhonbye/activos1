@@ -10,6 +10,7 @@ use App\Http\Controllers\DoctoController;
 use App\Http\Controllers\EntregaController;
 use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\MovimientoController;
+use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\ResponsableController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\TrasladoController;
@@ -159,10 +160,12 @@ Route::get('/responsables/{id}', [ResponsableController::class, 'show']);
 
 
 // Route::get('/inventarios/consultar', [InventarioController::class, 'consultar'])->name('inventario.consultar');
-Route::get('/inventario/show', [InventarioController::class, 'show'])->name('inventario.show');
+// Ruta con parámetro opcional
+Route::get('/inventario/show/{id?}', [InventarioController::class, 'show'])->name('inventario.show');
+
 Route::get('/inventario/ultimo', [InventarioController::class, 'ultimoInventario']);
 Route::get('/inventarios/generar', [InventarioController::class, 'generarVacio'])->name('inventario.generar');
-Route::get('/inventarios/filtro', [InventarioController::class, 'filtrar'])->name('inventario.filtrar');
+Route::post('/inventarios/filtro', [InventarioController::class, 'filtrar'])->name('inventario.filtrar');
 Route::get('/inventarios', [InventarioController::class, 'consultar'])->name('inventario.consultar');
 Route::get('/inventario/{id}/activos', [InventarioController::class, 'activosInventario'])->name('inventario.activos');
 
@@ -199,6 +202,12 @@ Route::get('/imprimir-devolucion/{id}', [DevolucionController::class, 'imprimir'
 
 
 
+//seccion de reportes
+// Route::get('/reporte-entrega/{id}', [ReporteController::class, 'reporteEntrega'])->name('reporte.entrega');
+
+Route::get('/movimientos/reporte/pdf', [ReporteController::class, 'imprimirActas'])
+    ->name('movimientos.pdf');
+
 
 
 
@@ -208,7 +217,8 @@ Route::get('/imprimir-devolucion/{id}', [DevolucionController::class, 'imprimir'
 
 
 Route::get('/bajas', [BajaController::class, 'create'])->name('bajas.create');
-
+Route::post('/bajas/store', [BajaController::class, 'store'])->name('bajas.store');
+Route::post('/activos/buscar-activo', [BajaController::class, 'buscarActivo'])->name('bajas.buscarActivo');
 
 // web.php
 // Route::get('/traslados/registrar', [TrasladoController::class, 'create'])->name('traslados.create');

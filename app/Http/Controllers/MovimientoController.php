@@ -22,7 +22,7 @@ class MovimientoController extends Controller
 
         // No carga inventarios aquí
         // return view('user.inventario.consultar', );
-        return view('user.movimientos.listar',compact('servicios', 'responsables'));
+        return view('user.movimientos.listar', compact('servicios', 'responsables'));
     }
 
     public function filtrar(Request $request)
@@ -35,17 +35,28 @@ class MovimientoController extends Controller
         // Entregas
         // -----------------------------
         if ($tipoActa === 'all' || $tipoActa === 'entrega') {
-           $query = DB::table('entregas')
-    ->leftJoin('usuarios as u', 'entregas.id_usuario', '=', 'u.id_usuario') // tu tabla es usuarios
-    ->leftJoin('responsables as r', 'entregas.id_responsable', '=', 'r.id_responsable')
-    ->leftJoin('servicios as s', 'entregas.id_servicio', '=', 's.id_servicio')
-    ->select(
-        'entregas.*',
-        'u.usuario as usuario',        // nombre del usuario
-        'r.nombre as responsable',  // nombre del responsable
-        's.nombre as servicio',      // nombre del servicio
-         DB::raw('entregas.id_entrega as id')
-    );
+            $query = DB::table('entregas')
+                ->leftJoin('usuarios as u', 'entregas.id_usuario', '=', 'u.id_usuario') // tu tabla es usuarios
+                ->leftJoin('responsables as r', 'entregas.id_responsable', '=', 'r.id_responsable')
+                ->leftJoin('servicios as s', 'entregas.id_servicio', '=', 's.id_servicio')
+                ->select(
+                    'entregas.*',
+                    'u.usuario as usuario',        // nombre del usuario
+                    'r.nombre as responsable',  // nombre del responsable
+                    's.nombre as servicio',      // nombre del servicio
+                    DB::raw('entregas.id_entrega as id')
+                );
+// Filtro general búsqueda
+if ($request->filled('busqueda')) {
+    $bus = $request->busqueda;
+
+    $query->where(function($q) use ($bus) {
+        $q->where('entregas.numero_documento', 'like', "%{$bus}%")
+          ->orWhere('entregas.gestion', 'like', "%{$bus}%")
+          ->orWhere('r.nombre', 'like', "%{$bus}%")
+          ->orWhere('s.nombre', 'like', "%{$bus}%");
+    });
+}
 
 
             if ($request->filled('numero_documento')) {
@@ -59,9 +70,9 @@ class MovimientoController extends Controller
             // if ($request->filled('estado') && $request->estado !== 'all') {
             //     $query->where('estado', $request->estado);
             // }
-                if ($request->filled('estado') && $request->estado !== 'all') {
-        $query->where('entregas.estado', $request->estado); // 🔥 FIX
-    }
+            if ($request->filled('estado') && $request->estado !== 'all') {
+                $query->where('entregas.estado', $request->estado); // 🔥 FIX
+            }
 
 
             // Servicio destino en entregas
@@ -70,43 +81,58 @@ class MovimientoController extends Controller
             //     $query->where('entregas.id_servicio', $request->id_servicio_destino);
 
             // }
-    if ($request->filled('id_servicio_destino') && $request->id_servicio_destino !== 'all') {
-        $query->where('entregas.id_servicio', $request->id_servicio_destino);
-    }
+            if ($request->filled('id_servicio_destino') && $request->id_servicio_destino !== 'all') {
+                $query->where('entregas.id_servicio', $request->id_servicio_destino);
+            }
 
             // Rango de fechas
             if ($request->filled('fecha_inicio') && $request->filled('fecha_fin')) {
                 $query->whereBetween('fecha', [$request->fecha_inicio, $request->fecha_fin]);
             }
 
-            $resultados = $resultados->concat($query->get()->map(fn($e) => (object) array_merge((array)$e, ['tipo_acta' => 'entrega',
-    'id' => $e->id_entrega, ])));
+            $resultados = $resultados->concat($query->get()->map(fn($e) => (object) array_merge((array)$e, [
+                'tipo_acta' => 'entrega',
+                'id' => $e->id_entrega,
+            ])));
         }
 
         // -----------------------------
         // Traslados
         // -----------------------------
         if ($tipoActa === 'all' || $tipoActa === 'traslado') {
-$query = DB::table('traslados')
-    ->leftJoin('usuarios as u', 'traslados.id_usuario', '=', 'u.id_usuario')
-    
-    // Responsables
-    ->leftJoin('responsables as r_origen', 'traslados.id_responsable_origen', '=', 'r_origen.id_responsable')
-    ->leftJoin('responsables as r_destino', 'traslados.id_responsable_destino', '=', 'r_destino.id_responsable')
-    
-    // Servicios
-    ->leftJoin('servicios as s_origen', 'traslados.id_servicio_origen', '=', 's_origen.id_servicio')
-    ->leftJoin('servicios as s_destino', 'traslados.id_servicio_destino', '=', 's_destino.id_servicio')
-    
-    ->select(
-        'traslados.*',
-        'u.usuario as usuario',
-        'r_origen.nombre as responsable_origen',
-        'r_destino.nombre as responsable_destino',
-        's_origen.nombre as servicio_origen',
-        's_destino.nombre as servicio_destino',
-        DB::raw('traslados.id_traslado as id') // Normalizamos id para Blade
-    );
+            $query = DB::table('traslados')
+                ->leftJoin('usuarios as u', 'traslados.id_usuario', '=', 'u.id_usuario')
+
+                // Responsables
+                ->leftJoin('responsables as r_origen', 'traslados.id_responsable_origen', '=', 'r_origen.id_responsable')
+                ->leftJoin('responsables as r_destino', 'traslados.id_responsable_destino', '=', 'r_destino.id_responsable')
+
+                // Servicios
+                ->leftJoin('servicios as s_origen', 'traslados.id_servicio_origen', '=', 's_origen.id_servicio')
+                ->leftJoin('servicios as s_destino', 'traslados.id_servicio_destino', '=', 's_destino.id_servicio')
+
+                ->select(
+                    'traslados.*',
+                    'u.usuario as usuario',
+                    'r_origen.nombre as responsable_origen',
+                    'r_destino.nombre as responsable_destino',
+                    's_origen.nombre as servicio_origen',
+                    's_destino.nombre as servicio_destino',
+                    DB::raw('traslados.id_traslado as id') // Normalizamos id para Blade
+                );
+// Filtro general búsqueda
+if ($request->filled('busqueda')) {
+    $bus = $request->busqueda;
+
+    $query->where(function($q) use ($bus) {
+        $q->where('traslados.numero_documento', 'like', "%{$bus}%")
+          ->orWhere('traslados.gestion', 'like', "%{$bus}%")
+          ->orWhere('r_origen.nombre', 'like', "%{$bus}%")
+          ->orWhere('r_destino.nombre', 'like', "%{$bus}%")
+          ->orWhere('s_origen.nombre', 'like', "%{$bus}%")
+          ->orWhere('s_destino.nombre', 'like', "%{$bus}%");
+    });
+}
 
 
             if ($request->filled('numero_documento')) {
@@ -120,10 +146,10 @@ $query = DB::table('traslados')
             // if ($request->filled('estado') && $request->estado !== 'all') {
             //     $query->where('estado', $request->estado);
             // }
-            
-    if ($request->filled('estado') && $request->estado !== 'all') {
-        $query->where('traslados.estado', $request->estado); // 🔥 FIX
-    }
+
+            if ($request->filled('estado') && $request->estado !== 'all') {
+                $query->where('traslados.estado', $request->estado); // 🔥 FIX
+            }
 
             // Servicios origen y destino
             if ($request->filled('id_servicio_origen') && $request->id_servicio_origen !== 'all') {
@@ -133,9 +159,9 @@ $query = DB::table('traslados')
             // if ($request->filled('id_servicio_destino') && $request->id_servicio_destino !== 'all') {
             //     $query->where('id_servicio_destino', $request->id_servicio_destino);
             // }
-   if ($request->filled('id_servicio_destino') && $request->id_servicio_destino !== 'all') {
-        $query->where('id_servicio_destino', $request->id_servicio_destino);
-    }
+            if ($request->filled('id_servicio_destino') && $request->id_servicio_destino !== 'all') {
+                $query->where('id_servicio_destino', $request->id_servicio_destino);
+            }
             // Rango de fechas
             if ($request->filled('fecha_inicio') && $request->filled('fecha_fin')) {
                 $query->whereBetween('fecha', [$request->fecha_inicio, $request->fecha_fin]);
@@ -150,16 +176,27 @@ $query = DB::table('traslados')
         if ($tipoActa === 'all' || $tipoActa === 'devolucion') {
             // $query = DB::table('devoluciones');
             $query = DB::table('devoluciones')
-    ->leftJoin('usuarios as u', 'devoluciones.id_usuario', '=', 'u.id_usuario')
-    ->leftJoin('responsables as r', 'devoluciones.id_responsable', '=', 'r.id_responsable')
-    ->leftJoin('servicios as s', 'devoluciones.id_servicio', '=', 's.id_servicio')
-    ->select(
-        'devoluciones.*',
-        'u.usuario as usuario',
-        'r.nombre as responsable',
-        's.nombre as servicio',
-        DB::raw('devoluciones.id_devolucion as id') // Normalizamos id
-    );
+                ->leftJoin('usuarios as u', 'devoluciones.id_usuario', '=', 'u.id_usuario')
+                ->leftJoin('responsables as r', 'devoluciones.id_responsable', '=', 'r.id_responsable')
+                ->leftJoin('servicios as s', 'devoluciones.id_servicio', '=', 's.id_servicio')
+                ->select(
+                    'devoluciones.*',
+                    'u.usuario as usuario',
+                    'r.nombre as responsable',
+                    's.nombre as servicio',
+                    DB::raw('devoluciones.id_devolucion as id') // Normalizamos id
+                );
+// Filtro general búsqueda
+if ($request->filled('busqueda')) {
+    $bus = $request->busqueda;
+
+    $query->where(function($q) use ($bus) {
+        $q->where('devoluciones.numero_documento', 'like', "%{$bus}%")
+          ->orWhere('devoluciones.gestion', 'like', "%{$bus}%")
+          ->orWhere('r.nombre', 'like', "%{$bus}%")
+          ->orWhere('s.nombre', 'like', "%{$bus}%");
+    });
+}
 
             if ($request->filled('numero_documento')) {
                 $query->where('numero_documento', 'like', "%{$request->numero_documento}%");
@@ -172,13 +209,13 @@ $query = DB::table('traslados')
             // if ($request->filled('estado') && $request->estado !== 'all') {
             //     $query->where('estado', $request->estado);
             // }
-    if ($request->filled('estado') && $request->estado !== 'all') {
-        $query->where('devoluciones.estado', $request->estado); // 🔥 FIX
-    }
+            if ($request->filled('estado') && $request->estado !== 'all') {
+                $query->where('devoluciones.estado', $request->estado); // 🔥 FIX
+            }
             // Servicio origen
-                if ($request->filled('id_servicio_origen') && $request->id_servicio_origen !== 'all') {
-                    $query->where('id_servicio', $request->id_servicio_origen);
-                }
+            if ($request->filled('id_servicio_origen') && $request->id_servicio_origen !== 'all') {
+                $query->where('id_servicio', $request->id_servicio_origen);
+            }
 
             // Rango de fechas
             if ($request->filled('fecha_inicio') && $request->filled('fecha_fin')) {
@@ -195,7 +232,8 @@ $query = DB::table('traslados')
         $direccion  = $request->input('direccion', 'desc');
 
         $resultados = $resultados->sortBy($ordenarPor, SORT_REGULAR, $direccion === 'desc');
-// dd($resultados);
+        session(['resultados_filtrados' => $resultados]);
+        // dd($resultados);
         // -----------------------------
         // Paginación manual
         // -----------------------------

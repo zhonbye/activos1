@@ -47,36 +47,65 @@ class TrasladoController extends Controller
 
  public function imprimir($id_traslado)
 {
-  
-    $traslado = Traslado::with('servicioDestino')->findOrFail($id_traslado);
+    $traslado = Traslado::with([
+        'servicioOrigen',
+        'servicioDestino',
+        'responsableOrigen.cargo',
+        'responsableDestino.cargo'
+    ])->findOrFail($id_traslado);
 
     // Fecha literal
     $fecha_traslado_literal = $this->fechaLiteral($traslado->fecha);
 
+    // Detalles
     $detalles = DetalleTraslado::with([
         'activo.unidad',
         'activo.estado',
     ])->where('id_traslado', $id_traslado)->get();
-    $responsableTraslado = null;
-    if ($traslado->id_responsable) {
-        $res = Responsable::with('cargo')->find($traslado->id_responsable_destino);
-        if ($res) {
-            $responsableTraslado =  $res->cargo->abreviatura . ' ' . $res->nombre;
+
+    // -----------------------------
+    // RESPONSABLE ORIGEN
+    // -----------------------------
+    $responsableOrigen = null;
+    if ($traslado->responsableOrigen) {
+        $r = $traslado->responsableOrigen;
+        if ($r->cargo) {
+            $responsableOrigen = $r->cargo->abreviatura . ' ' . $r->nombre;
         }
     }
 
-    // Director, administrador y responsable de activos
-    $responsables =$this-> obtenerResponsables();
+    // -----------------------------
+    // RESPONSABLE DESTINO
+    // -----------------------------
+    $responsableDestino = null;
+    if ($traslado->responsableDestino) {
+        $r = $traslado->responsableDestino;
+        if ($r->cargo) {
+            $responsableDestino = $r->cargo->abreviatura . ' ' . $r->nombre;
+        }
+    }
 
+    // -----------------------------
+    // SERVICIO ORIGEN
+    // -----------------------------
+    $servicioOrigen = $traslado->servicioOrigen ? $traslado->servicioOrigen->nombre : null;
 
-    $servicio = $traslado->servicio ? $traslado->servicio->nombre : null;
+    // -----------------------------
+    // SERVICIO DESTINO
+    // -----------------------------
+    $servicioDestino = $traslado->servicioDestino ? $traslado->servicioDestino->nombre : null;
+
+    // Director, administrador, responsable de activos
+    $responsables = $this->obtenerResponsables();
 
     return view('user.traslados.imprimir', compact(
         'traslado',
         'detalles',
         'fecha_traslado_literal',
-        'responsableTraslado',
-        'servicio',
+        'responsableOrigen',
+        'responsableDestino',
+        'servicioOrigen',
+        'servicioDestino',
         'responsables'
     ));
 }
@@ -294,6 +323,9 @@ public function obtenerResponsables() {
                 $numero = $request->numero_documento;
                 $query->whereRaw('LOWER(numero_documento) LIKE ?', ['%' . strtolower($numero) . '%']);
             }
+if ($request->estado) {
+    $query->where('estado', $request->estado);
+}
 
             if ($request->gestion) {
                 $query->where('gestion', $request->gestion);
@@ -314,6 +346,7 @@ public function obtenerResponsables() {
             if ($request->id_servicio_destino) {
                 $query->where('id_servicio_destino', $request->id_servicio_destino);
             }
+            
 
             $traslados = $query->orderBy('fecha', 'desc')->get();
 
@@ -748,6 +781,7 @@ return response()->json([
         $traslado = Traslado::find($id); // find en vez de findOrFail
     } else {
         $traslado = Traslado::latest('id_traslado')->first();
+// dd($traslado);  
     }
 
     // Si no hay traslados, crear un objeto vacío con relaciones vacías

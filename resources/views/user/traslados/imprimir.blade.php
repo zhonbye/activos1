@@ -125,7 +125,7 @@
 
         <main style="margin-top: 0px;">
 
-        <h1 class="alger">DOCTO. Nº {{ $traslado->numero_documento }}</h1>
+        <h1 class="alger" style="margin-bottom:30px;">DOCTO. Nº {{ $traslado->numero_documento }}</h1>
 
 
 
@@ -152,13 +152,13 @@
     <!-- Fila 3: Se hace entrega a -->
     <div style="display:flex; justify-content:flex-start; gap:10px;">
         <div style="flex:1; text-align:right; font-weight:bold;">Se hace entrega a:</div>
-        <div style="flex:3; text-align:left;">{{ $responsableTraslado ?? '-' }}</div>
+        <div style="flex:3; text-align:left;">{{ $responsableDestino ?? '-' }}</div>
     </div>
 
     <!-- Fila 4: Del servicio -->
     <div style="display:flex; justify-content:flex-start; gap:10px;">
         <div style="flex:1; text-align:right; font-weight:bold;">Del servicio:</div>
-        <div style="flex:3; text-align:left;">{{ $servicio ?? '-' }}</div>
+        <div style="flex:3; text-align:left;">{{ $servicioDestino ?? '-' }}</div>
     </div>
 
 </div>
@@ -173,7 +173,7 @@
             de activos que a continuación se detalla:
         </p>
         <!-- Tabla de activos -->
-        <table style="width: 100%; border-collapse: collapse; margin: 10px 0;  font-family: Arial, sans-serif;">
+        <table style="width: 100%; border-collapse: collapse; margin: 10px 0;  font-size:12px;font-family: Arial, sans-serif;">
             <thead>
                 <tr>
                     <th style="border: 1px solid black; padding: 5px; text-align: center;">Código</th>
@@ -223,9 +223,9 @@
 
             <div
                 style="width: 100%; font-family: Arial, sans-serif; text-align: justify; font-size: 12px; padding: 5px 0;">
-                <strong style="text-decoration: underline;"> NOTA:</strong> ESTE ACTIVO ES trasladoDO
-                A <strong>{{ $responsableTraslado ?? '' }}
-                </strong> del servicio de: <strong>{{ $servicio ?? '' }}</strong> para su USO Y CUSTODIA, DE ACUERDO AL
+                <strong style="text-decoration: underline;"> NOTA:</strong> ESTE ACTIVO ES ENTREGADO A
+                A <strong>{{ $responsableDestino ?? '' }}
+                </strong> del servicio de: <strong>{{ $servicioDestino ?? '' }}</strong> para su USO Y CUSTODIA, DE ACUERDO AL
                 <strong>DECRETO SUPREMO Nº 0181</strong> ARTICULOS 146 (ASIGNACION DE ACTIVOS FIJOS) Inc. I,II, Art 147
                 (DOCUMENTO DE traslado) Inc.1, Art 148 (LIBERACION DE LA RESPONSABILIDAD) Inc.I,II, Art. 154 (DEMANDA DE
                 SERVICIOS DE MANTENIMIENTO), Art 157 (PROHIBICION PARA LOS SERVIDORES PUBLICOS SOBRE EL USO DE ACTIVOS
@@ -274,10 +274,10 @@
                             <u>SERVICIO</u>
                         </td>
                         <td style="border: 1px solid #000; vertical-align: top; text-align: center;">
-                            <u>ACTIVOS FIJOS</u>
+                            <u>{{ $servicioOrigen ?? '' }}</u>
                         </td>
                         <td style="border: 1px solid #000; vertical-align: top; text-align: center;">
-                            <u>ANESTESIOLOGIA</u>
+                            <u>{{ $servicioDestino ?? '' }}</u>
                         </td>
                         <td style="border: 1px solid #000; vertical-align: top; text-align: center;">
                             <u>ADMINISTRACION</u>

@@ -86,7 +86,7 @@
         <button class="btn btn-sm btn-primary btn-revisar-acta" 
                 style="width: 40px; height: 40px;" 
                 data-id="{{ $inv->id }}" 
-                data-tipo="{{ $inv->tipo_acta }}"
+                data-tipo="{{ $inv->tipo_acta }}" data-bs-toggle="modal" data-bs-target="#detalleModal"
                 title="Revisar Acta">
             <i class="bi bi-journal-text"></i>
         </button>
@@ -97,6 +97,24 @@
                 onclick="imprimirReporte('{{ $inv->id }}', '{{ $inv->tipo_acta }}')">
             <i class="bi bi-printer"></i>
         </button>
+
+
+
+
+
+   <button class="btn btn-sm btn-dark btn-ir-acta" 
+                style="width: 40px; height: 40px;" 
+                data-id="{{ $inv->id }}" 
+                data-tipo="{{ $inv->tipo_acta }}" 
+                title="Ir a Acta">
+            <i class="bi bi-box-arrow-up-right"></i>
+        </button>
+
+
+
+
+        
+        
     </div>
 </td>
 
@@ -114,7 +132,7 @@
     </table>
 </div>
 
-<div class="mt-3">
+    <div class="mt-3 flex-shrink-0 bg-da3nger">
     {{ $inventarios->links('pagination::bootstrap-5') }}
 </div>
 
@@ -155,6 +173,40 @@
 <script>
 
 
+$(document).on('click', '.btn-ir-acta', function() {
+    var tipo = $(this).data('tipo');
+    var id = $(this).data('id');
+
+    if(!tipo || !id) return;
+
+    var tipoMap = {
+        'traslado': 'Realizar Traslado',
+        'entrega': 'Realizar Entrega',
+        'devolucion': 'Realizar Devolución'
+    };
+
+    // Buscar enlace del menú correspondiente
+    var menuLink = $('li a.cargar').filter(function() {
+        return $(this).text().trim() === tipoMap[tipo];
+    });
+
+    if(menuLink.length > 0) {
+        var originalHref = menuLink.attr('href');
+        menuLink.attr('href', originalHref.replace(/\/\d*$/, '') + '/' + id);
+
+        // Click en el padre solo si no está abierto
+        var parentMenu = menuLink.closest('ul.submenu').closest('li.menu-item');
+        if(parentMenu.length > 0 && !parentMenu.hasClass('open')) {
+            parentMenu.find('.main-item')[0].click();
+        }
+
+        // Click final en el enlace
+        menuLink[0].click();
+
+        // Restaurar href original
+        menuLink.attr('href', originalHref);
+    }
+});
 
 
 function imprimirReporte(id, tipoActa) {
@@ -204,7 +256,7 @@ function imprimirReporte(id, tipoActa) {
 }
 
     // Cargar contenido por AJAX al hacer clic
-$(document).on('click', '.btn-revisar-acta', function() {
+$(document).off('click', '.btn-revisar-acta').on('click', '.btn-revisar-acta', function() {
     let $fila = $(this).closest('tr'); // fila del botón clickeado
 
     // Tomamos los datos visibles de la fila según el índice de columna
@@ -237,7 +289,7 @@ $(document).on('click', '.btn-revisar-acta', function() {
         $('#modalContenido').html(response);
 
         // Mostrar modal
-        $('#detalleModal').modal('show');
+        // $('#detalleModal').modal('show');
 
         // Ocultar toda la columna 7 (índice 5)
         $('#modalContenido table').each(function() {

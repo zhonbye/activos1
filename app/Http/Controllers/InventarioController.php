@@ -8,6 +8,7 @@ use App\Models\Estado;
 use App\Models\Inventario;
 use App\Models\Responsable;
 use App\Models\Servicio;
+use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -30,94 +31,110 @@ class InventarioController extends Controller
 
 
 
-public function detalle($id)
-{
-    // Traer inventario con relaciones
-    $inventario = Inventario::with(['usuario', 'responsable', 'servicio', 'detalles.activo'])->findOrFail($id);
+    public function detalle($id)
+    {
+        // Traer inventario con relaciones
+        $inventario = Inventario::with(['usuario', 'responsable', 'servicio', 'detalles.activo'])->findOrFail($id);
 
-    $idServicio = $inventario->id_servicio;
+        $idServicio = $inventario->id_servicio;
 
-    // Buscar inventario pendiente de este servicio
-$inventarioPendiente = Inventario::where('id_servicio', $idServicio)
-                                 ->where('estado', 'pendiente')
-                                 ->orderBy('created_at', 'desc')
-                                 ->first();
+        // Buscar inventario pendiente de este servicio
+    $inventarioPendiente = Inventario::where('id_servicio', $idServicio)
+                                    ->where('estado', 'pendiente')
+                                    ->orderBy('created_at', 'desc')
+                                    ->first();
 
-// Ver si encontró algo
-// dd($inventarioPendiente);
+    // Ver si encontró algo
+    // dd($inventarioPendiente);
 
-    // Construir tabla de detalles
-    $tabla = '';
-    foreach ($inventario->detalles as $i => $detalle) {
+        // Construir tabla de detalles
+        $tabla = '';
+        foreach ($inventario->detalles as $i => $detalle) {
 
-        $tabla .= '<tr>';
-        $tabla .= '<td>'.($i+1).'</td>';
-        $tabla .= '<td>'.$detalle->activo->codigo.'</td>';
-        $tabla .= '<td>'.$detalle->activo->nombre.'</td>';
-        $tabla .= '<td>'.$detalle->activo->detalle.'</td>';
-        $tabla .= '<td>'.$detalle->estado_actual.'</td>';
-        $tabla .= '<td>'.$detalle->observaciones.'</td>';
-        $tabla .= '<td>';
+            $tabla .= '<tr>';
+            if ($detalle->activo->estado_situacional === 'baja') {
+        
+                $tabla .= '<tr class="table-danger bg-danger">'; 
+            }
+            $tabla .= '<td>'.($i+1).'</td>';
+            $tabla .= '<td>'.$detalle->activo->codigo.'</td>';
+            $tabla .= '<td>'.$detalle->activo->nombre.'</td>';
+            $tabla .= '<td>'.$detalle->activo->detalle.'</td>';
+            $tabla .= '<td>'.$detalle->estado_actual.'</td>';
+            $tabla .= '<td>'.$detalle->observaciones.'</td>';
+            $tabla .= '<td>';
 
-        // Botón VER (siempre)
+
+            if ($detalle->activo->estado_situacional === 'baja') {
         $tabla .= '
-            <button class="btn btn-sm btn-primary  ver-activo-btn" 
+            <button class="btn btn-sm btn-primary ver-activo-btn" 
                     title="Ver detalles del activo"
                     data-id="'.$detalle->activo->id_activo.'">
                 <i class="bi bi-eye"></i>
             </button>
         ';
-
-        if ($inventario->estado == 'vigente') {
-            $yaEnPendiente = false;
-            if ($inventarioPendiente) {
-                $yaEnPendiente = DetalleInventario::where('id_inventario', $inventarioPendiente->id_inventario)
-                                    ->where('id_activo', $detalle->id_activo)
-                                    ->exists();
-            }
- $tabla .= '
-                <button class="btn btn-sm btn-dark baja-activo-btn ms-1"
-                        title="Dar de baja este activo"
-                        data-id="'.$detalle->activo->id_activo.'">
-                    <i class="bi bi-arrow-down-circle"></i>
-                </button>
-            ';
-            // Mostrar ambos botones siempre pero desactivar según condición
+    } else {
+            // Botón VER (siempre)
             $tabla .= '
-            <button class="btn btn-sm btn-danger regresar-activo-btn ms-1" 
-                    title="Regresar activo" '.(!$yaEnPendiente ? 'disabled' : '').'
-                    data-id="'.$detalle->activo->id_activo.'">
-                <i class="bi bi-arrow-left-circle"></i>
-            </button>
-                <button class="btn btn-sm btn-success mover-activo-btn ms-1" 
-                        title="Mover activo" '.($yaEnPendiente ? 'disabled' : '').'
+                <button class="btn btn-sm btn-primary  ver-activo-btn" 
+                        title="Ver detalles del activo"
                         data-id="'.$detalle->activo->id_activo.'">
-                    <i class="bi bi-arrow-right-circle"></i>
+                    <i class="bi bi-eye"></i>
                 </button>
             ';
 
-            // Botón DAR DE BAJA (siempre en vigente)
-           
+            if ($inventario->estado == 'vigente') {
+                $yaEnPendiente = false;
+                if ($inventarioPendiente) {
+                    $yaEnPendiente = DetalleInventario::where('id_inventario', $inventarioPendiente->id_inventario)
+                                        ->where('id_activo', $detalle->id_activo)
+                                        ->exists();
+                }
+    $tabla .= '
+                    <button class="btn btn-sm btn-dark baja-activo-btn ms-1" data-bs-toggle="modal" 
+            data-bs-target="#modalDarBaja"
+                            title="Dar de baja este activo"
+                            data-id="'.$detalle->activo->id_activo.'">
+                        <i class="bi bi-arrow-down-circle"></i>
+                    </button>
+                ';
+                // Mostrar ambos botones siempre pero desactivar según condición
+                $tabla .= '
+                <button class="btn btn-sm btn-danger regresar-activo-btn ms-1" 
+                        title="Regresar activo" '.(!$yaEnPendiente ? 'disabled' : '').'
+                        data-id="'.$detalle->activo->id_activo.'">
+                    <i class="bi bi-arrow-left-circle"></i>
+                </button>
+                    <button class="btn btn-sm btn-success mover-activo-btn ms-1" 
+                            title="Mover activo" '.($yaEnPendiente ? 'disabled' : '').'
+                            data-id="'.$detalle->activo->id_activo.'">
+                        <i class="bi bi-arrow-right-circle"></i>
+                    </button>
+                ';
+
+                // Botón DAR DE BAJA (siempre en vigente)
+            
+            }
+
+            $tabla .= '</td>';
+            $tabla .= '</tr>';
+        }
         }
 
-        $tabla .= '</td>';
-        $tabla .= '</tr>';
+        return response()->json([
+            'id_inventario' => $inventario->id_inventario,
+            'numero' => $inventario->numero_documento,
+            'gestion' => $inventario->gestion,
+            'fecha' => $inventario->fecha,
+            'estado' => $inventario->estado,
+            'creado' => $inventario->created_at->format('d/m/Y'),
+            'usuario' => $inventario->usuario->usuario ?? '',
+            'responsable' => $inventario->responsable->nombre ?? '',
+            'servicio' => $inventario->servicio->nombre ?? '',
+            'tablaDetalle' => $tabla,
+            'id_inventario_pendiente' => $inventarioPendiente->id_inventario ?? null,
+        ]);
     }
-
-    return response()->json([
-        'id_inventario' => $inventario->id_inventario,
-        'numero' => $inventario->numero_documento,
-        'gestion' => $inventario->gestion,
-        'fecha' => $inventario->fecha,
-        'estado' => $inventario->estado,
-        'creado' => $inventario->created_at->format('d/m/Y'),
-        'usuario' => $inventario->usuario->usuario ?? '',
-        'responsable' => $inventario->responsable->nombre ?? '',
-        'servicio' => $inventario->servicio->nombre ?? '',
-        'tablaDetalle' => $tabla,
-        'id_inventario_pendiente' => $inventarioPendiente->id_inventario ?? null,
-    ]);
-}
 
 
 
@@ -475,6 +492,18 @@ foreach ($inventarioPendiente->detalles as $i => $detalle) {
 
 public function filtrar(Request $request)
 {
+
+if ($request->filled('id_inventario')) {
+    // dd($request->id_inventario);
+    $inventario = Inventario::with(['usuario','responsable','servicio','detalles.activo'])
+                            ->where('id_inventario', $request->id_inventario)
+                            ->paginate(10); // 👈 PAGINADOR, NO COLLECTION
+
+    return view('user.inventario.parcial', [
+        'inventarios' => $inventario
+    ])->render();
+}
+
     // $query = Inventario::query()->with(['usuario', 'responsable', 'servicio']);
   $query = Inventario::query()->with(['usuario', 'responsable', 'servicio', 'detalles.activo']);
 
@@ -763,10 +792,28 @@ foreach ($inventarios->items() as $inv) {
     /**
      * Display the specified resource.
      */
-    public function show(Inventario $inventario)
-    {
-        return view('user.inventario.show');
-    }
+public function show($id = null)
+{
+
+    // Traer usuarios
+    $usuarios = Usuario::orderBy('usuario', 'asc')->get();
+
+    // Traer servicios (cambia el modelo según tu proyecto)
+    $servicios = Servicio::orderBy('nombre', 'asc')->get();
+
+    // Traer responsables (si tus responsables también están en la tabla users, usa User)
+    $responsables = Responsable::orderBy('nombre', 'asc')->get();
+// dd($id);
+    return view('user.inventario.show', compact(
+        'id',
+        'usuarios',
+        'servicios',
+        'responsables'
+    ));
+}
+
+
+
 
     /**
      * Show the form for editing the specified resource.

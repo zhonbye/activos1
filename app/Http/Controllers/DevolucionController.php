@@ -420,6 +420,9 @@ public function buscar(Request $request)
         if ($request->gestion) {
             $query->where('gestion', $request->gestion);
         }
+if ($request->estado) {
+    $query->where('estado', $request->estado);
+}
 
         if ($request->fecha_desde) {
             $query->whereDate('fecha', '>=', $request->fecha_desde);

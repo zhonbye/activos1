@@ -164,12 +164,15 @@
 </div>
 
 
+{{-- <a href="{{ route('movimientos.pdf') }}" class="btn btn-danger btn-sm" target="_blank">
+    <i class="bi bi-file-earmark-pdf"></i> PDF
+</a> --}}
 
 
-<div class="row bg-info4 p-4 justify-content-center" style="height: 110vh; min-height: 110vh; max-height: 110vh;">
+<div class="row bg-info4 p-4 justify-content-center" style="height: 130vh; min-height: 130vh; max-height: 130vh;">
 
     <div class="main-col col-md-12 col-lg-11 order-lg-1 bg-dange4r order-1 mb-1 p-1 transition"
-        style="position: relative; height: 110vh; max-height: 110vh; display: flex; flex-direction: column; overflow: visible;">
+        style="position: relative; height: 130vh; max-height: 130vh; display: flex; flex-direction: column; overflow: visible;">
         <div class="card p-4 rounded shadow "
             style="background-color: var(--color-fondo); display: flex; flex-direction: column; flex: 1 1 auto;">
 
@@ -218,18 +221,20 @@
                                 <i class="bi bi-funnel-fill me-1"></i> Filtrar
                             </button>
                         </div>
-
+{{-- 
                         <div class="col-md-1 d-flex align-items-end">
                             <button class="desactivado btn btn-azul btn-sm">
                                 <i class="bi bi-printer-fill me-1"></i> Imprimir
                             </button>
-                        </div>
+                        </div> --}}
 
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button class="btn btn-success btn-sm w-100" id="btnGenerarPDF">
-                                <i class="bi bi-file-earmark-pdf me-1"></i> Generar PDF
-                            </button>
-                        </div>
+                      <div class="col-md-2 d-flex align-items-end">
+    <a href="{{ route('movimientos.pdf') }}" class="btn btn-danger btn-sm w-100" target="_blank">
+        <i class="bi bi-file-earmark-pdf me-1"></i> Generar PDF
+    </a>
+</div>
+
+
 
                     </div>
                 </div>
@@ -294,7 +299,7 @@
             </div>
 
             <!-- Pestañas -->
-            <ul class="nav nav-pills mb-3 bg-light rounded p-1" id="tabsActas" role="tablist">
+            {{-- <ul class="nav nav-pills mb-3 bg-light rounded p-1" id="tabsActas" role="tablist">
                 <li class="nav-item me-2" role="presentation">
                     <button class="nav-link active text-dark fw-semibold" id="tab-actas" data-bs-toggle="tab"
                         data-bs-target="#contenedorResultadosActas" type="button" role="tab">
@@ -302,16 +307,16 @@
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link disabled d-none3 text-dark fw-semibold" id="tab-detalle"
+                    <button class="nav-link  d-none3 text-dark fw-semibold" id="tab-detalle"
                         data-bs-toggle="tab" data-bs-target="#panelDetalleActa" type="button" role="tab"
                         aria-disabled="true">
                         <i class="bi bi-card-list me-1"></i> Detalle
                     </button>
                 </li>
-            </ul>
+            </ul> --}}
 
             <div class="tab-content d-flex flex-column position-relative overflow-auto p-3 bg-da5nger"
-                style="height: 65vh; max-height: 65vh; min-height: 65vh;">
+                style="height: 87vh; max-height: 87vh; min-height: 87vh;">
 
                 <!-- Lista de Actas -->
                 <div class="tab-pane fade show active flex-grow-1 bg-info8 position-relative"
@@ -382,6 +387,25 @@
     }
     
     $(document).ready(function() {
+
+
+
+
+
+
+
+
+// Botón buscar acta
+$('#btnBuscarActa').on('click', function() {
+    const valor = $('#buscarActa').val().trim();   // input de texto
+    $('#formFiltrosActas input[name="busqueda"]').val(valor); // asignar al hidden
+    $('#formFiltrosActas').submit(); // enviar el formulario
+});
+
+
+
+
+
         $('#modalFiltrosActas').on('submit', function(e) {
             e.preventDefault();
             cargarActas();
@@ -399,7 +423,13 @@
 
 
 
-
+ $(document).on('click', '#contenedorResultadosActas .pagination a', function(e) {
+            e.preventDefault();
+            var url = $(this).attr('href');
+            if (url) {
+                cargarActas(url);
+            }
+        });
 $('#formFiltrosActas').on('reset', function(e) {
     $divOrigen.show();
             $divDestino.show();

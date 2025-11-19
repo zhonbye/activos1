@@ -439,9 +439,9 @@
             <div class="modal-body p-4">
                 <!-- Contenido cargado por AJAX -->
             </div>
-            <div class="modal-footer">
+            {{-- <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            </div>
+            </div> --}}
         </div>
     </div>
 </div>

@@ -610,6 +610,9 @@ if (!$entrega) {
                 $numero = $request->numero_documento;
                 $query->whereRaw('LOWER(numero_documento) LIKE ?', ['%' . strtolower($numero) . '%']);
             }
+if ($request->estado) {
+    $query->where('estado', $request->estado);
+}
 
             if ($request->gestion) {
                 $query->where('gestion', $request->gestion);
