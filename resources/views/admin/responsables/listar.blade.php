@@ -7,7 +7,7 @@
             <!-- Header -->
             <div class="modal-header border-0 bg-primary bg-opacity-10">
                 <h5 class="modal-title fw-bold" id="modalNuevoResponsableLabel">
-                    <i class="bi bi-person-plus-fill me-2"></i> Registrar nuevo responsable
+                    <i class="bi bi-person-plus-fill me-2"></i> Registrar nuevo Personal
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
@@ -47,7 +47,7 @@
             <!-- Header -->
             <div class="modal-header border-0 bg-opacity-10">
                 <h5 class="modal-title fw-bold" id="modalEditarResponsableLabel">
-                    <i class="bi bi-pencil-square me-2"></i> Editar Responsable
+                    <i class="bi bi-pencil-square me-2"></i> Editar Personal
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
@@ -223,7 +223,7 @@
             <div class="d-flex justify-content-end mb-3 gap-2">
                 <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
                     data-bs-target="#modalNuevoResponsable">
-                    <i class="bi bi-plus-lg me-1"></i> Nuevo Responsable
+                    <i class="bi bi-plus-lg me-1"></i> Nuevo Personal
                 </button>
 
 
@@ -250,7 +250,7 @@
                     <!-- 🧩 Filtro: Cargo -->
                     <div class="col-md-2  align-items-end">
                         <label class="form-label fw-semibold">
-                            <i class="bi bi-briefcase me-1"></i>Cargo
+                            <i class="bi bi-briefcase me-1"></i>Profesión
                         </label>
                         <select id="filtroCargo" class="form-select form-select-sm rounded-pill shadow-sm">
                             <option value="">Todos</option>
@@ -263,18 +263,80 @@
                     <!-- 👤 Filtro: Rol -->
                     <div class="col-md-2">
                         <label class="form-label fw-semibold">
-                            <i class="bi bi-person-badge me-1"></i>Rol
+                            <i class="bi bi-person-badge me-1"></i>Cargo
                         </label>
                         <select id="filtroRol" class="form-select form-select-sm rounded-pill shadow-sm">
                             <option value="">Todos</option>
-                            <option value="administrador">Administrador</option>
-                            <option value="director">Director</option>
-                            <option value="coordinador">Coordinador</option>
-                            <option value="medico">Médico / Doctor</option>
-                            <option value="enfermero">Enfermero / Técnico de enfermería</option>
-                            <option value="administrativo">Personal administrativo / Secretaria</option>
-                            <option value="Personal_operativo">Personal operativo</option>
-                            <option value="invitado">Visitante / Invitado</option>
+                            @php
+                            $roles = [
+                                'director',
+                                'administrador',
+                                'subdirector',
+                                'coordinador',
+                                'coordinador de pediatría',
+                                'coordinador de radiología',
+                                'coordinador de emergencias',
+                                'coordinador de cirugía',
+                                'coordinador de urología',
+                                'coordinador cardiología',
+                                'jefe de enfermería',
+                                'enfermero jefe',
+                                'enfermero general',
+                                'auxiliar de enfermería',
+                                'técnico en laboratorio',
+                                'responsable de laboratorio',
+                                'responsable de farmacia',
+                                'responsable de nutrición',
+                                'responsable de nutrición clínica',
+                                'responsable de fisioterapia',
+                                'responsable de psicología',
+                                'responsable de servicios generales',
+                                'responsable de docencia',
+                                'responsable de investigación',
+                                'médico general',
+                                'médico especialista',
+                                'cirujano',
+                                'ginecólogo',
+                                'pediatra',
+                                'cardiólogo',
+                                'urólogo',
+                                'farmacéutico',
+                                'nutricionista',
+                                'psicólogo clínico',
+                                'fisioterapeuta',
+                                'personal operativo',
+                                'administrativo',
+                                'secretaria',
+                                'recepcionista',
+                                'auxiliar administrativo',
+                                'contador',
+                                'coordinador de logística',
+                                'coordinador de recursos humanos',
+                                'responsable de calidad',
+                                'responsable de seguridad e higiene',
+                                'responsable de mantenimiento',
+                                'técnico en radiología',
+                                'técnico en emergencias',
+                                'técnico en farmacia',
+                                'técnico en informática',
+                                'tecnólogo médico',
+                                'responsable de compras',
+                                'responsable de archivo',
+                                'coordinador de docencia',
+                                'coordinador de investigación',
+                                'jefe de departamento',
+                                'subjefe de departamento',
+                                'invitado',
+                                'pasante / becario',
+                                'voluntario'
+                            ];
+                        @endphp
+
+                        @foreach ($roles as $rol)
+                            <option value="{{ ucwords(strtolower($rol)) }}" {{ strtolower($responsable->rol ?? '') == strtolower($rol) ? 'selected' : '' }}>
+                                {{ ucwords(strtolower($rol)) }}
+                            </option>
+                        @endforeach
                         </select>
                     </div>
 
@@ -491,7 +553,7 @@
                 `<span class="badge bg-success">Activo</span>`,
                 // item.estado ?? '-', // si lo tienes
                 // item.usuario ?? '-', // usuario del sistema
-                `<span class="badge bg-dark">No tiene usuario</span>`,
+                `<span class="badge bg-dark">Sin acceso</span>`,
                 item.fecha ?? '-', // fecha de registro
                 `  <button class="btn btn-sm btn-outline-primary editar-btn" data-bs-toggle="modal" data-bs-target="#modalEditarResponsable"
                     data-id="${item.id_responsable}"

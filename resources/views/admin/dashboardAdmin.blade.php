@@ -137,7 +137,7 @@
 
 
 
-                
+
                 <br>
                 <!-- Gestión de Usuarios -->
                 <li class="menu-item" data-submenu="submenuUsuarios" role="none">
@@ -163,21 +163,43 @@
                     </ul>
                 </li>
 
-                <!-- Gestión de Activos Fijos -->
-                {{-- <li class="menu-item" data-submenu="submenuActivos" role="none">
-                    <div class="main-item" tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"
-                        aria-controls="submenuActivos">
+                <li class="menu-item" data-submenu="submenuActivos" role="btn">
+                    <div class="main-item bg-info bg-opacity-10" tabindex="0" role="menuitem" aria-haspopup="true"
+                        aria-expanded="false" aria-controls="submenuActivos">
                         <i class="bi bi-boxes icon" aria-hidden="true"></i>
                         <span class="text">Activos Fijos</span>
                         <i class="bi bi-caret-down caret" aria-hidden="true"></i>
                     </div>
-                    <ul class="submenu" id="submenuActivos" role="menu" aria-label="Submenú Activos Fijos">
-                        <li role="none"><a href="#" role="menuitem" class="cargar">Listar Activos</a></li>
-                        <li role="none"><a href="#" role="menuitem" class="cargar">Registrar Activo</a></li>
-                        <li role="none"><a href="#" role="menuitem" class="cargar">Dar de Baja</a></li>
-                    </ul>
-                </li> --}}
+                    <ul class="submenu" id="submenuActivos">
+                        <li><a href="{{ route('activos.index') }}" role="menuitem" class="cargar" id="primario">Listar
+                                Activos</a></li>
+                        {{-- <li><a href="{{ route('activos.create') }}" role="menuitem" class="cargar">Registrar Activo</a></li> --}}
+                        {{-- <li><a href="{{ route('bajas.create') }}" role="menuitem" class=" desactivado cargar">Dar de Baja
+                                Activo</a></li> --}}
+                        <li><a href="{{ route('activos.historial') }}" role="menuitem" class="cargar">Historial de
+                                activo</a></li>
+                        <li><a href="{{ route('proveedores.show') }}" role="menuitem" class="cargar">Proveedores</a></li>
+                        <li><a href="{{ route('activos.historial') }}" role="menuitem" class="cargar">Donantes</a></li>
 
+                        {{-- <li><a href="{{ route('entregas.show') }}" role="menuitem" class="cargar">Realizar Entrega</a></li> --}}
+                    </ul>
+                </li>
+                <li class="menu-item" id="mainMenuBtn" data-submenu="submenuInventario" role="none">
+                    <div class="main-item" tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"
+                        aria-controls="submenuInventario">
+                        <i class="bi bi-clipboard-data icon" aria-hidden="true"></i>
+                        <span class="text">Inventarios</span>
+                        <i class="bi bi-caret-down caret" aria-hidden="true"></i>
+                    </div>
+                    <ul class="submenu" id="submenuInventario">
+                        {{-- <li><a href="#" class="desactivado" role="menuitem">Realizar Inventario</a></li> --}}
+                        {{-- <li><a href="{{ route('inventario.consultar') }}" role="menuitem" class="cargar">Consultar --}}
+                        <li><a href="{{ route('inventario.show') }}" role="menuitem" class="cargar">Listar y actualizar</a></li>
+                        <li><a href="{{ route('servicios.show') }}" role="menuitem" class="cargar">Añadir servicio</a></li>
+                        <li><a href="{{ route('user.parametros') }}" role="menuitem" class="cargar">Gestión de parametros</a></li>
+                        <li><a href="{{ route('pruebas') }}" role="menuitem" class="cargar">prueba interfaces</a></li>
+                    </ul>
+                </li>
                 <!-- Categorías y Unidades -->
                 <li class="menu-item" data-submenu="submenuCategorias" role="none">
                     <div class="main-item" tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"
@@ -208,46 +230,8 @@
                     </ul>
                 </li>
 
-                <!-- Entregas y Devoluciones -->
-                {{-- <li class="menu-item" data-submenu="submenuEntregas" role="none">
-                    <div class="main-item" tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"
-                        aria-controls="submenuEntregas">
-                        <i class="bi bi-card-checklist icon" aria-hidden="true"></i>
-                        <span class="text">Entregas y Devoluciones</span>
-                        <i class="bi bi-caret-down caret" aria-hidden="true"></i>
-                    </div>
-                    <ul class="submenu" id="submenuEntregas" role="menu"
-                        aria-label="Submenú Entregas y Devoluciones">
-                        <li role="none"><a href="#" role="menuitem" class="cargar">Realizar Entrega</a></li>
-                        <li role="none"><a href="#" role="menuitem" class="cargar">Registrar Devolución</a>
-                        </li>
-                        <li role="none"><a href="#" role="menuitem" class="cargar">Consultar Entregas</a></li>
-                        <li role="none"><a href="#" role="menuitem" class="cargar">Consultar Devoluciones</a>
-                        </li>
-                    </ul>
-                </li> --}}
-
-                <!-- Inventarios y Movimientos -->
-                {{-- <li class="menu-item" data-submenu="submenuInventarios" role="none">
-                    <div class="main-item" tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"
-                        aria-controls="submenuInventarios">
-                        <i class="bi bi-clipboard-data icon" aria-hidden="true"></i>
-                        <span class="text">Inventarios y Movimientos</span>
-                        <i class="bi bi-caret-down caret" aria-hidden="true"></i>
-                    </div>
-                    <ul class="submenu" id="submenuInventarios" role="menu"
-                        aria-label="Submenú Inventarios y Movimientos">
-                        <li role="none"><a href="" role="menuitem" class="cargar">Realizar Inventario</a></li>
-                        <li role="none"><a href="" role="menuitem" class="cargar">Consultar Inventario</a>
-                        </li>
-                        <li role="none"><a href="#" role="menuitem" class="cargar">Transferir Activo</a></li>
-                        <li role="none"><a href="#" role="menuitem" class="cargar">Consultar Movimientos</a>
-                        </li>
-                    </ul>
-                </li> --}}
-
                 <!-- Configuración del Sistema -->
-                <li class="menu-item" data-submenu="submenuConfig" role="none">
+                {{-- <li class="menu-item" data-submenu="submenuConfig" role="none">
                     <div class="main-item" tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"
                         aria-controls="submenuConfig">
                         <i class="bi bi-gear icon" aria-hidden="true"></i>
@@ -261,7 +245,7 @@
                         </li>
                         <li role="none"><a href="#" role="menuitem" class="cargar">Auditoría</a></li>
                     </ul>
-                </li>
+                </li> --}}
             </ul>
                  <div class="mb-3 d-flex flex-column align-items-center gap-1" style="max-width:300px;">
                 <button id="btnRestablecerRutas" class="btn btn-danger">Restablecer todas las rutas</button>
@@ -313,7 +297,7 @@
         <div id="contenido" class="bg-fdanger flex-grow-1 p-4 m-0 ">
             @include('admin.panelControl')
             {{-- <div id="mensaje" class="w-100"></div> --}}
-            <h2>Panel de Administración</h2>
+            {{-- <h2>Panel de Administración</h2>
             <p>Selecciona una opción del menú para comenzar hh.</p>
             <button onclick="mensaje('Esto es una alerta exitosa', 'success')" class="btn btn-success">Mostrar
                 Success</button>
@@ -322,7 +306,7 @@
             <button onclick="mensaje('Esto es una advertencia', 'warning')" class="btn btn-warning">Mostrar
                 Warning</button>
             <button onclick="mensaje('Esto es una información', 'info')" class="btn btn-info text-white">Mostrar
-                Info</button>
+                Info</button> --}}
 
         </div>
     </div>

@@ -39,7 +39,7 @@
             {{-- Botones de acción --}}
             <td class="text-center">
               {{-- Editar usuario --}}
-              <button class="btn btn-sm btn-outline-dark editar-usuario-btn"
+              <button class="btn btn-sm btn-outline-success editar-usuario-btn"
                       data-id="{{ $usuario->id_usuario }}"
                       data-bs-toggle="modal" data-bs-target="#modalEditarUsuario"
                       title="Editar usuario">

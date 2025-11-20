@@ -10,6 +10,7 @@ use App\Http\Controllers\DoctoController;
 use App\Http\Controllers\EntregaController;
 use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\MovimientoController;
+use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\ResponsableController;
 use App\Http\Controllers\ServicioController;
@@ -176,14 +177,17 @@ Route::get('/inventarios/pendiente/{id}', [InventarioController::class, 'getPend
 Route::post('/inventarios/generar', [InventarioController::class, 'generarInventarioPendiente'])->name('inventarios.generar');
 // routes/web.php
 Route::get('/inventarios/generar-numero/{gestion}', [InventarioController::class, 'generarNumeroDocumento'])
-     ->name('inventarios.generarNumero');
+->name('inventarios.generarNumero');
 // Mover un activo de un inventario vigente a un inventario pendiente
 Route::post('/inventarios/mover-activo', [InventarioController::class, 'moverActivo'])->name('inventarios.moverActivo');
 Route::post('/inventarios/regresar-activo', [InventarioController::class, 'regresarActivo'])
-    ->name('inventarios.regresarActivo');
+->name('inventarios.regresarActivo');
 
 
 
+
+Route::get('/proveedores/show/{id?}', [ProveedorController::class, 'show'])->name('proveedores.show');
+Route::get('/proveedores/filtrar', [ProveedorController::class, 'filtrar'])->name('proveedores.filtrar');
 
 
 

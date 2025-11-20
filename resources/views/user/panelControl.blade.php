@@ -330,27 +330,27 @@
 
                 <!-- Bienvenida -->
                 <div>
-                    <h4 class="fw-bold mb-1 text-primary">👋 ¡Bienvenido, {{ Auth::user()->responsable->cargo->abreviatura }}
- {{ Auth::user()->responsable->nombre }}!</h4>
+                    <h4 class="fw-bold mb-1 text-primary">👋 ¡Bienvenido,
+                        {{ Auth::user()->responsable->cargo->abreviatura }}
+                        {{ Auth::user()->responsable->nombre }}!</h4>
                     {{-- <h4 class="fw-bold mb-1 text-primary">👋 ¡Bienvenido, {{ Auth::user()->usuario }}!</h4> --}}
                     <p class="text-muted mb-0">Panel de control de usuario</p>
                 </div>
 
                 <!-- Avatar o icono -->
-             <div class="d-flex align-items-center p-3 px-5 rounded-pill" 
-     style="cursor:pointer; background: linear-gradient(90deg, #e3f2fd, #b29dff52);"
-     data-bs-toggle="modal" 
-     data-bs-target="#perfilModal">
-    
-    <i class="bi bi-person-circle fs-2 text-secondary me-3"></i>
+                <div class="d-flex align-items-center p-3 px-5 rounded-pill"
+                    style="cursor:pointer; background: linear-gradient(90deg, #e3f2fd, #b29dff52);"
+                    data-bs-toggle="modal" data-bs-target="#perfilModal">
 
-    <!-- Columna con usuario y fecha -->
-    <div class="d-flex flex-column">
-        <span class="fw-bold text-primary fs-5">{{ Auth::user()->usuario }}</span>
-        <span class="text-muted small">{{ date('d/m/Y') }}</span>
-    </div>
+                    <i class="bi bi-person-circle fs-2 text-secondary me-3"></i>
 
-</div>
+                    <!-- Columna con usuario y fecha -->
+                    <div class="d-flex flex-column">
+                        <span class="fw-bold text-primary fs-5">{{ Auth::user()->usuario }}</span>
+                        <span class="text-muted small">{{ date('d/m/Y') }}</span>
+                    </div>
+
+                </div>
 
 
 
@@ -495,14 +495,14 @@
 
         <!-- Distribución por servicio -->
         {{-- <div class="row g-4"> --}}
-        <div class="col-md-12">
+        {{-- <div class="col-md-12">
             <div class="card chart-card shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title mb-3">Activos por Servicio</h5>
                     <canvas id="serviciosChart" height="80"></canvas>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </div>
 
 </div>
@@ -598,7 +598,8 @@
                     if ($(this).hasClass('btn-seleccionar-traslado')) tipo = 'traslados';
                     else if ($(this).hasClass('btn-seleccionar-entrega')) tipo = 'entregas';
                     else if ($(this).hasClass('btn-seleccionar-devolucion')) tipo = 'devoluciones';
-                    else if ($(this).hasClass('ver-detalles-btn')){ tipo = 'inventario';
+                    else if ($(this).hasClass('ver-detalles-btn')) {
+                        tipo = 'inventario';
                         id = $(this).data('id_inventario');
                     }
                     if (!tipo || !id) return; // seguridad
@@ -632,7 +633,7 @@
 
                         // Click en el enlace
                         menuLink[0].click();
-id=null;
+                        id = null;
                         // Restaurar href original
                         menuLink.attr('href', originalHref);
                     }
@@ -782,37 +783,37 @@ id=null;
         });
 
         // 🔹 Activos por Servicio (barras horizontales)
-        const ctxServ = document.getElementById('serviciosChart').getContext('2d');
-        new Chart(ctxServ, {
-            type: 'bar',
-            data: {
-                labels: {!! json_encode($servicios) !!},
-                datasets: [{
-                    label: 'Activos',
-                    data: {!! json_encode($dataServicios) !!},
-                    backgroundColor: 'rgba(0,123,255,0.8)'
-                }]
+        // const ctxServ = document.getElementById('serviciosChart').getContext('2d');
+        // new Chart(ctxServ, {
+        //     type: 'bar',
+        //     data: {
+        //         labels: {!! json_encode($servicios) !!},
+        //         datasets: [{
+        //             label: 'Activos',
+        //             data: {!! json_encode($dataServicios) !!},
+        //             backgroundColor: 'rgba(0,123,255,0.8)'
+        //         }]
 
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    x: {
-                        beginAtZero: true
-                    }
-                },
-                animation: {
-                    ...animacionGeneral,
-                    delay: (context) => context.dataIndex * 150
-                }
-            }
-        });
+        //     },
+        //     options: {
+        //         indexAxis: 'y',
+        //         responsive: true,
+        //         plugins: {
+        //             legend: {
+        //                 display: false
+        //             }
+        //         },
+        //         scales: {
+        //             x: {
+        //                 beginAtZero: true
+        //             }
+        //         },
+        //         animation: {
+        //             ...animacionGeneral,
+        //             delay: (context) => context.dataIndex * 150
+        //         }
+        //     }
+        // });
     });
 </script>
 

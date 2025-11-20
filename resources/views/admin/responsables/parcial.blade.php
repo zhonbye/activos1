@@ -5,8 +5,8 @@
           <th>Nombre</th>
           <th>CI</th>
           <th>Teléfono</th>
+          <th>Profesión</th>
           <th>Cargo</th>
-          <th>Rol</th>
           <th>
             <div class="d-flex align-items-center">
               <span>Estado</span>
@@ -54,9 +54,9 @@
           {{-- Usuario asignado --}}
           <td>
             @if ($personal->usuario)
-              <span class="badge bg-primary">Tiene usuario</span>
+              <span class="badge bg-primary">Tiene acceso</span>
             @else
-              <span class="badge bg-dark">No tiene usuario</span>
+              <span class="badge bg-dark">Sin acceso</span>
             @endif
           </td>
 
@@ -82,7 +82,7 @@
             {{-- Botón condicional según tenga usuario --}}
             @if ($personal->usuario)
               {{-- Editar usuario existente --}}
-              <button class="btn btn-sm btn-outline-dark editar-usuario-btn"
+              <button class="btn btn-sm btn-outline-success editar-usuario-btn"
               data-bs-toggle="modal" data-bs-target="#modalEditarUsuario"
                       data-id="{{ $personal->usuario->id_usuario }}"
                       title="Editar usuario">
@@ -90,13 +90,13 @@
               </button>
             @else
               {{-- Agregar nuevo usuario --}}
-              <button class="btn btn-sm btn-outline-secondary agregar-usuario-btn"
-                      data-id="{{ $personal->id_responsable }}"  data-bs-toggle="modal" 
+              <button class="btn btn-sm btn-outline-d agregar-usuario-btn"
+                      data-id="{{ $personal->id_responsable }}"  data-bs-toggle="modal"
         data-bs-target="#modalNuevoUsuario"
                       title="Crear usuario para este personal">
                 <i class="bi bi-person-plus"></i>
               </button>
-             
+
 
             @endif
 

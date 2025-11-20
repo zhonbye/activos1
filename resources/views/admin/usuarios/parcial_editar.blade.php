@@ -35,15 +35,15 @@
                     placeholder="Dejar en blanco para no cambiar">
             </div>
 
-                <div class="col-md-6">
-                    <label for="claveConfirmEditar" class="form-label">Confirmar nueva contraseña</label>
-                    <input type="password" id="claveConfirmEditar" name="clave_confirmation" class="form-control"
-                        placeholder="Repita contraseña">
-                </div>
-           
+            <div class="col-md-6">
+                <label for="claveConfirmEditar" class="form-label">Confirmar nueva contraseña</label>
+                <input type="password" id="claveConfirmEditar" name="clave_confirmation" class="form-control"
+                    placeholder="Repita contraseña">
+            </div>
+
         </div>
         {{-- </div> --}}
-
+    </div>
         <!-- 🔄 Sección 2: Estado -->
         <div class="mb-4 p-3 rounded" style="background-color: #f0f7e896;">
             <h6 class="fw-bold border-bottom pb-1 mb-3">
@@ -70,4 +70,5 @@
                 <i class="bi bi-check2-circle"></i> Guardar cambios
             </button>
         </div>
+
 </form>

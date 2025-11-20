@@ -30,7 +30,9 @@ class LoginController extends Controller
             'usuario' => ['required', 'string'],
             'clave' => ['required', 'string'],
         ]);
+        // dd(Usuario::pluck('usuario'));
 
+        // dd($request);
         // Buscar usuario por nombre
         $user = Usuario::where('usuario', $request->usuario)->first();
 

@@ -97,7 +97,7 @@
             <td>${usuario.created_at ?? '—'}</td>
             <td>${usuario.updated_at ?? '—'}</td>
             <td class="text-center">
-                <button class="btn btn-sm btn-outline-dark editar-usuario-btn"
+                <button class="btn btn-sm btn-outline-success editar-usuario-btn"
                         data-id="${usuario.id_usuario}"
                         data-bs-toggle="modal" data-bs-target="#modalEditarUsuario"
                         title="Editar usuario">
@@ -164,7 +164,7 @@
                         title="Eliminar personal">
                     <i class="bi bi-trash"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-dark editar-usuario-btn"
+                <button class="btn btn-sm btn-outline-success editar-usuario-btn"
                         data-id="${idUsuario}" title="Editar usuario">
                     <i class="bi bi-person-gear"></i>
                 </button>

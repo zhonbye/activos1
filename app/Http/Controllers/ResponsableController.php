@@ -89,7 +89,7 @@ if ($request->filled('search')) {
                 'ci'         => 'required|string|max:100|unique:responsables,ci',
                 'telefono'   => 'nullable|string|max:30',
                 'id_cargo'   => 'required|integer|exists:cargos,id_cargo',
-                'rol'        => 'required|string|in:administrador,director,coordinador,medico,enfermero,administrativo,personal_operativo,invitado',
+                'rol'        => 'required|string|max:255',
             ],
             [
                 // 🧩 Mensajes personalizados por tipo de regla
@@ -122,12 +122,12 @@ if ($request->filled('search')) {
         $responsable->load('cargo');
 // dd($responsable->id_responsable);
         $responsable = [
-            'id_responsable'   => $responsable->id_responsable, 
-            'nombre'   => $responsable->nombre, 
+            'id_responsable'   => $responsable->id_responsable,
+            'nombre'   => $responsable->nombre,
             'ci'       => $responsable->ci,
             'telefono' => $responsable->telefono,
             'cargo'    => $responsable->cargo->nombre ?? 'Sin cargo',
-            'rol'      => $responsable->rol ?? 'Sin rol',
+            'rol'      => ucwords(strtolower($responsable->rol)) ?? 'Sin rol',
             'estado'   => 'activo',
             'fecha'    => $responsable->created_at->format('d/m/Y'),
         ];
@@ -212,7 +212,8 @@ public function edit($id)
         'ci'       => 'required|string|max:20|unique:responsables,ci,' . $id . ',id_responsable',
         'telefono' => 'nullable|string|max:20',
         'id_cargo' => 'required|exists:cargos,id_cargo',
-               'rol' => 'required|string|in:administrador,director,coordinador,medico,enfermero,administrativo,personal_operativo,invitado',
+        // 'rol' => 'required|string|in:administrador,director,coordinador,medico,enfermero,administrativo,personal_operativo,invitado',
+        'rol'   => 'required|string|max:255',
         // 'rol'      => 'required|in:administrador,usuario',
         'estado'   => 'required|in:activo,inactivo',
     ]);
@@ -224,8 +225,8 @@ public function edit($id)
         'ci'        => $request->ci,
         'telefono'  => $request->telefono,
         'id_cargo'  => $request->id_cargo,
-        'rol'       => $request->rol,
-        'estado'    => $request->estado,
+        'rol'       => ucwords(strtolower($request->rol)),
+        'estado'    => ucwords(strtolower($request->estado)),
     ]);
 
     // Cargar relación cargo para devolver nombre

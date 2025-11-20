@@ -26,11 +26,11 @@
     <!-- 🏢 Sección 2: Cargo y rol -->
     <div class="mb-4 p-3 rounded" style="background-color: #f0f7e896;">
         <h6 class="fw-bold border-bottom pb-1 mb-3">
-            <i class="bi bi-briefcase-fill me-1"></i> Cargo y rol
+            <i class="bi bi-briefcase-fill me-1"></i> Profesion y cargo
         </h6>
         <div class="row g-3">
             <div class="col-md-6">
-                <label for="cargoResponsable" class="form-label">Cargo</label>
+                <label for="cargoResponsable" class="form-label">Profesión</label>
                 <select id="cargoResponsable" name="id_cargo" class="form-select" required>
                     <option value="">Seleccione un cargo</option>
                     @foreach ($cargos as $cargo)
@@ -39,17 +39,79 @@
                 </select>
             </div>
             <div class="col-md-6">
-                <label for="rolResponsable" class="form-label">Rol que cumple</label>
+                <label for="rolResponsable" class="form-label">Cargo que cumple</label>
                 <select id="rolResponsable" name="rol" class="form-select" required>
                       <option value="">Seleccione un rol</option>
-    <option value="administrador">Administrador</option>
-    <option value="director">Director</option>
-    <option value="coordinador">Coordinador</option>
-    <option value="medico">Médico / Doctor</option>
-    <option value="enfermero">Enfermero / Técnico de enfermería</option>
-    <option value="administrativo">Personal administrativo / Secretaria</option>
-    <option value="personal_operativo">Personal operativo</option>
-    <option value="invitado">Visitante / Invitado</option>
+                      @php
+                      $roles = [
+                          'director',
+                          'administrador',
+                          'subdirector',
+                          'coordinador',
+                          'coordinador de pediatría',
+                          'coordinador de radiología',
+                          'coordinador de emergencias',
+                          'coordinador de cirugía',
+                          'coordinador de urología',
+                          'coordinador cardiología',
+                          'jefe de enfermería',
+                          'enfermero jefe',
+                          'enfermero general',
+                          'auxiliar de enfermería',
+                          'técnico en laboratorio',
+                          'responsable de laboratorio',
+                          'responsable de farmacia',
+                          'responsable de nutrición',
+                          'responsable de nutrición clínica',
+                          'responsable de fisioterapia',
+                          'responsable de psicología',
+                          'responsable de servicios generales',
+                          'responsable de docencia',
+                          'responsable de investigación',
+                          'médico general',
+                          'médico especialista',
+                          'cirujano',
+                          'ginecólogo',
+                          'pediatra',
+                          'cardiólogo',
+                          'urólogo',
+                          'farmacéutico',
+                          'nutricionista',
+                          'psicólogo clínico',
+                          'fisioterapeuta',
+                          'personal operativo',
+                          'administrativo',
+                          'secretaria',
+                          'recepcionista',
+                          'auxiliar administrativo',
+                          'contador',
+                          'coordinador de logística',
+                          'coordinador de recursos humanos',
+                          'responsable de calidad',
+                          'responsable de seguridad e higiene',
+                          'responsable de mantenimiento',
+                          'técnico en radiología',
+                          'técnico en emergencias',
+                          'técnico en farmacia',
+                          'técnico en informática',
+                          'tecnólogo médico',
+                          'responsable de compras',
+                          'responsable de archivo',
+                          'coordinador de docencia',
+                          'coordinador de investigación',
+                          'jefe de departamento',
+                          'subjefe de departamento',
+                          'invitado',
+                          'pasante / becario',
+                          'voluntario'
+                      ];
+                  @endphp
+
+                  @foreach ($roles as $rol)
+                      <option value="{{ ucwords(strtolower($rol)) }}" {{ strtolower($responsable->rol ?? '') == strtolower($rol) ? 'selected' : '' }}>
+                          {{ ucwords(strtolower($rol)) }}
+                      </option>
+                  @endforeach
                 </select>
             </div>
         </div>

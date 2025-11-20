@@ -29,11 +29,11 @@
     <!-- 🏢 Sección 2: Cargo y rol -->
     <div class="mb-4 p-3 rounded" style="background-color: #c6fde827;">
         <h6 class="fw-bold border-bottom pb-1 mb-3">
-            <i class="bi bi-briefcase-fill me-1"></i> Cargo y rol
+            <i class="bi bi-briefcase-fill me-1"></i> Profesion y cargo
         </h6>
         <div class="row g-3">
             <div class="col-md-6">
-                <label for="cargoEditar" class="form-label">Cargo</label>
+                <label for="cargoEditar" class="form-label">Profesión</label>
                 <select id="cargoEditar" name="id_cargo" class="form-select" required>
                     <option value="">Seleccione un cargo</option>
                     @foreach ($cargos as $cargo)
@@ -44,17 +44,82 @@
                 </select>
             </div>
             <div class="col-md-6">
-                <label for="rolEditar" class="form-label">Rol del sistema</label>
+                <label for="rolEditar" class="form-label">Cargo</label>
                 <select id="rolEditar" name="rol" class="form-select" required>
-    <option value="">Seleccione un rol</option>
-    <option value="administrador" {{ ($responsable->rol ?? '') == 'administrador' ? 'selected' : '' }}>Administrador</option>
-    <option value="director" {{ ($responsable->rol ?? '') == 'director' ? 'selected' : '' }}>Director</option>
-    <option value="coordinador" {{ ($responsable->rol ?? '') == 'coordinador' ? 'selected' : '' }}>Coordinador</option>
-    <option value="medico" {{ ($responsable->rol ?? '') == 'medico' ? 'selected' : '' }}>Médico / Doctor</option>
-    <option value="enfermero" {{ ($responsable->rol ?? '') == 'enfermero' ? 'selected' : '' }}>Enfermero / Técnico de enfermería</option>
-    <option value="administrativo" {{ ($responsable->rol ?? '') == 'administrativo' ? 'selected' : '' }}>Personal administrativo / Secretaria</option>
-    <option value="personal_operativo" {{ ($responsable->rol ?? '') == 'personal_operativo' ? 'selected' : '' }}>Personal operativo</option>
-    <option value="invitado" {{ ($responsable->rol ?? '') == 'invitado' ? 'selected' : '' }}>Visitante / Invitado</option>
+                    <option value="">Seleccione un Cargo</option>
+
+                    <option value="">Seleccione un rol</option>
+                    @php
+                        $roles = [
+                            'director',
+                            'administrador',
+                            'subdirector',
+                            'coordinador',
+                            'coordinador de pediatría',
+                            'coordinador de radiología',
+                            'coordinador de emergencias',
+                            'coordinador de cirugía',
+                            'coordinador de urología',
+                            'coordinador cardiología',
+                            'jefe de enfermería',
+                            'enfermero jefe',
+                            'enfermero general',
+                            'auxiliar de enfermería',
+                            'técnico en laboratorio',
+                            'responsable de laboratorio',
+                            'responsable de farmacia',
+                            'responsable de nutrición',
+                            'responsable de nutrición clínica',
+                            'responsable de fisioterapia',
+                            'responsable de psicología',
+                            'responsable de servicios generales',
+                            'responsable de docencia',
+                            'responsable de investigación',
+                            'médico general',
+                            'médico especialista',
+                            'cirujano',
+                            'ginecólogo',
+                            'pediatra',
+                            'cardiólogo',
+                            'urólogo',
+                            'farmacéutico',
+                            'nutricionista',
+                            'psicólogo clínico',
+                            'fisioterapeuta',
+                            'personal operativo',
+                            'administrativo',
+                            'secretaria',
+                            'recepcionista',
+                            'auxiliar administrativo',
+                            'contador',
+                            'coordinador de logística',
+                            'coordinador de recursos humanos',
+                            'responsable de calidad',
+                            'responsable de seguridad e higiene',
+                            'responsable de mantenimiento',
+                            'técnico en radiología',
+                            'técnico en emergencias',
+                            'técnico en farmacia',
+                            'técnico en informática',
+                            'tecnólogo médico',
+                            'responsable de compras',
+                            'responsable de archivo',
+                            'coordinador de docencia',
+                            'coordinador de investigación',
+                            'jefe de departamento',
+                            'subjefe de departamento',
+                            'invitado',
+                            'pasante / becario',
+                            'voluntario'
+                        ];
+                    @endphp
+
+                    @foreach ($roles as $rol)
+                        <option value="{{ ucwords(strtolower($rol)) }}" {{ strtolower($responsable->rol ?? '') == strtolower($rol) ? 'selected' : '' }}>
+                            {{ ucwords(strtolower($rol)) }}
+                        </option>
+                    @endforeach
+
 </select>
 
             </div>
