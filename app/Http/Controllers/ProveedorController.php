@@ -31,8 +31,23 @@ class ProveedorController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Validar datos
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'lugar' => 'nullable|string|max:255',
+            'contacto' => 'nullable|string|max:255',
+        ]);
+
+        // Crear nuevo proveedor con lugar en mayúsculas
+        $proveedor = Proveedor::create([
+            'nombre' => $request->nombre,
+            'lugar' => $request->lugar ? strtoupper($request->lugar) : null,
+            'contacto' => $request->contacto,
+        ]);
+
+        return response()->json(['message' => 'Proveedor creado correctamente', 'proveedor' => $proveedor]);
     }
+
 
     /**
      * Display the specified resource.
@@ -73,6 +88,7 @@ class ProveedorController extends Controller
 
         // Paginación de 10 por página
         $proveedores = $query->orderBy('id_proveedor', 'desc')->paginate(10);
+        session(['proveedores_filtrados' => $proveedores]);
 
         // Devolver la vista parcial con los proveedores
         return view('user.proveedores.parcial_proveedores', compact('proveedores'));
@@ -81,10 +97,26 @@ class ProveedorController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Proveedor $proveedor)
+    public function update(Request $request, $id)
     {
-        //
+        $proveedor = Proveedor::findOrFail($id);
+
+        // Validar datos
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'lugar' => 'nullable|string|max:255',
+            'contacto' => 'nullable|string|max:255',
+        ]);
+
+        // Actualizar
+        $proveedor->nombre = $request->nombre;
+        $proveedor->lugar = $request->lugar;
+        $proveedor->contacto = $request->contacto;
+        $proveedor->save();
+
+        return response()->json(['message' => 'Proveedor actualizado correctamente']);
     }
+
 
     /**
      * Remove the specified resource from storage.

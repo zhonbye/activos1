@@ -940,21 +940,6 @@
 
 
 
-        // $('#buscarResponsable').on('keyup', function() {
-        //     let valor = $(this).val().toLowerCase();
-
-        //     $('#contenedorTablaResponsables table tbody tr').filter(function() {
-        //         // Buscamos en Código, Nombre y Detalle
-        //         $(this).toggle(
-        //             $(this).find('td:eq(0)').text().toLowerCase().indexOf(valor) > -1 ||
-        //             $(this).find('td:eq(1)').text().toLowerCase().indexOf(valor) > -1 ||
-        //             $(this).find('td:eq(2)').text().toLowerCase().indexOf(valor) > -1
-        //         );
-        //     });
-        // });
-
-
-
 
 
 

@@ -4,6 +4,7 @@ use App\Http\Controllers\ActivoController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\AjustesController;
 use App\Http\Controllers\BajaController;
+use App\Http\Controllers\CompraController;
 use App\Http\Controllers\DetalleTrasladoController;
 use App\Http\Controllers\DevolucionController;
 use App\Http\Controllers\DoctoController;
@@ -188,6 +189,10 @@ Route::post('/inventarios/regresar-activo', [InventarioController::class, 'regre
 
 Route::get('/proveedores/show/{id?}', [ProveedorController::class, 'show'])->name('proveedores.show');
 Route::get('/proveedores/filtrar', [ProveedorController::class, 'filtrar'])->name('proveedores.filtrar');
+Route::put('/proveedores/{id}', [ProveedorController::class, 'update'])->name('proveedores.update');
+Route::post('/proveedores', [ProveedorController::class, 'store'])->name('proveedores.store');
+Route::get('/proveedores/imprimir', [ReporteController::class, 'imprimirProveedores'])->name('proveedores.imprimir');
+Route::get('/compras/filtrar', [CompraController::class, 'filtrar'])->name('compras.filtrar');
 
 
 

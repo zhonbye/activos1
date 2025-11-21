@@ -274,23 +274,12 @@
 
             <!-- Botones principales -->
             <div class="d-flex justify-content-end mb-3 gap-2">
-                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalRegistrarActivo">
-                    <i class="bi bi-plus-lg me-1"></i> Nuevo Activo
-                </button>
-                {{-- <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalRegistrarActivo">
-    <i class="bi bi-plus-lg me-1"></i> Registrar Activo
-</button> --}}
-                <button class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#modalFiltros">
-                    <i class="bi bi-funnel-fill me-1"></i> Filtrar
-                </button>
-                <button class="desactivado btn btn-azul btn-sm">
-                    <i class="bi bi-printer-fill me-1"></i> Imprimir
-                </button>
+
             </div>
 
             <!-- Card de acciones (buscar, importar, exportar, bajas) -->
             <div class="card mb-4 shadow-sm "
-                style=" background-color: #f8f9fa;
+            style=" background-color: #f8f9fa;
             border-left: 5px solid #0d6efd;
             padding: 1.5rem;">
                 <div class="row g-3 p-3">
@@ -301,47 +290,60 @@
                         </label>
 
                         <input type="text" id="buscarActivo"
-                            class="form-control form-control-sm rounded-pill shadow-sm px-3"
-                            placeholder="Nombre, código o detalle">
+                        class="form-control form-control-sm rounded-pill shadow-sm px-3"
+                        placeholder="Nombre, código o detalle">
                     </div>
-
-                    <div class="col-md-1"></div>
 
                     <div class="col-md-2 d-flex align-items-end">
 
                     </div>
+                    <div class="col-md-1"></div>
+
+                    {{-- <div class="col-md-2 d-flex align-items-end">
+
+                    </div> --}}
 
                     {{-- <div class="col-md-2 d-flex align-items-end">
                         <button class="desactivado btn btn-success btn-sm w-100" id="btnImportarExcel"><i class="bi bi-file-earmark-arrow-up me-1"></i> Importar Excel</button>
                     </div> --}}
+                    <div class="col-md-2 d-flex align-items-end justify-content-end gap-3">
+                        <button class="btn btn-dark btn-sm w-50" data-bs-toggle="modal" data-bs-target="#modalFiltros">
+                            <i class="bi bi-funnel-fill me-1"></i> Filtrar
+                        </button>
+                        <button class="btn btn-primary btn-sm w-50" data-bs-toggle="modal" data-bs-target="#modalRegistrarActivo">
+                            <i class="bi bi-plus-lg me-1"></i> Nuevo
+                        </button>
+                    </div>
                     <div class="col-md-2 d-flex align-items-end">
                         <button class="btn btn-success btn-sm w-100" id="btnImportarExcel">
                             <i class="bi bi-file-earmark-arrow-up me-1"></i> Importar Excel
                         </button>
+
                         <input type="file" id="inputExcel" accept=".xls,.xlsx,.csv" style="display: none;">
                         <div id="modalSubida" class="modal">
                             <div class="modal-content">
-                              <h2>Subir archivo Excel</h2>
-                              <div id="dropZone">
-                                Arrastra tu archivo aquí o haz clic para seleccionarlo.
+                                <h2>Subir archivo Excel</h2>
+                                <div id="dropZone">
+                                    Arrastra tu archivo aquí o haz clic para seleccionarlo.
                                 <input type="file" id="inputExcel" accept=".xls,.xlsx" hidden>
-                              </div>
-                              <button id="btnCerrarModal">Cerrar</button>
                             </div>
-                          </div>
+                            <button id="btnCerrarModal">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+
+                    <div class="col-md-2 d-flex align-items-end">
+                        <a href="" class="btn btn-danger btn-sm w-100" target="_blank">
+                            <i class="bi bi-file-earmark-pdf me-1"></i> Generar PDF
+                        </a>
                     </div>
 
 
 
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button class="desactivado btn btn-light btn-sm w-100" id="btnExportarExcel"><i
-                                class="bi bi-file-earmark-arrow-down me-1"></i> Exportar Excel</button>
-                    </div>
-
-                    <div class="col-md-2 d-flex align-items-end">
+                    {{-- <div class="col-md-2 d-flex align-items-end">
                         <button class="desactivado btn btn-dark btn-sm w-100" id="btnVerBajas"><i
                                 class="bi bi-archive me-1"></i> Ver bajas</button>
-                    </div>
+                    </div> --}}
 
                 </div>
             </div>

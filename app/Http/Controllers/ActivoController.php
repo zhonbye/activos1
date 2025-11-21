@@ -9,6 +9,7 @@ use App\Models\Compra;
 use App\Models\DetalleBaja;
 use App\Models\DetalleDevolucion;
 use App\Models\DetalleEntrega;
+use App\Models\DetalleInventario;
 use App\Models\DetalleTraslado;
 use App\Models\Docto;
 use App\Models\Donacion;
@@ -757,26 +758,35 @@ public function filtrarHistorial(Request $request)
     }
 
 
-public function detalle($id)
-{
-    $activo = Activo::activos()->with([
-        'categoria',
-        'unidad',
-        'estado',
-        'adquisicion.compra.proveedor', // compras
-        'adquisicion.donacion.donante'  // donaciones
-    ])->findOrFail($id);
-//  dd($activo->adquisicion, $activo->adquisicion->compra, $activo->adquisicion->donacion);
-// $activo = Activo::with([
-//     'adquisicion.compra',
-//     'adquisicion.donacion'
-// ])->findOrFail($id);
+    public function detalle($id)
+    {
+        $activo = Activo::with([
+            'categoria',
+            'unidad',
+            'estado',
+            'adquisicion.compra.proveedor',
+            'adquisicion.donacion.donante'
+        ])->findOrFail($id);
 
-// dd($activo->adquisicion->compra, $activo->adquisicion->donacion);
+        // Buscar el detalle_inventario correspondiente al activo
+        $detalleInventario = DetalleInventario::where('id_activo', $id)
+            ->whereHas('inventario', function($query) {
+                $query->where('estado', 'vigente');
+            })
+            ->with(['inventario.servicio'])
+            ->first();
+// dd($detalleInventario);
+        $inventarioVigente = null;
+        $servicio = null;
 
+        if ($detalleInventario) {
+            $inventarioVigente = $detalleInventario->inventario; // registro de inventario vigente
+            $servicio = $detalleInventario->inventario->servicio ?? null;
+        }
 
-    return view('user.activos.parcial_detalle', compact('activo'))->render();
-}
+        return view('user.activos.parcial_detalle', compact('activo', 'inventarioVigente', 'servicio'))->render();
+    }
+
 
 public function filtrar(Request $request)
 {

@@ -21,7 +21,7 @@
                         <small class="text-muted">Detalle</small>
                         <div class="text-break">{{ $activo->detalle ?? 'N/A' }}</div>
                     </div>
-                   
+
                     <div class="col-md-3 col-sm-6">
                         <small class="text-muted">Estado</small>
                         <div>{{ $activo->estado?->nombre ?? 'N/A' }}</div>
@@ -31,9 +31,10 @@
                         <div>{{ $activo->categoria?->nombre ?? 'N/A' }}</div>
                     </div>
                     <div class="col-md-3 col-sm-6">
-                        <small class="text-muted">Unidad</small>
-                        <div>{{ $activo->unidad?->nombre ?? 'N/A' }}</div>
+                        <small class="text-muted">Se encuentra en</small>
+                        <div>{{ $servicio?->nombre ?? 'Sin asignación' }}</div>
                     </div>
+
                 </div>
             </div>
         </div>
