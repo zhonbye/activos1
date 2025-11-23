@@ -8,6 +8,8 @@ use App\Http\Controllers\CompraController;
 use App\Http\Controllers\DetalleTrasladoController;
 use App\Http\Controllers\DevolucionController;
 use App\Http\Controllers\DoctoController;
+use App\Http\Controllers\DonacionController;
+use App\Http\Controllers\DonanteController;
 use App\Http\Controllers\EntregaController;
 use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\MovimientoController;
@@ -194,6 +196,12 @@ Route::post('/proveedores', [ProveedorController::class, 'store'])->name('provee
 Route::get('/proveedores/imprimir', [ReporteController::class, 'imprimirProveedores'])->name('proveedores.imprimir');
 Route::get('/compras/filtrar', [CompraController::class, 'filtrar'])->name('compras.filtrar');
 
+Route::get('/donantes/show/{id?}', [DonanteController::class, 'show'])->name('donantes.show');
+Route::get('/donantes/filtrar', [DonanteController::class, 'filtrar'])->name('donantes.filtrar');
+Route::put('/donantes/{id}', [DonanteController::class, 'update'])->name('donantes.update');
+Route::post('/donantes', [DonanteController::class, 'store'])->name('donantes.store');
+Route::get('/donantes/imprimir', [ReporteController::class, 'imprimirDonantes'])->name('donantes.imprimir');
+Route::get('/donaciones/filtrar', [DonacionController::class, 'filtrar'])->name('donaciones.filtrar');
 
 
 
@@ -216,7 +224,6 @@ Route::get('/imprimir-devolucion/{id}', [DevolucionController::class, 'imprimir'
 
 Route::get('/movimientos/reporte/pdf', [ReporteController::class, 'imprimirActas'])
     ->name('movimientos.pdf');
-
 
 
 

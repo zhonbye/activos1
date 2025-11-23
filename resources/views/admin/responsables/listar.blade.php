@@ -823,7 +823,7 @@
 
 
         // Cuando se hace click en el botón editar
-        $(document).on('click', '.editar-btn', function() {
+        $(document).off('click', '.editar-btn').on('click', '.editar-btn', function() {
             const idResponsable = $(this).data('id'); // Obtenemos el ID del data-id
 
             // Petición AJAX

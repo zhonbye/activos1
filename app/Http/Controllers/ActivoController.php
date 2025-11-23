@@ -768,6 +768,13 @@ public function filtrarHistorial(Request $request)
             'adquisicion.donacion.donante'
         ])->findOrFail($id);
 
+ if ($activo->estado_situacional === 'baja') {
+        $inventarioVigente = null;
+        $servicio = "Dado de baja";
+// dd($servicio);
+        return view('user.activos.parcial_detalle', compact('activo', 'inventarioVigente', 'servicio'))->render();
+    }
+
         // Buscar el detalle_inventario correspondiente al activo
         $detalleInventario = DetalleInventario::where('id_activo', $id)
             ->whereHas('inventario', function($query) {
@@ -781,7 +788,7 @@ public function filtrarHistorial(Request $request)
 
         if ($detalleInventario) {
             $inventarioVigente = $detalleInventario->inventario; // registro de inventario vigente
-            $servicio = $detalleInventario->inventario->servicio ?? null;
+            $servicio = $detalleInventario->inventario->servicio->nombre ?? null;
         }
 
         return view('user.activos.parcial_detalle', compact('activo', 'inventarioVigente', 'servicio'))->render();

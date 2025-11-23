@@ -179,7 +179,7 @@
                         <li><a href="{{ route('activos.historial') }}" role="menuitem" class="cargar">Historial de
                                 activo</a></li>
                         <li><a href="{{ route('proveedores.show') }}" role="menuitem" class="cargar">Proveedores</a></li>
-                        <li><a href="{{ route('activos.historial') }}" role="menuitem" class="cargar">Donantes</a></li>
+                        <li><a href="{{ route('donantes.show') }}" role="menuitem" class="cargar">Donantes</a></li>
 
                         {{-- <li><a href="{{ route('entregas.show') }}" role="menuitem" class="cargar">Realizar Entrega</a></li> --}}
                     </ul>
@@ -195,7 +195,7 @@
                         {{-- <li><a href="#" class="desactivado" role="menuitem">Realizar Inventario</a></li> --}}
                         {{-- <li><a href="{{ route('inventario.consultar') }}" role="menuitem" class="cargar">Consultar --}}
                         <li><a href="{{ route('inventario.show') }}" role="menuitem" class="cargar">Listar y actualizar</a></li>
-                        <li><a href="{{ route('servicios.show') }}" role="menuitem" class="cargar">Añadir servicio</a></li>
+                        {{-- <li><a href="{{ route('servicios.show') }}" role="menuitem" class="cargar">Añadir servicio</a></li> --}}
                         <li><a href="{{ route('user.parametros') }}" role="menuitem" class="cargar">Gestión de parametros</a></li>
                         <li><a href="{{ route('pruebas') }}" role="menuitem" class="cargar">prueba interfaces</a></li>
                     </ul>

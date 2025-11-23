@@ -76,6 +76,8 @@
         <span class="badge bg-danger">En uso</span>
     @elseif(($h->estado_situacional ?? '') === 'inactivo')
         <span class="badge bg-success">Libre</span>
+    @elseif(($h->estado_situacional ?? '') === 'de baja')
+        <span class="badge bg-dark">De baja</span>
     @else
         <span class="badge bg-secondary">—</span>
     @endif
@@ -83,16 +85,24 @@
 
 
                     <td class="text-center">
-                        <button class="btn btn-sm btn-outline-primary btnVerDetalle" data-h='@json($h)'
-                            title="Ver detalle">
+                         {{-- data-id-adquisicion="{{ $donacion->id_adquisicion }}" --}}
+                         <button class="btn btn-sm btn-primary ver-activo-btn"
+                                title="Ver detalles del activo"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalVisualizar2"
+                                data-id= {{ $h->id_activo ?? ''}}">
                             <i class="bi bi-eye"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-success" title="Imprimir">
+                        {{-- <button class="btn btn-sm btn-outline-primary btnVerDetalle" 
+                            title="Ver detalle">
+                            <i class="bi bi-eye"></i>
+                        </button> --}}
+                        {{-- <button class="btn btn-sm btn-outline-success" title="Imprimir">
                             <i class="bi bi-printer-fill"></i>
                         </button>
                         <button class="btn btn-sm btn-rojo" title="Descargar PDF">
                             <i class="bi bi-file-earmark-pdf"></i>
-                        </button>
+                        </button> --}}
                     </td>
                 </tr>
             @empty
@@ -106,8 +116,44 @@
     </table>
 </div>
 
+<div class="modal fade " id="modalVisualizar2" tabindex="-1" aria-labelledby="modalVisualizarLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title text-dark" id="modalVisualizarLabel">Detalle Completo del Activo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-4 ">
+                <!-- Contenido cargado por AJAX -->
+            </div>
+            {{-- <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div> --}}
+        </div>
+    </div>
+</div>
 <script>
 
+
+$(document).off('click', '.ver-activo-btn').on('click', '.ver-activo-btn', function() {
+    var idActivo = $(this).data('id');
+    var url = baseUrl + '/activo/' + idActivo + '/detalle';
+
+    $.ajax({
+        url: url,
+        type: 'GET',
+        success: function(data) {
+            $('#modalVisualizar2 .modal-body').html(data);
+            // const modal = new bootstrap.Modal(document.getElementById('modalVisualizar2'));
+            // modal.show();
+        },
+        error: function() {
+            $('#modalVisualizar2 .modal-body').html('<div class="alert alert-danger text-center">No se pudo cargar el detalle del activo.</div>');
+            // const modal = new bootstrap.Modal(document.getElementById('modalVisualizar2'));
+            // modal.show();
+        }
+    });
+});
 
 
 function toggleColumna(colIndex) {

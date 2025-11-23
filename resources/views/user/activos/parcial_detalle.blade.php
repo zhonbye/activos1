@@ -31,8 +31,8 @@
                         <div>{{ $activo->categoria?->nombre ?? 'N/A' }}</div>
                     </div>
                     <div class="col-md-3 col-sm-6">
-                        <small class="text-muted">Se encuentra en</small>
-                        <div>{{ $servicio?->nombre ?? 'Sin asignación' }}</div>
+                        <small class="text-muted">Ubicación actual</small>
+                        <div>{{ $servicio?? 'Sin asignación' }}</div>
                     </div>
 
                 </div>

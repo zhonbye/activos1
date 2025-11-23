@@ -459,18 +459,26 @@
                                 <i class="bi bi-funnel-fill me-1"></i> Filtrar
                             </button>
                         </div>
-
-                        <div class="col-md-1 d-flex align-items-end">
+                        <div class="col-md-3 gap-3 d-flex justify-content-start">
+                            
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoDonante">
+                                <i class="bi bi-plus-circle me-1"></i> Nuevo
+                            </button>
+                            <a href="{{ route('donantes.imprimir') }}" target="_blank" class="btn btn-danger btn-sm " id="btnGenerarPDF">
+                                <i class="bi bi-file-earmark-pdf me-1"></i> Generar PDF
+                            </a>
+                        </div>
+                        {{-- <div class="col-md-1 d-flex align-items-end">
                             <button class="desactivado btn btn-azul btn-sm">
                                 <i class="bi bi-printer-fill me-1"></i> Imprimir
                             </button>
-                        </div>
+                        </div> --}}
 
-                        <div class="col-md-2 d-flex align-items-end">
+                        {{-- <div class="col-md-2 d-flex align-items-end">
                             <button class="btn btn-success btn-sm w-100" id="btnGenerarPDF">
                                 <i class="bi bi-file-earmark-pdf me-1"></i> Generar PDF
                             </button>
-                        </div>
+                        </div> --}}
 
                     </div>
                 </div>
@@ -640,7 +648,7 @@
                         </div>
 
                         <!-- Usuario hidden -->
-                        <input type="hidden" id="id_usuario" value="{{ auth()->user()->id_usuario }}">
+                        <input type="hidden" id="id_usuario" value="{{ auth()->user()->id_usuario ?? "" }}">
                     </div>
 
 

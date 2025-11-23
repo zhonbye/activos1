@@ -12,7 +12,26 @@ class ReporteController extends Controller
 
 
 
+public function imprimirDonantes()
+    {
+        // Tomamos los donantes filtrados de la sesión
+        $donantes = session('donantes_filtrados', collect());
 
+        if ($donantes->isEmpty()) {
+            return back()->with('error', 'No hay donantes para imprimir.');
+        }
+
+        // Contar donantes por lugar sin alterar la lista
+        $conteosPorLugar = $donantes->groupBy('tipo')->map(fn($grupo) => $grupo->count());
+
+        // Generar PDF
+        $pdf = Pdf::loadView('user.donantes.reporteDonante', [
+            'donantes' => $donantes,
+            'conteosPorLugar' => $conteosPorLugar
+        ]);
+
+        return $pdf->stream('reporte-proveedores.pdf');
+    }
 
     public function imprimirProveedores()
     {
