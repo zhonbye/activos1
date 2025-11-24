@@ -12,6 +12,7 @@ use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class InventarioController extends Controller
 {
@@ -29,6 +30,250 @@ class InventarioController extends Controller
     //     return view('user.inventario.consultar', compact('inventarios', 'servicios', 'responsables'));
     // }
 
+
+
+public function actualizarDetalles(Request $request)
+{
+    $request->validate([
+        'id_detalle_inventario' => 'required|integer',
+        'estado_actual' => 'required',
+        'observaciones' => 'nullable|string'
+    ]);
+
+    $detalle = DetalleInventario::find($request->id_detalle_inventario);
+
+    if (!$detalle) {
+        return response()->json(['error' => 'Detalle no encontrado'], 404);
+    }
+
+    $detalle->estado_actual = $request->estado_actual;
+    $detalle->observaciones = $request->observaciones;
+    $detalle->save();
+
+    return response()->json(['success' => true]);
+}
+
+
+
+
+    public function actualizar(Request $request)
+{
+    $request->validate([
+        'id_inventario_actualizar' => 'required|integer',
+        'id_inventario_original' => 'required|integer'
+    ]);
+        if (!$request->filled('id_inventario_actualizar')) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'El inventario pendiente no fue recibido.'
+        ], 400);
+    }
+
+    if (!$request->filled('id_inventario_original')) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'El inventario vigente no fue recibido.'
+        ], 400);
+    }
+
+    $id_inventario_actualizar = $request->id_inventario_actualizar;
+    $idOriginal = $request->id_inventario_original;
+
+    DB::beginTransaction();
+
+    try {
+
+        // ================================
+        // 1. INVENTARIO A ACTUALIZAR
+        // ================================
+        $inventario = Inventario::find($id_inventario_actualizar);
+
+        if (!$inventario) {
+            return response()->json([
+                'status' => 'error',
+                'mensaje' => 'El inventario solicitado no existe.'
+            ], 404);
+        }
+
+        if ($inventario->estado !== 'pendiente') {
+            return response()->json([
+                'status' => 'error',
+                'mensaje' => 'Solo se puede actualizar un inventario con estado pendiente.'
+            ], 400);
+        }
+
+
+        // ================================
+        // 2. INVENTARIO ORIGINAL
+        // ================================
+        $invOriginal = Inventario::find($idOriginal);
+
+        if (!$invOriginal) {
+            return response()->json([
+                'status' => 'error',
+                'mensaje' => 'El inventario original no existe.'
+            ], 404);
+        }
+
+        if ($invOriginal->estado !== 'vigente') {
+            return response()->json([
+                'status' => 'error',
+                'mensaje' => 'El inventario original debe estar en estado vigente.'
+            ], 400);
+        }
+
+        // Verificar si está vacío el inventario original
+        $detalleOriginal = DetalleInventario::where('id_inventario', $idOriginal)->count();
+
+        if ($detalleOriginal == 0) {
+            return response()->json([
+                'status' => 'error',
+                'mensaje' => 'El inventario vigente está vacío. No se puede continuar.'
+            ], 400);
+        }
+
+
+        // ================================
+        // 3. VERIFICAR DETALLE INVENTARIO NUEVO
+        // ================================
+        $detalleNuevo = DetalleInventario::where('id_inventario', $id_inventario_actualizar)->count();
+
+        if ($detalleNuevo == 0) {
+            return response()->json([
+                'status' => 'error',
+                'mensaje' => 'El inventario que intenta actualizar está vacío.'
+            ], 400);
+        }
+
+
+        // ================================
+        // 4. VERIFICAR CAMBIO DE RESPONSABLE
+        // ================================
+        $idServicio = $inventario->id_servicio;
+        $idResponsableInventario = $inventario->id_responsable;
+
+        $servicio = Servicio::find($idServicio);
+
+        if (!$servicio) {
+            return response()->json([
+                'status' => 'error',
+                'mensaje' => 'El servicio relacionado al inventario no existe.'
+            ], 404);
+        }
+
+        if ($servicio->id_responsable != $idResponsableInventario) {
+            // Actualizar responsable
+            $servicio->id_responsable = $idResponsableInventario;
+            $servicio->save();
+
+            $mensajeResp = "El responsable del servicio ha sido actualizado.";
+        } else {
+            $mensajeResp = "El responsable del servicio no cambió.";
+        }
+
+
+        // ================================
+        // 5. ACTUALIZAR ESTADOS
+        // ================================
+        $invOriginal->estado = 'finalizado';
+        $invOriginal->save();
+
+        $inventario->estado = 'vigente';
+        $inventario->save();
+
+
+
+
+
+
+// ================================
+// 6. ACTUALIZAR ESTADOS DE ACTIVOS SEGÚN DETALLE INVENTARIO
+// ================================
+
+// Buscar todos los detalles del inventario actualizado
+$detalles = DetalleInventario::where('id_inventario', $id_inventario_actualizar)->get();
+
+foreach ($detalles as $det) {
+
+    // Obtener el texto del estado_actual (puede venir en may/min)
+    $estadoTexto = trim($det->estado_actual);
+
+    // Buscar el estado en la tabla estados
+    $estadoBD = Estado::whereRaw('LOWER(nombre) = ?', [strtolower($estadoTexto)])->first();
+
+    if ($estadoBD) {
+        // Actualizar el activo asociado
+        Activo::where('id_activo', $det->id_activo)
+            ->update([
+                'id_estado' => $estadoBD->id_estado
+            ]);
+    }
+}
+
+
+
+
+
+
+
+
+
+        DB::commit();
+
+        return response()->json([
+            'status' => 'success',
+            'mensaje' => 'Inventario actualizado correctamente.',
+            'detalle' => $mensajeResp
+        ]);
+
+    } catch (\Exception $e) {
+
+        DB::rollBack();
+
+        return response()->json([
+            'status' => 'error',
+            'mensaje' => 'Ocurrió un error inesperado.',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
+
+public function actualizarResponsable(Request $request)
+{
+    // VALIDACIÓN
+    $validated = $request->validate([
+        'inventario_id'  => 'required|exists:inventarios,id_inventario',
+        'id_responsable' => 'required|exists:responsables,id_responsable',
+    ], [
+        'inventario_id.required'  => 'No se encontró el inventario.',
+        'inventario_id.exists'    => 'El inventario indicado no es válido.',
+        
+        'id_responsable.required' => 'Debe seleccionar un responsable.',
+        'id_responsable.exists'   => 'El responsable seleccionado no es válido.',
+    ]);
+
+    try {
+
+        // OBTENER INVENTARIO
+        $inventario = Inventario::findOrFail($validated['inventario_id']);
+
+        // ACTUALIZAR RESPONSABLE
+        $inventario->id_responsable = $validated['id_responsable'];
+        $inventario->save();
+
+        return response()->json([
+            'message'    => 'Responsable actualizado correctamente.',
+            'inventario' => $inventario
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Error al actualizar el responsable.',
+            'error'   => $e->getMessage()
+        ], 500);
+    }
+}
 
 
     public function detalle($id)
@@ -238,13 +483,14 @@ public function moverActivo(Request $request)
         $selected = (strtolower($estado->nombre) === $estadoActual) ? 'selected' : '';
         $options .= "<option value='{$estado->id_estado}' {$selected}>{$estado->nombre}</option>";
     }
-
+// dd($detalleNuevo);
     // Retornar todo listo para insertar en la tabla
     return response()->json([
         'success' => true,
         'mensaje' => 'Activo movido correctamente.',
         'detalle' => [
             'id_detalle' => $detalleNuevo->id_detalle,
+            'id_detalle_inventario' => $detalleNuevo->id_detalle_inventario,
             'id_activo' => $detalleNuevo->id_activo,
             'numero' => $numero,
             'codigo' => $detalleNuevo->activo->codigo ?? '--Codigo--',
@@ -269,42 +515,46 @@ public function moverActivo(Request $request)
 
 
 
+public function generarInventarioPendiente(Request $request)
+{
+    $idInventario = $request->id_inventario;
 
+    // 1️⃣ Obtener inventario original
+    $inventarioOriginal = Inventario::findOrFail($idInventario);
 
+    $idServicio = $inventarioOriginal->id_servicio;
+    $idResponsable = $inventarioOriginal->id_responsable;
 
-  public function generarInventarioPendiente(Request $request)
-    {
-        $idInventario = $request->id_inventario;
+    // 2️⃣ Año actual para la gestión
+    $gestionActual = Carbon::now()->year;
 
-        // 1️⃣ Obtener inventario original
-        $inventarioOriginal = Inventario::findOrFail($idInventario);
+    // 3️⃣ Generar número de documento disponible
+    $numeroDocumento = $this->generarNumeroDocumento($gestionActual);
 
-        $idServicio = $inventarioOriginal->id_servicio;
-        $idResponsable = $inventarioOriginal->id_responsable;
+    // 4️⃣ Crear nuevo inventario pendiente
+    $nuevoInventario = Inventario::create([
+        'numero_documento' => $numeroDocumento,
+        'gestion'          => $gestionActual,
+        'fecha'            => Carbon::now()->format('Y-m-d'),
+        'id_usuario'       => auth()->user()->id_usuario,
+        'usuario'       => auth()->user()->usuario,
+        'id_responsable'   => $idResponsable,
+        'id_servicio'      => $idServicio,
+        'observaciones'    => 'Generado automáticamente',
+        'estado'           => 'pendiente',
+    ]);
 
-        // 2️⃣ Año actual para la gestión
-        $gestionActual = Carbon::now()->year;
+    // Cargar relaciones para que devuelva nombres también
+    $nuevoInventario->load(['responsable', 'servicio','usuario']);
 
-        // 3️⃣ Generar número de documento disponible
-        $numeroDocumento = $this->generarNumeroDocumento($gestionActual);
+    return response()->json([
+        'mensaje' => 'Inventario pendiente generado correctamente',
+        'inventario' => $nuevoInventario,
+        'responsable' => $nuevoInventario->responsable->nombre,
+        'servicio' => $nuevoInventario->servicio->nombre,
+    ]);
+}
 
-        // 4️⃣ Crear nuevo inventario pendiente
-        $nuevoInventario = Inventario::create([
-            'numero_documento' => $numeroDocumento,
-            'gestion'          => $gestionActual,
-            'fecha'            => Carbon::now()->format('Y-m-d'),
-            'id_usuario'       => auth()->user()->id_usuario,
-            'id_responsable'   => $idResponsable,
-            'id_servicio'      => $idServicio,
-            'observaciones'    => 'Generado automáticamente',
-            'estado'           => 'pendiente',
-        ]);
-
-        return response()->json([
-            'mensaje' => 'Inventario pendiente generado correctamente',
-            'inventario' => $nuevoInventario
-        ]);
-    }
 
 
 
@@ -364,8 +614,8 @@ foreach ($inventarioPendiente->detalles as $i => $detalle) {
 
     // Estado actual del detalle
     $estadoActual = strtolower(trim($detalle->estado_actual));
-
-    $tabla .= '<tr>';
+// dd($detalle);
+    $tabla .= '<tr data-id='.$detalle->id_detalle_inventario.'>';
     $tabla .= '<td>'.($i+1).'</td>';
     $tabla .= '<td>'.$detalle->activo->codigo.'</td>';
     $tabla .= '<td>'.$detalle->activo->nombre.'</td>';
@@ -375,7 +625,7 @@ foreach ($inventarioPendiente->detalles as $i => $detalle) {
     // SELECT DE ESTADOS
     // --------------------------
     $tabla .= '<td>';
-    $tabla .= '<select class="form-select form-select-sm estado-select" data-id="'.$detalle->id_detalle.'">';
+    $tabla .= '<select class="form-select form-select-sm estado-select estadoActualizar " data-id="'.$detalle->id_detalle.'">';
     
     foreach ($estados as $estado) {
         $selected = (strtolower($estado->nombre) == $estadoActual) ? 'selected' : '';
@@ -389,7 +639,7 @@ foreach ($inventarioPendiente->detalles as $i => $detalle) {
     // INPUT OBSERVACIONES
     // --------------------------
     $tabla .= '<td>';
-    $tabla .= '<input type="text" class="form-control form-control-sm observacion-input" 
+    $tabla .= '<input type="text" class="form-control form-control-sm observacion-input observacionActualizar" 
                     value="'.$detalle->observaciones.'" 
                     data-id="'.$detalle->id_detalle.'">';
     $tabla .= '</td>';
@@ -403,11 +653,19 @@ foreach ($inventarioPendiente->detalles as $i => $detalle) {
             data-id="'.$detalle->activo->id_activo.'">
             <i class="bi bi-arrow-left-circle"></i>
         </button>
+   <button data-id='.$detalle->id_detalle_inventario.' 
+        class="btn btn-sm btn-success guardar-cambios-btn ms-1 d-none" 
+        title="Guardar cambios">
+    <i class="bi bi-check"></i>
+</button>
+
+
+
     </td>';
 
     $tabla .= '</tr>';
 }
-
+// dd($inventarioPendiente->usuario->usuario);
 
         return response()->json([
             'encontrado' => true,
@@ -417,10 +675,11 @@ foreach ($inventarioPendiente->detalles as $i => $detalle) {
             'fecha'         => $inventarioPendiente->fecha,
             'estado'        => $inventarioPendiente->estado,
             'observaciones'        => $inventarioPendiente->observaciones,
-            'usuario'       => $inventarioPendiente->usuario->nombre ?? '',
-            // 'id_responsable'   => $inventarioPendiente->responsable->id_responsable ?? '',
+            'usuario'       => $inventarioPendiente->usuario->usuario ?? '',
+            'id_responsable'   => $inventarioPendiente->responsable->id_responsable ?? '',
             'responsable'   => $inventarioPendiente->responsable->nombre ?? '',
             'servicio'      => $inventarioPendiente->servicio->nombre ?? '',
+            'id_servicio'      => $inventarioPendiente->servicio->id_servicio ?? '',
             'tablaDetalle'  => $tabla,
         ]);
     }
@@ -802,7 +1061,10 @@ public function show($id = null)
     $servicios = Servicio::orderBy('nombre', 'asc')->get();
 
     // Traer responsables (si tus responsables también están en la tabla users, usa User)
-    $responsables = Responsable::orderBy('nombre', 'asc')->get();
+ $responsables = Responsable::activos()
+    ->orderBy('nombre', 'asc')
+    ->get();
+
 // dd($id);
     return view('user.inventario.show', compact(
         'id',

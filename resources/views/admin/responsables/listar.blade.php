@@ -207,7 +207,7 @@
 
 <div class="row bg-info4 pb-4 justify-content-center" style="height: 135vh; min-height: 135vh; max-height: 135vh;">
 
-    <div class="main-col col-md-12 col-lg-11 order-lg-1 bg-dange4r order-1 mb-1 p-1 transition"
+    <div class="main-col col-md-12 col-lg-12 pe-2 order-lg-1 bg-dange4r order-1 mb-1 p-1 transition"
         style="position: relative; height: 135vh;max-height: 220vh; display: flex; flex-direction: column; overflow: visible;">
 
         <!-- CARD PRINCIPAL -->
@@ -215,9 +215,16 @@
             style="background-color: var(--color-fondo); display: flex; flex-direction: column; flex: 1 1 auto;">
 
             <!-- 🔹 Título -->
-            <h2 class="mb-4 text-center text-primary">
-                <i class="bi bi-people-fill me-2"></i>Listado del Personal / Usuarios
-            </h2>
+            @if (auth()->user()->rol === 'administrador')
+    <h2 class="mb-4 text-center text-primary">
+        <i class="bi bi-people-fill me-2"></i>Listado del Personal / Usuarios
+    </h2>
+@else
+    <h2 class="mb-4 text-center text-primary">
+        <i class="bi bi-people-fill me-2"></i>Listado del Personal
+    </h2>
+@endif
+
 
             <!-- 🔹 Botones principales -->
             <div class="d-flex justify-content-end mb-3 gap-2">

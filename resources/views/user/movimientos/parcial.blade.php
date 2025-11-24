@@ -210,9 +210,12 @@ $(document).on('click', '.btn-ir-acta', function() {
 
 
 function imprimirReporte(id, tipoActa) {
-    let baseUrl = window.location.origin;
+    
     let url = "";
-
+    
+    let baseUrl = "{{ url('/') }}";
+    // let baseUrl = window.location.origin;
+    alert(baseUrl)
     // -------------------------
     // Definir URL según el tipo de acta
     // -------------------------

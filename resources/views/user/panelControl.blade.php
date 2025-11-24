@@ -387,7 +387,8 @@
     </div> --}}
         <div class="col-md-2">
             <div class="card card-stats text-white bg-success shadow-sm h-100 acta-card" data-tipo="entrega"
-                data-bs-toggle="tooltip" title="Muestra todas tus actas de entrega pendientes">
+                data-bs-toggle="modal" title="Muestra todas tus actas de entrega pendientes"
+                data-bs-target="#detalleModal" data-bs-toggle="modal">
                 <div class="card-body text-center">
                     <i class="bi bi-truck fs-2"></i>
                     <h5 class="card-title mt-2">Entregas</h5>
@@ -399,7 +400,7 @@
 
         <div class="col-md-3">
             <div class="card card-stats text-white bg-primary shadow-sm h-100 acta-card" data-tipo="traslado"
-                data-bs-toggle="tooltip" title="Muestra todas tus actas de traslado pendientes">
+                data-bs-target="#detalleModal" data-bs-toggle="modal" title="Muestra todas tus actas de traslado pendientes">
                 <div class="card-body text-center">
                     <i class="bi bi-arrow-left-right fs-2"></i>
                     <h5 class="card-title mt-2">Traslados</h5>
@@ -411,7 +412,7 @@
 
         <div class="col-md-2">
             <div class="card card-stats text-white bg-info shadow-sm h-100 acta-card" data-tipo="devolucion"
-                data-bs-toggle="tooltip" title="Muestra todas tus actas de devolución pendientes">
+                data-bs-target="#detalleModal" data-bs-toggle="modal" title="Muestra todas tus actas de devolución pendientes">
                 <div class="card-body text-center">
                     <i class="bi bi-arrow-counterclockwise fs-2"></i>
                     <h5 class="card-title mt-2">Devoluciones</h5>
@@ -461,7 +462,7 @@
 
         <div class="col-md-2">
             <div class="card card-stats text-white bg-secondary shadow-sm h-100 acta-card" data-tipo="inventario"
-                data-bs-toggle="tooltip" title="Muestra todos tus inventarios vigentes">
+                data-bs-target="#detalleModal" data-bs-toggle="modal" title="Muestra todos tus inventarios vigentes">
                 <div class="card-body text-center">
                     <i class="bi bi-card-checklist fs-2"></i>
                     <h5 class="card-title mt-2">Inventarios</h5>
@@ -531,7 +532,7 @@
             }
 
             // Abrir modal
-            $('#detalleModal').modal('show');
+            // $('#detalleModal').modal('show');
 
             // Header dinámico
             $('#detalleModal .modal-title').text(

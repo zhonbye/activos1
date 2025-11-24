@@ -144,7 +144,7 @@
                     <div class="main-item bg-success bg-opacity-10"  tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"
                         aria-controls="submenuUsuarios">
                         <i class="bi bi-people icon" aria-hidden="true"></i>
-                        <span class="text">Usuarios</span>
+                        <span class="text">Personal</span>
                         <i class="bi bi-caret-down caret" aria-hidden="true"></i>
                     </div>
                     <ul class="submenu" id="submenuUsuarios" role="menu" aria-label="Submenú Usuarios">
@@ -152,7 +152,7 @@
                             <a href="{{ route('usuarios.create') }}" role="menuitem" class="cargar">Crear Usuario</a>
                         </li> --}}
                         <li role="none">
-                            <a href="{{ route('responsable.index') }}" role="menuitem" class="cargar">Listar personal</a>
+                            <a href="{{ route('responsable.index') }}" role="menuitem" class="cargar">Responsables</a>
                         </li>
                         {{-- <li role="none">
                             <a href="{{ route('usuarios.index') }}" role="menuitem" class="cargar">Listar Usuarios</a>
@@ -178,8 +178,8 @@
                                 Activo</a></li> --}}
                         <li><a href="{{ route('activos.historial') }}" role="menuitem" class="cargar">Historial de
                                 activo</a></li>
-                        <li><a href="{{ route('proveedores.show') }}" role="menuitem" class="cargar">Proveedores</a></li>
-                        <li><a href="{{ route('donantes.show') }}" role="menuitem" class="cargar">Donantes</a></li>
+                        <li><a href="{{ route('proveedores.show') }}" role="menuitem" class="cargar">Compras</a></li>
+                        <li><a href="{{ route('donantes.show') }}" role="menuitem" class="cargar">Donaciones</a></li>
 
                         {{-- <li><a href="{{ route('entregas.show') }}" role="menuitem" class="cargar">Realizar Entrega</a></li> --}}
                     </ul>
@@ -196,12 +196,12 @@
                         {{-- <li><a href="{{ route('inventario.consultar') }}" role="menuitem" class="cargar">Consultar --}}
                         <li><a href="{{ route('inventario.show') }}" role="menuitem" class="cargar">Listar y actualizar</a></li>
                         {{-- <li><a href="{{ route('servicios.show') }}" role="menuitem" class="cargar">Añadir servicio</a></li> --}}
-                        <li><a href="{{ route('user.parametros') }}" role="menuitem" class="cargar">Gestión de parametros</a></li>
-                        <li><a href="{{ route('pruebas') }}" role="menuitem" class="cargar">prueba interfaces</a></li>
+                        {{-- <li><a href="{{ route('user.parametros') }}" role="menuitem" class="cargar">Gestión de parametros</a></li> --}}
+                        {{-- <li><a href="{{ route('pruebas') }}" role="menuitem" class="cargar">prueba interfaces</a></li> --}}
                     </ul>
                 </li>
                 <!-- Categorías y Unidades -->
-                <li class="menu-item" data-submenu="submenuCategorias" role="none">
+                {{-- <li class="menu-item" data-submenu="submenuCategorias" role="none">
                     <div class="main-item" tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"
                         aria-controls="submenuCategorias">
                         <i class="bi bi-tags icon" aria-hidden="true"></i>
@@ -209,13 +209,13 @@
                         <i class="bi bi-caret-down caret" aria-hidden="true"></i>
                     </div>
                     <ul class="submenu" id="submenuCategorias" role="menu" aria-label="Submenú Categorías y Unidades">
-                        <li role="none"><a href="#" role="menuitem" class="cargar">Gestionar Categorías</a></li>
-                        <li role="none"><a href="#" role="menuitem" class="cargar">Gestionar Unidades</a></li>
+                        {{-- <li role="none"><a href="#" role="menuitem" class="cargar">Gestionar Categorías</a></li> --}}
+                        {{-- <li role="none"><a href="#" role="menuitem" class="cargar">Gestionar Unidades</a></li> 
                     </ul>
-                </li>
+                </li> --}}
 
                 <!-- Proveedores y Donantes -->
-                <li class="menu-item" data-submenu="submenuProveedores" role="none">
+                {{-- <li class="menu-item" data-submenu="submenuProveedores" role="none">
                     <div class="main-item" tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"
                         aria-controls="submenuProveedores">
                         <i class="bi bi-building icon" aria-hidden="true"></i>
@@ -228,7 +228,7 @@
                         </li>
                         <li role="none"><a href="#" role="menuitem" class="cargar">Gestionar Donantes</a></li>
                     </ul>
-                </li>
+                </li> --}}
 
                 <!-- Configuración del Sistema -->
                 {{-- <li class="menu-item" data-submenu="submenuConfig" role="none">

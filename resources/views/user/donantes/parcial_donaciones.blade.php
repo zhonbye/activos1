@@ -53,7 +53,7 @@
     </table>
 </div>
 <div class="mt-3 flex-shrink-0 bg-da3nger">
-    {{ $donaciones->links() }}
+    {{ $donaciones->links('pagination::bootstrap-5')}}
 </div>
 
 <div class="modal fade" id="modalVisualizar2" tabindex="-1" aria-labelledby="modalVisualizarLabel" aria-hidden="true">

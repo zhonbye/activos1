@@ -4,9 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\Activo;
 use App\Models\Baja;
+use App\Models\DetalleDevolucion;
+use App\Models\DetalleEntrega;
 use App\Models\DetalleInventario;
+use App\Models\DetalleTraslado;
+use App\Models\Devolucion;
+use App\Models\Entrega;
+use App\Models\Inventario;
 use App\Models\Responsable;
+use App\Models\Traslado;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BajaController extends Controller
 {
@@ -67,39 +75,115 @@ public function buscarActivo(Request $request)
 }
 
 
+
 public function store(Request $request)
 {
-  $request->validate([
-    'id_activo' => 'required|exists:activos,id_activo',
-    'id_responsable' => 'required|exists:responsables,id_responsable',
-    'id_servicio' => 'required|exists:servicios,id_servicio', // ✅ Validación del servicio
-    'motivo' => 'required|string|max:255',
-    'observaciones' => 'nullable|string|max:255'
-]);
-
-
-    // Buscar activo
-    $activo = Activo::findOrFail($request->id_activo);
-
-    // Actualizar estado situacional a "baja"
-    $activo->estado_situacional = 'baja';
-    $activo->save();
-
-    // Registrar en tabla bajas
-    Baja::create([
-        'id_activo' => $activo->id_activo,
-        'id_servicio' => $request->id_servicio, // o el servicio correspondiente
-        'id_responsable' => $request->id_responsable,
-        'id_usuario' => $request->id_usuario,
-        'fecha' => $request->fecha,
-        'motivo' => $request->motivo,
-        'observaciones' => $request->observaciones
+    $request->validate([
+        'id_activo' => 'required|exists:activos,id_activo',
+        'id_responsable' => 'required|exists:responsables,id_responsable',
+        'id_servicio' => 'required|exists:servicios,id_servicio',
+        'motivo' => 'required|string|max:255',
+        'observaciones' => 'nullable|string|max:255'
     ]);
 
-    return response()->json([
-        'message' => "El activo '{$activo->nombre}' ha sido dado de baja correctamente."
-    ]);
+    try {
+
+        DB::beginTransaction(); // 🚀 INICIA TRANSACCIÓN SEGURA
+
+        $activo = Activo::findOrFail($request->id_activo);
+        $eliminados = [];
+
+        // ============================================================
+        // 1️⃣ ELIMINAR DETALLE DE TRASLADO PENDIENTES
+        // ============================================================
+        $detalles = DetalleTraslado::where('id_activo', $activo->id_activo)->get();
+
+        foreach ($detalles as $d) {
+            $padre = Traslado::find($d->id_traslado);
+            if ($padre && strtolower($padre->estado) === 'pendiente') {
+                $d->delete();
+                $eliminados[] = 'detalle_traslado';
+            }
+        }
+
+        // ============================================================
+        // 2️⃣ ELIMINAR DETALLE DE ENTREGA PENDIENTES
+        // ============================================================
+        $detalles = DetalleEntrega::where('id_activo', $activo->id_activo)->get();
+
+        foreach ($detalles as $d) {
+            $padre = Entrega::find($d->id_entrega);
+            if ($padre && strtolower($padre->estado) === 'pendiente') {
+                $d->delete();
+                $eliminados[] = 'detalle_entrega';
+            }
+        }
+
+        // ============================================================
+        // 3️⃣ ELIMINAR DETALLE DE DEVOLUCIÓN PENDIENTES
+        // ============================================================
+        $detalles = DetalleDevolucion::where('id_activo', $activo->id_activo)->get();
+
+        foreach ($detalles as $d) {
+            $padre = Devolucion::find($d->id_devolucion);
+            if ($padre && strtolower($padre->estado) === 'pendiente') {
+                $d->delete();
+                $eliminados[] = 'detalle_devolucion';
+            }
+        }
+
+        // ============================================================
+        // 4️⃣ ELIMINAR DETALLE DE INVENTARIO PENDIENTES
+        // ============================================================
+        $detalles = DetalleInventario::where('id_activo', $activo->id_activo)->get();
+
+        foreach ($detalles as $d) {
+            $padre = Inventario::find($d->id_inventario);
+            if ($padre && strtolower($padre->estado) === 'pendiente') {
+                $d->delete();
+                $eliminados[] = 'detalle_inventario';
+            }
+        }
+
+        // ============================================================
+        // 5️⃣ CAMBIAR ESTADO DEL ACTIVO
+        // ============================================================
+        $activo->estado_situacional = 'baja';
+        $activo->save();
+
+        // ============================================================
+        // 6️⃣ REGISTRAR LA BAJA
+        // ============================================================
+        Baja::create([
+            'id_activo' => $activo->id_activo,
+            'id_servicio' => $request->id_servicio,
+            'id_responsable' => $request->id_responsable,
+            'id_usuario' => $request->id_usuario,
+            'fecha' => now()->toDateString(),
+            'motivo' => $request->motivo,
+            'observaciones' => $request->observaciones
+        ]);
+
+        DB::commit(); // 🟢 TODO OK → CONFIRMAR CAMBIOS
+
+
+        return response()->json([
+            'message' => "El activo '{$activo->nombre}' fue dado de baja correctamente.",
+            'eliminados' => $eliminados ?: 'No se eliminó ningún registro pendiente.'
+        ]);
+
+    } catch (\Exception $e) {
+
+        DB::rollBack(); // 🔴 ALGO FALLÓ → REVERSA TODO
+
+        return response()->json([
+            'error' => 'Ocurrió un error y no se realizó la baja.',
+            'detalles' => $e->getMessage()
+        ], 500);
+    }
 }
+
+
 
 
     /**

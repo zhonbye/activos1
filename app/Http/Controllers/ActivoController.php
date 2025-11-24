@@ -21,6 +21,7 @@ use App\Models\Servicio;
 use App\Models\Ubicacion;
 use App\Models\Unidad;
 use App\Models\Usuario;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -35,6 +36,90 @@ public function historial() {
 $servicios = Servicio::orderBy('nombre')->get();
         return view('user.activos.historial', compact('usuarios', 'servicios')); // solo carga la vista y filtros
     }
+
+
+
+// public function reporteHistorial(Request $request)
+// {
+//     $tabla = $request->tabla;
+
+//     $pdf = pdf::loadView('user.activos.reporteHistorial', compact('tabla'))
+//                 ->setPaper('a4', 'portrait');
+
+//     return $pdf->download('historial_filtrado.pdf');
+// }
+
+public function reporteHistorial(Request $request)
+{
+    $tabla = $request->tabla;
+
+    $pdf = PDF::loadView('user.activos.reporteHistorial', compact('tabla'))
+                ->setPaper('a4', 'portrait');
+
+    return response($pdf->output(), 200)
+            ->header('Content-Type', 'application/pdf');
+}
+
+
+
+
+public function reporte(Request $request)
+{
+    // MISMO CÓDIGO QUE "filtrar()"
+    $query = Activo::activos()->with(['unidad', 'estado', 'categoria']);
+
+    if ($request->filled('busqueda_general')) {
+        $buscar = strtolower($request->busqueda_general);
+
+        $query->where(function($q) use ($buscar) {
+            $q->whereRaw('LOWER(codigo) LIKE ?', ["%{$buscar}%"])
+              ->orWhereRaw('LOWER(nombre) LIKE ?', ["%{$buscar}%"])
+              ->orWhereRaw('LOWER(detalle) LIKE ?', ["%{$buscar}%"]);
+        });
+    }
+
+    if ($request->filled('categoria') && $request->categoria != 'all') {
+        $query->where('id_categoria', $request->categoria);
+    }
+
+    if ($request->filled('unidad') && $request->unidad != 'all') {
+        $query->where('id_unidad', $request->unidad);
+    }
+
+    if ($request->filled('estado') && $request->estado != 'all') {
+        $query->where('id_estado', $request->estado);
+    }
+
+    if ($request->filled('estado_situacional') && $request->estado_situacional != 'all') {
+        $query->where('estado_situacional', $request->estado_situacional);
+    }
+
+    if ($request->filled('fecha_inicio') && $request->filled('fecha_fin')) {
+        $query->whereBetween('created_at', [
+            $request->fecha_inicio.' 00:00:00',
+            $request->fecha_fin.' 23:59:59'
+        ]);
+    }
+
+    // ORDENAMIENTO
+    $ordenarPor = $request->input('ordenar_por', 'created_at');
+    $direccion  = $request->input('direccion', 'desc');
+    $query->orderBy($ordenarPor, $direccion);
+
+    // Obtener TODOS los resultados (SIN paginar)
+    $activos = $query->get();
+
+    // Generar PDF
+    $pdf = Pdf::loadView('user.activos.reporteActivos', compact('activos'))
+               ->setPaper('a4', 'landscape');
+
+    return $pdf->stream('reporte-activos.pdf');
+}
+
+
+
+
+
 
     // public function filtrarHistorial2(Request $request)
     // {
@@ -799,6 +884,16 @@ public function filtrar(Request $request)
 {
     $query = Activo::activos()->with(['unidad', 'estado', 'categoria']);
 
+
+
+
+// FILTRO GENERAL (input buscarActivo)
+
+
+
+
+
+
     // Filtros existentes
     if ($request->filled('codigo')) {
         $query->where('codigo','like', "%{$request->codigo}%");
@@ -828,7 +923,20 @@ public function filtrar(Request $request)
         $fechaFin    = $request->fecha_fin . ' 23:59:59';
         $query->whereBetween('created_at', [$fechaInicio, $fechaFin]);
     }
+ if ($request->filled('busqueda_general')) {
 
+    $buscar = strtolower($request->busqueda_general);
+    // dd($buscar);
+
+    $query->where(function($q) use ($buscar) {
+        $q->whereRaw('LOWER(codigo) LIKE ?', ["%{$buscar}%"])
+          ->orWhereRaw('LOWER(nombre) LIKE ?', ["%{$buscar}%"])
+          ->orWhereRaw('LOWER(detalle) LIKE ?', ["%{$buscar}%"]);
+    });
+
+}
+
+    
     // Ordenamiento dinámico
     $ordenarPor = $request->input('ordenar_por', 'created_at'); // default
     $direccion  = $request->input('direccion', 'desc');         // default

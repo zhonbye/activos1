@@ -82,7 +82,10 @@
                         text: response.message,
                         confirmButtonColor: '#3085d6'
                     });
-                    $('#modalDarBaja').modal('hide');
+                     
+            $('#modalDarBaja button[data-bs-dismiss="modal"]').trigger('click');
+              $('#contenedorResultadosInventarios table button.btn.ver-detalles-btn.active').removeClass('active').trigger('click');
+          
                     // Opcional: refrescar tabla o actualizar lista de activos
                     // $('#tabla_activos').DataTable().ajax.reload();
                 },

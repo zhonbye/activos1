@@ -28,6 +28,68 @@
 </style>
 </head>
 
+
+
+
+
+
+
+
+<div class="modal fade" id="perfilModal" tabindex="-1" aria-labelledby="perfilModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow-lg rounded-4" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);">
+
+      <!-- Header solo botón cerrar -->
+      <div class="modal-header border-0 p-3">
+        <h5 class="modal-title fw-bold">Perfil del Administrador</h5>
+        <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body p-4">
+        <!-- Icono y nombre -->
+        <div class="text-center mb-4">
+          <i class="bi bi-person-circle fs-1 text-primary mb-2"></i>
+          <h4 class="fw-bold mb-1">{{ Auth::user()->responsable->nombre ?? 'Sin nombre' }}</h4>
+          <p class="text-muted mb-0">Rol: {{ Auth::user()->rol ?? '-' }}</p>
+        </div>
+
+        <!-- Datos en 2 columnas con iconos -->
+        <div class="row text-center text-md-start mb-4">
+          <div class="col-md-6 mb-3">
+            <p class="mb-1"><i class="bi bi-123 me-2 text-primary"></i>ID Responsable: {{ Auth::user()->responsable->id_responsable ?? '-' }}</p>
+            <p class="mb-1"><i class="bi bi-credit-card me-2 text-primary"></i>CI: {{ Auth::user()->responsable->ci ?? '-' }}</p>
+            <p class="mb-1"><i class="bi bi-telephone me-2 text-primary"></i>Teléfono: {{ Auth::user()->responsable->telefono ?? '-' }}</p>
+          </div>
+          <div class="col-md-6 mb-3">
+            <p class="mb-1"><i class="bi bi-building me-2 text-primary"></i>Profesión: {{ Auth::user()->responsable->cargo->nombre ?? '-' }}</p>
+            <p class="mb-1"><i class="bi bi-check-circle me-2 text-primary"></i>Cargo: {{ Auth::user()->responsable->rol ?? '-' }}</p>
+            <p class="mb-1"><i class="bi bi-calendar me-2 text-primary"></i>Creado: {{ Auth::user()->responsable->created_at->format('d/m/Y') ?? '-' }}</p>
+          </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="d-flex justify-content-center gap-3">
+          <a type="button" class="btn btn-outline-primary ajustes d-flex align-items-center"  href="{{ route('ajustes.index') }}">
+            <i class="bi bi-gear-fill me-2 "></i> Ajustes
+                            {{-- <i class="bi bi-gear me-2"></i>Preferencias --}}
+                        
+          </a>
+          {{-- <form method="POST" action="{{ route('logout') }}"> --}}
+            {{-- @csrf --}}
+            <a type="button" href="{{ route('logout') }}" class="btn btn-outline-danger d-flex align-items-center">
+              <i class="bi bi-box-arrow-right me-2"></i> Cerrar sesión
+            </a>
+          {{-- </form> --}}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
 {{-- <body> --}}
 <div class="container-fluid py-4">
 
@@ -76,21 +138,22 @@
     <div class="row g-4 mb-4">
 
             {{-- Activos en Mal Estado --}}
-    <div class="col-md-3">
-        <div class="card card-stats text-white bg-danger shadow-sm h-100 acta-card"
-            data-tipo="mal-estado" data-bs-toggle="tooltip" title="Activos que requieren atención o mantenimiento">
-            <div class="card-body text-center">
-                <i class="bi bi-exclamation-triangle fs-2"></i>
-                <h5 class="card-title mt-2">Activos</h5>
-                <small class="card-title mt-0">En Mal Estado</small>
-                <p class="display-5">{{ $countMalEstado ?? 0 }}</p>
+  
+   <div class="col-md-3">
+            <div class="card card-stats text-white bg-danger shadow-sm h-100 clickable-card"
+                data-ruta="{{ route('activos.index') }}">
+                <div class="card-body text-center">
+                    <i class="bi bi-boxes fs-2"></i>
+                    <h5 class="card-title mt-2">Activos</h5>
+                    <small class="card-title mt-0"> En mal estado</small>
+                    <p class="display-5">{{ $countActivos }}</p>
+                </div>
             </div>
-        </div>
-    </div>
 
+        </div>
         {{-- Activos Dados de Baja --}}
         <div class="col-md-3">
-            <div class="card card-stats text-white bg-danger shadow-sm h-100 acta-card"
+            <div class="card card-stats text-white bg-dark shadow-sm h-100 acta-card"
                 data-tipo="baja" data-bs-toggle="tooltip" title="Activos dados de baja">
                 <div class="card-body text-center">
                     <i class="bi bi-x-octagon fs-2"></i>

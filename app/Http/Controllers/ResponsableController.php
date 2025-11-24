@@ -14,9 +14,10 @@ class ResponsableController extends Controller
     public function index()
     {
         // $personales = Responsable::with(['usuario', 'cargo'])->paginate(10);
-        $personales = Responsable::with(['usuario', 'cargo'])
+       $personales = Responsable::with(['usuario', 'cargo', 'servicio'])
     ->orderBy('created_at', 'desc')
     ->paginate(20);
+
 
 
         $servicios = \App\Models\Servicio::select('id_servicio', 'nombre')->orderBy('nombre')->get();

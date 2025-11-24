@@ -457,7 +457,7 @@ if ($request->estado) {
 {
     try {
         // 🔹 Consulta base: Inventarios del servicio seleccionado
-        $inventariosQuery = Inventario::query();
+        $inventariosQuery = Inventario::where('estado', 'vigente'); 
 
         if ($request->filled('id_servicio')) {
             $inventariosQuery->where('id_servicio', $request->id_servicio);

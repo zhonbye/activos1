@@ -28,7 +28,159 @@
 
 
 
-<div class="modal fade" id="modalVisualizar2" tabindex="-1" aria-labelledby="modalVisualizarLabel" aria-hidden="true">
+
+<!-- Modal: Actualizar Responsable de Servicio -->
+<div class="modal fade" id="modalActualizarResponsableServicio" tabindex="-1"
+    aria-labelledby="modalActualizarResponsableServicioLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="background-color:#ffffff; color:#212529; border-radius:12px;">
+
+            <!-- Header -->
+            <div class="modal-header bg-primary bg-opacity-10 border-0">
+                <h5 class="modal-title fw-bold" id="modalActualizarResponsableServicioLabel">
+                    <i class="bi bi-person-gear me-2"></i> Actualizar Responsable del Servicio
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body">
+
+                <form id="formActualizarResponsableServicio">
+
+                    <!-- ID oculto del servicio -->
+                    <input type="hidden" id="inventario_id" name="inventario_id">
+
+                    <!-- Nombre del servicio -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Servicio</label>
+                        <input type="text" id="nombre_servicio" class="form-control" readonly>
+                    </div>
+
+                    <!-- Select de responsables -->
+                    <div class="mb-3">
+                        <label for="id_responsable" class="form-label fw-bold">Nuevo Responsable</label>
+                        <select class="form-select" id="id_responsable" name="id_responsable" required>
+                            <option value="">Seleccione un responsable</option>
+
+                            @foreach ($responsables as $r)
+                                <option value="{{ $r->id_responsable }}">
+                                    {{ $r->nombre }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                </form>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer border-0">
+                <button type="reset" class="btn btn-secondary" form="formActualizarResponsableServicio">
+                    <i class="bi bi-eraser-fill"></i> Limpiar
+                </button>
+
+                <button type="submit" class="btn btn-primary" form="formActualizarResponsableServicio">
+                    <i class="bi bi-check-circle"></i> Guardar Cambios
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="modalNuevoServicio" tabindex="-1" aria-labelledby="modalNuevoServicioLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" style="background-color: #ffffff; color: #212529; border-radius: 12px;">
+
+            <!-- Header -->
+            <div class="modal-header border-0 bg-primary bg-opacity-10">
+                <h5 class="modal-title fw-bold" id="modalNuevoServicioLabel">
+                    <i class="bi bi-buildings-fill me-2"></i> Registrar nuevo Servicio / Área
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body pt-3">
+
+                <form id="formNuevoServicio">
+
+                    <!-- Nombre del servicio -->
+                    <div class="mb-3">
+                        <label for="nombreServicio" class="form-label fw-bold">
+                            <i class="bi bi-tag-fill me-1"></i> Nombre del servicio
+                        </label>
+                        <input type="text" class="form-control" id="nombreServicio" name="nombre"
+                            placeholder="Ej: Ingeniería, Contabilidad, Almacén" required>
+                    </div>
+
+                    <!-- Descripción -->
+                    <div class="mb-3">
+                        <label for="descripcionServicio" class="form-label fw-bold">
+                            <i class="bi bi-file-earmark-text-fill me-1"></i> Descripción
+                        </label>
+                        <textarea class="form-control" id="descripcionServicio" name="descripcion" rows="3"
+                            placeholder="Describa el área, función o uso..."></textarea>
+                    </div>
+
+                    <!-- Responsable -->
+                    <div class="mb-3">
+                        <label for="id_responsable" class="form-label fw-bold">
+                            <i class="bi bi-person-badge-fill me-1"></i> Responsable del área
+                        </label>
+                        <select class="form-select" id="id_responsable" name="id_responsable" required>
+                            <option value="">— Sin responsable asignado —</option>
+
+                            @foreach ($responsables as $r)
+                                <option value="{{ $r->id_responsable }}">
+                                    {{ $r->nombre }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                </form>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer border-0">
+                <button type="reset" class="btn btn-secondary" form="formNuevoServicio">
+                    <i class="bi bi-eraser-fill"></i> Limpiar
+                </button>
+                <button type="submit" class="btn btn-primary" form="formNuevoServicio">
+                    <i class="bi bi-check2-circle"></i> Guardar
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="modal fade" id="modalVisualizar2" tabindex="-1" aria-labelledby="modalVisualizarLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header bg-light">
@@ -96,7 +248,8 @@
                     @if ($id)
                         <input type="hidden" id="id_inventario" name="id_inventario" value="{{ $id }}">
                         {{-- <p>ID recibido: {{ $id }}</p> --}}
-                        <p class="con_inventario">Mandaste un inventario, Filtros desactivados. par aelimnar resetee los
+                        <p class="con_inventario">Mandaste un inventario, Filtros desactivados. par aelimnar resetee
+                            los
                             filtros</p>
                     @else
                         <input type="hidden" id="id_inventario" name="id_inventario" value="">
@@ -324,40 +477,6 @@
 
 
 
-{{-- <!-- Botón que activa el modal Dar de Baja -->
-<button type="button" class="btn btn-danger" 
-        data-bs-toggle="modal" 
-        data-bs-target="#modalDarBaja"
-        data-id-activo="2">
-    <i class="bi bi-x-circle me-1"></i> Dar de Baja
-</button>
-<!-- Modal Dar de Baja --> --}}
-
-
-
-
-<!-- Modal Dar de Baja -->
-<div class="modal fade" id="modalDarBaja" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content rounded-4 shadow-lg" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(8px);">
-
-            <!-- Header -->
-            <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold text-danger"><i class="bi bi-x-circle me-2"></i> Dar de Baja Activo</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
-            <!-- Body -->
-            <div class="modal-body">
-               {{-- @include('user.activos.registrarBaja') --}}
-            </div>
-
-            <!-- Footer -->
-            
-
-        </div>
-    </div>
-</div>
 
 
 
@@ -385,27 +504,23 @@
             </h2>
 
             <!-- Botones principales -->
-            <div class="d-flex justify-content-end mb-3 gap-2">
-
-            </div>
+            <div class="d-flex justify-content-end mb-3 gap-2"></div>
             <!-- Card de acciones (buscar, importar, exportar, bajas) -->
             <div class="card shadow-sm position-relative p-3 d-flex justify-content-center align-items-center mb-4"
                 id="cardInventario"
                 style="
-        background-color: #e9f2ff7e;
-        border-left: 5px solid #0d6efd;
-        box-sizing: border-box;
-        min-height: 240px;
-        max-height: none;
-        overflow: visible;
-     ">
+                                background-color: #e9f2ff7e;
+                                border-left: 5px solid #0d6efd;
+                                box-sizing: border-box;
+                                min-height: 240px;
+                                max-height: none;
+                                overflow: visible;
+                            ">
 
                 <!-- Contenedor interno centrado -->
                 <div class="d-flex flex-column justify-content-center  p-4 rounded"
                     style="background-color:#e9f2ff; width: 100%; box-sizing: border-box;">
 
-
-                    <!-- Aquí va TODO tu contenido -->
 
 
 
@@ -460,44 +575,36 @@
                             </button>
                         </div>
                         <div class="col-md-3 gap-3 d-flex justify-content-start">
-                            
-                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoDonante">
+
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#modalNuevoServicio">
                                 <i class="bi bi-plus-circle me-1"></i> Nuevo
                             </button>
-                            <a href="{{ route('donantes.imprimir') }}" target="_blank" class="btn btn-danger btn-sm " id="btnGenerarPDF">
+
+                            <a href="{{ route('donantes.imprimir') }}" target="_blank"
+                                class="btn btn-danger btn-sm " id="btnGenerarPDF">
                                 <i class="bi bi-file-earmark-pdf me-1"></i> Generar PDF
                             </a>
                         </div>
-                        {{-- <div class="col-md-1 d-flex align-items-end">
-                            <button class="desactivado btn btn-azul btn-sm">
-                                <i class="bi bi-printer-fill me-1"></i> Imprimir
-                            </button>
-                        </div> --}}
 
-                        {{-- <div class="col-md-2 d-flex align-items-end">
-                            <button class="btn btn-success btn-sm w-100" id="btnGenerarPDF">
-                                <i class="bi bi-file-earmark-pdf me-1"></i> Generar PDF
-                            </button>
-                        </div> --}}
 
                     </div>
+
                 </div>
+
+
             </div>
-
-
-
-
 
             <div class="card shadow-sm d-none position-relative p-3 d-flex justify-content-center align-items-center mb-4"
                 id="cardDetalleInventario"
                 style="
-        background-color: #e9f2ff7e;
-        border-left: 5px solid #0d6efd;
-        box-sizing: border-box;
-        min-height: 240px;
-        max-height: none;
-        overflow: visible;
-     ">
+                            background-color: #e9f2ff7e;
+                            border-left: 5px solid #0d6efd;
+                            box-sizing: border-box;
+                            min-height: 240px;
+                            max-height: none;
+                            overflow: visible;
+                        ">
                 <input type="hidden" id="id_inventario_a" value="">
                 <!-- Contenedor interno centrado -->
                 <div class="d-flex flex-column justify-content-center fs2 p-4 rounded"
@@ -529,61 +636,33 @@
                         </div>
 
 
-                        <!-- Input de búsqueda o botones de acción -->
-                        {{-- <div class="input-group" style="width: 250px;">
-
-                        </div> --}}
-                        {{-- <div class="col-md-1 d-flex align-items-end">
-
-                        </div> --}}
                     </div>
                     <!-- Datos principales -->
                     <div class="row g-2 mb-2">
                         <div class="col-md-3"><strong>Número:</strong> <span id="detalleNumero">-</span></div>
-                        <div class="col-md-3"><strong>Gestión:</strong> <span id="detalleGestion">-</span></div>
                         <div class="col-md-3"><strong>Fecha:</strong> <span id="detalleFecha">-</span></div>
+                        <div class="col-md-3"><strong>Servicio:</strong> <span id="detalleServicio">-</span></div>
+                        <div class="col-md-3"><strong>Responsable:</strong> <span id="detalleResponsable">-</span>
+                        </div>
+
+                    </div>
+                    <!-- Datos secundarios -->
+                    <div class="row g-2">
+                        <div class="col-md-3"><strong>Gestión:</strong> <span id="detalleGestion">-</span></div>
+                        <div class="col-md-3"><strong>Registrado por:</strong> <span id="detalleUsuario">-</span>
+                        </div>
+                        <div class="col-md-3"><strong>Registrado en:</strong> <span id="detalleCreado">-</span>
+                        </div>
+
                         <div class="col-md-3">
                             <strong>Estado:</strong>
                             <span id="detalleEstado" class="badge bg-info text-dark">-</span>
                         </div>
                     </div>
-
-                    {{--
-                    <h4 class="fw-bold mb-2">Información General</h4>
-                    <div class="row g-2">
-                        <div class="col-md-3"><strong>Número:</strong> <span id="detalleNumero"></span></div>
-                        <div class="col-md-3"><strong>Gestión:</strong> <span id="detalleGestion"></span></div>
-                        <div class="col-md-3"><strong>Fecha:</strong> <span id="detalleFecha"></span></div>
-                        <div class="col-md-3"><strong>Estado:</strong> <span id="detalleEstado"
-                                class="badge"></span>
-                        </div>
-                    </div> --}}
-                    {{-- <div class="row g-2 mt-2">
-                        <div class="col-md-4"><strong>Usuario:</strong> <span id="detalleUsuario"></span></div>
-                        <div class="col-md-4"><strong>Responsable:</strong> <span id="detalleResponsable"></span>
-                        </div>
-                        <div class="col-md-4"><strong>Servicio:</strong> <span id="detalleServicio"></span></div>
-                    </div> --}}
-                    <!-- Datos secundarios -->
-                    <div class="row g-2">
-                        <div class="col-md-4"><strong>Registrado por:</strong> <span id="detalleUsuario">-</span>
-                        </div>
-                        <div class="col-md-4"><strong>Registrado en:</strong> <span id="detalleCreado">-</span></div>
-                        <div class="col-md-4"><strong>Responsable:</strong> <span id="detalleResponsable">-</span>
-                        </div>
-                        <div class="col-md-4"><strong>Servicio:</strong> <span id="detalleServicio">-</span></div>
-                    </div>
+                    {{-- </div> --}}
                 </div>
 
             </div>
-
-
-
-
-
-
-
-
 
 
 
@@ -591,70 +670,176 @@
             <div class="card shadow-sm d-none position-relative p-3 d-flex justify-content-center align-items-center mb-4"
                 id="cardActualizarInventario"
                 style="
-        background-color: #e9f2ff7e;
-        border-left: 5px solid #0d6efd;
-        box-sizing: border-box;
-        min-height: 240px;
-        max-height: none;
-        overflow: visible;
-     ">
+                                background-color: #e9f2ff7e;
+                                border-left: 5px solid #0d6efd;
+                                box-sizing: border-box;
+                                min-height: 240px;
+                                max-height: none;
+                                overflow: visible;
+                            ">
 
                 <!-- Contenedor interno centrado -->
                 <div class="d-flex flex-column justify-content-center  p-4 rounded"
                     style="background-color:#e9f2ff; width: 100%; box-sizing: border-box;">
 
 
-                    {{-- <div class="card mb-4 shadow-sm d-none" id="cardActualizarInventario"
-                style="background-color: #f8f9fa; border-left: 5px solid #0d6efd; padding: 1.5rem;"> --}}
 
                     <input type="hidden" id="id_inventario_actualizar">
                     <input type="hidden" id="id_inventario_original">
+                    <input type="hidden" id="id_servicio">
 
 
-                    {{-- <div class="mb-3 p-3 rounded" style="background-color:#e9f2ff;"> --}}
-                    <h6 class="fw-bold mb-3">Información General</h6>
-
-                    <div class="row g-2">
-
-                        <!-- Número documento -->
-                        <div class="col-md-2">
-                            <input type="text" class="form-control input-compact" id="numero_documento"
-                                placeholder="Número" readonly>
-                            <small class="text-muted fst-italic">Generado automáticamente</small>
-                        </div>
-
-                        <!-- Gestión -->
-                        <div class="col-md-2">
-                            <input type="number" class="form-control input-compact" id="gestion"
-                                placeholder="Gestión">
-                        </div>
-
-                        <!-- Fecha -->
-                        <div class="col-md-3">
-                            <input type="date" class="form-control input-compact" id="fecha"
-                                placeholder="Fecha">
-                        </div>
-
-                        <!-- Responsable -->
+                    <div class="row d-flex align-items-center justify-content-start mb-3">
                         <div class="col-md-4">
-                            <input type="text" class="form-control input-compact" id="responsable"
-                                placeholder="responsable">
+                            <h4 class="fw-bold mb-0">Información General</h4>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-center justify-content-center px-2">
+                            <div class="input-group" style="max-width: 300px;"> <!-- Limita ancho total -->
+                                <input type="text" id="buscarActivoInventario"
+                                    class="form-control form-control-sm rounded-start-pill"
+                                    placeholder="Codigo, nombre o detalle del activo">
+                                <button class="btn btn-primary btn-sm rounded-end-pill"
+                                    id="btnBuscarActivoActualizado" type="button">
+                                    Buscar
+                                </button>
+                            </div>
                         </div>
 
-                        <!-- Observaciones -->
-                        <div class="col-md-4 mt-1">
-                            <input type="text" class="form-control input-compact" id="observaciones"
-                                placeholder="Observaciones">
+                        <div class="col-md-4 d-flex align-items-center justify-content-end">
+                            <button class="desactivado btn btn-azul btn-sm">
+                                <i class="bi bi-printer-fill me-1"></i> Imprimir
+                            </button>
+                            <button class="btn btn-azul text-secondary btn-sm btn-actualizar-responsable"
+                                data-bs-toggle="modal" data-bs-target="#modalActualizarResponsableServicio">
+                                <i class="bi bi-person-gear me-1"></i> Actualizar responsable
+                            </button>
+                            <button
+                                class="btn btn-verde text- btn-success  bg-opacity-25 btn-sm btn-actualizar-inventario"
+                                id="btnActualizarInventario">
+                                <i class="bi bi-arrow-clockwise me-1"></i> Actualizar inventario
+                            </button>
+
+
                         </div>
 
-                        <!-- Usuario hidden -->
-                        <input type="hidden" id="id_usuario" value="{{ auth()->user()->id_usuario ?? "" }}">
+
+                    </div>
+                    <!-- Datos principales -->
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-3"><strong>Número:</strong> <span id="numero_documento"
+                                placeholder="Número">-</span></div>
+                        <div class="col-md-3"><strong>Fecha:</strong> <span id="fecha">-</span></div>
+                        <div class="col-md-3"><strong>Servicio:</strong> <span id="servicio">-</span></div>
+                        <div class="col-md-3">
+                            <strong>Estado:</strong>
+                            <span id="estado" class="badge bg-info text-dark">pendiente</span>
+                        </div>
                     </div>
 
 
-                </div>
+                    <!-- Datos secundarios -->
+                    <div class="row g-2">
+                        <div class="col-md-3"><strong>Gestión:</strong> <span id="gestion">-</span></div>
+                        <div class="col-md-3"><strong>Registrado por:</strong> <span id="usuario">-</span>
+                        </div>
+                        {{-- <div class="col-md-3"><strong>Registrado en:</strong> <span id="detalleCreado">-</span>
+                        </div> --}}
 
+                        {{-- <div class="col-md-3">
+                            <strong>Estado:</strong>
+                            <span id="detalleEstado" class="badge bg-info text-dark">-</span>
+                        </div> --}}
+                        <div class="col-md-5 d-flex align-items-center gap-2">
+                            <strong class="mb-0">Responsable:</strong><span id="responsable"></span>
+                            {{-- <select class="form-select input-compact" id="responsable" name="responsable" style="flex: 1;">
+        <option value="">Seleccione un responsable</option>
+
+        @foreach ($responsables as $r)
+            <option value="{{ $r->id_responsable }}">
+                {{ $r->nombre }}
+            </option>
+        @endforeach
+    </select> --}}
+                        </div>
+
+                        <input type="hidden" id="id_usuario" value="{{ auth()->user()->id_usuario ?? '' }}">
+
+                    </div>
+                </div>
             </div>
+
+
+
+
+
+            {{-- </div> --}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            {{-- <div class="row g-2">
+
+            <!-- Número documento -->
+            <div class="col-md-2">
+                <input type="text" class="form-control input-compact" id="numero_documento" placeholder="Número"
+                    readonly>
+                <small class="text-muted fs-6 fst-italic">Generado automáticamente</small>
+            </div>
+
+            <!-- Gestión -->
+            <div class="col-md-2">
+                <input type="number" class="form-control input-compact" id="gestion" placeholder="Gestión">
+            </div>
+
+            <!-- Fecha -->
+            <div class="col-md-3">
+                <input type="date" class="form-control input-compact" id="fecha" placeholder="Fecha">
+            </div>
+
+            <!-- Responsable -->
+            <div class="col-md-4">
+                <select class="form-select input-compact" id="responsable" name="responsable">
+                    <option value="">Seleccione un responsable</option>
+
+                    @foreach ($responsables as $r)
+                        <option value="{{ $r->id_responsable }}">
+                            {{ $r->nombre }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+
+            <!-- Observaciones -->
+            <div class="col-md-4 mt-1">
+                <input type="text" class="form-control input-compact" id="observaciones"
+                    placeholder="Observaciones">
+            </div>
+
+            <!-- Usuario hidden -->
+            <input type="hidden" id="id_usuario" value="{{ auth()->user()->id_usuario ?? '' }}">
+        </div> --}}
+
+
+
+            {{-- </div>
+
+
+        </div> --}}
 
 
 
@@ -774,42 +959,441 @@
         let debounceTimer;
         let tieneActualizar = false;
 
+
+
+
+
+
+$(document).on("click", ".guardar-cambios-btn", function () {
+
+    let btn = $(this);
+
+    // 1️⃣ Obtener la fila donde se hizo clic
+    let fila = btn.closest("tr");
+
+    // 2️⃣ Obtener los valores modificados
+    let estado = fila.find(".estadoActualizar option:selected").text();
+
+    let observacion = fila.find(".observacionActualizar").val();
+
+    // 3️⃣ Obtener el ID del detalle inventario
+    let id_detalle = btn.data("id");
+
+    // 4️⃣ AJAX
+    $.ajax({
+        url: "{{ route('inventarios.actualizardetalles') }}",
+        type: "POST",
+        data: {
+            id_detalle_inventario: parseInt(id_detalle), 
+            estado_actual: estado,
+            observaciones: observacion,
+        },
+        
+headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+        beforeSend: function () {
+            btn.prop("disabled", true).html('<i class="bi bi-hourglass-split"></i>');
+        },
+        success: function (resp) {
+
+            Swal.fire({
+                icon: "success",
+                title: "Actualizado",
+                text: "El detalle del inventario se actualizó correctamente."
+            });
+
+            // Restaurar botón y ocultarlo otra vez
+            btn.prop("disabled", false)
+               .addClass("d-none")
+               .html('<i class="bi bi-check"></i>');
+        },
+        error: function () {
+
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "No se pudo actualizar el detalle del inventario."
+            });
+
+            btn.prop("disabled", false)
+               .html('<i class="bi bi-check"></i>');
+        }
+    });
+
+});
+
+
+
+
+
+
+$(document).on("change keyup", ".estadoActualizar, .observacionActualizar", function () {
+
+    let fila = $(this).closest("tr");
+    let btnGuardar = fila.find(".guardar-cambios-btn");
+
+    let estado = fila.find(".estadoActualizar");
+    let observacion = fila.find(".observacionActualizar");
+
+    // Valores actuales
+    let estadoActual = estado.val();
+    let observacionActual = observacion.val().trim();
+
+    // Valores originales
+    let estadoOriginal = estado.data("original");
+    let observacionOriginal = observacion.data("original");
+
+    // Detectar si hubo cambios
+    let cambioEstado = estadoActual != estadoOriginal;
+    let cambioObservacion = observacionActual != observacionOriginal;
+
+    if (cambioEstado || cambioObservacion) {
+        // Mostrar botón SIN deformarlo
+        btnGuardar.removeClass("d-none").css("display", "");
+    } else {
+        // Ocultar botón si no hay cambios
+        btnGuardar.addClass("d-none");
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+        $(document).off("click", "#btnActualizarInventario").on("click", "#btnActualizarInventario",
+    function() {
+
+            let btn = $(this);
+
+            // 1. Verificar si el tbody está vacío
+            if ($("#tablaActualizarInventario").children().length === 0) {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Inventario vacío",
+                    text: "No puedes actualizar un inventario vacío."
+                });
+                return;
+            }
+// 
+
+            // 2. Confirmación
+            Swal.fire({
+                title: "¿Está seguro?",
+                text: "Se actualizará el inventario seleccionado.",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Sí, actualizar",
+                cancelButtonText: "Cancelar",
+            }).then((result) => {
+
+                if (!result.isConfirmed) return;
+
+                // Desactivar botón
+                btn.prop("disabled", true).html("Actualizando...");
+
+                // 3. Obtener ID del inventario
+                // OBTENER VALORES
+                let id_inventario_original = $("#id_inventario_original").val();
+                let id_inventario_actualizar = $("#id_inventario_actualizar").val();
+
+                // VALIDAR INVENTARIO ORIGINAL
+                if (!id_inventario_original || id_inventario_original.trim() === "") {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Inventario no encontrado",
+                        text: "No se pudo encontrar el inventario vigente.",
+                        confirmButtonText: "Aceptar"
+                    });
+                    return; // DETENER EJECUCIÓN
+                }
+
+                // VALIDAR INVENTARIO PENDIENTE
+                if (!id_inventario_actualizar || id_inventario_actualizar.trim() === "") {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Inventario no encontrado",
+                        text: "No se pudo encontrar el inventario pendiente.",
+                        confirmButtonText: "Aceptar"
+                    });
+                    return; // DETENER EJECUCIÓN
+                }
+
+
+                // 4. AJAX
+                $.ajax({
+                    url: "{{ route('inventarios.actualizar') }}",
+                    type: "POST",
+                   data: {
+    id_inventario_original: id_inventario_original,
+    id_inventario_actualizar: id_inventario_actualizar
+},
+headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+
+                    beforeSend: function() {
+                        Swal.fire({
+                            title: "Procesando...",
+                            text: "Espere un momento.",
+                            icon: "info",
+                            allowOutsideClick: false,
+                            showConfirmButton: false
+                        });
+                    },
+                    success: function(respuesta) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Inventario actualizado",
+                            text: "La operación se realizó correctamente."
+                        });
+
+                    // $('.btn-reset-filtros').trigger('click');
+                    // $('#formFiltrosInventarios').submit();
+                        cargarInventarios()
+                        const inventarioTab = new bootstrap.Tab(document.querySelector(
+                            '#tab-inventario'));
+                        inventarioTab.show();
+
+                        // Reactivar botón
+                        btn.prop("disabled", false).html(
+                            '<i class="bi bi-arrow-repeat me-1"></i> Actualizar inventario'
+                            );
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: "Ocurrió un problema al actualizar el inventario."
+                        });
+
+                        // Reactivar botón
+                        btn.prop("disabled", false).html(
+                            '<i class="bi bi-arrow-repeat me-1"></i> Actualizar inventario'
+                            );
+                    }
+                });
+
+            });
+
+        });
+
+
+        $('#formActualizarResponsableServicio').on('submit', function(e) {
+            e.preventDefault();
+
+            let form = $(this);
+            let formData = form.serialize();
+
+            Swal.fire({
+                title: "Guardando...",
+                text: "Por favor espere",
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading(),
+            });
+
+            $.ajax({
+                url: "{{ route('inventarios.actualizar-responsable') }}",
+                type: 'POST',
+                data: formData,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+
+                beforeSend: function() {
+                    // Asegurar token CSRF
+                    if (!$('input[name=_token]').length) {
+                        form.append(
+                            `<input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">`
+                            );
+                    }
+                },
+                success: function(response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Actualizado correctamente',
+                        text: response.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    $('#modalActualizarResponsable').modal('hide');
+
+                    // si tienes que refrescar tabla
+                    // if (typeof cargarServicios === "function") {
+
+                    // }
+                    actualizarInventario()
+                },
+                error: function(xhr) {
+                    let mensaje = "Error al actualizar";
+
+                    if (xhr.status === 422) {
+                        let errores = xhr.responseJSON.errors;
+                        mensaje = Object.values(errores)[0][0]; // primer error
+                    }
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: mensaje
+                    });
+                }
+            });
+
+        });
+
+
+
+
+
+
+
+        $('#modalActualizarResponsableServicio').on('show.bs.modal', function() {
+
+            // Obtener texto del servicio actual
+            let servicioTexto = $('#servicio').text().trim();
+            $('#nombre_servicio').val(servicioTexto);
+            $('#modalActualizarResponsableServicio #inventario_id').val($('#id_inventario_actualizar')
+                .val());
+
+            // Obtener texto del responsable actual
+            let responsableTexto = $('#responsable').text().trim().toLowerCase();
+            // alert(servicioTexto + responsableTexto)
+            // Buscar en el select del modal (#id_responsable)
+            $('#id_responsable option').each(function() {
+                let textoOpcion = $(this).text().trim().toLowerCase();
+
+                if (textoOpcion === responsableTexto) {
+                    $(this).prop('selected', true);
+                }
+            });
+
+        });
+
+
+
+
+
+
+
         $('.btn-reset-filtros').on('click', function() {
             $('#id_inventario').val('');
             $('.con_inventario').html('');
         });
+        // Evento submit del formulario
+        $('#formNuevoServicio').on('submit', function(e) {
+            e.preventDefault();
+
+            let form = $(this);
+            let datos = form.serialize(); // Serializa nombre, descripcion, responsable, etc.
+
+            $.ajax({
+                url: "{{ route('servicios.store') }}",
+                type: "POST",
+                data: datos,
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                },
+                beforeSend: function() {
+                    Swal.fire({
+                        title: 'Guardando...',
+                        text: 'Por favor espera.',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
+                },
+
+                success: function(response) {
 
 
-$(document).off('click', '.baja-activo-btn').on('click', '.baja-activo-btn', function() {
-    var idActivo = $(this).data('id');
 
-    $.ajax({
-        url: "{{ route('bajas.buscarActivo') }}",
-        type: "POST",
-        data: {
-            id_activo: idActivo,
-            _token: "{{ csrf_token() }}"
-        },
-        success: function(html) {
-            $('#modalDarBaja .modal-body').html(html);
-            $('#modalDarBaja').modal('show'); // abrir modal
-        },
-        error: function(xhr) {
-            let mensaje = 'No se pudo cargar el activo para dar de baja.';
-            if(xhr.responseJSON && xhr.responseJSON.error) {
-                mensaje = xhr.responseJSON.error;
-            }
+                    $('.btn-reset-filtros').trigger('click');
+                    $('#formFiltrosInventarios').submit();
 
-            // SweetAlert
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: mensaje,
-                confirmButtonColor: '#d33'
+
+
+
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Servicio registrado',
+                        text: response.message ||
+                            'El servicio fue creado correctamente.',
+                        timer: 1800,
+                        showConfirmButton: false
+                    });
+
+                    // Cerrar modal
+                    $('#modalNuevoServicio').modal('hide');
+
+                    // Limpiar formulario
+                    form.trigger("reset");
+
+                    // Recargar tabla si usas una función
+                    if (typeof cargarServicios === "function") {
+                        cargarServicios();
+                    }
+                },
+
+                error: function(xhr) {
+                    let errores = xhr.responseJSON?.errors;
+                    let mensaje = "Ocurrió un error.";
+
+                    if (errores) {
+                        mensaje = Object.values(errores).join("<br>");
+                    } else if (xhr.responseJSON?.message) {
+                        mensaje = xhr.responseJSON.message;
+                    }
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al guardar',
+                        html: mensaje
+                    });
+                }
             });
-        }
-    });
-});
+        });
+
+
+        $(document).off('click', '.baja-activo-btn').on('click', '.baja-activo-btn', function() {
+            var idActivo = $(this).data('id');
+
+            $.ajax({
+                url: "{{ route('bajas.buscarActivo') }}",
+                type: "POST",
+                data: {
+                    id_activo: idActivo,
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(html) {
+                    $('#modalDarBaja .modal-body').html(html);
+                    // $('#modalDarBaja').modal('show');
+
+                },
+                error: function(xhr) {
+                    let mensaje = 'No se pudo cargar el activo para dar de baja.';
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        mensaje = xhr.responseJSON.error;
+                    }
+
+                    // SweetAlert
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: mensaje,
+                        confirmButtonColor: '#d33'
+                    });
+                }
+            });
+        });
 
 
 
@@ -825,6 +1409,8 @@ $(document).off('click', '.baja-activo-btn').on('click', '.baja-activo-btn', fun
             // alert("fdsafdsfdsa")
             var idActivo = $(this).data('id');
             var url = baseUrl + '/activo/' + idActivo + '/detalle';
+
+            //  alert( $('button.btn.ver-detalles-btn.active').html())
             $.ajax({
                 url: url,
                 type: 'GET',
@@ -991,18 +1577,18 @@ $(document).off('click', '.baja-activo-btn').on('click', '.baja-activo-btn', fun
                         const d = res.detalle;
 
                         let nuevaFila = `
-                    <tr>
+                    <tr >
                         <td>${d.numero}</td>
                         <td>${d.codigo}</td>
                         <td>${d.nombre}</td>
                         <td>${d.detalle}</td>
                         <td>
-                            <select class="form-select form-select-sm estado-select" data-id="${d.id_detalle}">
+                            <select class="form-select form-select-sm estado-select estadoActualizar" data-id="${d.id_detalle}">
                                 ${d.estados_html}
                             </select>
                         </td>
                         <td>
-                            <input type="text" class="form-control form-control-sm observacion-input"
+                            <input type="text" class="form-control form-control-sm observacion-input observacionActualizar"
                                 value="${d.observaciones}" data-id="${d.id_detalle}">
                         </td>
                         <td>
@@ -1010,6 +1596,11 @@ $(document).off('click', '.baja-activo-btn').on('click', '.baja-activo-btn', fun
                                 data-id="${d.id_activo}">
                                 <i class="bi bi-arrow-left-circle"></i>
                             </button>
+                               <button data-id="${d.id_detalle_inventario}" 
+        class="btn btn-sm btn-success guardar-cambios-btn ms-1 d-none" 
+        title="Guardar cambios">
+    <i class="bi bi-check"></i>
+</button>
                         </td>
                     </tr>
                 `;
@@ -1075,6 +1666,9 @@ $(document).off('click', '.baja-activo-btn').on('click', '.baja-activo-btn', fun
                     $('#id_inventario_original').val('');
                     $('#id_inventario_actualizar').val('');
                 }
+                tieneActualizar = false;
+                $('#tablaActualizarInventario').empty();
+
                 $('#numero_documento').val('-');
                 $('#gestion').val('-');
                 $('#fecha').val('-');
@@ -1190,15 +1784,35 @@ $(document).off('click', '.baja-activo-btn').on('click', '.baja-activo-btn', fun
                             showConfirmButton: false,
                             icon: 'success'
                         });
+                        console.log(res)
+                        $('#numero_documento').text(res.numero || '-');
+                        //  $('#numero_documento').val('fdsfdsafdsafd-');
+                        $('#gestion').text(res.gestion || '-');
+                        $('#fecha').text(res.fecha || '-');
+
+
+                        // $('#responsable').val(res.id_responsable || '').trigger('change');
+                        $('#responsable').text(res.responsable || '');
+                        $('#responsable').text(res.responsable || '');
+
+                        $('#observaciones').val(res.observaciones ||
+                            '');
+                        $('#id_usuario').val(res.usuario || '');
+
+                        $('#servicio').text(res.servicio || '');
+                        $('#usuario').text(res.usuario || '');
+
+
 
                         // Poner valores en inputs del inventario
-                        $('#numero_documento').val(res.numero || '-');
-                        $('#gestion').val(res.gestion || '-');
-                        $('#fecha').val(res.fecha || '-');
-                        $('#responsable').val(res.responsable || '');
-                        $('#observaciones').val(res.observaciones || '');
-                        $('#id_usuario').val(res.usuario || '');
+                        // $('#numero_documento').val(res.numero || '-');
+                        // $('#gestion').val(res.gestion || '-');
+                        // $('#fecha').val(res.fecha || '-');
+                        // $('#responsable').val(res.responsable || '');
+                        // $('#observaciones').val(res.observaciones || '');
+                        // $('#id_usuario').val(res.usuario || '');
                         $('#id_inventario_actualizar').val(res.id_inventario);
+                        $('#id_servicio').val(res.id_servicio);
 
                         // Insertar tabla que ya viene desde el controlador
                         $('#tablaActualizarInventario').html(res.tablaDetalle);
@@ -1233,6 +1847,8 @@ $(document).off('click', '.baja-activo-btn').on('click', '.baja-activo-btn', fun
                                 Swal.close();
 
                                 if (resGenerado && resGenerado.inventario) {
+                                    console.log(resGenerado)
+                                    console.log(resGenerado.inventario)
                                     Swal.fire({
                                         title: 'Inventario generado',
                                         text: 'Se creó un inventario pendiente automáticamente.',
@@ -1244,22 +1860,31 @@ $(document).off('click', '.baja-activo-btn').on('click', '.baja-activo-btn', fun
                                     const nuevo = resGenerado.inventario;
 
 
-
+                                    // alert(nuevo.numero_documento)
                                     // Poner valores del nuevo inventario
                                     $('#numero_documento').text(nuevo
                                         .numero_documento || '-');
                                     $('#gestion').text(nuevo.gestion || '-');
                                     $('#fecha').text(nuevo.fecha || '-');
+                                    $('#servicio').text(nuevo.servicio.nombre ||
+                                    '');
 
 
-                                    $('#responsable').val(nuevo.responsable || '');
+                                    // $('#responsable').val(nuevo.id_responsable ||
+                                    //     '').trigger('change');
+                                    $('#responsable').text(nuevo.responsable
+                                        .nombre || '');
+
                                     $('#observaciones').val(nuevo.observaciones ||
                                         '');
-                                    $('#id_usuario').val(nuevo.usuario || '');
+                                    $('#id_usuario').val(nuevo.id_usuario || '');
+                                    $('#usuario').text(nuevo.usuario.usuario || '');
 
 
 
 
+                                    $('#id_servicio').val(nuevo.servicio
+                                        .id_servicio);
                                     $('#id_inventario_actualizar').val(nuevo
                                         .id_inventario);
                                     tieneActualizar = true;
@@ -1267,7 +1892,7 @@ $(document).off('click', '.baja-activo-btn').on('click', '.baja-activo-btn', fun
                                         .id_inventario);
 
                                     // Tabla vacía inicial
-                                    $('#tablaDetalleInventario').html(
+                                    $('#tablaActualizarInventario').html(
                                         '<tr><td colspan="7" class="text-center">No hay detalles aún</td></tr>'
                                     );
                                 } else {
@@ -1323,7 +1948,7 @@ $(document).off('click', '.baja-activo-btn').on('click', '.baja-activo-btn', fun
 
             // Insertar tabla que ya viene desde el controlador
             $('#tablaActualizarInventario').html('');
-
+            $('#id_servicio').val("");
             $('#tab-actualizar').addClass('d-none');
             tieneActualizar = false;
         }

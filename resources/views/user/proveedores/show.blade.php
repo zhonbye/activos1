@@ -331,7 +331,7 @@
                             <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody id="tablaCompras">
+                    <tbody id="tablaCompras" >
                         <tr>
                             <td colspan="8" class="text-center text-muted"> selecione a un  preveedor</td>
                         </tr>
@@ -363,6 +363,18 @@
 filtrarProveedores()
 
 
+ $(document).on('click', '#contenedorCompras .pagination a', function(e) {
+    e.preventDefault();
+
+    let url = $(this).attr('href');
+
+    // Extraer page=n de la URL
+    let page = url.split('page=')[1];
+
+    let idProveedor = $('#contenedorCompras table').data('id-proveedor');
+
+    filtrarCompras(idProveedor, page);
+});
 
 
 

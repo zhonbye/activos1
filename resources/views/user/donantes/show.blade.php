@@ -700,16 +700,17 @@ $.ajax({
 
         }
 
-$(document).on('click', '#contenedorListaDonantees .pagination a', function(e) {
-            e.preventDefault();
-            let page = $(this).attr('href').split('page=')[1];
-            filtrarDonantees(page);
-        });
-        $(document).on('click', '#contenedorTablaUsuarios .pagination a', function(e) {
-            e.preventDefault(); // Evita recargar toda la página
-            let page = $(this).attr('href').split('page=')[1]; // obtiene el número de página
-            filtrarUsuarios(page); // tu función AJAX que recarga la tabla
-        });
+$(document).on('click', '#contenedorDonaciones .pagination a', function(e) {
+    e.preventDefault();
+    
+    let url = $(this).attr('href');
+    if (!url) return;
+
+    let page = url.split('page=')[1];
+
+    let idDonante = $('#contenedorDonaciones table').data('id-donante');
+    filtrarDonaciones(idDonante, page);
+});
 
 
 

@@ -339,6 +339,8 @@
                                 Activo</a></li> --}}
                         <li><a href="{{ route('activos.historial') }}" role="menuitem" class="cargar">Historial de
                                 activo</a></li>
+                                        <li><a href="{{ route('proveedores.show') }}" role="menuitem" class="cargar">Compras</a></li>
+                        <li><a href="{{ route('donantes.show') }}" role="menuitem" class="cargar">Donaciones</a></li>
 
                         {{-- <li><a href="{{ route('entregas.show') }}" role="menuitem" class="cargar">Realizar Entrega</a></li> --}}
                     </ul>
@@ -384,16 +386,38 @@
                     {{-- <li><a href="#" class="desactivado" role="menuitem">Realizar Inventario</a></li> --}}
                     {{-- <li><a href="{{ route('inventario.consultar') }}" role="menuitem" class="cargar">Consultar --}}
                     <li><a href="{{ route('inventario.show') }}" role="menuitem" class="cargar">Listar y actualizar</a></li>
-                    <li><a href="{{ route('servicios.show') }}" role="menuitem" class="cargar">Añadir servicio</a></li>
-                    <li><a href="{{ route('user.parametros') }}" role="menuitem" class="cargar">Gestión de parametros</a></li>
-                    <li><a href="{{ route('pruebas') }}" role="menuitem" class="cargar">prueba interfaces</a></li>
+                    {{-- <li><a href="{{ route('servicios.show') }}" role="menuitem" class="cargar">Añadir servicio</a></li> --}}
+                    {{-- <li><a href="{{ route('user.parametros') }}" role="menuitem" class="cargar">Gestión de parametros</a></li> --}}
+                    {{-- <li><a href="{{ route('pruebas') }}" role="menuitem" class="cargar">prueba interfaces</a></li> --}}
                 </ul>
             </li>
-
+     <!-- Gestión de Usuarios -->
+                <li class="menu-item" data-submenu="submenuUsuarios" role="none">
+                    <div class="main-item bg-success bg-opacity-10"  tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"
+                        aria-controls="submenuUsuarios">
+                        <i class="bi bi-people icon" aria-hidden="true"></i>
+                        <span class="text">Personal</span>
+                        <i class="bi bi-caret-down caret" aria-hidden="true"></i>
+                    </div>
+                    <ul class="submenu" id="submenuUsuarios" role="menu" aria-label="Submenú Usuarios">
+                        {{-- <li role="none">
+                            <a href="{{ route('usuarios.create') }}" role="menuitem" class="cargar">Crear Usuario</a>
+                        </li> --}}
+                        <li role="none">
+                            <a href="{{ route('responsable.index') }}" role="menuitem" class="cargar">Responsables</a>
+                        </li>
+                        {{-- <li role="none">
+                            <a href="{{ route('usuarios.index') }}" role="menuitem" class="cargar">Listar Usuarios</a>
+                        </li> --}}
+                        {{-- <li role="none">
+                            <a href="#" data-url="/usuarios/roles" role="menuitem" class="cargar">Roles y Permisos</a>
+                        </li> --}}
+                    </ul>
+                </li>
             <!-- ====================== -->
             <!-- MÓDULO: REPORTES -->
             <!-- ====================== -->
-            <li class="menu-item " data-submenu="submenuReportes" role="none">
+            {{-- <li class="menu-item " data-submenu="submenuReportes" role="none">
                 <div class="main-item" tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"
                     aria-controls="submenuReportes">
                     <i class="bi bi-graph-up icon" aria-hidden="true"></i>
@@ -405,7 +429,7 @@
                     <li><a href="#" class="desactivado" role="menuitem">Reportes por Responsable</a></li>
                     <li><a href="#" class="desactivado" role="menuitem">Reportes Globales</a></li>
                 </ul>
-            </li>
+            </li> --}}
 
                 <br>
                 <br>

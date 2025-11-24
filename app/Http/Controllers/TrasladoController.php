@@ -410,11 +410,13 @@ if ($request->estado) {
 
         try {
             // Consulta base de inventarios
-            $inventariosQuery = Inventario::query();
+           $inventariosQuery = Inventario::where('estado', 'vigente'); // 🔥 SOLO VIGENTES
 
-            if ($request->filled('id_servicio_origen')) {
-                $inventariosQuery->where('id_servicio', $request->id_servicio_origen);
-            }
+if ($request->filled('id_servicio_origen')) {
+    $inventariosQuery->where('id_servicio', $request->id_servicio_origen);
+}
+
+
 
             $inventarios = $inventariosQuery->pluck('id_inventario');
 

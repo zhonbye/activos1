@@ -60,9 +60,9 @@
             font-size: 0.9rem;
         }
 
-        .btn-filtro {
+        /* .btn-filtro {
             margin-top: 1rem;
-        }
+        } */
     </style>
 </head>
 
@@ -87,87 +87,93 @@
                 </h2>
 
                 <!-- Botón imprimir historial general -->
-                <div class="d-flex justify-content-end mb-3">
+                {{-- <div class="d-flex justify-content-end mb-3">
                     <button class="btn btn-azul btn-sm" id="btnImprimirHistorial" title="Imprimir todo el historial">
                         <i class="bi bi-printer-fill me-1"></i> Imprimir Historial
                     </button>
-                </div>
+                </div> --}}
 
                 <!-- Filtros -->
                 <div class="card card-filtro mb-4 shadow-sm p-3">
-    <div class="row g-3">
-        <!-- Filtro por activo -->
-        <div class="col-md-3">
-            <label class="form-label fw-semibold"><i class="bi bi-search me-1"></i>Buscar activo</label>
-            <input type="text" id="filtroActivo" class="form-control form-control-sm"
-                   placeholder="Nombre o código">
-        </div>
+                    <div class="row g-3">
+                        <!-- Filtro por activo -->
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold"><i class="bi bi-search me-1"></i>Buscar activo</label>
+                            <input type="text" id="filtroActivo" class="form-control form-control-sm"
+                                placeholder="Nombre o código">
+                        </div>
 
-        <!-- Filtro por tipo de movimiento -->
-        <div class="col-md-2">
-            <label class="form-label fw-semibold">Tipo de movimiento</label>
-            <select id="filtroTipo" class="form-select form-select-sm">
-                <option value="">Todos</option>
-                <option value="Entrega">Entrega</option>
-                <option value="Traslado">Traslado</option>
-                <option value="Devolucion">Devolución</option>
-                <option value="Baja">Baja</option>
-            </select>
-        </div>
+                        <!-- Filtro por tipo de movimiento -->
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">Tipo de movimiento</label>
+                            <select id="filtroTipo" class="form-select form-select-sm">
+                                <option value="">Todos</option>
+                                <option value="Entrega">Entrega</option>
+                                <option value="Traslado">Traslado</option>
+                                <option value="Devolucion">Devolución</option>
+                                <option value="Baja">Baja</option>
+                            </select>
+                        </div>
 
-        <!-- Filtro por usuario -->
-        <div class="col-md-2">
-            <label class="form-label fw-semibold">Usuario</label>
-            <select id="filtroUsuario" class="form-select form-select-sm">
-                <option value="">Todos</option>
-                @foreach($usuarios as $usuario)
-                    <option value="{{ $usuario->id_usuario }}">{{ $usuario->usuario }}</option>
-                @endforeach
-            </select>
-        </div>
+                        <!-- Filtro por usuario -->
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">Usuario</label>
+                            <select id="filtroUsuario" class="form-select form-select-sm">
+                                <option value="">Todos</option>
+                                @foreach ($usuarios as $usuario)
+                                    <option value="{{ $usuario->id_usuario }}">{{ $usuario->usuario }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-        <!-- Filtro por servicio origen -->
-        <div class="col-md-2">
-            <label class="form-label fw-semibold">Servicio origen</label>
-            <select id="filtroServicioOrigen" class="form-select form-select-sm">
-                <option value="">Todos</option>
-                @foreach($servicios as $servicio)
-                    <option value="{{ $servicio->id_servicio }}">{{ $servicio->nombre }}</option>
-                @endforeach
-            </select>
-        </div>
+                        <!-- Filtro por servicio origen -->
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">Servicio origen</label>
+                            <select id="filtroServicioOrigen" class="form-select form-select-sm">
+                                <option value="">Todos</option>
+                                @foreach ($servicios as $servicio)
+                                    <option value="{{ $servicio->id_servicio }}">{{ $servicio->nombre }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-        <!-- Filtro por servicio destino -->
-        <div class="col-md-2">
-            <label class="form-label fw-semibold">Servicio destino</label>
-            <select id="filtroServicioDestino" class="form-select form-select-sm">
-                <option value="">Todos</option>
-                @foreach($servicios as $servicio)
-                    <option value="{{ $servicio->id_servicio }}">{{ $servicio->nombre }}</option>
-                @endforeach
-            </select>
-        </div>
+                        <!-- Filtro por servicio destino -->
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">Servicio destino</label>
+                            <select id="filtroServicioDestino" class="form-select form-select-sm">
+                                <option value="">Todos</option>
+                                @foreach ($servicios as $servicio)
+                                    <option value="{{ $servicio->id_servicio }}">{{ $servicio->nombre }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-        <!-- Filtro por rango de fechas -->
-        <div class="col-md-3 d-flex gap-2">
-            <div class="flex-fill">
-                <label class="form-label fw-semibold">Desde</label>
-                <input type="date" id="fechaInicio" class="form-control form-control-sm">
-            </div>
-            <div class="flex-fill">
-                <label class="form-label fw-semibold">Hasta</label>
-                <input type="date" id="fechaFin" class="form-control form-control-sm">
-            </div>
-        </div>
+                        <!-- Filtro por rango de fechas -->
+                        <div class="col-md-3 d-flex gap-2">
+                            <div class="flex-fill">
+                                <label class="form-label fw-semibold">Desde</label>
+                                <input type="date" id="fechaInicio" class="form-control form-control-sm">
+                            </div>
+                            <div class="flex-fill">
+                                <label class="form-label fw-semibold">Hasta</label>
+                                <input type="date" id="fechaFin" class="form-control form-control-sm">
+                            </div>
+                        </div>
 
-        <!-- Botón aplicar filtros -->
-        <div class="col-12">
-            <button class="btn btn-azul btn-sm btn-filtro" id="btnFiltrar">
-                <i class="bi bi-funnel-fill me-1"></i> Aplicar filtros
-            </button>
-        </div>
-    </div>
+                        <!-- Botón aplicar filtros -->
+            <div class="col-12 ">
+    <button class="btn btn-azul btn-sm btn-filtro" id="btnFiltrar">
+        <i class="bi bi-funnel-fill me-1"></i> Aplicar filtros
+    </button>
+    <button id="btnGenerarPDF" class=" btn btn-danger btn-sm">
+        <i class="bi bi-filetype-pdf"></i> Generar PDF
+    </button>
+  
 </div>
+
+
+                    </div>
+                </div>
 
 
 
@@ -211,6 +217,68 @@
             // Cargar historial inicial
             cargarHistorial();
 
+const RUTA_HISTORIAL_REPORTE = "{{ route('historial.reporte') }}";
+
+
+$('#btnGenerarPDF').click(function(e) {
+    e.preventDefault();
+
+    let tablaHTML = $('#tablaHistorialParcial').html();
+
+    $.ajax({
+        url: "{{ route('historial.reporte') }}",
+        type: "POST",
+        data: {
+            tabla: tablaHTML,
+            _token: "{{ csrf_token() }}"
+        },
+        xhrFields: {
+            responseType: 'blob'
+        },
+        success: function(data) {
+            let blob = new Blob([data], { type: 'application/pdf' });
+            let url = window.URL.createObjectURL(blob);
+            window.open(url, '_blank');
+        }
+    });
+});
+
+
+
+            // $('#btnGenerarPDF').click(function() {
+            //     let tablaHTML = $('#tablaHistorialParcial').html();
+
+            //     $.ajax({
+            //         // url: "{{ route('historial.reporte') }}",
+            //         url: RUTA_HISTORIAL_REPORTE,
+            //         type: "POST",
+            //         data: {
+            //             tabla: tablaHTML,
+            //             _token: "{{ csrf_token() }}"
+            //         },
+            //         xhrFields: {
+            //             responseType: 'blob'
+            //         },
+            //         success: function(data) {
+            //             let url = window.URL.createObjectURL(data);
+
+            //             // 👉 ABRIR EN NUEVA PESTAÑA
+            //             // window.open(url, '_blank');
+            //         }
+            //     });
+            // });
+
+
+
+
+
+
+
+
+
+
+
+
             // Botón aplicar filtros
             $('#btnFiltrar').click(function() {
                 cargarHistorial();
@@ -218,40 +286,40 @@
 
             // Función AJAX para cargar historial filtrado
             function cargarHistorial() {
-    let activo = $('#filtroActivo').val();
-    let tipo = $('#filtroTipo').val();
-    let servicioOrigen = $('#filtroServicioOrigen').val();
-    let servicioDestino = $('#filtroServicioDestino').val();
-    let fechaInicio = $('#fechaInicio').val();
-    let fechaFin = $('#fechaFin').val();
+                let activo = $('#filtroActivo').val();
+                let tipo = $('#filtroTipo').val();
+                let servicioOrigen = $('#filtroServicioOrigen').val();
+                let servicioDestino = $('#filtroServicioDestino').val();
+                let fechaInicio = $('#fechaInicio').val();
+                let fechaFin = $('#fechaFin').val();
 
-    $.ajax({
-        url: "{{ route('activos.filtrarHistorial') }}",
-        type: "GET",
-        data: {
-            activo,
-            tipo,
-            servicio_origen: servicioOrigen,
-            servicio_destino: servicioDestino,
-            fecha_inicio: fechaInicio,
-            fecha_fin: fechaFin
-        },
-        beforeSend: function () {
-            $('#tablaHistorialParcial').html(
-                '<tr><td colspan="9" class="text-center">Cargando...</td></tr>'
-            );
-        },
-        success: function (data) {
-            $('#tablaHistorialParcial').html(data);
-        },
-        error: function (xhr) {
-            console.error(xhr.responseText);
-            $('#tablaHistorialParcial').html(
-                '<tr><td colspan="9" class="text-center text-danger">Error al cargar datos</td></tr>'
-            );
-        }
-    });
-}
+                $.ajax({
+                    url: "{{ route('activos.filtrarHistorial') }}",
+                    type: "GET",
+                    data: {
+                        activo,
+                        tipo,
+                        servicio_origen: servicioOrigen,
+                        servicio_destino: servicioDestino,
+                        fecha_inicio: fechaInicio,
+                        fecha_fin: fechaFin
+                    },
+                    beforeSend: function() {
+                        $('#tablaHistorialParcial').html(
+                            '<tr><td colspan="9" class="text-center">Cargando...</td></tr>'
+                        );
+                    },
+                    success: function(data) {
+                        $('#tablaHistorialParcial').html(data);
+                    },
+                    error: function(xhr) {
+                        console.error(xhr.responseText);
+                        $('#tablaHistorialParcial').html(
+                            '<tr><td colspan="9" class="text-center text-danger">Error al cargar datos</td></tr>'
+                        );
+                    }
+                });
+            }
 
             // Botón imprimir historial general
             // $('#btnImprimirHistorial').click(function() {
@@ -259,21 +327,21 @@
             // });
 
             // Modal dinámico
-    //         $(document).on('click', '.btnVerDetalle', function() {
-    //             let item = $(this).data('item');
-    //             let html = `
-    //   <p><strong>Código:</strong> ${item.codigo}</p>
-    //   <p><strong>Tipo de movimiento:</strong> ${item.tipo}</p>
-    //   <p><strong>Origen:</strong> ${item.origen || '-'}</p>
-    //   <p><strong>Destino:</strong> ${item.destino || '-'}</p>
-    //   <p><strong>Responsable:</strong> ${item.responsable || '-'}</p>
-    //   <p><strong>Observaciones:</strong> ${item.observaciones || '-'}</p>
-    // `;
-    //             $('#modalDetalleInfo').html(html);
-    //             $('#btnVerActa').off('click').on('click', function() {
-    //                 window.open(item.url_acta, '_blank');
-    //             });
-    //         });
+            //         $(document).on('click', '.btnVerDetalle', function() {
+            //             let item = $(this).data('item');
+            //             let html = `
+        //   <p><strong>Código:</strong> ${item.codigo}</p>
+        //   <p><strong>Tipo de movimiento:</strong> ${item.tipo}</p>
+        //   <p><strong>Origen:</strong> ${item.origen || '-'}</p>
+        //   <p><strong>Destino:</strong> ${item.destino || '-'}</p>
+        //   <p><strong>Responsable:</strong> ${item.responsable || '-'}</p>
+        //   <p><strong>Observaciones:</strong> ${item.observaciones || '-'}</p>
+        // `;
+            //             $('#modalDetalleInfo').html(html);
+            //             $('#btnVerActa').off('click').on('click', function() {
+            //                 window.open(item.url_acta, '_blank');
+            //             });
+            //         });
 
         });
     </script>

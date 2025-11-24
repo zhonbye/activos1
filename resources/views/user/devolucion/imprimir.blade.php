@@ -15,16 +15,11 @@
     <title>Imprimir Activo</title>
     <link rel="stylesheet" href="{{ asset('fonts/Algerian/font.css') }}">
     <style>
- @font-face {
-    /* 1. Nombra la fuente para usarla en el resto del CSS */
+@font-face {
     font-family: 'alger2';
-
-    /* 2. Dile al navegador dónde está el archivo */
-    src: url('/fonts/alger/alger.ttf') format('truetype'); 
-
-    /* Opcional: Define el peso y estilo si lo hubiera */
-    font-weight: normal; 
-    font-style: normal; 
+    src: url('{{ public_path("fonts/alger/alger.ttf") }}') format("truetype");
+    font-weight: normal;
+    font-style: normal;
 }
         .alger {
     font-family: 'alger2', sans-serif; /* Fuente personalizada */

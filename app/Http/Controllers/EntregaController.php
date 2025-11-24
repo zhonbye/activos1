@@ -728,18 +728,21 @@ public function buscarActivos(Request $request)
         $servicioActivosFijos = Servicio::whereRaw('LOWER(nombre) LIKE ?', ['%activos fijos%'])->first();
         $inventariosActivosFijos = [];
 
-        if ($servicioActivosFijos) {
-            $idServicioActivosFijos = $servicioActivosFijos->id_servicio;
-            $inventariosActivosFijos = Inventario::where('id_servicio', $idServicioActivosFijos)
-                ->pluck('id_inventario')
-                ->toArray();
-        }
+      if ($servicioActivosFijos) {
+    $idServicioActivosFijos = $servicioActivosFijos->id_servicio;
+    $inventariosActivosFijos = Inventario::where('id_servicio', $idServicioActivosFijos)
+        ->where('estado', 'vigente')  // 🔥 FILTRAR SOLO INVENTARIOS VIGENTES
+        ->pluck('id_inventario')
+        ->toArray();
+}
 
         $activosFijos = Activo::with('detalleInventario', 'categoria', 'estado')
-            ->whereHas('detalleInventario', function ($q) use ($inventariosActivosFijos) {
-                $q->whereIn('id_inventario', $inventariosActivosFijos);
-            })
-            ->get();
+    ->where('estado_situacional', '!=', 'baja') // 🔥 EXCLUYENDO BAJA
+    ->whereHas('detalleInventario', function ($q) use ($inventariosActivosFijos) {
+        $q->whereIn('id_inventario', $inventariosActivosFijos);
+    })
+    ->get();
+
 
         // 🔹 3️⃣ Combinar ambos conjuntos
         $activos = $activosInactivos->merge($activosFijos);

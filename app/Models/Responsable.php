@@ -30,4 +30,12 @@ class Responsable extends Model
     {
         return $this->belongsTo(Cargo::class, 'id_cargo', 'id_cargo');
     }
+    public function servicio()
+{
+    return $this->hasOne(Servicio::class, 'id_responsable', 'id_responsable');
+}
+public function scopeActivos($query)
+{
+    return $query->where('estado', 'ACTIVO');
+}
 }

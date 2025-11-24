@@ -66,7 +66,8 @@
             <!-- Body -->
             <div class="modal-body pt-3">
 
-                <form id="formFiltrosActivos" action="{{ route('activos.filtrar') }}" method="GET">
+                <form id="formFiltrosActivos" action="{{ route('activos.filtrar') }}" method="GET" data-pdf="{{ route('activos.reporte') }}">
+<input type="hidden" name="busqueda_general" id="busqueda_general" value="">
 
                     <!-- 🧾 Sección 1: Identificación -->
                     <div class="mb-4 p-3 rounded" style="background-color: #e9f2ff;">
@@ -158,8 +159,8 @@
                                 <label for="estado_situacional" class="form-label">Estado Situacional</label>
                                 <select id="estado_situacional" name="estado_situacional" class="form-select">
                                     <option value="all" selected>Todos</option>
-                                    <option value="activo">Activo</option>
-                                    <option value="inactivo">Inactivo</option>
+                                    <option value="activo">En uso</option>
+                                    <option value="inactivo">Sin asignarse</option>
                                     <option value="baja">De Baja</option>
                                 </select>
                             </div>
@@ -285,14 +286,21 @@
                 <div class="row g-3 p-3">
 
                     <div class="col-md-3">
-                        <label class="form-label fw-semibold">
-                            <i class="bi bi-search me-1"></i>Buscar activo
-                        </label>
+    <label class="form-label fw-semibold">
+        <i class="bi bi-search me-1"></i>Buscar activo
+    </label>
 
-                        <input type="text" id="buscarActivo"
-                        class="form-control form-control-sm rounded-pill shadow-sm px-3"
-                        placeholder="Nombre, código o detalle">
-                    </div>
+    <div class="input-group">
+        <input type="text" id="buscarActivo"
+               class="form-control form-control-sm rounded-pill shadow-sm px-3"
+               placeholder="Nombre, código o detalle">
+
+        <button id="btnBuscarActivo"
+                class="btn btn-primary btn-sm ms-2 rounded-pill">
+            <i class="bi bi-search"></i>
+        </button>
+    </div>
+</div>
 
                     <div class="col-md-2 d-flex align-items-end">
 
@@ -333,9 +341,12 @@
                 </div>
 
                     <div class="col-md-2 d-flex align-items-end">
-                        <a href="" class="btn btn-danger btn-sm w-100" target="_blank">
+                        {{-- <a href="" class="btn btn-danger btn-sm w-100" target="_blank">
                             <i class="bi bi-file-earmark-pdf me-1"></i> Generar PDF
-                        </a>
+                        </a> --}}
+                        <button id="btnGenerarPDF" class="btn btn-danger btn-sm">
+    <i class="bi bi-filetype-pdf"></i> Generar PDF
+</button>
                     </div>
 
 
@@ -364,6 +375,17 @@
 
 <script>
     $(document).ready(function() {
+    $(document).on("click", "#btnGenerarPDF", function (e) {
+    e.preventDefault();
+    // obtenemos el action del form de filtros
+    let url = $("#formFiltrosActivos").data("pdf"); // ruta para PDF
+    // enviamos los filtros tal cual están
+    let query = $("#formFiltrosActivos").serialize();
+    // abrir PDF en nueva pestaña
+    window.open(url + "?" + query, "_blank");
+});
+
+
         $('.modal').on('click', function(e) {
             if ($(e.target).is('.modal')) {
                 $(this).find('input, select, textarea, button').blur();
@@ -389,18 +411,32 @@
         // });
 
 
-        $('#buscarActivo').on('keyup', function() {
-            let valor = $(this).val().toLowerCase();
+        // $('#buscarActivo').on('keyup', function() {
+        //     let valor = $(this).val().toLowerCase();
 
-            $('#contenedorResultados table tbody tr').filter(function() {
-                // Buscamos en Código, Nombre y Detalle
-                $(this).toggle(
-                    $(this).find('td:eq(0)').text().toLowerCase().indexOf(valor) > -1 ||
-                    $(this).find('td:eq(1)').text().toLowerCase().indexOf(valor) > -1 ||
-                    $(this).find('td:eq(2)').text().toLowerCase().indexOf(valor) > -1
-                );
-            });
-        });
+        //     $('#contenedorResultados table tbody tr').filter(function() {
+        //         // Buscamos en Código, Nombre y Detalle
+        //         $(this).toggle(
+        //             $(this).find('td:eq(0)').text().toLowerCase().indexOf(valor) > -1 ||
+        //             $(this).find('td:eq(1)').text().toLowerCase().indexOf(valor) > -1 ||
+        //             $(this).find('td:eq(2)').text().toLowerCase().indexOf(valor) > -1
+        //         );
+        //     });
+        // });
+        // BOTÓN DE BÚSQUEDA
+$(document).off("click", "#btnBuscarActivo").on("click", "#btnBuscarActivo", function (e) {
+    e.preventDefault();
+
+    let texto = $("#buscarActivo").val().trim();
+
+    // Insertar correctamente al input hidden
+    $("#busqueda_general").val(texto);
+
+    // Ejecutar los filtros
+    $("#formFiltrosActivos").submit();
+});
+
+
     });
 </script>
 

@@ -79,6 +79,36 @@
               <i class="bi bi-trash"></i>
             </button>
 
+<br>
+{{-- 
+@if ($personal->servicio)
+    <button class="btn btn-sm btn-outline-success editar-servicio-btn"
+            data-bs-toggle="modal" 
+            data-bs-target="#modalEditarServicio"
+            data-id="{{ $personal->servicio->id_servicio }}"
+            title="Editar servicio / área asignada">
+        <i class="bi bi-building-gear"></i>
+    </button>
+@else
+    <button class="btn btn-sm btn-outline-primary asignar-servicio-btn"
+            data-bs-toggle="modal"
+            data-bs-target="#modalAsignarServicio"
+            data-id="{{ $personal->id_responsable }}"
+            title="Asignar servicio / área a este responsable">
+        <i class="bi bi-building-add"></i>
+    </button>
+@endif --}}
+
+
+
+
+
+
+
+
+
+
+
             {{-- Botón condicional según tenga usuario --}}
             @if ($personal->usuario)
               {{-- Editar usuario existente --}}

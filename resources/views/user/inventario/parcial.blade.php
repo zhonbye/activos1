@@ -35,8 +35,8 @@
                         <td>{{ $inv->gestion }}</td>
                         <td>{{ \Carbon\Carbon::parse($inv->fecha)->format('d/m/Y') }}</td>
                         <td>{{ $inv->usuario->usuario ?? 'N/A' }}</td>
-                        <td>{{ $inv->responsable->nombre ?? 'N/A' }}</td>
-                        <td>{{ $inv->servicio->nombre ?? 'N/A' }}</td>
+                        <td>{{  ucfirst($inv->responsable->nombre ?? 'N/A') }}</td>
+                        <td>{{  ucfirst( $inv->servicio->nombre ?? 'N/A') }}</td>
                         <td>
                             @php
                                 $estadoClase = match($inv->estado) {

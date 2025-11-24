@@ -1,5 +1,5 @@
-<div class="table-responsive" style="max-height: 80vh; overflow-y: auto;">
-    <table class="table table-striped table-hover mb-0 rounded" data-id-proveedor="{{$compras[0]->id_proveedor ?? ''}}">
+<div class="table-responsive " style="max-height: 80vh; overflow-y: auto;">
+    <table class="table table-striped table-hover mb-0 rounded" data-id-proveedor="{{ $compras[0]->id_proveedor ?? '' }}">
         <thead class="table-light">
             <tr>
                 <th>Código</th>
@@ -22,23 +22,20 @@
                     <td>{{ $compra->proveedor->nombre }}</td>
                     {{-- <td>{{ $compra->estado_situacional }}</td> --}}
                     <td>
-    @if ($compra->estado_situacional === 'inactivo')
-        <span class="badge bg-success">Libre</span>
-    @elseif ($compra->estado_situacional === 'activo')
-        <span class="badge bg-danger">En uso</span>
-    @else
-        <span class="badge bg-secondary">{{ $compra->estado_situacional }}</span>
-    @endif
-</td>
+                        @if ($compra->estado_situacional === 'inactivo')
+                            <span class="badge bg-success">Libre</span>
+                        @elseif ($compra->estado_situacional === 'activo')
+                            <span class="badge bg-danger">En uso</span>
+                        @else
+                            <span class="badge bg-secondary">{{ $compra->estado_situacional }}</span>
+                        @endif
+                    </td>
 
                     <td>{{ $compra->precio }}</td>
                     <td>
-                        <button class="btn btn-sm btn-primary ver-activo-btn"
-                                title="Ver detalles del activo"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modalVisualizar2"
-                                data-id="{{ $compra->id_activo }}"
-                                data-id-adquisicion="{{ $compra->id_adquisicion }}">
+                        <button class="btn btn-sm btn-primary ver-activo-btn" title="Ver detalles del activo"
+                            data-bs-toggle="modal" data-bs-target="#modalVisualizar2" data-id="{{ $compra->id_activo }}"
+                            data-id-adquisicion="{{ $compra->id_adquisicion }}">
                             <i class="bi bi-eye"></i>
                         </button>
                     </td>
@@ -53,10 +50,11 @@
         </tbody>
     </table>
 </div>
-<div class="mt-3 flex-shrink-0 bg-da3nger">
-    {{ $compras->links() }}
-</div>
 
+<div class="mt-3 flex-shrink-0 bg-dadnger">
+    {{ $compras->links('pagination::bootstrap-5')}} 
+    {{-- fdsafdsafds --}}
+</div>
 <div class="modal fade" id="modalVisualizar2" tabindex="-1" aria-labelledby="modalVisualizarLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">

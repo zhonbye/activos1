@@ -95,6 +95,9 @@ Route::get('/activos/filtrar', [ActivoController::class, 'filtrar'])->name('acti
 Route::get('/activo/{id}/detalle', [ActivoController::class, 'detalle'])->name('activo.detalle');
 Route::get('/activo/{id}/editar', [ActivoController::class, 'edit'])->name('activo.edit');
 Route::post('/activo/{id}/update', [ActivoController::class, 'update'])->name('activo.update');
+Route::get('/activos/reporte', [ActivoController::class, 'reporte'])->name('activos.reporte');
+Route::post('/activos/historial/reporte', [ActivoController::class, 'reporteHistorial'])
+    ->name('historial.reporte');
 
 
 
@@ -102,6 +105,8 @@ Route::post('/activo/{id}/update', [ActivoController::class, 'update'])->name('a
 
 
 
+Route::post('/servicios', [ServicioController::class, 'store'])
+    ->name('servicios.store');
 
 
 
@@ -185,7 +190,14 @@ Route::get('/inventarios/generar-numero/{gestion}', [InventarioController::class
 Route::post('/inventarios/mover-activo', [InventarioController::class, 'moverActivo'])->name('inventarios.moverActivo');
 Route::post('/inventarios/regresar-activo', [InventarioController::class, 'regresarActivo'])
 ->name('inventarios.regresarActivo');
+Route::post('/inventario/actualizar', [InventarioController::class, 'actualizar'])
+    ->name('inventarios.actualizar');
 
+Route::post('inventarios/actualizar-responsable', 
+    [InventarioController::class, 'actualizarResponsable']
+)->name('inventarios.actualizar-responsable');
+Route::post('/inventarios/actualizardetalles', [InventarioController::class, 'actualizarDetalles'])
+    ->name('inventarios.actualizardetalles');
 
 
 

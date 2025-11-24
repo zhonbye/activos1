@@ -369,6 +369,39 @@
     @yield('styles')
 </head>
 
+
+
+
+
+{{-- //modales --}}
+
+<!-- Modal Dar de Baja -->
+<div class="modal fade" id="modalDarBaja" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content rounded-4 shadow-lg" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(8px);">
+
+            <!-- Header -->
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold text-danger"><i class="bi bi-x-circle me-2"></i> Dar de Baja Activo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body">
+               {{-- @include('user.activos.registrarBaja') --}}
+            </div>
+
+            <!-- Footer -->
+            
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
 <body>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
