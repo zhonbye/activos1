@@ -1,81 +1,273 @@
-{{-- <div class="container mt-5">
-  <h2 class="mb-4 text-center">Gestión de Parámetros del Hospital</h2>
-  <div class="row g-4">
 
-    <!-- HU9: Traslado de Activos -->
-    <div class="col-md-4">
-      <div class="card action-card border-0 shadow-sm p-3 text-center hover-card" id="traslado_activos">
-        <i class="bi bi-box-arrow-right text-primary fs-2 mb-2"></i>
-        <h5 class="fw-semibold">Traslado de Activos</h5>
-        <p class="text-muted small mb-3">Gestiona los movimientos de activos dentro del hospital.</p>
-        <button class="btn btn-outline-primary w-100">
-          <i class="bi bi-pencil-square"></i> Gestionar Traslados
-        </button>
-      </div>
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generación de Reportes - Activos Fijos</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f5f5f5; margin:0; padding:20px; }
+    h2 { margin-top:0; }
+    .card { background:#fff; padding:20px; border-radius:12px; margin-bottom:20px; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
+    .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+    label { font-weight:bold; }
+    select, input { width:100%; padding:8px; margin-top:4px; border-radius:8px; border:1px solid #ccc; }
+    button { padding:10px 18px; border:none; background:#4A73FF; color:white; border-radius:10px; margin-top:10px; cursor:pointer; }
+    button:hover { background:#3656cc; }
+    table { width:100%; border-collapse: collapse; margin-top:20px; }
+    th, td { border:1px solid #ddd; padding:10px; text-align:left; }
+    th { background:#eee; }
+  </style>
+</head>
+<body>
+
+<h2>Generación de Reportes de Activos Fijos</h2>
+
+<div class="card">
+  <h3>Estadísticas para toma de decisiones</h3>
+  <div class="grid">
+    <div>
+      <label>Total de Activos</label>
+      <p id="kpi_total"><b>0</b></p>
     </div>
-
-    <!-- HU13: Servicios del Hospital -->
-    <div class="col-md-4">
-      <div class="card action-card border-0 shadow-sm p-3 text-center hover-card" id="servicios_hospital">
-        <i class="bi bi-hospital text-success fs-2 mb-2"></i>
-        <h5 class="fw-semibold">Servicios del Hospital</h5>
-        <p class="text-muted small mb-3">Administra los servicios médicos y administrativos.</p>
-        <button class="btn btn-outline-success w-100">
-          <i class="bi bi-gear"></i> Gestionar Servicios
-        </button>
-      </div>
+    <div>
+      <label>Activos Operativos</label>
+      <p id="kpi_operativos"><b>0</b></p>
     </div>
-
-    <!-- HU14: Cargos del Personal -->
-    <div class="col-md-4">
-      <div class="card action-card border-0 shadow-sm p-3 text-center hover-card" id="cargos_personal">
-        <i class="bi bi-person-badge text-warning fs-2 mb-2"></i>
-        <h5 class="fw-semibold">Cargos del Personal</h5>
-        <p class="text-muted small mb-3">Define y edita los cargos del personal hospitalario.</p>
-        <button class="btn btn-outline-warning w-100">
-          <i class="bi bi-person-lines-fill"></i> Gestionar Cargos
-        </button>
-      </div>
+    <div>
+      <label>Activos en Reparación</label>
+      <p id="kpi_reparacion"><b>0</b></p>
     </div>
-
-    <!-- HU15: Categorías de Activos -->
-    <div class="col-md-4">
-      <div class="card action-card border-0 shadow-sm p-3 text-center hover-card" id="categorias_activos">
-        <i class="bi bi-tags text-info fs-2 mb-2"></i>
-        <h5 class="fw-semibold">Categorías de Activos</h5>
-        <p class="text-muted small mb-3">Organiza los activos por categoría funcional.</p>
-        <button class="btn btn-outline-info w-100">
-          <i class="bi bi-list-ul"></i> Gestionar Categorías
-        </button>
-      </div>
+    <div>
+      <label>Entregas del Mes</label>
+      <p id="kpi_entregas"><b>0</b></p>
     </div>
-
-    <!-- HU16: Estados de los Activos -->
-    <div class="col-md-4">
-      <div class="card action-card border-0 shadow-sm p-3 text-center hover-card" id="estados_activos">
-        <i class="bi bi-check2-circle text-secondary fs-2 mb-2"></i>
-        <h5 class="fw-semibold">Estados de los Activos</h5>
-        <p class="text-muted small mb-3">Controla el estado actual de cada activo.</p>
-        <button class="btn btn-outline-secondary w-100">
-          <i class="bi bi-sliders"></i> Gestionar Estados
-        </button>
-      </div>
+    <div>
+      <label>Traslados del Mes</label>
+      <p id="kpi_traslados"><b>0</b></p>
     </div>
-
-    <!-- HU17: Proveedores y Donantes -->
-    <div class="col-md-4">
-      <div class="card action-card border-0 shadow-sm p-3 text-center hover-card" id="proveedores_donantes">
-        <i class="bi bi-people-fill text-danger fs-2 mb-2"></i>
-        <h5 class="fw-semibold">Proveedores y Donantes</h5>
-        <p class="text-muted small mb-3">Administra las entidades que proveen o donan activos.</p>
-        <button class="btn btn-outline-danger w-100">
-          <i class="bi bi-person-plus"></i> Gestionar Entidades
-        </button>
-      </div>
+    <div>
+      <label>Devoluciones del Mes</label>
+      <p id="kpi_devoluciones"><b>0</b></p>
     </div>
-
   </div>
-</div> --}}
+</div>
+<p>Filtra y genera reportes listos para descargar en ODF usando los datos del sistema.</p>
+
+<div class="card">
+  <h3>Filtros principales</h3>
+  <div class="grid">
+    <div>
+      <label>Área</label>
+      <select id="f_area">
+        <option value="">Todas</option>
+        <option value="Sistemas">Sistemas</option>
+        <option value="RRHH">RRHH</option>
+        <option value="Logística">Logística</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Estado del Activo</label>
+      <select id="f_estado">
+        <option value="">Todos</option>
+        <option value="Operativo">Operativo</option>
+        <option value="En reparación">En reparación</option>
+        <option value="Baja">Baja</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Tipo de movimiento</label>
+      <select id="f_movimiento">
+        <option value="">Todos</option>
+        <option value="Entrega">Entrega</option>
+        <option value="Traslado">Traslado</option>
+        <option value="Devolución">Devolución</option>
+        <option value="Compra">Compra</option>
+        <option value="Donación">Donación</option>
+      </select>
+    </div>
+  </div>
+
+  <button onclick="filtrar()">Filtrar</button>
+</div>
+
+<div class="card">
+  <h3>Resultados</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Código</th>
+        <th>Descripción</th>
+        <th>Área</th>
+        <th>Estado</th>
+        <th>Movimiento</th>
+      </tr>
+    </thead>
+    <tbody id="tabla_resultados">
+    </tbody>
+  </table>
+
+  <button onclick="exportar()">Exportar a ODF</button>
+</div>
+
+<script>
+const datosFalsos = [
+  {codigo:'AF001', desc:'Laptop Lenovo', area:'Sistemas', estado:'Operativo', mov:'Entrega', fecha:'2025-01-12'},
+  {codigo:'AF002', desc:'Silla ergonómica', area:'RRHH', estado:'Operativo', mov:'Compra', fecha:'2025-01-05'},
+  {codigo:'AF003', desc:'Proyector Epson', area:'Logística', estado:'En reparación', mov:'Devolución', fecha:'2025-01-20'},
+  {codigo:'AF004', desc:'PC Escritorio HP', area:'Sistemas', estado:'Baja', mov:'Traslado', fecha:'2025-01-08'},
+  {codigo:'AF005', desc:'Impresora Canon', area:'RRHH', estado:'Operativo', mov:'Donación', fecha:'2025-01-03'}
+];
+
+function filtrar() {
+  const area = document.getElementById('f_area').value;
+  const estado = document.getElementById('f_estado').value;
+  const mov = document.getElementById('f_movimiento').value;
+
+  const filtrado = datosFalsos.filter(d => 
+    (area === '' || d.area === area) &&
+    (estado === '' || d.estado === estado) &&
+    (mov === '' || d.mov === mov)
+  );
+
+  const tbody = document.getElementById('tabla_resultados');
+  tbody.innerHTML = '';
+  filtrado.forEach(f => {
+    tbody.innerHTML += `<tr>
+      <td>${f.codigo}</td>
+      <td>${f.desc}</td>
+      <td>${f.area}</td>
+      <td>${f.estado}</td>
+      <td>${f.mov}</td>
+    </tr>`;
+  });
+}
+
+function exportar() {
+  // Exportar ODF (simulación)
+  const area = document.getElementById('f_area').value || 'Todas';
+  const estado = document.getElementById('f_estado').value || 'Todos';
+  const mov = document.getElementById('f_movimiento').value || 'Todos';
+  alert('Exportando ODF con filtros:\\nÁrea: ' + area + '\\nEstado: ' + estado + '\\nMovimiento: ' + mov + '\\n(En producción: integrar generación real de ODF/PDF)');
+}
+
+// KPIs dinámicos
+function actualizarKPIs() {
+  const total = datosFalsos.length;
+  const operativos = datosFalsos.filter(a => a.estado === 'Operativo').length;
+  const reparacion = datosFalsos.filter(a => a.estado === 'En reparación').length;
+  const entregas = datosFalsos.filter(a => a.mov === 'Entrega').length;
+  const traslados = datosFalsos.filter(a => a.mov === 'Traslado').length;
+  const devoluciones = datosFalsos.filter(a => a.mov === 'Devolución').length;
+
+  document.getElementById('kpi_total').innerHTML = `<b>${total}</b>`;
+  document.getElementById('kpi_operativos').innerHTML = `<b>${operativos}</b>`;
+  document.getElementById('kpi_reparacion').innerHTML = `<b>${reparacion}</b>`;
+  document.getElementById('kpi_entregas').innerHTML = `<b>${entregas}</b>`;
+  document.getElementById('kpi_traslados').innerHTML = `<b>${traslados}</b>`;
+  document.getElementById('kpi_devoluciones').innerHTML = `<b>${devoluciones}</b>`;
+}
+
+actualizarKPIs();
+filtrar();
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

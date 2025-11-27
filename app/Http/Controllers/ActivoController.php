@@ -436,49 +436,59 @@ public function filtrarHistorial(Request $request)
 
     $historial = collect();
 
-    // 🔹 1. REGISTROS DE ACTIVOS (con responsable de adquisición)
-    if (!$tipoFiltro || $tipoFiltro === 'Registro') {
-       $activos = DB::table('activos')
-    ->leftJoin('adquisiciones', 'activos.id_adquisicion', '=', 'adquisiciones.id_adquisicion')
-    ->leftJoin('usuarios', 'adquisiciones.id_usuario', '=', 'usuarios.id_usuario') // <- join nuevo
-    ->when($activoFiltro, fn($q) => $q->where('activos.nombre', 'like', "%$activoFiltro%")
-                                      ->orWhere('activos.codigo', 'like', "%$activoFiltro%"))
-    ->select(
-        'activos.id_activo',
-        'activos.codigo',
-        'activos.nombre',
-        'activos.created_at',
-        DB::raw("COALESCE(usuarios.usuario,'') as responsable") // <- ahora devuelve el nombre
-    )
-    ->get();
+    $hasFiltroOrigen = !empty($servicioOrigen);
+    $hasFiltroDestino = !empty($servicioDestino);
 
+    // ======================================================
+    // 1) REGISTROS — solo si NO hay filtro por servicio
+    // ======================================================
+    if ((!$tipoFiltro || $tipoFiltro === 'Registro') && !$hasFiltroOrigen && !$hasFiltroDestino) {
+        $activos = DB::table('activos')
+            ->leftJoin('adquisiciones', 'activos.id_adquisicion', '=', 'adquisiciones.id_adquisicion')
+            ->leftJoin('usuarios', 'adquisiciones.id_usuario', '=', 'usuarios.id_usuario')
+            ->when($activoFiltro, function ($q) use ($activoFiltro) {
+                $q->where(function ($sub) use ($activoFiltro) {
+                    $sub->where('activos.nombre', 'like', "%$activoFiltro%")
+                        ->orWhere('activos.codigo', 'like', "%$activoFiltro%");
+                });
+            })
+            ->select(
+                'activos.id_activo',
+                'activos.codigo',
+                'activos.nombre',
+                'activos.created_at as fecha',
+                DB::raw("'Registro' as tipo"),
+                DB::raw("'Sistema' as origen"),
+                DB::raw("'Sistema' as destino"),
+                DB::raw("COALESCE(usuarios.usuario,'') as responsable"),
+                DB::raw("'Activo registrado en el sistema.' as observaciones"),
+                DB::raw("'inactivo' as estado_situacional")
+            )
+            ->get();
 
         foreach ($activos as $a) {
-            $historial->push([
-                'id_activo' => $a->id_activo,
-                'fecha' => $a->created_at,
-                'codigo' => $a->codigo,
-                'nombre' => $a->nombre,
-                'tipo' => 'Registro',
-                'origen' => 'Sistema',
-                'destino' => 'Sistema',
-                'responsable' => $a->responsable,
-                'observaciones' => 'Activo registrado en el sistema.',
-                'estado_situacional' => 'inactivo',
-            ]);
+            $historial->push((array)$a);
         }
     }
 
-    // 🔹 2. ENTREGAS
-    if (!$tipoFiltro || $tipoFiltro === 'Entrega') {
+    // ======================================================
+    // 2) ENTREGAS — tienen SOLO 'destino'
+    //    -> Si se está filtrando por servicioOrigen: OMITIR ENTREGAS
+    //    -> Si hay servicioDestino: aplicar filtro por destino
+    // ======================================================
+    if ((!$tipoFiltro || $tipoFiltro === 'Entrega') && !$hasFiltroOrigen) {
         $entregas = DB::table('detalle_entregas')
             ->join('entregas', 'detalle_entregas.id_entrega', '=', 'entregas.id_entrega')
             ->join('activos', 'detalle_entregas.id_activo', '=', 'activos.id_activo')
-            ->leftJoin('servicios', 'entregas.id_servicio', '=', 'servicios.id_servicio')
+            ->leftJoin('servicios', 'entregas.id_servicio', '=', 'servicios.id_servicio') // destino
             ->leftJoin('usuarios', 'entregas.id_usuario', '=', 'usuarios.id_usuario')
             ->where('entregas.estado', 'finalizado')
-            ->when($activoFiltro, fn($q) => $q->where('activos.nombre', 'like', "%$activoFiltro%")
-                                              ->orWhere('activos.codigo', 'like', "%$activoFiltro%"))
+            ->when($activoFiltro, function ($q) use ($activoFiltro) {
+                $q->where(function ($sub) use ($activoFiltro) {
+                    $sub->where('activos.nombre', 'like', "%$activoFiltro%")
+                        ->orWhere('activos.codigo', 'like', "%$activoFiltro%");
+                });
+            })
             ->when($servicioDestino, fn($q) => $q->where('servicios.id_servicio', $servicioDestino))
             ->when($fechaInicio, fn($q) => $q->where('entregas.fecha', '>=', $fechaInicio))
             ->when($fechaFin, fn($q) => $q->where('entregas.fecha', '<=', $fechaFin))
@@ -496,13 +506,15 @@ public function filtrarHistorial(Request $request)
             )
             ->get();
 
-        foreach ($entregas as $e) {
-            $historial->push((array)$e);
-        }
+        foreach ($entregas as $e) $historial->push((array)$e);
     }
 
-    // 🔹 3. TRASLADOS
-    if (!$tipoFiltro || $tipoFiltro === 'Traslado') {
+    // ======================================================
+    // 3) TRASLADOS — tienen ORIGEN y DESTINO (incluir si coincide alguno o si no hay filtro por servicio)
+    //    -> Aplicar ambos filtros si están presentes
+    // ======================================================
+    if ((!$tipoFiltro || $tipoFiltro === 'Traslado')) {
+        // Si existe filtroDestino o filtroOrigen, aplicarán; si no, listará todos (según tipoFiltro)
         $traslados = DB::table('detalle_traslados')
             ->join('traslados', 'detalle_traslados.id_traslado', '=', 'traslados.id_traslado')
             ->join('activos', 'detalle_traslados.id_activo', '=', 'activos.id_activo')
@@ -510,9 +522,15 @@ public function filtrarHistorial(Request $request)
             ->leftJoin('servicios as s_destino', 'traslados.id_servicio_destino', '=', 's_destino.id_servicio')
             ->leftJoin('usuarios', 'traslados.id_usuario', '=', 'usuarios.id_usuario')
             ->where('traslados.estado', 'finalizado')
-            ->when($activoFiltro, fn($q) => $q->where('activos.nombre', 'like', "%$activoFiltro%")
-                                              ->orWhere('activos.codigo', 'like', "%$activoFiltro%"))
+            ->when($activoFiltro, function ($q) use ($activoFiltro) {
+                $q->where(function ($sub) use ($activoFiltro) {
+                    $sub->where('activos.nombre', 'like', "%$activoFiltro%")
+                        ->orWhere('activos.codigo', 'like', "%$activoFiltro%");
+                });
+            })
+            // Si hay filtro por ORIGEN, exigir que s_origen coincida
             ->when($servicioOrigen, fn($q) => $q->where('s_origen.id_servicio', $servicioOrigen))
+            // Si hay filtro por DESTINO, exigir que s_destino coincida
             ->when($servicioDestino, fn($q) => $q->where('s_destino.id_servicio', $servicioDestino))
             ->when($fechaInicio, fn($q) => $q->where('traslados.fecha', '>=', $fechaInicio))
             ->when($fechaFin, fn($q) => $q->where('traslados.fecha', '<=', $fechaFin))
@@ -530,21 +548,27 @@ public function filtrarHistorial(Request $request)
             )
             ->get();
 
-        foreach ($traslados as $t) {
-            $historial->push((array)$t);
-        }
+        foreach ($traslados as $t) $historial->push((array)$t);
     }
 
-    // 🔹 4. DEVOLUCIONES
-    if (!$tipoFiltro || $tipoFiltro === 'Devolución') {
+    // ======================================================
+    // 4) DEVOLUCIONES — tienen SOLO 'origen'
+    //    -> Si se está filtrando por servicioDestino: OMITIR DEVOLUCIONES
+    //    -> Si hay servicioOrigen: aplicar filtro por origen
+    // ======================================================
+    if ((!$tipoFiltro || $tipoFiltro === 'Devolución') && !$hasFiltroDestino) {
         $devoluciones = DB::table('detalle_devoluciones')
             ->join('devoluciones', 'detalle_devoluciones.id_devolucion', '=', 'devoluciones.id_devolucion')
             ->join('activos', 'detalle_devoluciones.id_activo', '=', 'activos.id_activo')
-            ->leftJoin('servicios', 'devoluciones.id_servicio', '=', 'servicios.id_servicio')
+            ->leftJoin('servicios', 'devoluciones.id_servicio', '=', 'servicios.id_servicio') // origen
             ->leftJoin('usuarios', 'devoluciones.id_usuario', '=', 'usuarios.id_usuario')
             ->where('devoluciones.estado', 'finalizado')
-            ->when($activoFiltro, fn($q) => $q->where('activos.nombre', 'like', "%$activoFiltro%")
-                                              ->orWhere('activos.codigo', 'like', "%$activoFiltro%"))
+            ->when($activoFiltro, function ($q) use ($activoFiltro) {
+                $q->where(function ($sub) use ($activoFiltro) {
+                    $sub->where('activos.nombre', 'like', "%$activoFiltro%")
+                        ->orWhere('activos.codigo', 'like', "%$activoFiltro%");
+                });
+            })
             ->when($servicioOrigen, fn($q) => $q->where('servicios.id_servicio', $servicioOrigen))
             ->when($fechaInicio, fn($q) => $q->where('devoluciones.fecha', '>=', $fechaInicio))
             ->when($fechaFin, fn($q) => $q->where('devoluciones.fecha', '<=', $fechaFin))
@@ -562,19 +586,25 @@ public function filtrarHistorial(Request $request)
             )
             ->get();
 
-        foreach ($devoluciones as $d) {
-            $historial->push((array)$d);
-        }
+        foreach ($devoluciones as $d) $historial->push((array)$d);
     }
 
-    // 🔹 5. BAJAS (usar updated_at, sin estado)
-    if (!$tipoFiltro || $tipoFiltro === 'Baja') {
+    // ======================================================
+    // 5) BAJAS — tienen SOLO 'origen'
+    //    -> Si se está filtrando por servicioDestino: OMITIR BAJAS
+    //    -> Si hay servicioOrigen: aplicar filtro por origen
+    // ======================================================
+    if ((!$tipoFiltro || $tipoFiltro === 'Baja') && !$hasFiltroDestino) {
         $bajas = DB::table('bajas')
             ->join('activos', 'bajas.id_activo', '=', 'activos.id_activo')
-            ->leftJoin('servicios', 'bajas.id_servicio', '=', 'servicios.id_servicio')
+            ->leftJoin('servicios', 'bajas.id_servicio', '=', 'servicios.id_servicio') // origen
             ->leftJoin('usuarios', 'bajas.id_usuario', '=', 'usuarios.id_usuario')
-            ->when($activoFiltro, fn($q) => $q->where('activos.nombre', 'like', "%$activoFiltro%")
-                                              ->orWhere('activos.codigo', 'like', "%$activoFiltro%"))
+            ->when($activoFiltro, function ($q) use ($activoFiltro) {
+                $q->where(function ($sub) use ($activoFiltro) {
+                    $sub->where('activos.nombre', 'like', "%$activoFiltro%")
+                        ->orWhere('activos.codigo', 'like', "%$activoFiltro%");
+                });
+            })
             ->when($servicioOrigen, fn($q) => $q->where('servicios.id_servicio', $servicioOrigen))
             ->when($fechaInicio, fn($q) => $q->where('bajas.updated_at', '>=', $fechaInicio))
             ->when($fechaFin, fn($q) => $q->where('bajas.updated_at', '<=', $fechaFin))
@@ -592,12 +622,12 @@ public function filtrarHistorial(Request $request)
             )
             ->get();
 
-        foreach ($bajas as $b) {
-            $historial->push((array)$b);
-        }
+        foreach ($bajas as $b) $historial->push((array)$b);
     }
 
-    // 🔹 Ordenar por id_activo asc y fecha desc
+    // ======================================================
+    // ORDEN FINAL
+    // ======================================================
     $historial = $historial->sortBy([
         ['id_activo', 'asc'],
         ['fecha', 'desc'],
@@ -605,16 +635,6 @@ public function filtrarHistorial(Request $request)
 
     return view('user.activos.parcial_historial', compact('historial'));
 }
-
-
-
-
-
-
-
-
-
-
 
 
 

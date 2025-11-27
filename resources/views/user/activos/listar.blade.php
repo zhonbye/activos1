@@ -270,7 +270,7 @@
 
             <!-- Título -->
             <h2 class="mb-4 text-center text-primary">
-                <i class="bi bi-box-seam me-2"></i>Lista de Activos
+                <i class="bi bi-box-seam me-2"></i>Gestión de Activos
             </h2>
 
             <!-- Botones principales -->

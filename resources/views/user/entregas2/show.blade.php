@@ -556,6 +556,11 @@
         // });
 
 
+$.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+});
 
         $('#btnRegistrarEntrega').on('click', function(e) {
             e.preventDefault();

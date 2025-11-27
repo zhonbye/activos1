@@ -236,7 +236,11 @@ Route::get('/imprimir-devolucion/{id}', [DevolucionController::class, 'imprimir'
 
 Route::get('/movimientos/reporte/pdf', [ReporteController::class, 'imprimirActas'])
     ->name('movimientos.pdf');
+Route::get('/reporte/global', [ReporteController::class, 'global'])
+    ->name('reportes.global');
+Route::post('/reportes/generar', [ReporteController::class, 'generar']);
 
+Route::post('/reportes/filtrar', [ReporteController::class, 'filtrar']);
 
 
 

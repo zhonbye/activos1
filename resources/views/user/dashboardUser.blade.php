@@ -388,7 +388,7 @@
                     <li><a href="{{ route('inventario.show') }}" role="menuitem" class="cargar">Listar y actualizar</a></li>
                     {{-- <li><a href="{{ route('servicios.show') }}" role="menuitem" class="cargar">Añadir servicio</a></li> --}}
                     {{-- <li><a href="{{ route('user.parametros') }}" role="menuitem" class="cargar">Gestión de parametros</a></li> --}}
-                    {{-- <li><a href="{{ route('pruebas') }}" role="menuitem" class="cargar">prueba interfaces</a></li> --}}
+                    <li><a href="{{ route('pruebas') }}" role="menuitem" class="cargar">prueba interfaces</a></li>
                 </ul>
             </li>
      <!-- Gestión de Usuarios -->
@@ -417,7 +417,7 @@
             <!-- ====================== -->
             <!-- MÓDULO: REPORTES -->
             <!-- ====================== -->
-            {{-- <li class="menu-item " data-submenu="submenuReportes" role="none">
+            <li class="menu-item " data-submenu="submenuReportes" role="none">
                 <div class="main-item" tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"
                     aria-controls="submenuReportes">
                     <i class="bi bi-graph-up icon" aria-hidden="true"></i>
@@ -425,11 +425,13 @@
                     <i class="bi bi-caret-down caret" aria-hidden="true"></i>
                 </div>
                 <ul class="submenu" id="submenuReportes">
-                    <li><a href="#" class="desactivado" role="menuitem">Reportes de Activos</a></li>
-                    <li><a href="#" class="desactivado" role="menuitem">Reportes por Responsable</a></li>
-                    <li><a href="#" class="desactivado" role="menuitem">Reportes Globales</a></li>
+                    {{-- <li><a href="#" class="desactivado" role="menuitem">Reportes de Activos</a></li>
+                    <li><a href="#" class="desactivado" role="menuitem">Reportes por Responsable</a></li> --}}
+                     <li role="none">
+                            <a href="{{ route('reportes.global') }}" role="menuitem" class="cargar">Reportes globales</a>
+                        </li>
                 </ul>
-            </li> --}}
+            </li>
 
                 <br>
                 <br>

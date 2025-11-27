@@ -139,11 +139,11 @@
                 Entrar
             </button>
 
-            <div class="mt-3 text-center">
+            {{-- <div class="mt-3 text-center">
                 <a href="#" class="link-olvide">
                     ¿Olvidaste tu contraseña?
                 </a>
-            </div>
+            </div> --}}
             <div id="errorGeneral" style="color: red; margin-top: 1rem;"></div>
         </form>
     </div>
