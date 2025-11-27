@@ -35,86 +35,19 @@
                             {{ $s->nombre }}
                         </option>
                     @endforeach
-
-                    {{-- <option value="" disabled selected>Seleccione servicio</option>
-                        @foreach ($servicios as $servicio)
-                            <option value="{{ $servicio->id_servicio }}"
-                                data-responsable="{{ $servicio->id_responsable }}">
-                                {{ $servicio->nombre }}
-                            </option>
-                        @endforeach --}}
                 </select>
                 <div id="info_responsable_destino" class="form-text text-muted">
                     Responsable: N/D
                 </div>
             </div>
-            {{-- 
-                <div class="col-md-6 col-lg-6">
-                    <label for="id_responsable" class="form-label">Responsable</label>
-                    <input type="text" class="form-control" value="Selecione un servicio" id="nombre_responsable"
-                        readonly>
-                    <input type="hidden" name="id_responsable" id="id_responsable" value="">
-                </div> --}}
+
 
             <div class="col-md-6 col-lg-12">
                 <label for="observaciones" class="form-label">Observaciones</label>
                 <textarea name="observaciones" id="observaciones" class="form-control" rows="3"
                     placeholder="Detalles de la entrega..."></textarea>
             </div>
-            {{-- <div class="col-md-6">
-                <label class="form-label fw-semibold">Número de Documento</label>
-                <input type="text" class="form-control fw-bold" value="{{ $numeroDisponible }}"
-                    name="numero_documento" id="numero_documento" readonly placeholder="">
-                <div class="form-text">Este campo se genera automáticamente</div>
 
-            </div>
-
-            <div class="col-md-6">
-                <label class="form-label fw-semibold">Gestión</label>
-                <input type="number" name="gestion" class="form-control" value="{{ $gestionActual }}" required>
-            </div>
-
-            
-            <div class="col-md-6">
-    <label class="form-label fw-semibold">Servicio Origen</label>
-    <select name="id_servicio_origen" id="id_servicio_origen" class="form-select" required>
-        <option value="">Seleccione...</option>
-        @foreach ($servicios as $s)
-            <option value="{{ $s->id_servicio }}" data-responsable="{{ $s->responsable->nombre ?? 'N/D' }}">
-                {{ $s->nombre }}
-            </option>
-        @endforeach
-    </select>
-    <div id="info_responsable_origen" class="form-text text-muted">
-        Responsable: N/D
-    </div>
-</div>
-
-<div class="col-md-6">
-    <label class="form-label fw-semibold">Servicio Destino</label>
-    <select name="id_servicio_destino" id="id_servicio_destino" class="form-select" required>
-        <option value="">Seleccione...</option>
-        @foreach ($servicios as $s)
-            <option value="{{ $s->id_servicio }}" data-responsable="{{ $s->responsable->nombre ?? 'N/D' }}">
-                {{ $s->nombre }}
-            </option>
-        @endforeach
-    </select>
-    <div id="info_responsable_destino" class="form-text text-muted">
-        Responsable: N/D
-    </div>
-</div>
-<div class="col-md-6">
-                <label class="form-label fw-semibold">Fecha</label>
-                <input type="date" name="fecha" class="form-control" value="{{ date('Y-m-d') }}" required>
-            </div>
-
-
-
-            <div class="col-12">
-                <label class="form-label fw-semibold">Observaciones</label>
-                <textarea name="observaciones" class="form-control" rows="3" placeholder="Ingrese observaciones..."></textarea>
-            </div> --}}
 
             <div class="col-12 text-center mt-3">
                 <button type="button" id="btn_guardar_entrega" class="btn btn-primary w-50">
@@ -203,7 +136,7 @@ $(document).on('input', '#form_entrega input[name="gestion"]', function() {
                         var identrega = entrega.id_entrega;
 
                         cargarDetalleEntrega(identrega);
-                       
+
                         cargarTablaActivos(identrega);
 
   form[0].reset();
@@ -211,32 +144,6 @@ $(document).on('input', '#form_entrega input[name="gestion"]', function() {
                         $('#modalEntrega #form_entrega #numero_documento').val(response.siguiente_numero);
                         $('#modalEntrega .btn-close').trigger('click');
                         $('.modal-backdrop').remove();
-
-
-                        // // Referencia directa al modal
-                        // var $modal = $('#modalEntrega');
-
-                        // // Cerrar modal
-                        // var modalInstance = bootstrap.Modal.getInstance($modal[0]);
-                        // if (modalInstance) modalInstance.hide();
-
-                        // //    var $modal = $('#modalEntrega');
-                        // // var modalInstance = bootstrap.Modal.getInstance($modal[0]);
-
-                        // if (modalInstance) {
-                        //     modalInstance.hide();
-
-                        //     // Limpiar contenido cuando realmente se haya cerrado
-                        //     $modal.one('hidden.bs.modal', function() {
-                        //         $(this).find('.modal-body').html('');
-                        //     });
-                        // }
-
-                        // // También asegurarse de que no queden backdrops colgados
-                        // $('.modal-backdrop').remove();
-
-
-                        // form[0].reset();
                     } else {
                         mensaje(response.message, 'danger');
                     }
@@ -276,7 +183,7 @@ $(document).on('input', '#form_entrega input[name="gestion"]', function() {
         $(document).on('change', '#id_servicio', function() {
             let nombreResp = $(this).find(':selected').data('responsable');
             $('#info_responsable_destino').text('Responsable: ' + nombreResp);
-        }); 
+        });
 
 
     });

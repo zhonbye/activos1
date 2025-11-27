@@ -107,6 +107,59 @@
             <div class="acciones-entrega d-grid gap-3">
                 <h3 class="fs-6 my-3">Acciones rápidas</h3>
 
+
+
+
+
+
+                <div id="btn_ver_mi_stock"
+                class="card action-card border-0 shadow-sm p-3 text-center hover-card primary"
+                data-bs-toggle="modal"
+                data-bs-target="#modalMiStock">
+
+                <i class="bi bi-box-seam text-primary fs-2 mb-2"></i>
+                <h5 class="fw-semibold">Mi Stock</h5>
+                <p class="text-muted small mb-3">Activos bajo mi responsabilidad.</p>
+
+                <button class="btn btn-outline-primary w-100">
+                    <i class="bi bi-archive"></i> Ver Stock
+                </button>
+            </div>
+            <div class="modal fade" id="modalMiStock" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                    <div class="modal-content">
+
+                        <!-- HEADER -->
+                        <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title fw-bold">
+                                <i class="bi bi-box-seam"></i> Mi Stock de Activos
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <!-- BODY -->
+                        <div class="modal-body">
+
+                            @include('user.entregas2.stock')
+
+                        </div>
+
+
+
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+
+
+
                 <div id="nueva_entrega"
                     class="card action-card border-0 shadow-sm p-3 text-center hover-card primary"data-bs-toggle="modal"
                     data-bs-target="#modalEntrega">
@@ -188,9 +241,13 @@
                 <div class="col-lg-12 d-flex justify-content-between align-items-center">
                     <!-- Botón a la izquierda -->
                     <div>
-                        <button type="button" id="btnBuscarActivos" class="btn btn-primary" data-bs-toggle="modal"
+                        {{-- <button type="button" id="btnBuscarActivos" class="btn btn-primary" data-bs-toggle="modal"
                             data-bs-target="#modalBuscarActivos">
                             Agregar activos
+                        </button> --}}
+                        <button type="button" id="btnBuscarActivos" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#modalMiStock">
+                            <i class="bi bi-box-seam"></i> Mi Stock de Activos
                         </button>
                     </div>
 
@@ -207,7 +264,7 @@
             </div>
 
 
-           
+
 
             <div id="contenedor_tabla_activos">
                 {{-- @include('user.entregas2.parcial_activos', ['detalles' => []]) --}}
@@ -451,10 +508,6 @@
                 modaleditar(entrega_id)
                 // $('#resultado_Busqueda2').html('');
                  $('#btn_buscar_inventario').trigger('click');
-                // inventarioCargado = false;
-                // if (inventarioCargado) {
-                //     $("#modalBuscarActivos").removeClass('constante')
-                // }
                 controlarBotones($('#estado_entrega').data('estado-entrega'));
 
             },
@@ -627,25 +680,7 @@ $.ajaxSetup({
 
 
         $('#btnBuscarActivos').click(function() {
-            // alert("fsdaf")
-            // alert(inventarioCargado)
-            // if (inventarioCargado) return;
-            // $.ajax({
-            //     url: "", // ruta que devuelve la vista parcial
-            //     method: "GET",
-            //     success: function(view) {
-            //         $('#modal_body_activos').html(view);
-            //         inventarioCargado = true;
-            //         if (inventarioCargado) {
-            //             $("#modalBuscarActivos").addClass('constante')
-            //         }
-            //         // $('#buscarEntrega').modal('show'); // abre el modal
-            //     },
-            //     error: function(xhr) {
-            //         console.error(xhr.responseText);
-            //         mensaje('Error al cargar el formulario', 'danger');
-            //     }
-            // });
+
         });
         $('#buscar_entrega').click(function() {
             //    alert(entregaCargado)

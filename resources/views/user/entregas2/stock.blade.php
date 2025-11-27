@@ -1,6 +1,41 @@
-<div class="card border-0 shadow-sm p-4 pt-0 mx-0">
+
+<!-- RESUMEN DE STOCK -->
+<div class="row g-3 mb-4">
+
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 p-3 bg-light">
+            <h6 class="text-primary fw-bold">Total en Stock</h6>
+            <p class="fs-4 fw-bold m-0">12</p>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 p-3 bg-light">
+            <h6 class="text-success fw-bold">En buen estado</h6>
+            <p class="fs-4 fw-bold m-0">9</p>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 p-3 bg-light">
+            <h6 class="text-warning fw-bold">Regulares</h6>
+            <p class="fs-4 fw-bold m-0">2</p>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 p-3 bg-light">
+            <h6 class="text-danger fw-bold">En mal estado</h6>
+            <p class="fs-4 fw-bold m-0">1</p>
+        </div>
+    </div>
+</div>
+
+<!-- BUSCADOR (CON LOS MISMOS IDs) -->
+<div class="card border-0 shadow-sm p-4 pt-0 mx-0 mb-4">
     <div class="card-body">
         <div class="d-flex justify-content-between align-items-start mb-4">
+
             <!-- Formulario de búsqueda -->
             <div class="flex-grow-1">
                 <form id="form_buscar_inventario_entrega" class="row g-3 text-start">
@@ -28,7 +63,6 @@
                         </select>
                     </div>
 
-
                     <!-- Botones -->
                     <div class="col-12 text-center mt-4 d-flex gap-3 justify-content-center">
                         <button type="button" id="btn_buscar_inventario" class="btn btn-primary w-75">
@@ -54,12 +88,52 @@
     </div>
 </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // Evita múltiples bindings del mismo evento
     $(document).off('click', '#btn_buscar_inventario')
         .on('click', '#btn_buscar_inventario', function(e) {
             e.preventDefault();
-            console.log("fsdafdsa")
+console.log("fsdafdsa")
             const $btn = $(this);
 
             // Evitar clicks repetidos mientras procesa
@@ -68,7 +142,7 @@
             const idServicioOrigen = $('#id_servicio_origen').val();
             let idEntrega = $('#entrega_id').val(); // obtiene el valor del hidden
             let data = $('#form_buscar_inventario_entrega').serialize();
-            console.log("id entrega es: " + idEntrega);
+console.log("id entrega es: "+idEntrega);
             if (idServicioOrigen) {
                 data += '&id_servicio_origen=' + encodeURIComponent(idServicioOrigen);
             }

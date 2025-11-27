@@ -77,26 +77,26 @@
 
 
 
-       $(document).off('click', '.btn-ver-detalle').on('click', '.btn-ver-detalle', function() {
-    const idActivo = $(this).data('id-activo');
-    const actas = $(this).data('actas') || [];
+        $(document).off('click', '.btn-ver-detalle').on('click', '.btn-ver-detalle', function() {
+            const idActivo = $(this).data('id-activo');
+            const actas = $(this).data('actas') || [];
 
-    // Toggle: si ya existe fila de detalle, la eliminamos
-    const $filaDetalleExistente = $(`tr[data-detalle-id="${idActivo}"]`);
-    if ($filaDetalleExistente.length > 0) {
-        $filaDetalleExistente.remove();
-        // $(this).closest('tr').after(detalleHTML);
-        // $('#modalBuscarActivos tbody').html(''); // limpia todo
-// o solo las filas de detalle
-// $('#modalBuscarActivos tbody tr[data-detalle-id]').remove();
+            // Toggle: si ya existe fila de detalle, la eliminamos
+            const $filaDetalleExistente = $(`tr[data-detalle-id="${idActivo}"]`);
+            if ($filaDetalleExistente.length > 0) {
+                $filaDetalleExistente.remove();
+                // $(this).closest('tr').after(detalleHTML);
+                // $('#modalBuscarActivos tbody').html(''); // limpia todo
+                // o solo las filas de detalle
+                // $('#modalBuscarActivos tbody tr[data-detalle-id]').remove();
 
-        return;
-    }
+                return;
+            }
 
-    // Creamos los botones tal como estaban, solo agregando data-id-activo y data-id-entrega
-    let botonesHTML = '';
-    actas.forEach(acta => {
-        botonesHTML += `
+            // Creamos los botones tal como estaban, solo agregando data-id-activo y data-id-entrega
+            let botonesHTML = '';
+            actas.forEach(acta => {
+                botonesHTML += `
             <button type="button" id="seleccionar_entrega" class="btn btn-sm btn-outline-secondary btn-seleccionar-entrega"
                 data-id-activo="${idActivo}" data-id="${acta.id}">
                 Revisar esta acta
@@ -106,10 +106,10 @@
                 Eliminar de esta acta
             </button>
         `;
-    });
+            });
 
-    // Fila expandida con detalles
-    const detalleHTML = `
+            // Fila expandida con detalles
+            const detalleHTML = `
         <tr class="table-light" data-detalle-id="${idActivo}">
             <td colspan="6">
                 <div class="p-3 d-flex justify-content-between flex-wrap align-items-center gap-2">
@@ -124,12 +124,12 @@
             </td>
         </tr>
     `;
-    
-        // $filaDetalleExistente.remove();
-$(`tr[data-detalle-id="${idActivo}"]`).remove();
-$(this).closest('tr').after(detalleHTML);
-      
-});
+
+            // $filaDetalleExistente.remove();
+            $(`tr[data-detalle-id="${idActivo}"]`).remove();
+            $(this).closest('tr').after(detalleHTML);
+
+        });
 
 
 
@@ -153,7 +153,7 @@ $(this).closest('tr').after(detalleHTML);
         $('#modalBuscarActivos').on('hidden.bs.modal', function() {
             $(this).find('tr[data-detalle-id]').remove();
         });
-        
+
 
     });
 </script>

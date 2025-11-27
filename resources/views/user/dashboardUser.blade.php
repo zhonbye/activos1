@@ -257,7 +257,7 @@
           <a type="button" class="btn btn-outline-primary ajustes d-flex align-items-center"  href="{{ route('ajustes.index') }}">
             <i class="bi bi-gear-fill me-2 "></i> Ajustes
                             {{-- <i class="bi bi-gear me-2"></i>Preferencias --}}
-                        
+
           </a>
           {{-- <form method="POST" action="{{ route('logout') }}"> --}}
             {{-- @csrf --}}
@@ -332,15 +332,14 @@
                         <i class="bi bi-caret-down caret" aria-hidden="true"></i>
                     </div>
                     <ul class="submenu" id="submenuActivos">
-                        <li><a href="{{ route('activos.index') }}" role="menuitem" class="cargar" id="primario">Listar
-                                Activos</a></li>
+                        <li><a href="{{ route('activos.index') }}" role="menuitem" class="cargar" id="primario">Gestionar</a></li>
                         {{-- <li><a href="{{ route('activos.create') }}" role="menuitem" class="cargar">Registrar Activo</a></li> --}}
                         {{-- <li><a href="{{ route('bajas.create') }}" role="menuitem" class=" desactivado cargar">Dar de Baja
                                 Activo</a></li> --}}
                         <li><a href="{{ route('activos.historial') }}" role="menuitem" class="cargar">Historial de
                                 activo</a></li>
-                                        <li><a href="{{ route('proveedores.show') }}" role="menuitem" class="cargar">Compras</a></li>
-                        <li><a href="{{ route('donantes.show') }}" role="menuitem" class="cargar">Donaciones</a></li>
+                                        <li><a href="{{ route('proveedores.show') }}" role="menuitem" class="cargar">Proveedor</a></li>
+                        <li><a href="{{ route('donantes.show') }}" role="menuitem" class="cargar">Donante</a></li>
 
                         {{-- <li><a href="{{ route('entregas.show') }}" role="menuitem" class="cargar">Realizar Entrega</a></li> --}}
                     </ul>
@@ -505,7 +504,7 @@
 
 
     <script>
-      
+
 
         // Limpiar el contenido de todos los modales antes de abrirlos
         // $(document).on('show.bs.modal', '.modal', function () {
@@ -594,7 +593,7 @@
 
 
 
-            
+
 //  $(document).on("click", "[data-bs-toggle], [data-bs-Toggle], [data-BS-toggle]", function (e) {
 
 //     let btn = $(this);
@@ -937,7 +936,7 @@
 
         //todo esto cierra los modales correctamente
         $('.modal').on('click', function(e) {
-            
+
             if ($(e.target).is('.modal')) {
                 $(this).find('input, select, textarea, button').blur();
                 console.log('Click fuera del modal, cerrándolo...');

@@ -168,8 +168,8 @@
 //                     $(this).addClass('selected');
 
 //                     // const cant = $(this).data('cantidad');
-//                     const cant = ($(this).data('id-entrega') === idEntregaActual) 
-//     ? parseInt($(`input.cantidad-activo[data-id-activo="${idActivo}"]`).val()) || 0 
+//                     const cant = ($(this).data('id-entrega') === idEntregaActual)
+//     ? parseInt($(`input.cantidad-activo[data-id-activo="${idActivo}"]`).val()) || 0
 //     : $(this).data('cantidad');
 
 //                     const idEntrega = $(this).data('id-entrega');
@@ -243,8 +243,8 @@
                 mensaje(response.message, 'success');
 
                 // Reemplazar el botón de Eliminar por el de Agregar
-                    // const $tr = 
-                const $tdBoton = $('#modalBuscarActivos')
+                    // const $tr =
+                const $tdBoton = $('.modal tbody')
     .find(`tr[data-id-activo="${idActivo}"]`)
     .find('button') // buscar el botón dentro de ese tr
     .closest('td'); // obtener el td que lo contiene
@@ -430,98 +430,6 @@ $(document).off('click', '.btn_agregar_activo')
 
 
 
-        // $(document).off('blur', '.cantidad-activo').on('blur', '.cantidad-activo', function() {
-        //     const input = $(this);
-        //     const idActivo = input.data('id-activo');
-        //     const valorOriginal = parseInt(input.data('valor-original')) || 0;
-        //     const valorActual = parseInt(input.val()) || 0;
-
-        //     if (valorActual === valorOriginal) return; // No cambió
-        //     if ($('#modalBuscarActivos table').length !== 0) {
-        //         // alert($('#modalBuscarActivos table').length)
-
-        //         const $tr = $('#modalBuscarActivos').find(`tr[data-id-activo="${idActivo}"]`);
-        //         const $spanCantidad = $tr.find('span[data-cantidad-restante]');
-        //         if ($spanCantidad.length === 0) {
-        //             console.warn('No se encontró el span con data-cantidad-restante');
-        //             return;
-        //         }
-
-        //         // Tomamos la cantidad original total disponible + la cantidad original seleccionada
-        //         // Esto evita que se acumulen cambios
-        //         let cantidadTotal = parseInt($spanCantidad.data('cantidad-total')) || 0;
-        //         if (!cantidadTotal) {
-        //             // Si no existe, lo inicializamos: total = disponible + seleccionada
-        //             cantidadTotal = parseInt($spanCantidad.data('cantidad-restante')) + valorOriginal;
-        //             $spanCantidad.attr('data-cantidad-total', cantidadTotal);
-        //         }
-
-        //         // Nueva cantidad disponible
-        //         let cantidadRestante = cantidadTotal - valorActual;
-        //         if (cantidadRestante < 0) cantidadRestante = 0;
-
-        //         // Actualizamos el span
-        //         $spanCantidad
-        //             .attr('data-cantidad-restante', cantidadRestante)
-        //             .removeClass('text-success text-danger')
-        //             .addClass(cantidadRestante > 0 ? 'text-success' : 'text-danger')
-        //             .text(cantidadRestante > 0 ?
-        //                 `${cantidadRestante} disponible${cantidadRestante > 1 ? 's' : ''}` :
-        //                 'Sin disponibilidad');
-
-        //         // Actualizamos valor original del input para la próxima edición
-        //         input.data('valor-original', valorActual);
-        //     }
-
-        //     // Enviar al servidor
-        //     // const entrega_id = $('input[name="id_entrega"]').val();
-        //     // 🔹 Obtener el array de actas desde data-actas del input
-        //     // let actas = input.data('actas') || [];
-        //     // if (typeof actas === 'string') {
-        //     //     try {
-        //     //         actas = JSON.parse(actas);
-        //     //     } catch (e) {
-        //     //         console.warn('Error al parsear data-actas:', e);
-        //     //         actas = [];
-        //     //     }
-        //     // }
-
-        //     // const entrega_id = parseInt($('input[name="id_entrega"]').val(), 10);
-
-        //     // // 🔹 Buscar el acta que corresponde a la entrega actual
-        //     // let actaActual = actas.find(a => parseInt(a.id_entrega, 10) === entrega_id);
-
-        //     // if (actaActual) {
-        //     //     actaActual.cantidad = valorActual; // actualizar cantidad
-        //     // } else {
-        //     //     actas.push({id_entrega: entrega_id, numero_documento: '', cantidad: valorActual});
-        //     // }
-
-        //     // // 🔹 Guardar en memoria y actualizar data-attribute del HTML
-        //     // input.data('actas', actas);
-
-        //     // const $btn = $(`#modalBuscarActivos button.btn-ver-detalle-principal[data-id-activo="${idActivo}"]`);
-        //     // if ($btn.length) {
-        //     //     $btn.attr('data-actas', JSON.stringify(actas));
-        //     // }
-
-
-        //     $.post(`${baseUrl}/entregas/${entrega_id}/activos/editar`, {
-        //         id_activo: idActivo,
-        //         cantidad: valorActual,
-        //         _token: $('meta[name="csrf-token"]').attr('content')
-        //     }, function(res) {
-        //         if (!res.success) {
-        //             console.warn('Error al actualizar cantidad');
-        //             // Revertimos cambios si hay error
-        //             input.val(valorOriginal);
-        //             let revertCantidad = cantidadTotal - valorOriginal;
-        //             $spanCantidad.attr('data-cantidad-restante', revertCantidad)
-        //                 .text(revertCantidad > 0 ? `${revertCantidad} disponible` :
-        //                     'Sin disponibilidad');
-        //         }
-        //     });
-        // });
 
 
 
