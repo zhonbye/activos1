@@ -193,7 +193,7 @@ Route::post('/inventarios/regresar-activo', [InventarioController::class, 'regre
 Route::post('/inventario/actualizar', [InventarioController::class, 'actualizar'])
     ->name('inventarios.actualizar');
 
-Route::post('inventarios/actualizar-responsable', 
+Route::post('inventarios/actualizar-responsable',
     [InventarioController::class, 'actualizarResponsable']
 )->name('inventarios.actualizar-responsable');
 Route::post('/inventarios/actualizardetalles', [InventarioController::class, 'actualizarDetalles'])
@@ -347,6 +347,7 @@ Route::get('/entregas/{id?}', [EntregaController::class,'show'])->name('entregas
 Route::get('/entregas', [EntregaController::class,'create'])->name('entregas.create');
 Route::post('/entregas/{id}/finalizar', [EntregaController::class, 'finalizarEntrega'])->name('entregas.finalizar');
 
+Route::get('/stock/detalle', [EntregaController::class, 'stock'])->name('stock.index');
 
 
 

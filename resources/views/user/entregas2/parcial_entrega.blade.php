@@ -15,7 +15,7 @@
                     data-estado-entrega="{{ $entrega->estado }}" id="estado_entrega">
                     {{ $entrega->estado ?? 'pendiente' }}
                 </span>
-             
+
 
                 <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="collapse"
                     data-bs-target="#cardBodyEntrega" aria-expanded="true" aria-controls="cardBodyEntrega">
@@ -77,9 +77,9 @@
             {{ ucfirst($entrega->usuario->rol ?? 'Sin rol') }}
         </small>
                         </div>
-                        
+
                     </div>
-                    
+
 
                     {{-- Observaciones (ocupa todo el ancho restante y permite varias filas) --}}
                     <div class="col-12">
@@ -119,58 +119,10 @@
 </div>
 
 <script>
-    // function cargarDetalleEntrega(entrega_id = null) {
-    //     // Toma el ID del input si no se pasa
-    //     if (!entrega_id) entrega_id = $('#btn_editar_entrega').data('id');
-
-    //     if (!entrega_id) {
-    //         mensaje('No se encontró el ID del entrega', 'danger');
-    //         return;
-    //     }
-
-    //     // AJAX GET para traer la vista parcial
-    //     $.ajax({
-    //         url: `${baseUrl}/entregas/${entrega_id}/detalle`,
-    //         type: 'GET',
-    //         success: function(data) {
-    //             $('#contenedor_detalle_entrega').html(data);
-    //         },
-    //         error: function(xhr) {
-    //             // Si el controlador devuelve JSON con error
-    //             if (xhr.responseJSON && xhr.responseJSON.message) {
-    //                 mensaje(xhr.responseJSON.message, 'danger');
-    //             } else {
-    //                 mensaje('Ocurrió un error inesperado.', 'danger');
-    //             }
-    //         }
-    //     });
-    // }
     $('#recargar_entrega').click(function() {
         // alert(idEntrega)
         // alert("fdsaf")
         cargarDetalleEntrega($('#btn_editar_entrega').data('id'))
     });
 
-    // $('#btn_editar_entrsega').click(function() {
-    //     // $(document).on('click', '#btn_editar_entrega', function() {
-    //         var idEntrega = $(this).data('id'); // Debes tener un botón con data-id del entrega
-    //         var url = baseUrl + '/entregas/' + idEntrega + '/editar';
-    //         $.ajax({
-    //             url: url,
-    //             type: 'GET',
-    //             success: function(data) {
-    //                 $('#modalEditarEntrega .modal-body').html(data);
-
-    //                 // Crear instancia de modal y mostrarlo
-    //                 const modal = new bootstrap.Modal(document.getElementById('modalEditarEntrega'));
-    //                 modal.show();
-
-    //                 // Guardar la instancia en el modal para poder cerrarlo desde dentro del contenido
-    //                 $('#modalEditarEntrega').data('bs.modal', modal);
-    //             },
-    //             error: function() {
-    //                 alert('No se pudo cargar la información del entrega.');
-    //             }
-    //         });
-    // });
 </script>

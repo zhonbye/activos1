@@ -21,104 +21,125 @@ use Illuminate\Support\Facades\Validator;
 
 class EntregaController extends Controller
 {
-function fechaLiteralFlexible($fecha) {
-    $meses = [
-        1 => 'enero', 2 => 'febrero', 3 => 'marzo', 4 => 'abril',
-        5 => 'mayo', 6 => 'junio', 7 => 'julio', 8 => 'agosto',
-        9 => 'septiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre'
-    ];
+    function fechaLiteralFlexible($fecha)
+    {
+        $meses = [
+            1 => 'enero',
+            2 => 'febrero',
+            3 => 'marzo',
+            4 => 'abril',
+            5 => 'mayo',
+            6 => 'junio',
+            7 => 'julio',
+            8 => 'agosto',
+            9 => 'septiembre',
+            10 => 'octubre',
+            11 => 'noviembre',
+            12 => 'diciembre'
+        ];
 
-    // Reemplazar guiones por barras para unificar formato
-    $fecha = str_replace('-', '/', $fecha);
-    $partes = explode('/', $fecha);
+        // Reemplazar guiones por barras para unificar formato
+        $fecha = str_replace('-', '/', $fecha);
+        $partes = explode('/', $fecha);
 
-    if (count($partes) != 3) return $fecha; // si no tiene 3 partes, devolvemos tal cual
+        if (count($partes) != 3) return $fecha; // si no tiene 3 partes, devolvemos tal cual
 
-    // Detectamos qué es día, mes y año
-    if (strlen($partes[0]) == 4) {
-        // Formato yyyy/mm/dd
-        $ano = $partes[0];
-        $mes = (int)$partes[1];
-        $dia = $partes[2];
-    } elseif (strlen($partes[2]) == 4) {
-        // Formato dd/mm/yyyy
-        $dia = $partes[0];
-        $mes = (int)$partes[1];
-        $ano = $partes[2];
-    } else {
-        // Si año es 2 dígitos
-        $dia = $partes[0];
-        $mes = (int)$partes[1];
-        $ano = '20' . $partes[2];
-    }
-
-    return intval($dia) . ' de ' . $meses[$mes] . ' del ' . $ano;
-}
-
-public function fechaLiteral($fecha) {
-    if (!$fecha) return ''; // si está vacío
-
-    $meses = [
-        1 => 'enero', 2 => 'febrero', 3 => 'marzo', 4 => 'abril',
-        5 => 'mayo', 6 => 'junio', 7 => 'julio', 8 => 'agosto',
-        9 => 'septiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre'
-    ];
-
-    // Reemplazar guiones por barras
-    $fecha = str_replace('-', '/', $fecha);
-    $partes = explode('/', $fecha);
-
-    // Validar que haya al menos 3 partes
-    if (count($partes) != 3) return $fecha; // devuelve tal cual si no tiene 3 partes
-
-    // Detectar formato
-    if (strlen($partes[0]) == 4) {
-        // yyyy/mm/dd
-        $ano = $partes[0];
-        $mes = (int)$partes[1];
-        $dia = $partes[2];
-    } elseif (strlen($partes[2]) == 4) {
-        // dd/mm/yyyy
-        $dia = $partes[0];
-        $mes = (int)$partes[1];
-        $ano = $partes[2];
-    } else {
-        // año en 2 dígitos
-        $dia = $partes[0];
-        $mes = (int)$partes[1];
-        $ano = '20' . $partes[2];
-    }
-
-    // Validar que el mes exista
-    $mes = $mes >=1 && $mes <=12 ? $mes : 1;
-
-    return intval($dia) . ' de ' . $meses[$mes] . ' del ' . $ano;
-}
-
-public function obtenerResponsables() {
-    $roles = ['Director', 'Administrador'];
-    $personas = Responsable::with('cargo')->whereIn('rol', $roles)->get()->keyBy('rol');
-
-    $director = $personas->has('Director') 
-        ?  $personas['Director']->cargo->abreviatura.' '.$personas['Director']->nombre
-        : null;
-
-    $administrador = $personas->has('Administrador') 
-        ? $personas['Administrador']->cargo->abreviatura.' '. $personas['Administrador']->nombre 
-        : null;
-
-    // Responsable de activos fijos
-    $responsableActivos = null;
-    $servicio_activos = Servicio::where('nombre', 'LIKE', '%Activos Fijos%')->first();
-    if ($servicio_activos && $servicio_activos->id_responsable) {
-        $res = Responsable::with('cargo')->find($servicio_activos->id_responsable);
-        if ($res) {
-            $responsableActivos = $res->nombre . ' (' . $res->cargo->nombre . ')';
+        // Detectamos qué es día, mes y año
+        if (strlen($partes[0]) == 4) {
+            // Formato yyyy/mm/dd
+            $ano = $partes[0];
+            $mes = (int)$partes[1];
+            $dia = $partes[2];
+        } elseif (strlen($partes[2]) == 4) {
+            // Formato dd/mm/yyyy
+            $dia = $partes[0];
+            $mes = (int)$partes[1];
+            $ano = $partes[2];
+        } else {
+            // Si año es 2 dígitos
+            $dia = $partes[0];
+            $mes = (int)$partes[1];
+            $ano = '20' . $partes[2];
         }
+
+        return intval($dia) . ' de ' . $meses[$mes] . ' del ' . $ano;
     }
 
-    return compact('director', 'administrador', 'responsableActivos');
-}
+    public function fechaLiteral($fecha)
+    {
+        if (!$fecha) return ''; // si está vacío
+
+        $meses = [
+            1 => 'enero',
+            2 => 'febrero',
+            3 => 'marzo',
+            4 => 'abril',
+            5 => 'mayo',
+            6 => 'junio',
+            7 => 'julio',
+            8 => 'agosto',
+            9 => 'septiembre',
+            10 => 'octubre',
+            11 => 'noviembre',
+            12 => 'diciembre'
+        ];
+
+        // Reemplazar guiones por barras
+        $fecha = str_replace('-', '/', $fecha);
+        $partes = explode('/', $fecha);
+
+        // Validar que haya al menos 3 partes
+        if (count($partes) != 3) return $fecha; // devuelve tal cual si no tiene 3 partes
+
+        // Detectar formato
+        if (strlen($partes[0]) == 4) {
+            // yyyy/mm/dd
+            $ano = $partes[0];
+            $mes = (int)$partes[1];
+            $dia = $partes[2];
+        } elseif (strlen($partes[2]) == 4) {
+            // dd/mm/yyyy
+            $dia = $partes[0];
+            $mes = (int)$partes[1];
+            $ano = $partes[2];
+        } else {
+            // año en 2 dígitos
+            $dia = $partes[0];
+            $mes = (int)$partes[1];
+            $ano = '20' . $partes[2];
+        }
+
+        // Validar que el mes exista
+        $mes = $mes >= 1 && $mes <= 12 ? $mes : 1;
+
+        return intval($dia) . ' de ' . $meses[$mes] . ' del ' . $ano;
+    }
+
+    public function obtenerResponsables()
+    {
+        $roles = ['Director', 'Administrador'];
+        $personas = Responsable::with('cargo')->whereIn('rol', $roles)->get()->keyBy('rol');
+
+        $director = $personas->has('Director')
+            ?  $personas['Director']->cargo->abreviatura . ' ' . $personas['Director']->nombre
+            : null;
+
+        $administrador = $personas->has('Administrador')
+            ? $personas['Administrador']->cargo->abreviatura . ' ' . $personas['Administrador']->nombre
+            : null;
+
+        // Responsable de activos fijos
+        $responsableActivos = null;
+        $servicio_activos = Servicio::where('nombre', 'LIKE', '%Activos Fijos%')->first();
+        if ($servicio_activos && $servicio_activos->id_responsable) {
+            $res = Responsable::with('cargo')->find($servicio_activos->id_responsable);
+            if ($res) {
+                $responsableActivos = $res->nombre . ' (' . $res->cargo->nombre . ')';
+            }
+        }
+
+        return compact('director', 'administrador', 'responsableActivos');
+    }
 
 
 
@@ -131,51 +152,51 @@ public function obtenerResponsables() {
     //     return view('user.entrega.show', compact('entrega'));
     // }
     public function imprimir($id_entrega)
-{
-    // Traer la entrega
-    $entrega = Entrega::with('servicio')->findOrFail($id_entrega);
+    {
+        // Traer la entrega
+        $entrega = Entrega::with('servicio')->findOrFail($id_entrega);
 
-    // Fecha literal
-    $fecha_entrega_literal = $this->fechaLiteral($entrega->fecha);
+        // Fecha literal
+        $fecha_entrega_literal = $this->fechaLiteral($entrega->fecha);
 
-    // Detalles con activos, unidad y estado
-    $detalles = DetalleEntrega::with([
-        'activo.unidad',
-        'activo.estado',
-    ])->where('id_entrega', $id_entrega)->get();
+        // Detalles con activos, unidad y estado
+        $detalles = DetalleEntrega::with([
+            'activo.unidad',
+            'activo.estado',
+        ])->where('id_entrega', $id_entrega)->get();
 
-    // Responsable de la entrega con cargo
-    $responsableEntrega = null;
-    if ($entrega->id_responsable) {
-        $res = Responsable::with('cargo')->find($entrega->id_responsable);
-        if ($res) {
-            $responsableEntrega =  $res->cargo->abreviatura . ' ' . $res->nombre;
+        // Responsable de la entrega con cargo
+        $responsableEntrega = null;
+        if ($entrega->id_responsable) {
+            $res = Responsable::with('cargo')->find($entrega->id_responsable);
+            if ($res) {
+                $responsableEntrega =  $res->cargo->abreviatura . ' ' . $res->nombre;
+            }
         }
+
+        // Director, administrador y responsable de activos
+        $responsables = $this->obtenerResponsables();
+
+        // Servicio de la entrega
+        $servicio = $entrega->servicio ? $entrega->servicio->nombre : null;
+
+        return view('user.entregas2.imprimir', compact(
+            'entrega',
+            'detalles',
+            'fecha_entrega_literal',
+            'responsableEntrega',
+            'servicio',
+            'responsables'
+        ));
     }
-
-    // Director, administrador y responsable de activos
-    $responsables =$this-> obtenerResponsables();
-
-    // Servicio de la entrega
-    $servicio = $entrega->servicio ? $entrega->servicio->nombre : null;
-
-    return view('user.entregas2.imprimir', compact(
-        'entrega',
-        'detalles',
-        'fecha_entrega_literal',
-        'responsableEntrega',
-        'servicio',
-        'responsables'
-    ));
-}
 
 
     public function show($id = null)
     {
         // $servicios = Servicio::all();
-          $servicios = Servicio::whereRaw('LOWER(nombre) NOT LIKE ?', ['%activos fijos%'])->get();
+        $servicios = Servicio::whereRaw('LOWER(nombre) NOT LIKE ?', ['%activos fijos%'])->get();
 
-         // trae todos los servicios con id_responsable
+        // trae todos los servicios con id_responsable
         $categorias = Categoria::all();
         $numeroSiguiente = $this->generarNumeroDocumento('2025');
         if ($id) {
@@ -186,21 +207,21 @@ public function obtenerResponsables() {
             // Si no se envía id, obtenemos la última entrega agregada
             // $entrega = Entrega::latest('id_entrega')->first();
 
-$entrega = Entrega::latest('id_entrega')->first();
+            $entrega = Entrega::latest('id_entrega')->first();
 
-if (!$entrega) {
-    $entrega = new Entrega([
-        'id_entrega' => '',
-        'estado' => '',
-        'fecha' => '',
-        'observaciones' => '',
-    ]);
+            if (!$entrega) {
+                $entrega = new Entrega([
+                    'id_entrega' => '',
+                    'estado' => '',
+                    'fecha' => '',
+                    'observaciones' => '',
+                ]);
 
-    // crear relaciones vacías
-    $entrega->setRelation('usuario', new Usuario(['usuario' => '']));
-    $entrega->setRelation('servicio', new Servicio(['nombre' => '']));
-    $entrega->setRelation('responsable', new Responsable(['nombre' => '']));
-}
+                // crear relaciones vacías
+                $entrega->setRelation('usuario', new Usuario(['usuario' => '']));
+                $entrega->setRelation('servicio', new Servicio(['nombre' => '']));
+                $entrega->setRelation('responsable', new Responsable(['nombre' => '']));
+            }
         }
 
         return view('user.Entregas2.show', compact('entrega', 'numeroSiguiente', 'servicios', 'categorias'));
@@ -221,9 +242,9 @@ if (!$entrega) {
 
         // Datos para selects
         $usuarios = Usuario::all();       // Para responsables
-        // $servicios = Servicio::all(); 
-          $servicios = Servicio::whereRaw('LOWER(nombre) NOT LIKE ?', ['%activos fijos%'])->get();
-    // Para servicios
+        // $servicios = Servicio::all();
+        $servicios = Servicio::whereRaw('LOWER(nombre) NOT LIKE ?', ['%activos fijos%'])->get();
+        // Para servicios
         $responsables = Responsable::all(); // Para selects de responsables si aplica
 
         return view('user.entregas2.parcial_editar', compact('entrega', 'usuarios', 'servicios', 'responsables'));
@@ -318,7 +339,7 @@ if (!$entrega) {
 
             // Finalizar entrega
             $entrega->estado = 'finalizado';
-            $entrega->id_responsable =$entrega->servicio->id_responsable ?? null;
+            $entrega->id_responsable = $entrega->servicio->id_responsable ?? null;
             $entrega->updated_at = now();
             $entrega->save();
 
@@ -610,9 +631,9 @@ if (!$entrega) {
                 $numero = $request->numero_documento;
                 $query->whereRaw('LOWER(numero_documento) LIKE ?', ['%' . strtolower($numero) . '%']);
             }
-if ($request->estado) {
-    $query->where('estado', $request->estado);
-}
+            if ($request->estado) {
+                $query->where('estado', $request->estado);
+            }
 
             if ($request->gestion) {
                 $query->where('gestion', $request->gestion);
@@ -641,175 +662,224 @@ if ($request->estado) {
             ], 500);
         }
     }
+    public function stock()
+    {
+        try {
 
+            // ---------------------------------------------------------
+            // 🔹 1️⃣ Activos inactivos disponibles
+            // ---------------------------------------------------------
+            $activosInactivos = Activo::soloInactivos()
+                ->with('detalleInventario', 'categoria', 'estado')
+                ->get();
 
-    // public function buscarActivos(Request $request)
-    // {
-    //     try {
-    //         $idEntregaActual = $request->id_entrega ?? null;
+            // ---------------------------------------------------------
+            // 🔹 2️⃣ Servicio “Activos Fijos” y sus inventarios vigentes
+            // ---------------------------------------------------------
+            $servicioActivosFijos = Servicio::whereRaw('LOWER(nombre) LIKE ?', ['%activos fijos%'])->first();
+            $inventariosActivosFijos = [];
 
-    //         // 🔹 Traer todos los activos inactivos
-    //         // $activos = Activo::soloInactivos() // scope: estado_situacional = 'inactivo'
-    //         //     ->with('detalleInventario', 'categoria', 'estado') // para estado_actual y categoría
-    //         //     ->get();
+            if ($servicioActivosFijos) {
+                $inventariosActivosFijos = Inventario::where('id_servicio', $servicioActivosFijos->id_servicio)
+                    ->where('estado', 'vigente')
+                    ->pluck('id_inventario')
+                    ->toArray();
+            }
 
-    //         // $detalles = $activos->map(function ($activo) use ($idEntregaActual) {
+            // ---------------------------------------------------------
+            // 🔹 3️⃣ Activos de “Activos Fijos” NO dados de baja
+            // ---------------------------------------------------------
+            $activosFijos = Activo::with('detalleInventario', 'categoria', 'estado')
+                ->where('estado_situacional', '!=', 'baja')
+                ->whereHas('detalleInventario', function ($q) use ($inventariosActivosFijos) {
+                    $q->whereIn('id_inventario', $inventariosActivosFijos);
+                })
+                ->get();
 
-    //         //     $idActivo = $activo->id_activo;
-    //         //     if (!$idActivo) return null;
+            // ---------------------------------------------------------
+            // 🔹 4️⃣ Unir ambos
+            // ---------------------------------------------------------
+            $activos = $activosInactivos->merge($activosFijos);
 
-    //         //     // 🔹 Si ya está en detalle_inventario, descartarlo
-    //         //     $existeEnInventario = \App\Models\DetalleInventario::where('id_activo', $idActivo)->exists();
-    //         //     if ($existeEnInventario) return null;
+            // ---------------------------------------------------------
+            // 🔹 5️⃣ Filtrar solo activos realmente disponibles
+            // ---------------------------------------------------------
+            $activosDisponibles = $activos->filter(function ($activo) use ($inventariosActivosFijos) {
 
-    //         //     // 🔹 Actas/entregas donde aparece este activo
-    //         //     $actas = DetalleEntrega::where('id_activo', $idActivo)
-    //         //         ->join('entregas as e', 'e.id_entrega', '=', 'detalle_entregas.id_entrega')
-    //         //         ->select('detalle_entregas.id_entrega', 'e.numero_documento')
-    //         //         ->distinct()
-    //         //         ->get()
-    //         //         ->map(function ($a) {
-    //         //             return [
-    //         //                 'id' => $a->id_entrega,
-    //         //                 'numero_documento' => $a->numero_documento,
-    //         //             ];
-    //         //         })
-    //         //         ->values()
-    //         //         ->toArray();
+                // ❌ DESCARTAR si está asignado a entregas activas
+                $entregaActiva = DetalleEntrega::where('id_activo', $activo->id_activo)
+                    ->join('entregas as e', 'e.id_entrega', '=', 'detalle_entregas.id_entrega')
+                    ->whereIn('e.estado', ['pendiente', 'vigente'])
+                    ->exists();
 
-    //         //     // 🔹 Determinar si el activo está en la entrega actual
-    //         //     $enEntregaActual = $idEntregaActual
-    //         //         ? collect($actas)->contains('id', $idEntregaActual)
-    //         //         : false;
+                if ($entregaActiva) return false;
 
-    //         //     // 🔹 Determinar si el activo está en otras entregas distintas
-    //         //     $enOtrasEntregas = $idEntregaActual
-    //         //         ? collect($actas)->where('id', '!=', $idEntregaActual)->isNotEmpty()
-    //         //         : collect($actas)->isNotEmpty();
+                // ❌ DESCARTAR si está en inventario NO permitido
+                $detalle = $activo->detalleInventario ?? collect();
 
-    //         //     // 🔹 Guardar atributos para la vista
-    //         //     $activo->setAttribute('en_entrega_actual', $enEntregaActual);
-    //         //     $activo->setAttribute('en_otras_entregas', $enOtrasEntregas);
-    //         //     $activo->setAttribute('actas_info', $actas);
-    //         //     $activo->setAttribute('estado_actual', $activo->estado->nombre);
-    //         //     $activo->setAttribute('id_entrega_actual', $idEntregaActual);
+                if ($detalle->isNotEmpty()
+                    && !$detalle->whereIn('id_inventario', $inventariosActivosFijos)->isNotEmpty()
+                    && $activo->estado_situacional === 'inactivo') {
 
-    //         //     return $activo;
-    //         // })->filter(); // eliminar nulos
+                    return false;
+                }
 
-    //         return view('user.entregas2.parcial_resultados_activos', ['detalles' => $detalles]);
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Ocurrió un error al buscar activos inactivos: ' . $e->getMessage()
-    //         ], 500);
-    //     }
-    // }
+                // ✔ ACEPTADO → Activo disponible
+                return true;
+            });
 
+            // ---------------------------------------------------------
+            // 🔹 6️⃣ Construcción del resumen de stock
+            // ---------------------------------------------------------
+            $categoriasActivos = [];
+            $estadoGeneral = [];
+            $totalGeneral = 0;
 
+            foreach ($activosDisponibles as $item) {
 
-public function buscarActivos(Request $request)
-{
-    try {
-        // dd($request->all());
-        $idEntregaActual = $request->id_entrega ?? null;
+                $categoria = $item->categoria->nombre ?? 'SIN CATEGORÍA';
+                $estado = strtoupper($item->estado->nombre ?? 'SIN ESTADO');
 
-        // 🔹 1️⃣ Traer todos los activos inactivos
-    $activosInactivos = Activo::soloInactivos()
-    ->with('detalleInventario', 'categoria', 'estado')
-    ->when($request->codigo_activo, fn($q) => $q->where('codigo', 'like', "%{$request->codigo_activo}%"))
-    ->when($request->nombre_activo, fn($q) => $q->where('nombre', 'like', "%{$request->nombre_activo}%"))
-    ->when($request->categoria_activo, fn($q) => $q->where('id_categoria', $request->categoria_activo))
-    ->get();
+                if (!isset($categoriasActivos[$categoria])) {
+                    $categoriasActivos[$categoria] = [
+                        'total' => 0,
+                        'estados' => []
+                    ];
+                }
 
+                $categoriasActivos[$categoria]['total']++;
+                $categoriasActivos[$categoria]['estados'][$estado] =
+                    ($categoriasActivos[$categoria]['estados'][$estado] ?? 0) + 1;
 
+                $estadoGeneral[$estado] = ($estadoGeneral[$estado] ?? 0) + 1;
 
-        // 🔹 2️⃣ Traer activos del servicio "Activos Fijos"
-        $servicioActivosFijos = Servicio::whereRaw('LOWER(nombre) LIKE ?', ['%activos fijos%'])->first();
-        $inventariosActivosFijos = [];
+                $totalGeneral++;
+            }
 
-      if ($servicioActivosFijos) {
-    $idServicioActivosFijos = $servicioActivosFijos->id_servicio;
-    $inventariosActivosFijos = Inventario::where('id_servicio', $idServicioActivosFijos)
-        ->where('estado', 'vigente')  // 🔥 FILTRAR SOLO INVENTARIOS VIGENTES
-        ->pluck('id_inventario')
-        ->toArray();
-}
+            // Categorías para el select
+            $categoriasTabla = Categoria::orderBy('nombre')->get();
 
-        $activosFijos = Activo::with('detalleInventario', 'categoria', 'estado')
-    ->where('estado_situacional', '!=', 'baja') // 🔥 EXCLUYENDO BAJA
-    ->whereHas('detalleInventario', function ($q) use ($inventariosActivosFijos) {
-        $q->whereIn('id_inventario', $inventariosActivosFijos);
-    })
-    ->get();
+            return view('user.entregas2.parcial_stock', [
+                'categoriasActivos' => $categoriasActivos,
+                'estadoGeneral' => $estadoGeneral,
+                'totalGeneral' => $totalGeneral,
+                'categoriasTabla' => $categoriasTabla,
+            ]);
 
-
-        // 🔹 3️⃣ Combinar ambos conjuntos
-        $activos = $activosInactivos->merge($activosFijos);
-
-        // 🔹 4️⃣ Mapear y agregar atributos
-        $detalles = $activos->map(function ($activo) use ($idEntregaActual, $inventariosActivosFijos) {
-
-            $idActivo = $activo->id_activo;
-            if (!$idActivo) return null;
-
-            // 🔹 Si ya está en detalle_inventario y NO es de "Activos Fijos", descartarlo
-            // $existeEnInventario = $activo->detalleInventario->isNotEmpty();
-           $existeEnInventario = ($activo->detalleInventario ?? collect());
-
-            // $enInventarioActivosFijos = $activo->detalleInventario
-            //     ->whereIn('id_inventario', $inventariosActivosFijos)
-            //     ->isNotEmpty();
-   $enInventarioActivosFijos = ($activo->detalleInventario ?? collect())
-    ->whereIn('id_inventario', $inventariosActivosFijos)
-    ;
-
-            if ($existeEnInventario && !$enInventarioActivosFijos && $activo->estado_situacional === 'inactivo') return null;
-
-            // 🔹 Actas/entregas donde aparece este activo
-            $actas = DetalleEntrega::where('id_activo', $idActivo)
-                ->join('entregas as e', 'e.id_entrega', '=', 'detalle_entregas.id_entrega')
-                 ->whereIn('e.estado', ['pendiente', 'vigente']) // SOLO contar entregas activas
-                ->select('detalle_entregas.id_entrega', 'e.numero_documento')
-                ->distinct()
-                ->get()
-                ->map(fn($a) => [
-                    'id' => $a->id_entrega,
-                    'numero_documento' => $a->numero_documento,
-                        'estado' => $a->estado,
-                ])
-                ->values()
-                ->toArray();
-
-            // 🔹 Determinar si el activo está en la entrega actual
-            $enEntregaActual = $idEntregaActual
-                ? collect($actas)->contains('id', $idEntregaActual)
-                : false;
-
-            // 🔹 Determinar si el activo está en otras entregas distintas
-            $enOtrasEntregas = $idEntregaActual
-                ? collect($actas)->where('id', '!=', $idEntregaActual)->isNotEmpty()
-                : collect($actas)->isNotEmpty();
-
-            // 🔹 Guardar atributos para la vista
-            $activo->setAttribute('en_entrega_actual', $enEntregaActual);
-            $activo->setAttribute('en_otras_entregas', $enOtrasEntregas);
-            $activo->setAttribute('actas_info', $actas);
-            $activo->setAttribute('estado_actual', $activo->estado->nombre ?? null);
-            $activo->setAttribute('id_entrega_actual', $idEntregaActual);
-
-            return $activo;
-        })->filter(); // eliminar nulos
-
-        return view('user.entregas2.parcial_resultados_activos', ['detalles' => $detalles]);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Ocurrió un error al buscar activos: ' . $e->getMessage()
-        ], 500);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al generar stock: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
+
+
+    public function buscarActivos(Request $request)
+    {
+        try {
+            // dd($request->all());
+            $idEntregaActual = $request->id_entrega ?? null;
+
+            // 🔹 1️⃣ Traer todos los activos inactivos
+            $activosInactivos = Activo::soloInactivos()
+                ->with('detalleInventario', 'categoria', 'estado')
+                ->when($request->codigo_activo, fn($q) => $q->where('codigo', 'like', "%{$request->codigo_activo}%"))
+                ->when($request->nombre_activo, fn($q) => $q->where('nombre', 'like', "%{$request->nombre_activo}%"))
+                ->when($request->categoria_activo, fn($q) => $q->where('id_categoria', $request->categoria_activo))
+                ->get();
+
+
+
+            // 🔹 2️⃣ Traer activos del servicio "Activos Fijos"
+            $servicioActivosFijos = Servicio::whereRaw('LOWER(nombre) LIKE ?', ['%activos fijos%'])->first();
+            $inventariosActivosFijos = [];
+
+            if ($servicioActivosFijos) {
+                $idServicioActivosFijos = $servicioActivosFijos->id_servicio;
+                $inventariosActivosFijos = Inventario::where('id_servicio', $idServicioActivosFijos)
+                    ->where('estado', 'vigente')  // 🔥 FILTRAR SOLO INVENTARIOS VIGENTES
+                    ->pluck('id_inventario')
+                    ->toArray();
+            }
+
+            $activosFijos = Activo::with('detalleInventario', 'categoria', 'estado')
+                ->where('estado_situacional', '!=', 'baja') // 🔥 EXCLUYENDO BAJA
+                ->whereHas('detalleInventario', function ($q) use ($inventariosActivosFijos) {
+                    $q->whereIn('id_inventario', $inventariosActivosFijos);
+                })
+                ->get();
+
+
+            // 🔹 3️⃣ Combinar ambos conjuntos
+            $activos = $activosInactivos->merge($activosFijos);
+
+            // 🔹 4️⃣ Mapear y agregar atributos
+            $detalles = $activos->map(function ($activo) use ($idEntregaActual, $inventariosActivosFijos) {
+
+                $idActivo = $activo->id_activo;
+                if (!$idActivo) return null;
+
+                // 🔹 Si ya está en detalle_inventario y NO es de "Activos Fijos", descartarlo
+                // $existeEnInventario = $activo->detalleInventario->isNotEmpty();
+                $existeEnInventario = ($activo->detalleInventario ?? collect());
+
+                // $enInventarioActivosFijos = $activo->detalleInventario
+                //     ->whereIn('id_inventario', $inventariosActivosFijos)
+                //     ->isNotEmpty();
+                $enInventarioActivosFijos = ($activo->detalleInventario ?? collect())
+                    ->whereIn('id_inventario', $inventariosActivosFijos);
+
+                if ($existeEnInventario && !$enInventarioActivosFijos && $activo->estado_situacional === 'inactivo') return null;
+
+                // 🔹 Actas/entregas donde aparece este activo
+                $actas = DetalleEntrega::where('id_activo', $idActivo)
+                    ->join('entregas as e', 'e.id_entrega', '=', 'detalle_entregas.id_entrega')
+                    ->whereIn('e.estado', ['pendiente', 'vigente']) // SOLO contar entregas activas
+                    ->select('detalle_entregas.id_entrega', 'e.numero_documento')
+                    ->distinct()
+                    ->get()
+                    ->map(fn($a) => [
+                        'id' => $a->id_entrega,
+                        'numero_documento' => $a->numero_documento,
+                        'estado' => $a->estado,
+                    ])
+                    ->values()
+                    ->toArray();
+
+                // 🔹 Determinar si el activo está en la entrega actual
+                $enEntregaActual = $idEntregaActual
+                    ? collect($actas)->contains('id', $idEntregaActual)
+                    : false;
+
+                // 🔹 Determinar si el activo está en otras entregas distintas
+                $enOtrasEntregas = $idEntregaActual
+                    ? collect($actas)->where('id', '!=', $idEntregaActual)->isNotEmpty()
+                    : collect($actas)->isNotEmpty();
+
+                // 🔹 Guardar atributos para la vista
+                $activo->setAttribute('en_entrega_actual', $enEntregaActual);
+                $activo->setAttribute('en_otras_entregas', $enOtrasEntregas);
+                $activo->setAttribute('actas_info', $actas);
+                $activo->setAttribute('estado_actual', $activo->estado->nombre ?? null);
+                $activo->setAttribute('id_entrega_actual', $idEntregaActual);
+
+                return $activo;
+            })->filter(); // eliminar nulos
+
+
+
+
+
+
+            return view('user.entregas2.parcial_resultados_activos', ['detalles' => $detalles]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ocurrió un error al buscar activos: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
 
     public function store(Request $request)
@@ -863,7 +933,7 @@ public function buscarActivos(Request $request)
                 'errors' => $validator->errors(),
             ], 422);
         }
-$servicio = Servicio::findOrFail($request->id_servicio);
+        $servicio = Servicio::findOrFail($request->id_servicio);
 
         // ✅ Si pasó todas las validaciones, guardar
         $entrega = Entrega::create([
@@ -872,27 +942,20 @@ $servicio = Servicio::findOrFail($request->id_servicio);
             'fecha' => $request->fecha,
             'id_usuario' => auth()->id(),
             'id_servicio' => $request->id_servicio,
-                'id_responsable' => $servicio->id_responsable, // 👈 SE GUARDA AQUÍ
+            'id_responsable' => $servicio->id_responsable, // 👈 SE GUARDA AQUÍ
             'observaciones' => $request->observaciones,
             'estado' => 'pendiente',
-        ]);    
-         $siguienteNumero = $this->generarNumeroDocumento($gestion);
-$siguienteNumero = str_pad((int) $siguienteNumero, 3, '0', STR_PAD_LEFT);
-
-
-return response()->json([
-    'success' => true,
-    'message' => 'Nueva Entrega registrada correctamente.',
-    'data' => $entrega,
-    'siguiente_numero' => $siguienteNumero,
         ]);
+        $siguienteNumero = $this->generarNumeroDocumento($gestion);
+        $siguienteNumero = str_pad((int) $siguienteNumero, 3, '0', STR_PAD_LEFT);
 
 
-
-        
-
-
-
+        return response()->json([
+            'success' => true,
+            'message' => 'Nueva Entrega registrada correctamente.',
+            'data' => $entrega,
+            'siguiente_numero' => $siguienteNumero,
+        ]);
     }
     public function detalleParcialEntrega($id)
     {

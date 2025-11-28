@@ -35,6 +35,32 @@ class AppServiceProvider extends ServiceProvider
 {
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   View::composer('user.parametros.parametros', function ($view) {
         // Obtener todas las unidades
         $unidades = Unidad::orderBy('nombre')->get(); // Puedes filtrar o paginar si quieres

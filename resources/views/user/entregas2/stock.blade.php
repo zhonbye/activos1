@@ -1,37 +1,9 @@
-
-<!-- RESUMEN DE STOCK -->
-<div class="row g-3 mb-4">
-
-    <div class="col-md-3">
-        <div class="card shadow-sm border-0 p-3 bg-light">
-            <h6 class="text-primary fw-bold">Total en Stock</h6>
-            <p class="fs-4 fw-bold m-0">12</p>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card shadow-sm border-0 p-3 bg-light">
-            <h6 class="text-success fw-bold">En buen estado</h6>
-            <p class="fs-4 fw-bold m-0">9</p>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card shadow-sm border-0 p-3 bg-light">
-            <h6 class="text-warning fw-bold">Regulares</h6>
-            <p class="fs-4 fw-bold m-0">2</p>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card shadow-sm border-0 p-3 bg-light">
-            <h6 class="text-danger fw-bold">En mal estado</h6>
-            <p class="fs-4 fw-bold m-0">1</p>
-        </div>
-    </div>
+<div class="stock">
 </div>
 
-<!-- BUSCADOR (CON LOS MISMOS IDs) -->
+<!-- ============================================= -->
+<!-- BUSCADOR -->
+<!-- ============================================= -->
 <div class="card border-0 shadow-sm p-4 pt-0 mx-0 mb-4">
     <div class="card-body">
         <div class="d-flex justify-content-between align-items-start mb-4">
@@ -39,7 +11,6 @@
             <!-- Formulario de búsqueda -->
             <div class="flex-grow-1">
                 <form id="form_buscar_inventario_entrega" class="row g-3 text-start">
-                    @csrf
 
                     <div class="col-md-4">
                         <label for="codigo_activo" class="form-label fw-semibold">Código de Activo</label>
@@ -57,9 +28,12 @@
                         <label for="categoria_activo" class="form-label fw-semibold">Categoría</label>
                         <select name="categoria_activo" id="categoria_activo" class="form-select">
                             <option value="">Todos...</option>
-                            @foreach ($categorias as $categoria)
+                            @foreach($categorias as $categoria)
                                 <option value="{{ $categoria->id_categoria }}">{{ $categoria->nombre }}</option>
                             @endforeach
+                            {{-- @foreach($categoriasTabla as $categoria)
+                                <option value="{{ $categoria->id_categoria }}">{{ $categoria->nombre }}</option>
+                            @endforeach --}}
                         </select>
                     </div>
 
@@ -72,6 +46,7 @@
                             <i class="bi bi-arrow-counterclockwise me-1"></i> Limpiar
                         </button>
                     </div>
+
                 </form>
             </div>
 
@@ -103,30 +78,18 @@
 
 
 
-
-
-
 <script>
 
 
 
 
 
+$(document).ready(function(){
+ cargarDetalleStock()
 
+})
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+// cargarDetalleStock();
 
 
     // Evita múltiples bindings del mismo evento

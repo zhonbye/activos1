@@ -100,6 +100,7 @@
 </div>
 
 <script>
+   
     $(document).ready(function() {
 
         var filaActual = null;
@@ -107,103 +108,6 @@
         var debounceTimeout;
         // const baseUrl = '';
 
-
-        // Asegúrate de ejecutar esto una sola vez (por ejemplo en $(document).ready)
-        // 1) Quitamos handlers previos y registramos el nuevo (evita duplicados)
-
-//         $(document).off('click', '.btn-ver-detalle-principal').on('click', '.btn-ver-detalle-principal',
-//             function(e) {
-//                 e.preventDefault();
-//                 const $btn = $(this);
-//                 if ($btn.data('processing')) return;
-//                 $btn.data('processing', true);
-
-//                 const idActivo = $btn.data('id-activo');
-//                 const nombreActivo = $btn.data('nombre');
-//                 const actas = $btn.data('actas') || [];
-//                 const idEntregaActual = parseInt($('#id_entrega').val()) || null;
-
-//                 const $modal = $('#modalDetalleActivos');
-//                 const $cantidadLabel = $('#modalActivoCantidad');
-//                 const $btnRevisar = $('#seleccionar_entrega');
-
-//                 // Verificar si UL existe, si no crear todo el body
-//                 let $lista = $modal.find('#actasWheel');
-//                 if ($lista.length === 0) {
-//                     const bodyHtml = `
-//             <p class="text-muted mb-2">Actas encontradas en este activo:</p>
-//             <div class="wheel-container" style="max-height: 200px; overflow-y: auto;">
-//                 <ul id="actasWheel" class="list-unstyled m-0 p-0"></ul>
-//             </div>
-//         `;
-//                     $modal.find('.modal-body').html(bodyHtml);
-//                     $lista = $modal.find('#actasWheel');
-//                 }
-
-//                 $('#modalActivoNombre').text(nombreActivo);
-
-//                 const cantidadFila = parseInt($(`input.cantidad-activo[data-id-activo="${idActivo}"]`)
-//                 .val()) || 0;
-//                 $lista.empty();
-//                 // alert(cantidadFila)
-//                 actas.forEach(a => {
-//                     const selected = idEntregaActual === a.id_entrega ? 'selected' : '';
-//                     $lista.append(`
-//             <li class="${selected}" data-id-entrega="${a.id_entrega}" data-cantidad="${a.cantidad || cantidadFila}">
-//                 ${a.numero_documento}
-//             </li>
-//         `);
-//                 });
-
-//                 // Selección por defecto
-//                 const $default = $lista.find('li.selected');
-//                 const cantidadActual = cantidadFila;
-//                 $cantidadLabel.text(`Cantidad: ${cantidadActual}`);
-//                 $btnRevisar.text($default.data('id-entrega') === idEntregaActual ? 'Actual' : 'Revisar')
-//                     .prop('disabled', $default.data('id-entrega') === idEntregaActual);
-
-//                 // Click en LI
-//                 $lista.off('click', 'li').on('click', 'li', function() {
-//                     $lista.find('li').removeClass('selected');
-//                     $(this).addClass('selected');
-
-//                     // const cant = $(this).data('cantidad');
-//                     const cant = ($(this).data('id-entrega') === idEntregaActual)
-//     ? parseInt($(`input.cantidad-activo[data-id-activo="${idActivo}"]`).val()) || 0
-//     : $(this).data('cantidad');
-
-//                     const idEntrega = $(this).data('id-entrega');
-//                     $cantidadLabel.text(`Cantidad: ${cant}`);
-//                     $btnRevisar.text($(this).data('id-entrega') === idEntregaActual ? 'Actual' :
-//                             'Revisar')
-//                         .prop('disabled', $(this).data('id-entrega') === idEntregaActual);
-//                     $btnRevisar
-//                         .data('id', idEntrega) // actualiza en memoria
-//                         .attr('data-id', idEntrega);
-//                 });
-//                 $modal.modal('show');
-
-//                 // Reset al cerrar modal
-//                 $modal.one('hidden.bs.modal', function() {
-//                     $lista.empty();
-//                     $cantidadLabel.text('');
-//                 });
-
-//                 $btn.data('processing', false);
-//             });
-
-
-//         // Botón de “Seleccionar acta”
-//         // $('#btnSeleccionarActa').on('click', function() {
-//         //     const seleccionado = $('#actasWheel li.selected');
-//         //     if (seleccionado.length === 0) {
-//         //         alert('Seleccione un acta');
-//         //         return;
-//         //     }
-//         //     const idEntrega = seleccionado.data('id-entrega');
-//         //     const numeroDoc = seleccionado.data('num-documento');
-//         //     alert(`Seleccionaste el acta ${numeroDoc} del entrega ${idEntrega}`);
-//         // });
 
 
 
@@ -258,7 +162,8 @@
 
                 // Opcional: refrescar tabla principal si quieres
                 cargarTablaActivos();
-
+  // 🔥 NUEVO: actualizar stock dinámico
+  cargarDetalleStock();
             } else {
                 mensaje(response.error || 'No se pudo eliminar el activo.', 'danger');
             }
@@ -328,7 +233,7 @@ $(document).off('click', '.btn_agregar_activo')
                         $btnAgregar.replaceWith($btnEliminar);
                     }
                     cargarTablaActivos(idEntrega)
-
+                    cargarDetalleStock()
                 } else {
                     mensaje(response.error || 'No se pudo agregar el activo.', 'danger');
                 }

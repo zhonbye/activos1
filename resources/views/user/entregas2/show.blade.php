@@ -397,7 +397,17 @@
 
 <script>
 
-
+function cargarDetalleStock() {
+    $.ajax({
+        url: `${baseUrl}/stock/detalle`,
+        method: 'GET',
+        success: function (html) {
+            $(".stock").html(html);
+        },
+        error: function () {
+            mensaje("No se pudo actualizar el stock.", "danger");
+        }
+    });}
 
                 function abrirImpresion() {
                     // // Obtener el valor del input hidden
