@@ -44,6 +44,22 @@ class Activo extends Model
     {
         return $query->where('estado_situacional', '!=', 'eliminado');
     }
+
+
+
+
+// Activo.php
+// public function categoria(){ return $this->belongsTo(Categoria::class, 'id_categoria'); }
+// public function unidad(){ return $this->belongsTo(Unidad::class, 'id_unidad'); }
+public function estadoSituacional(){ return $this->belongsTo(Estado::class, 'id_estado'); }
+
+
+
+
+
+
+
+
     public function detalles()
     {
         return $this->hasMany(DetalleInventario::class, 'id_activo', 'id_activo');

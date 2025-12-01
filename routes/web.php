@@ -238,9 +238,10 @@ Route::get('/movimientos/reporte/pdf', [ReporteController::class, 'imprimirActas
     ->name('movimientos.pdf');
 Route::get('/reporte/global', [ReporteController::class, 'global'])
     ->name('reportes.global');
-Route::post('/reportes/generar', [ReporteController::class, 'generar']);
+Route::post('/reportes/generar', [ReporteController::class, 'generar'])->name('reporte.generar');
 
-Route::post('/reportes/filtrar', [ReporteController::class, 'filtrar']);
+Route::post('/reportes/filtrar', [ReporteController::class, 'filtrar'])->name('reporte.filtrar');
+Route::post('/reportes/resumen', [ReporteController::class, 'resumen'])->name('reporte.resumen');
 
 
 
