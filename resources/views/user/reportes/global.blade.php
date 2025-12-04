@@ -36,11 +36,35 @@
 <!--  🔥 KPIs                                                -->
 <!-- ======================================================= -->
 <div class="row g-3 mb-4">
-    <div class="col-md-3"><div class="kpi-card"><div class="subtext">Total</div><div class="kpi-number" id="kpi_total">0</div></div></div>
-    <div class="col-md-3"><div class="kpi-card"><div class="subtext">Disponibles</div><div class="kpi-number text-primary" id="kpi_disp">0</div></div></div>
-    <div class="col-md-3"><div class="kpi-card"><div class="subtext">Asignados</div><div class="kpi-number text-info" id="kpi_asig">0</div></div></div>
-    <div class="col-md-3"><div class="kpi-card"><div class="subtext">De baja</div><div class="kpi-number text-danger" id="kpi_baja">0</div></div></div>
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="subtext">Total</div>
+            <div class="kpi-number" id="kpi_total">{{ $total_activos }}</div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="subtext">Disponibles</div>
+            <div class="kpi-number text-primary" id="kpi_disp">{{ $activos_disponibles }}</div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="subtext">Asignados</div>
+            <div class="kpi-number text-info" id="kpi_asig">{{ $activos_asignados }}</div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="subtext">De baja</div>
+            <div class="kpi-number text-danger" id="kpi_baja">{{ $activos_baja }}</div>
+        </div>
+    </div>
 </div>
+
 
 
 
@@ -105,7 +129,7 @@
 <!-- ======================================================= -->
 <!--  📈 NUEVOS GRAFICOS                                     -->
 <!-- ======================================================= -->
-<div class="row g-4 mb-4">
+{{-- <div class="row g-4 mb-4">
 
     <div class="col-md-6"><div class="box"><div class="section-title text-center">Activos por servicio</div><canvas id="g1"></canvas></div></div>
     <div class="col-md-6"><div class="box"><div class="section-title text-center">Activos por categoría</div><canvas id="g2"></canvas></div></div>
@@ -115,7 +139,7 @@
 
     <div class="col-md-12 mt-4"><div class="box"><div class="section-title text-center">Tendencia histórica mensual</div><canvas id="g5"></canvas></div></div>
 
-</div>
+</div> --}}
 
 
 
@@ -135,15 +159,15 @@
             <select id="rep_tipo" class="form-select">
                 <option value="resumen">Resumen general </option>
                 <option value="servicio">Reporte por servicio</option>
-                <option value="categoria">Detalle inventarios</option>
+                {{-- <option value="categoria">Detalle inventarios</option> --}}
                 {{-- <option value="estado">Historico por estado</option> --}}
                 {{-- <option value="inventario">Inventario completo</option> --}}
-                <option value="asignados">Activos asignados</option>
-                <option value="disponibles">Activos disponibles</option>
+                {{-- <option value="asignados">Activos asignados</option> --}}
+                {{-- <option value="disponibles">Activos disponibles</option>
                 <option value="baja">Activos de baja</option>
                 <option value="compra">Adquisición compra</option>
                 <option value="donacion">Adquisición donación</option>
-                <option value="otros">Adquisición otros</option>
+                <option value="otros">Adquisición otros</option> --}}
             </select>
         </div>
 
@@ -151,7 +175,7 @@
        <div class="col-md-3">
     <label class="small">Desde</label>
     <input type="date" id="rep_desde" class="form-control"
-           value="{{ date('Y-m-d', strtotime('-1 year')) }}">
+           value="{{ date('Y-m-d', strtotime('-3 year')) }}">
 </div>
 
 <div class="col-md-3">
@@ -239,7 +263,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-let activosFiltrados = []; // variable global
+//let activosFiltrados = []; // variable global
 
 
 $("#btn_reporte").on("click", function () {
@@ -423,11 +447,11 @@ $("#btn_filtrar").on("click", function () {
 
 
     /* Graficos DEMO */
-    new Chart(g1, { type:'bar', data:{ labels:["Sis","Admin","Conta"], datasets:[{data:[20,15,10],backgroundColor:"#0d6efd"}] }});
-    new Chart(g2, { type:'bar', data:{ labels:["Comp","Mob","Off"], datasets:[{data:[12,18,9],backgroundColor:"#6f42c1"}] }});
-    new Chart(g3, { type:'pie', data:{ labels:["Nuevo","Bueno","Reg","Malo"], datasets:[{data:[10,20,15,5]}] }});
-    new Chart(g4, { type:'doughnut', data:{ labels:["Disponibles","Asignados"], datasets:[{data:[25,30]}] }});
-    new Chart(g5, { type:'line', data:{ labels:["Ene","Feb","Mar","Abr","May"], datasets:[{data:[10,20,18,25,30],borderColor:"#0d6efd"}] }});
+    // new Chart(g1, { type:'bar', data:{ labels:["Sis","Admin","Conta"], datasets:[{data:[20,15,10],backgroundColor:"#0d6efd"}] }});
+    // new Chart(g2, { type:'bar', data:{ labels:["Comp","Mob","Off"], datasets:[{data:[12,18,9],backgroundColor:"#6f42c1"}] }});
+    // new Chart(g3, { type:'pie', data:{ labels:["Nuevo","Bueno","Reg","Malo"], datasets:[{data:[10,20,15,5]}] }});
+    // new Chart(g4, { type:'doughnut', data:{ labels:["Disponibles","Asignados"], datasets:[{data:[25,30]}] }});
+    // new Chart(g5, { type:'line', data:{ labels:["Ene","Feb","Mar","Abr","May"], datasets:[{data:[10,20,18,25,30],borderColor:"#0d6efd"}] }});
 
     /* Botón reporte (DEMO) */
     // document.getElementById("btn_reporte").onclick = () => {

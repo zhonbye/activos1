@@ -200,6 +200,21 @@
                         {{-- <li><a href="{{ route('pruebas') }}" role="menuitem" class="cargar">prueba interfaces</a></li> --}}
                     </ul>
                 </li>
+                          <li class="menu-item " data-submenu="submenuReportes" role="none">
+                <div class="main-item" tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"
+                    aria-controls="submenuReportes">
+                    <i class="bi bi-graph-up icon" aria-hidden="true"></i>
+                    <span class="text">Reportes</span>
+                    <i class="bi bi-caret-down caret" aria-hidden="true"></i>
+                </div>
+                <ul class="submenu" id="submenuReportes">
+                    {{-- <li><a href="#" class="desactivado" role="menuitem">Reportes de Activos</a></li>
+                    <li><a href="#" class="desactivado" role="menuitem">Reportes por Responsable</a></li> --}}
+                     <li role="none">
+                            <a href="{{ route('reportes.global') }}" role="menuitem" class="cargar">Reportes globales</a>
+                        </li>
+                </ul>
+            </li>
                 <!-- Categorías y Unidades -->
                 {{-- <li class="menu-item" data-submenu="submenuCategorias" role="none">
                     <div class="main-item" tabindex="0" role="menuitem" aria-haspopup="true" aria-expanded="false"

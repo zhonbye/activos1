@@ -715,14 +715,22 @@ class EntregaController extends Controller
                 if ($entregaActiva) return false;
 
                 // ❌ DESCARTAR si está en inventario NO permitido
-                $detalle = $activo->detalleInventario ?? collect();
+                // $detalle = $activo->detalleInventario ?? collect();
 
-                if ($detalle->isNotEmpty()
-                    && !$detalle->whereIn('id_inventario', $inventariosActivosFijos)->isNotEmpty()
-                    && $activo->estado_situacional === 'inactivo') {
+                // if ($detalle->isNotEmpty()
+                //     && !$detalle->whereIn('id_inventario', $inventariosActivosFijos)->isNotEmpty()
+                //     && $activo->estado_situacional === 'inactivo') {
 
-                    return false;
-                }
+                //     return false;
+                // }
+$detalle = $activo->detalleInventario;
+
+if ($detalle
+    && !in_array($detalle->id_inventario, $inventariosActivosFijos)
+    && $activo->estado_situacional === 'inactivo') {
+
+    return false;
+}
 
                 // ✔ ACEPTADO → Activo disponible
                 return true;
@@ -803,12 +811,16 @@ class EntregaController extends Controller
                     ->toArray();
             }
 
-            $activosFijos = Activo::with('detalleInventario', 'categoria', 'estado')
-                ->where('estado_situacional', '!=', 'baja') // 🔥 EXCLUYENDO BAJA
-                ->whereHas('detalleInventario', function ($q) use ($inventariosActivosFijos) {
-                    $q->whereIn('id_inventario', $inventariosActivosFijos);
-                })
-                ->get();
+        $activosFijos = Activo::with('detalleInventario', 'categoria', 'estado')
+    ->where('estado_situacional', '!=', 'baja')
+    ->whereHas('detalleInventario', function ($q) use ($inventariosActivosFijos) {
+        $q->whereIn('id_inventario', $inventariosActivosFijos);
+    })
+    ->when($request->codigo_activo, fn($q) => $q->where('codigo', 'like', "%{$request->codigo_activo}%"))
+    ->when($request->nombre_activo, fn($q) => $q->where('nombre', 'like', "%{$request->nombre_activo}%"))
+    ->when($request->categoria_activo, fn($q) => $q->where('id_categoria', $request->categoria_activo))
+    ->get();
+
 
 
             // 🔹 3️⃣ Combinar ambos conjuntos

@@ -153,7 +153,7 @@ $('#formNuevoResponsable').submit(function (e) {
                 cargarDatos(tabla, filas);
 
             } else {
-                mensaje2('Ocurrió un error inesperado.', 'danger');
+                mensaje2('Ocurrió un error inesperado.', 'error');
             }
         },
         error: function (xhr) {
@@ -179,7 +179,7 @@ $('#formNuevoResponsable').submit(function (e) {
                 msg = xhr.responseJSON.message;
             }
 
-            mensaje2(msg, 'danger');
+            mensaje2(msg, 'error');
         }
     });
 });

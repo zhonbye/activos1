@@ -9,13 +9,33 @@
         </h6>
         <div class="row g-3">
             <div class="col-md-6">
-                <label for="nombreResponsable" class="form-label">Nombre completo</label>
-                <input type="text" id="nombreResponsable" name="nombre" class="form-control" placeholder="Ej: Juan Pérez" required>
-            </div>
-            <div class="col-md-3">
-                <label for="ciResponsable" class="form-label">C.I.</label>
-                <input type="text" id="ciResponsable" name="ci" class="form-control" placeholder="Ej: 9876543" required>
-            </div>
+    <label for="nombreResponsable" class="form-label">Nombre completo</label>
+    <input 
+        type="text" 
+        id="nombreResponsable" 
+        name="nombre" 
+        class="form-control"
+        placeholder="Ej: Juan Pérez" 
+        required
+        pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñ]+( [A-Za-zÁÉÍÓÚáéíóúÑñ]+){0,4}$"
+        title="Solo letras y hasta 5 nombres o apellidos. Sin números."
+    >
+</div>
+<div class="col-md-3">
+    <label for="ciResponsable" class="form-label">C.I.</label>
+    <input 
+        type="text" 
+        id="ciResponsable" 
+        name="ci" 
+        class="form-control"
+        placeholder="Ej: 9876543" 
+        required
+        pattern="^[0-9]{1,8}$"
+        title="El C.I. debe tener solo números (máximo 8 dígitos)."
+        maxlength="8"
+    >
+</div>
+
             <div class="col-md-3">
                 <label for="telefonoResponsable" class="form-label">Teléfono</label>
                 <input type="text" id="telefonoResponsable" name="telefono" class="form-control" placeholder="Ej: 71234567">

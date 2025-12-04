@@ -50,23 +50,52 @@ public function filtrar(Request $request)
      * Store a newly created resource in storage.
      */
   public function store(Request $request)
-    {
-        // Validar datos
-        $request->validate([
-            'nombre' => 'required|string|max:255',
-            'tipo' => 'nullable|string|max:255',
-            'contacto' => 'nullable|string|max:255',
-        ]);
+{
+    // Validaciones
+    $request->validate([
+        // Nombre: solo validación básica
+        'nombre' => 'required|string|max:255',
 
-        // Crear nuevo donante con tipo en mayúsculas
-        $donante = Donante::create([
-            'nombre' => $request->nombre,
-            'tipo' => $request->tipo ? strtoupper($request->tipo) : null,
-            'contacto' => $request->contacto,
-        ]);
+        // Tipo: solo texto, sin números
+        'tipo' => [
+            'nullable',
+            'regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$/',
+            'max:255',
+        ],
 
-        return response()->json(['message' => 'Donante creado correctamente', 'donante' => $donante]);
-    }
+        // Contacto: número 6-8 dígitos O correo válido
+        'contacto' => [
+            'nullable',
+            'regex:/^(\d{6,8}|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})$/',
+            'max:255',
+        ],
+    ], [
+        'tipo.regex' => 'El tipo solo puede contener letras y espacios.',
+        'contacto.regex' => 'El contacto debe ser un correo válido o un número de 6 a 8 dígitos.',
+    ]);
+
+    // Crear donante
+    $donante = Donante::create([
+        'nombre' => $request->nombre,
+        'tipo' => $request->tipo ? strtoupper($request->tipo) : null,
+        'contacto' => $request->contacto,
+    ]);
+
+    return response()->json([
+        'message' => 'Donante creado correctamente',
+        'donante' => $donante
+    ]);
+}
+
+
+
+
+
+
+
+
+
+
    public function show($id = null)
     {
 

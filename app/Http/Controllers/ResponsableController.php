@@ -84,33 +84,69 @@ if ($request->filled('search')) {
 {
     try {
         // 🔹 Validar los datos con mensajes personalizados
-        $validated = $request->validate(
-            [
-                'nombre'     => 'required|string|max:255',
-                'ci'         => 'required|string|max:100|unique:responsables,ci',
-                'telefono'   => 'nullable|string|max:30',
-                'id_cargo'   => 'required|integer|exists:cargos,id_cargo',
-                'rol'        => 'required|string|max:255',
-            ],
-            [
-                // 🧩 Mensajes personalizados por tipo de regla
-                'required' => 'El campo :attribute es obligatorio.',
-                'string'   => 'El campo :attribute debe ser un texto.',
-                'max'      => 'El campo :attribute no debe exceder :max caracteres.',
-                'unique'   => 'El :attribute ya está registrado.',
-                'exists'   => 'El :attribute seleccionado no es válido.',
-                'in'       => 'El :attribute seleccionado no es válido.',
-            ],
-            [
-                // 🏷️ Nombres amigables de campos
-                'nombre'   => 'nombre del responsable',
-                'ci'       => 'CI',
-                'telefono' => 'teléfono',
-                'id_cargo' => 'cargo',
-                'rol'      => 'rol del usuario',
-            ]
-        );
+     $validated = $request->validate(
 
+    [
+        'nombre' => [
+            'required',
+            'string',
+            'max:255',
+            'regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$/',          // solo letras y espacios
+            'regex:/^(\S+\s+){1,4}\S+$/',                // entre 2 y 5 palabras
+        ],
+
+        'ci' => [
+            'required',
+            'digits_between:6,8',
+            'regex:/^[0-9]+$/',
+            'unique:responsables,ci',
+        ],
+
+        'telefono' => [
+            'nullable',
+            'digits_between:6,8',
+            'regex:/^[0-9]+$/',
+        ],
+
+        'id_cargo' => 'required|integer|exists:cargos,id_cargo',
+        'rol'       => 'required|string|max:255',
+    ],
+
+    /* ------------------------------
+       ⚠️ MENSAJES PERSONALIZADOS
+    ------------------------------- */
+    [
+        'required' => 'El campo :attribute es obligatorio.',
+        'string'   => 'El campo :attribute debe ser texto.',
+        'unique'   => 'El :attribute ya está registrado.',
+        'exists'   => 'El :attribute seleccionado no es válido.',
+        'max'      => 'El campo :attribute no debe superar :max caracteres.',
+
+        // Nombre solo letras
+        'nombre.regex' => 'El nombre solo debe contener letras y debe tener entre 2 y 5 palabras.',
+
+        // CI
+        'ci.regex'            => 'El CI solo puede contener números.',
+        'ci.digits_between'   => 'El CI debe tener entre 6 y 8 dígitos.',
+
+        // Teléfono
+        'telefono.regex'          => 'El teléfono solo puede contener números.',
+        'telefono.digits_between' => 'El teléfono debe tener entre 6 y 8 dígitos.',
+    ],
+
+    /* ------------------------------
+       🏷️ Alias amigables
+    ------------------------------- */
+    [
+        'nombre'   => 'nombre del responsable',
+        'ci'       => 'CI',
+        'telefono' => 'teléfono',
+        'id_cargo' => 'cargo',
+        'rol'      => 'rol del usuario',
+    ]
+);
+
+$responsable= null;
         // Crear el nuevo responsable
         $responsable = Responsable::create([
             'nombre'   => $validated['nombre'],
@@ -121,7 +157,6 @@ if ($request->filled('search')) {
         ]);
 
         $responsable->load('cargo');
-// dd($responsable->id_responsable);
         $responsable = [
             'id_responsable'   => $responsable->id_responsable,
             'nombre'   => $responsable->nombre,
@@ -208,17 +243,75 @@ public function edit($id)
      */
    public function update(Request $request, $id)
 {
-    $request->validate([
-        'nombre'   => 'required|string|max:255',
-        'ci'       => 'required|string|max:20|unique:responsables,ci,' . $id . ',id_responsable',
-        'telefono' => 'nullable|string|max:20',
-        'id_cargo' => 'required|exists:cargos,id_cargo',
-        // 'rol' => 'required|string|in:administrador,director,coordinador,medico,enfermero,administrativo,personal_operativo,invitado',
-        'rol'   => 'required|string|max:255',
-        // 'rol'      => 'required|in:administrador,usuario',
-        'estado'   => 'required|in:activo,inactivo',
-    ]);
+    $request->validate(
 
+        [
+            // NOMBRE: mínimo 2 palabras y máximo 5, solo letras
+            'nombre' => [
+                'required',
+                'string',
+                'max:255',
+                'regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$/',     // solo letras + espacios
+                'regex:/^(\S+\s+){1,4}\S+$/'            // entre 2 y 5 palabras
+            ],
+
+            // CI: solo números, 6 a 8 dígitos, único excepto su propio registro
+            'ci' => [
+                'required',
+                'regex:/^[0-9]+$/',
+                'digits_between:6,8',
+                'unique:responsables,ci,' . $id . ',id_responsable'
+            ],
+
+            // TELEFONO: solo números, 6 a 8 dígitos
+            'telefono' => [
+                'nullable',
+                'regex:/^[0-9]+$/',
+                'digits_between:6,8'
+            ],
+
+            'id_cargo' => 'required|exists:cargos,id_cargo',
+            'rol'      => 'required|string|max:255',
+            'estado'   => 'required|in:activo,inactivo',
+        ],
+
+        /* ------------------------------
+           MENSAJES PERSONALIZADOS
+        ------------------------------- */
+        [
+            'required' => 'El campo :attribute es obligatorio.',
+            'string'   => 'El campo :attribute debe ser un texto.',
+            'max'      => 'El campo :attribute no debe exceder :max caracteres.',
+            'unique'   => 'El :attribute ya está registrado.',
+            'exists'   => 'El :attribute seleccionado no es válido.',
+            'in'       => 'El :attribute seleccionado no es válido.',
+
+            // Nombre
+            'nombre.regex' => 'El nombre solo debe contener letras y debe tener entre 2 y 5 nombres.',
+
+            // CI
+            'ci.regex'            => 'El CI solo puede contener números.',
+            'ci.digits_between'   => 'El CI debe tener entre 6 y 8 dígitos.',
+
+            // Teléfono
+            'telefono.regex'          => 'El teléfono solo puede contener números.',
+            'telefono.digits_between' => 'El teléfono debe tener entre 6 y 8 dígitos.',
+        ],
+
+        /* ------------------------------
+           ALIAS AMIGABLES
+        ------------------------------- */
+        [
+            'nombre'   => 'nombre del responsable',
+            'ci'       => 'CI',
+            'telefono' => 'teléfono',
+            'id_cargo' => 'cargo',
+            'rol'      => 'rol del usuario',
+            'estado'   => 'estado',
+        ]
+    );
+
+    // --- ACTUALIZAR ---
     $responsable = Responsable::findOrFail($id);
 
     $responsable->update([
@@ -230,10 +323,8 @@ public function edit($id)
         'estado'    => ucwords(strtolower($request->estado)),
     ]);
 
-    // Cargar relación cargo para devolver nombre
     $responsable->load('cargo');
 
-    // Devolver JSON con todos los datos necesarios para la tabla
     return response()->json([
         'success'     => true,
         'message'     => 'Responsable actualizado correctamente.',

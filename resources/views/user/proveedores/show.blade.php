@@ -97,12 +97,17 @@
                             <div class="col-md-3">
                                 <label for="lugarProveedorNuevo" class="form-label">Lugar</label>
                                 <input type="text" id="lugarProveedorNuevo" name="lugar" class="form-control"
-                                    placeholder="Ciudad / País">
+       placeholder="Ciudad / País" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ /]+" 
+       title="No se permiten números">
+
                             </div>
                             <div class="col-md-3">
                                 <label for="contactoProveedorNuevo" class="form-label">Contacto</label>
-                                <input type="text" id="contactoProveedorNuevo" name="contacto" class="form-control"
-                                    placeholder="Teléfono o correo">
+                               <input type="text" id="contactoProveedorNuevo" name="contacto" class="form-control"
+       placeholder="Teléfono (6-8 dígitos) o correo"
+       pattern="(^\d{6,8}$)|(^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$)"
+       title="Ingrese un correo válido o un número de 6 a 8 dígitos">
+
                             </div>
                         </div>
                     </div>
@@ -148,7 +153,7 @@
 
             <!-- Título -->
             <h2 class="mb-4 text-center text-primary">
-                <i class="bi bi-box-seam me-2"></i>Lista de Proveedores
+                <i class="bi bi-box-seam me-2"></i>Gestionar Proveedores
             </h2>
 
             <!-- Botones principales -->
@@ -404,37 +409,69 @@ $(document).off('click', '.ver-activo-btn').on('click', '.ver-activo-btn', funct
 
 
 let procesando = false;
-
 $('#formNuevoProveedor').on('submit', function(e) {
     e.preventDefault();
 
-    if (procesando) return; // si ya está procesando, salir
+    if (procesando) return;
     procesando = true;
+
+    // Limpiar errores anteriores
+    $('.is-invalid').removeClass('is-invalid');
+    $('.invalid-feedback').remove();
 
     $.ajax({
         url: baseUrl + '/proveedores',
         method: 'POST',
         data: $(this).serialize(),
+
         success: function(res) {
             $('#modalNuevoProveedor').modal('hide');
             filtrarProveedores();
+
             Swal.fire({
                 icon: 'success',
                 title: 'Proveedor registrado',
                 text: 'El proveedor se ha creado correctamente'
             });
+
             $('#formNuevoProveedor')[0].reset();
         },
+
         error: function(xhr) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'No se pudo registrar el proveedor'
-            });
+            // Si son errores de validación 422 (Laravel)
+            if (xhr.status === 422) {
+                let errores = xhr.responseJSON.errors;
+
+                // Recorrer los errores y mostrarlos bajo cada input
+                Object.keys(errores).forEach(function(campo) {
+                    let input = $('[name="' + campo + '"]');
+                    input.addClass('is-invalid');
+
+                    let mensaje = errores[campo][0];
+
+                    input.after('<div class="invalid-feedback">' + mensaje + '</div>');
+                });
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Errores en el formulario',
+                    text: 'Revisa los campos marcados en rojo.'
+                });
+
+            } else {
+                // Error general del servidor
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error inesperado',
+                    text: xhr.responseJSON?.message || 'No se pudo registrar el proveedor'
+                });
+            }
+
             console.error(xhr.responseText);
         },
+
         complete: function() {
-            procesando = false; // liberar flag
+            procesando = false;
         }
     });
 });

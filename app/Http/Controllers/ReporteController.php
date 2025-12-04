@@ -18,44 +18,48 @@ use Illuminate\Support\Facades\DB;
 class ReporteController extends Controller
 {
 
-    public function global()
-    {session()->forget('activos_filtrados');
-        // Para filtros
-        $servicios = DB::table('servicios')->orderBy('nombre')->get();
-        $categorias = DB::table('categorias')->orderBy('nombre')->get();
-        $estados   = DB::table('estados')->orderBy('nombre')->get();
+   public function global()
+{
+    session()->forget('activos_filtrados');
 
-        // ============================
-        // CONTADORES DIRECTOS
-        // ============================
+    // Para filtros
+    $servicios  = DB::table('servicios')->orderBy('nombre')->get();
+    $categorias = DB::table('categorias')->orderBy('nombre')->get();
+    $estados    = DB::table('estados')->orderBy('nombre')->get();
 
-        $total_activos = DB::table('activos')->count();
+    // =====================================
+    // CONTADORES DE ACTIVOS
+    // =====================================
 
-        // Asignados = estado_situacional = ACTIVO
-        $activos_asignados = DB::table('activos')
-            ->where('estado_situacional', 'ACTIVO')
-            ->count();
+    // Total: todos los activos
+    $total_activos = DB::table('activos')->count();
 
-        // Disponibles = INACTIVO
-        $activos_disponibles = DB::table('activos')
-            ->where('estado_situacional', 'INACTIVO')
-            ->count();
+    // Asignados = estado_situacional = "ACTIVO"
+    $activos_asignados = DB::table('activos')
+        ->where('estado_situacional', 'ACTIVO')
+        ->count();
 
-        // Bajas = BAJA
-        $activos_baja = DB::table('activos')
-            ->where('estado_situacional', 'BAJA')
-            ->count();
+    // Disponibles = estado_situacional = "INACTIVO"
+    $activos_disponibles = DB::table('activos')
+        ->where('estado_situacional', 'INACTIVO')
+        ->count();
 
-        return view('user.reportes.global', compact(
-            'servicios',
-            'estados',
-            'categorias',
-            'total_activos',
-            'activos_asignados',
-            'activos_disponibles',
-            'activos_baja'
-        ));
-    }
+    // Bajas = estado_situacional = "BAJA"
+    $activos_baja = DB::table('activos')
+        ->where('estado_situacional', 'BAJA')
+        ->count();
+
+    return view('user.reportes.global', compact(
+        'servicios',
+        'estados',
+        'categorias',
+        'total_activos',
+        'activos_asignados',
+        'activos_disponibles',
+        'activos_baja'
+    ));
+}
+
 
 public function generar(Request $req)
 {

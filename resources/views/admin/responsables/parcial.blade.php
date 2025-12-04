@@ -107,6 +107,8 @@
 
 
 
+@auth
+    @if (auth()->user()->rol === 'administrador')
 
 
             {{-- Botón condicional según tenga usuario --}}
@@ -129,6 +131,9 @@
 
 
             @endif
+
+    @endif
+@endauth
 
           </td>
         </tr>

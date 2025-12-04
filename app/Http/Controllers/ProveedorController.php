@@ -29,25 +29,55 @@ class ProveedorController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+
+    
+
+
+
     public function store(Request $request)
     {
-        // Validar datos
+        // Validaciones
         $request->validate([
-            'nombre' => 'required|string|max:255',
-            'lugar' => 'nullable|string|max:255',
-            'contacto' => 'nullable|string|max:255',
+            'nombre' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+
+            // Lugar: solo letras, espacios y "/" (sin números)
+            'lugar' => [
+                'nullable',
+                'regex:/^[A-Za-zÁÉÍÓÚáéíóúÑñ \/]+$/',
+                'max:255',
+            ],
+
+            // Contacto: correo O teléfono de 6 a 8 dígitos
+            'contacto' => [
+                'nullable',
+                'regex:/^(\\d{6,8}|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,})$/',
+                'max:255',
+            ],
+        ], [
+            // Mensajes personalizados
+            'nombre.required' => 'El nombre del proveedor es obligatorio.',
+
+            'lugar.regex' => 'El campo lugar solo puede contener letras, espacios o "/", sin números.',
+
+            'contacto.regex' => 'El contacto debe ser un correo válido o un número de 6 a 8 dígitos.',
         ]);
 
-        // Crear nuevo proveedor con lugar en mayúsculas
+        // Crear proveedor, transformando lugar a mayúsculas
         $proveedor = Proveedor::create([
-            'nombre' => $request->nombre,
-            'lugar' => $request->lugar ? strtoupper($request->lugar) : null,
-            'contacto' => $request->contacto,
+            // 'nombre' => $request->nombre,
+            // 'lugar' => $request->lugar ? strtoupper($request->lugar) : null,
+            // 'contacto' => $request->contacto,
         ]);
 
-        return response()->json(['message' => 'Proveedor creado correctamente', 'proveedor' => $proveedor]);
+        return response()->json([
+            'message' => 'Proveedor creado correctamente.',
+            'proveedor' => $proveedor
+        ]);
     }
-
 
     /**
      * Display the specified resource.

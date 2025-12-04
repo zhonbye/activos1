@@ -463,12 +463,17 @@
                             <i class="bi bi-people me-1"></i> Personal
                         </button>
                     </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link text-dark fw-semibold" id="tab-usuarios" data-bs-toggle="tab"
-                            data-bs-target="#contenido-usuarios" type="button" role="tab">
-                            <i class="bi bi-person-badge me-1"></i> Usuarios
-                        </button>
-                    </li>
+                   @auth
+    @if (auth()->user()->rol === 'administrador')
+        <li class="nav-item" role="presentation">
+            <button class="nav-link text-dark fw-semibold" id="tab-usuarios" data-bs-toggle="tab"
+                data-bs-target="#contenido-usuarios" type="button" role="tab">
+                <i class="bi bi-person-badge me-1"></i> Usuarios
+            </button>
+        </li>
+    @endif
+@endauth
+
                 </ul>
 
                 <!-- Tab panes -->
@@ -525,81 +530,71 @@
         if (!text) return '';
         return text.charAt(0).toUpperCase() + text.slice(1);
     }
+function cargarDatos(tablaId, datos) {
+    const contenedor = document.getElementById(tablaId);
+    if (!contenedor) {
+        console.error(`❌ No se encontró el contenedor con ID: ${tablaId}`);
+        return;
+    }
 
-    function cargarDatos(tablaId, datos) {
-        // console.log(datos)
-        const contenedor = document.getElementById(tablaId);
-        if (!contenedor) {
-            console.error(`❌ No se encontró el contenedor con ID: ${tablaId}`);
-            return;
-        }
+    const tabla = contenedor.querySelector('table');
+    if (!tabla) {
+        console.error(`❌ No se encontró una tabla dentro de #${tablaId}`);
+        return;
+    }
 
-        const tabla = contenedor.querySelector('table');
-        if (!tabla) {
-            console.error(`❌ No se encontró una tabla dentro de #${tablaId}`);
-            return;
-        }
+    const tbody = tabla.querySelector('tbody') || tabla.appendChild(document.createElement('tbody'));
 
-        const tbody = tabla.querySelector('tbody') || tabla.appendChild(document.createElement('tbody'));
+    // Recorre cada objeto del array de datos
+    datos.forEach(item => {
+        const fila = document.createElement('tr');
+        fila.setAttribute('data-id', item.id_responsable);
 
-        // Limpia el contenido actual (opcional)
-        // tbody.innerHTML = '';
-
-        // Recorre cada objeto del array de datos
-        datos.forEach(item => {
-            const fila = document.createElement('tr');
-            fila.setAttribute('data-id', item.id_responsable);
-
-            // 🧩 Añadimos las columnas en el orden deseado
-            const columnas = [
-                item.nombre ?? '-',
-                item.ci ?? '-',
-                item.telefono ?? '-',
-                item.cargo ?? '-',
-                item.rol ?? '-',
-                `<span class="badge bg-success">Activo</span>`,
-                // item.estado ?? '-', // si lo tienes
-                // item.usuario ?? '-', // usuario del sistema
-                `<span class="badge bg-dark">Sin acceso</span>`,
-                item.fecha ?? '-', // fecha de registro
-                `  <button class="btn btn-sm btn-outline-primary editar-btn" data-bs-toggle="modal" data-bs-target="#modalEditarResponsable"
+        const columnas = [
+            item.nombre ?? '-',
+            item.ci ?? '-',
+            item.telefono ?? '-',
+            item.cargo ?? '-',
+            item.rol ?? '-',
+            `<span class="badge bg-success">Activo</span>`,
+            `<span class="badge bg-dark">Sin acceso</span>`,
+            item.fecha ?? '-',
+            `
+                <button class="btn btn-sm btn-outline-primary editar-btn"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalEditarResponsable"
                     data-id="${item.id_responsable}"
                     title="Editar personal">
-              <i class="bi bi-pencil"></i>
-            </button>
-          <button class="btn btn-sm btn-outline-danger eliminar-btn"
+                    <i class="bi bi-pencil"></i>
+                </button>
+
+                <button class="btn btn-sm btn-outline-danger eliminar-btn"
                     data-id="${item.id_responsable}"
                     title="Eliminar personal">
-              <i class="bi bi-trash"></i>
-            </button>
-             <button class="btn btn-sm btn-outline-secondary agregar-usuario-btn"
-                      data-id="${item.id_responsable}"  data-bs-toggle="modal"
-        data-bs-target="#modalNuevoUsuario"
-                      title="Crear usuario para este personal">
-                <i class="bi bi-person-plus"></i>
-              </button>
+                    <i class="bi bi-trash"></i>
+                </button>
 
+                <button class="btn btn-sm btn-outline-secondary agregar-usuario-btn"
+                    data-id="${item.id_responsable}"  
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalNuevoUsuario"
+                    title="Crear usuario para este personal">
+                    <i class="bi bi-person-plus"></i>
+                </button>
+            `
+        ];
 
-         ` // acciones
-            ];
-
-            columnas.forEach((valor, index) => {
-                const celda = document.createElement('td');
-                if (index === 8) { // 👈 columna 8
-                    celda.classList.add('text-center');
-                }
-                celda.innerHTML = valor;
-                fila.appendChild(celda);
-            });
-
-
-            // Insertamos la fila al inicio del tbody
-            tbody.prepend(fila);
+        // Crear celdas
+        columnas.forEach(col => {
+            const td = document.createElement('td');
+            td.innerHTML = col;
+            fila.appendChild(td);
         });
 
+        tbody.appendChild(fila);
+    });
+}
 
-        // alert(`✅ ${datos.length} fila(s) agregadas a la tabla ${tablaId}`);
-    }
 
     $(document).ready(function() {
 
@@ -708,7 +703,7 @@
                                 'table-primary bg-opacity-10'), 2000);
                         }
                     } else {
-                        mensaje2(response.message, 'danger');
+                        mensaje2(response.message, 'error');
                     }
                 },
                 error: function(xhr) {
@@ -723,9 +718,9 @@
                                     0] + '</div>');
                             }
                         });
-                        mensaje2('Existen errores en el formulario.', 'danger');
+                        mensaje2('Existen errores en el formulario.', 'error');
                     } else {
-                        mensaje2('Ocurrió un error inesperado al actualizar.', 'danger');
+                        mensaje2('Ocurrió un error inesperado al actualizar.', 'error');
                     }
                 }
             });

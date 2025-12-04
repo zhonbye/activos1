@@ -148,7 +148,7 @@
 
             <!-- Título -->
             <h2 class="mb-4 text-center text-primary">
-                <i class="bi bi-box-seam me-2"></i>Lista de donantes
+                <i class="bi bi-box-seam me-2"></i>Gestionar donantes
             </h2>
 
             <!-- Botones principales -->
@@ -392,13 +392,16 @@ $(document).off('click', '.ver-activo-btn').on('click', '.ver-activo-btn', funct
 
 
 let procesando = false;
-
 $('#formNuevoDonante').on('submit', function(e) {
     e.preventDefault();
 
-    if (procesando) return; // si ya está procesando, salir
+    if (procesando) return;
     procesando = true;
 
+    // Limpiar errores anteriores
+    $('.is-invalid').removeClass('is-invalid');
+    $('.invalid-feedback').remove();
+    
     $.ajax({
         url: baseUrl + '/donantes',
         method: 'POST',
@@ -406,26 +409,54 @@ $('#formNuevoDonante').on('submit', function(e) {
         success: function(res) {
             $('#modalNuevoDonante').modal('hide');
             filtrarDonantees();
+
             Swal.fire({
                 icon: 'success',
                 title: 'Donante registrado',
-                text: 'el donante se ha creado correctamente'
+                text: 'El donante se ha creado correctamente'
             });
+
             $('#formNuevoDonante')[0].reset();
         },
         error: function(xhr) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'No se pudo registrar el donante'
-            });
+
+            if (xhr.status === 422) {
+                // Laravel Validation errors
+                let errors = xhr.responseJSON.errors;
+
+                $.each(errors, function(campo, mensajes) {
+                    let input = $('[name="' + campo + '"]');
+
+                    // input rojo
+                    input.addClass('is-invalid');
+
+                    // mensaje debajo del input
+                    input.after('<div class="invalid-feedback">' + mensajes[0] + '</div>');
+                });
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Datos incompletos',
+                    text: 'Revisa los campos marcados en rojo.'
+                });
+
+            } else {
+                // Error general
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo registrar el donante.'
+                });
+            }
+
             console.error(xhr.responseText);
         },
         complete: function() {
-            procesando = false; // liberar flag
+            procesando = false;
         }
     });
 });
+
 
 
 $('#formEditarDonante').on('submit', function(e) {

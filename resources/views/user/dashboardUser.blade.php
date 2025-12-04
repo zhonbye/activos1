@@ -332,14 +332,14 @@
                         <i class="bi bi-caret-down caret" aria-hidden="true"></i>
                     </div>
                     <ul class="submenu" id="submenuActivos">
-                        <li><a href="{{ route('activos.index') }}" role="menuitem" class="cargar" id="primario">Gestionar</a></li>
+                        <li><a href="{{ route('activos.index') }}" role="menuitem" class="cargar" id="primario">Mis activos</a></li>
                         {{-- <li><a href="{{ route('activos.create') }}" role="menuitem" class="cargar">Registrar Activo</a></li> --}}
                         {{-- <li><a href="{{ route('bajas.create') }}" role="menuitem" class=" desactivado cargar">Dar de Baja
                                 Activo</a></li> --}}
                         <li><a href="{{ route('activos.historial') }}" role="menuitem" class="cargar">Historial de
                                 activo</a></li>
-                                        <li><a href="{{ route('proveedores.show') }}" role="menuitem" class="cargar">Proveedor</a></li>
-                        <li><a href="{{ route('donantes.show') }}" role="menuitem" class="cargar">Donante</a></li>
+                                        <li><a href="{{ route('proveedores.show') }}" role="menuitem" class="cargar">Proveedores</a></li>
+                        <li><a href="{{ route('donantes.show') }}" role="menuitem" class="cargar">Donantes</a></li>
 
                         {{-- <li><a href="{{ route('entregas.show') }}" role="menuitem" class="cargar">Realizar Entrega</a></li> --}}
                     </ul>
@@ -384,10 +384,10 @@
                 <ul class="submenu" id="submenuInventario">
                     {{-- <li><a href="#" class="desactivado" role="menuitem">Realizar Inventario</a></li> --}}
                     {{-- <li><a href="{{ route('inventario.consultar') }}" role="menuitem" class="cargar">Consultar --}}
-                    <li><a href="{{ route('inventario.show') }}" role="menuitem" class="cargar">Listar y actualizar</a></li>
+                    <li><a href="{{ route('inventario.show') }}" role="menuitem" class="cargar">consultar</a></li>
                     {{-- <li><a href="{{ route('servicios.show') }}" role="menuitem" class="cargar">Añadir servicio</a></li> --}}
                     {{-- <li><a href="{{ route('user.parametros') }}" role="menuitem" class="cargar">Gestión de parametros</a></li> --}}
-                    <li><a href="{{ route('pruebas') }}" role="menuitem" class="cargar">prueba interfaces</a></li>
+                    {{-- <li><a href="{{ route('pruebas') }}" role="m   enuitem" class="cargar">prueba interfaces</a></li> --}}
                 </ul>
             </li>
      <!-- Gestión de Usuarios -->
